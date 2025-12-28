@@ -8,6 +8,7 @@ License-File: LICENSE
 Requires-Dist: numpy>=1.26
 Provides-Extra: dev
 Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pylint>=3.0; extra == "dev"
 Requires-Dist: ruff>=0.6; extra == "dev"
 Requires-Dist: black>=24.0; extra == "dev"
 Requires-Dist: mypy>=1.8; extra == "dev"

@@ -6,10 +6,13 @@ src/kalmanorix/arena.py
 src/kalmanorix/panoramix.py
 src/kalmanorix/scout.py
 src/kalmanorix/types.py
+src/kalmanorix/uncertainty.py
 src/kalmanorix/village.py
 src/kalmanorix.egg-info/PKG-INFO
 src/kalmanorix.egg-info/SOURCES.txt
 src/kalmanorix.egg-info/dependency_links.txt
 src/kalmanorix.egg-info/requires.txt
 src/kalmanorix.egg-info/top_level.txt
+tests/test_demo_output.py
+tests/test_sigma2_query_dependent.py
 tests/test_smoke.py

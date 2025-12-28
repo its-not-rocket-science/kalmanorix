@@ -30,6 +30,7 @@ from kalmanorix import (
     LearnedGateFuser,
 )
 
+from kalmanorix.uncertainty import KeywordSigma2
 
 def make_keyword_embedder(
     *,
@@ -124,13 +125,13 @@ def main() -> None:
     tech = SEF(
         name="tech",
         embed=make_keyword_embedder(dim=dim, seed=7, keywords=tech_keywords),
-        sigma2=0.2,  # lower variance => higher confidence
+        sigma2=KeywordSigma2(tech_keywords, in_domain_sigma2=0.2, out_domain_sigma2=2.5),
         meta={"domain": "tech"},
     )
     cook = SEF(
         name="cook",
         embed=make_keyword_embedder(dim=dim, seed=11, keywords=cook_keywords),
-        sigma2=1.2,  # higher variance => lower confidence
+        sigma2=KeywordSigma2(cook_keywords, in_domain_sigma2=0.2, out_domain_sigma2=2.5),
         meta={"domain": "cooking"},
     )
 
