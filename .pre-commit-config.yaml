@@ -57,6 +57,6 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: pytest -q tests
+        entry: bash -lc 'pytest -q'
         language: system
         stages: [pre-push]
