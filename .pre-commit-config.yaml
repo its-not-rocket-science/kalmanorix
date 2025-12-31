@@ -1,4 +1,4 @@
-exclude: ^(\.venv/|\.venv\\)
+exclude: ^(\.venv/|models/|src/kalmanorix/__pycache__/)
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -59,4 +59,5 @@ repos:
         name: pytest
         entry: bash -lc 'pytest -q'
         language: system
+        pass_filenames: false
         stages: [pre-push]
