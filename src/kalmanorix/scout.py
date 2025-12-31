@@ -24,6 +24,7 @@ class ScoutRouter:
     hard:
         Return only the single module with the lowest query-dependent sigma².
     """
+
     mode: str = "all"
 
     def select(self, query: str, village: Village) -> List[SEF]:

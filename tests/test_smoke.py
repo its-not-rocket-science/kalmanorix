@@ -44,6 +44,7 @@ def test_brew_runs():
 
     assert potion.vector.shape == (2,)
 
+
 def test_learned_gate_fuser_basic_properties():
     """
     Do-not-regress test for LearnedGateFuser.
@@ -57,7 +58,7 @@ def test_learned_gate_fuser_basic_properties():
     This guards against accidental API or wiring regressions,
     not against model quality.
     """
-    from kalmanorix import LearnedGateFuser
+    from kalmanorix import LearnedGateFuser  # pylint: disable=import-outside-toplevel
 
     def e1(_q: str) -> np.ndarray:
         return np.array([1.0, 0.0])

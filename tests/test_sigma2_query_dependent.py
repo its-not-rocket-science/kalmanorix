@@ -1,9 +1,13 @@
+"""Kalmanorix public API."""
+
 import numpy as np
 from kalmanorix import SEF, Village, ScoutRouter, Panoramix, KalmanorixFuser
 from kalmanorix.uncertainty import KeywordSigma2
 
 
 def test_kalman_weights_change_with_query_dependent_sigma2():
+    """KalmanorixFuser assigns different weights based on query-dependent uncertainties."""
+
     # trivial embedders
     def tech_embed(_q: str) -> np.ndarray:
         return np.array([1.0, 0.0])

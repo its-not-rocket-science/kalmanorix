@@ -33,7 +33,7 @@ Strategies compared
 -------------------
 - hard  : hard routing by minimum sigma², no fusion (single specialist)
 - mean  : uniform averaging of specialist embeddings
-- kalman: precision-weighted fusion using sigma²(query)
+- kalman : precision-weighted fusion using sigma²(query)
 - gate  : LearnedGateFuser (tiny hashed-feature logistic gate)
 
 Metric
@@ -44,10 +44,9 @@ Recall@k over a fixed document pool.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import Callable, List, Tuple
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 from kalmanorix import (
     SEF,
@@ -59,32 +58,36 @@ from kalmanorix import (
     LearnedGateFuser,
 )
 from kalmanorix.arena import eval_retrieval
-from kalmanorix.types import Embedder, Vec
 from kalmanorix.uncertainty import CentroidDistanceSigma2
 
+EmbedderFn = Callable[[str], np.ndarray]
 
-@dataclass(frozen=True)
-class STEmbedder(Embedder):
+
+def make_st_embedder(model_name: str) -> EmbedderFn:
     """
-    SentenceTransformer-backed embedder implementing kalmanorix.types.Embedder.
+    Build a sentence-transformers embedder returning a unit-normalized vector.
 
-    The returned vector is unit-normalized (float64) to keep downstream behavior
-    stable and comparable across specialists.
+    Parameters
+    ----------
+    model_name:
+        HuggingFace model id or local path (e.g. "models/tech-minilm").
+
+    Returns
+    -------
+    Callable[[str], np.ndarray]
+        A function mapping text -> embedding vector (float64).
     """
+    from sentence_transformers import (
+        SentenceTransformer,
+    )  # local import keeps core deps minimal
 
-    model: SentenceTransformer
+    model = SentenceTransformer(model_name)
 
-    def __call__(self, text: str) -> Vec:
-        v = self.model.encode([text], normalize_embeddings=True, convert_to_numpy=True)[
-            0
-        ]
+    def embed(text: str) -> np.ndarray:
+        v = model.encode([text], normalize_embeddings=True, convert_to_numpy=True)[0]
         return v.astype(np.float64)
 
-
-def make_st_embedder(model_name: str) -> STEmbedder:
-    """Load a SentenceTransformer model (path or HF id) and wrap it as an Embedder."""
-    model = SentenceTransformer(model_name)
-    return STEmbedder(model=model)
+    return embed
 
 
 @dataclass(frozen=True)
@@ -165,11 +168,7 @@ def build_toy_corpus() -> ToyCorpus:
 
 
 def build_doc_matrix(
-    docs: List[str],
-    *,
-    village: Village,
-    scout: ScoutRouter,
-    pan: Panoramix,
+    docs: List[str], village: Village, scout: ScoutRouter, pan: Panoramix
 ) -> np.ndarray:
     """
     Embed every document using the same routing+fusion strategy as queries.
@@ -189,21 +188,14 @@ def pretty(weights: dict[str, float]) -> str:
     return "{ " + ", ".join(f"{k}: {v:.3f}" for k, v in weights.items()) + " }"
 
 
-def cos(a: np.ndarray, b: np.ndarray) -> float:
-    """Cosine similarity between two vectors."""
-    return float(a @ b / ((np.linalg.norm(a) * np.linalg.norm(b)) + 1e-12))
-
-
-# pylint: disable=too-many-locals
 def main() -> None:
-    """Run mixed-domain retrieval evaluation with various routing+fusion strategies."""
     # Load fine-tuned specialists (same architecture/dim => fusion is valid).
     tech_embed = make_st_embedder("models/tech-minilm")
     cook_embed = make_st_embedder("models/cook-minilm")
 
     # Calibration sets for centroid-distance sigma².
     # These do not need to be large; they just need to be in-domain.
-    tech_cal = [
+    TECH_CAL = [
         "Smartphone battery life and fast charging",
         "Laptop CPU performance under sustained load",
         "GPU driver update improves frame rates in games",
@@ -211,7 +203,7 @@ def main() -> None:
         "Thermal management reduces overheating during heavy usage",
         "Background apps reduce battery performance over time",
     ]
-    cook_cal = [
+    COOK_CAL = [
         "Braise beef slowly with garlic and onion until tender",
         "Simmer stew for hours in a slow cooker",
         "Saute vegetables before baking in the oven",
@@ -223,13 +215,13 @@ def main() -> None:
     # If you want Kalman to "bite" harder, increase scale (e.g. 6-10).
     tech_sigma2 = CentroidDistanceSigma2.from_calibration(
         embed=tech_embed,
-        calibration_texts=tech_cal,
+        calibration_texts=TECH_CAL,
         base_sigma2=0.2,
         scale=8.0,
     )
     cook_sigma2 = CentroidDistanceSigma2.from_calibration(
         embed=cook_embed,
-        calibration_texts=cook_cal,
+        calibration_texts=COOK_CAL,
         base_sigma2=0.2,
         scale=8.0,
     )
@@ -243,6 +235,10 @@ def main() -> None:
     village = Village([tech, cook])
 
     corpus = build_toy_corpus()
+
+    # divergence check
+    def cos(a: np.ndarray, b: np.ndarray) -> float:
+        return float(a @ b / ((np.linalg.norm(a) * np.linalg.norm(b)) + 1e-12))
 
     print()
     print("== Specialist disagreement (cosine tech vs cook) ==")
@@ -269,6 +265,7 @@ def main() -> None:
     )
     strategies.append(("gate", ScoutRouter(mode="all"), Panoramix(fuser=gate)))
 
+    # Determine embedding dimension from one embed call (stable across specialists).
     dim = int(tech_embed("probe").shape[0])
 
     print()
@@ -302,7 +299,8 @@ def main() -> None:
 
             sims = doc_embs @ potion.vector
             pred = int(np.argmax(sims))
-            ok = "OK" if pred == true_id else "MISS"
+            ok = "✓" if pred == true_id else "✗"
+
             print(f"    {name:>6}: {pretty(potion.weights)}  top1={pred} {ok}")
         print()
 

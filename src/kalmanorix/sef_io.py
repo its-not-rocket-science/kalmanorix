@@ -91,9 +91,7 @@ class SEFArtifact:
             If the artifact version is unsupported.
         """
         if d.get("version") != SEF_ARTIFACT_VERSION:
-            raise ValueError(
-                f"Unsupported SEF artifact version: {d.get('version')}"
-            )
+            raise ValueError(f"Unsupported SEF artifact version: {d.get('version')}")
 
         sigma2 = d.get("sigma2", {})
         return cls(
@@ -142,12 +140,8 @@ class SEFArtifact:
             keywords = set(self.sigma2_params["keywords"])
             return KeywordSigma2(
                 keywords=keywords,
-                in_domain_sigma2=float(
-                    self.sigma2_params["in_domain_sigma2"]
-                ),
-                out_domain_sigma2=float(
-                    self.sigma2_params["out_domain_sigma2"]
-                ),
+                in_domain_sigma2=float(self.sigma2_params["in_domain_sigma2"]),
+                out_domain_sigma2=float(self.sigma2_params["out_domain_sigma2"]),
             )
 
         raise ValueError(f"Unknown sigma2 kind: {self.sigma2_kind}")

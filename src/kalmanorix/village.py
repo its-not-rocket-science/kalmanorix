@@ -1,3 +1,5 @@
+"""Kalmanorix public API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,6 +21,7 @@ class SEF:
       - float: constant uncertainty
       - Callable[[str], float]: query-dependent uncertainty
     """
+
     name: str
     embed: Embedder
     sigma2: Sigma2
@@ -38,6 +41,7 @@ class SEF:
 @dataclass
 class Village:
     """A simple container for specialists available at runtime."""
+
     modules: List[SEF]
 
     def __post_init__(self) -> None:
@@ -45,4 +49,5 @@ class Village:
             raise ValueError("Village must contain at least one SEF")
 
     def list(self) -> List[str]:
+        """List names of available modules."""
         return [m.name for m in self.modules]

@@ -10,6 +10,7 @@ This module defines:
 The design keeps routing, fusion, and uncertainty estimation cleanly separated.
 """
 
+# pylint: disable=too-few-public-methods,too-many-arguments,invalid-name,import-outside-toplevel
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -38,6 +39,7 @@ class Potion:
     meta:
         Optional diagnostic metadata (e.g. gate values).
     """
+
     vector: Vec
     weights: Dict[str, float]
     meta: Optional[Dict[str, object]] = None
@@ -136,6 +138,7 @@ class Panoramix:
       2. delegates fusion to a Fuser
       3. packages the result as a Potion
     """
+
     fuser: Fuser
 
     def brew(self, query: str, village: Village, scout: ScoutRouter) -> Potion:
