@@ -135,7 +135,7 @@ class SEFArtefact:
     def build_sigma2(
         self,
         *,
-        registry: _RegistryLike,
+        registry: _RegistryLike | None = None,
         base_dir: str | Path | None = None,
     ) -> Sigma2Fn:
         """
@@ -156,7 +156,6 @@ class SEFArtefact:
         """
         kind = self.sigma2_kind.strip()
         params = self.sigma2_params
-        embed = registry.get(self.embedder_id)
 
         if kind == "keyword":
             raw_keywords = params.get("keywords")
@@ -170,6 +169,9 @@ class SEFArtefact:
             )
 
         if kind == "centroid_distance":
+            if registry is None:
+                raise ValueError("centroid_distance sigma2 requires a registry")
+            embed = registry.get(self.embedder_id)
             base_sigma2 = _coerce_float(params, "base_sigma2", 0.2)
             scale = _coerce_float(params, "scale", 2.0)
 
