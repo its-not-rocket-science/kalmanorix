@@ -496,7 +496,9 @@ def main() -> None:
             ],
             y=[1, 1, 0, 0],
         )
-        strategies.append(("gate", ScoutRouter(mode="all"), Panoramix(fuser=gate)))
+        strategies.append(
+            ("gate", ScoutRouter(mode="all"), Panoramix(fuser=gate))  # type: ignore[arg-type]
+        )
 
     dim = int(village.modules[0].embed("probe").shape[0])
 

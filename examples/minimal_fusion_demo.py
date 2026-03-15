@@ -187,7 +187,7 @@ def main() -> None:
 
     gate_fuser.fit(train_texts, train_y)
 
-    gate = Panoramix(fuser=gate_fuser)
+    gate = Panoramix(fuser=gate_fuser)  # type: ignore[arg-type]
     potion_gate = gate.brew(query, village=village, scout=scout_all)
 
     def pretty(weights: dict[str, float]) -> str:

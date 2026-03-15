@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(python:*)",
+      "Bash(ruff format:*)",
+      "Bash(ruff check:*)",
+      "Bash(git add:*)",
+      "Bash(pre-commit run:*)"
+    ]
+  }
+}

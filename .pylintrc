@@ -1,0 +1,5 @@
+[MESSAGES CONTROL]
+disable=too-few-public-methods,too-many-arguments,too-many-locals,invalid-name,too-many-positional-arguments,import-error,abstract-class-instantiated,duplicate-code
+
+[BASIC]
+good-names=P,R,K,x,z

@@ -12,6 +12,7 @@ dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6"]
+viz = ["matplotlib>=3.7"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
