@@ -1,7 +1,7 @@
 """
 Embedder registry.
 
-Artifacts reference embedders by an identifier. This registry maps embedder_id
+Artefacts reference embedders by an identifier. This registry maps embedder_id
 to an actual embed(text)->vector callable at runtime.
 """
 
@@ -17,7 +17,7 @@ EmbedderFn = Callable[[str], np.ndarray]
 
 @dataclass
 class EmbedderRegistry:
-    """Simple name -> object registry used for loading modules/components."""
+    """Simple name -> callable registry used for loading modules/components."""
 
     embedders: Dict[str, EmbedderFn]
 

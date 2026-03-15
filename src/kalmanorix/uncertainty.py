@@ -1,4 +1,9 @@
-"""Kalmanorix public API."""
+"""
+Uncertainty models (sigma²) for Kalmanorix.
+
+Sigma² callables map (query: str) -> float variance.
+They are intentionally lightweight and deterministic for early phases.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +12,8 @@ from typing import Callable, Iterable, Set
 
 import numpy as np
 
+EmbedderFn = Callable[[str], np.ndarray]
+
 
 @dataclass(frozen=True)
 class KeywordSigma2:
@@ -14,8 +21,6 @@ class KeywordSigma2:
 
     If a query contains any keyword, return in_domain_sigma2 (more confident).
     Otherwise return out_domain_sigma2 (less confident).
-
-    This is intentionally simple and deterministic, good for Phase 1.
     """
 
     keywords: Set[str]
@@ -29,9 +34,6 @@ class KeywordSigma2:
         return float(self.out_domain_sigma2)
 
 
-EmbedderFn = Callable[[str], np.ndarray]
-
-
 @dataclass
 class CentroidDistanceSigma2:
     """Query-dependent uncertainty based on distance to a module centroid.
@@ -40,8 +42,6 @@ class CentroidDistanceSigma2:
       - Precompute centroid from calibration texts in the module's embedding space.
       - For a query, compute cosine similarity to centroid.
       - Map similarity to sigma2: higher similarity => lower sigma2.
-
-    This requires you to pass an embedder at construction time.
     """
 
     embed: EmbedderFn
@@ -67,7 +67,6 @@ class CentroidDistanceSigma2:
     def __call__(self, query: str) -> float:
         z = self.embed(query)
         z = z / (np.linalg.norm(z) + 1e-12)
-        sim = float(z @ self.centroid)  # [-1, 1] typically
-        sim01 = (sim + 1.0) / 2.0  # map to [0, 1]
-        # Higher similarity -> lower uncertainty
+        sim = float(z @ self.centroid)
+        sim01 = (sim + 1.0) / 2.0  # [0, 1]
         return float(self.base_sigma2 + self.scale * (1.0 - sim01))

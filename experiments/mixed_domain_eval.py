@@ -45,7 +45,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List, Tuple
-
+import argparse
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
@@ -61,6 +61,7 @@ from kalmanorix import (
 from kalmanorix.arena import eval_retrieval
 from kalmanorix.types import Embedder, Vec
 from kalmanorix.uncertainty import CentroidDistanceSigma2
+from kalmanorix.toy_corpus import build_toy_corpus
 
 
 @dataclass(frozen=True)
@@ -85,83 +86,6 @@ def make_st_embedder(model_name: str) -> STEmbedder:
     """Load a SentenceTransformer model (path or HF id) and wrap it as an Embedder."""
     model = SentenceTransformer(model_name)
     return STEmbedder(model=model)
-
-
-@dataclass(frozen=True)
-class ToyCorpus:
-    """
-    Tiny mixed-domain corpus for retrieval evaluation.
-
-    docs:
-        Document texts. Retrieval is performed over this fixed pool.
-    doc_ids:
-        Integer ids for docs (0..N-1).
-    queries:
-        List of (query_text, true_doc_id) pairs.
-    groups:
-        Group label per query: "tech" | "cook" | "mixed".
-    """
-
-    docs: List[str]
-    doc_ids: List[int]
-    queries: List[Tuple[str, int]]
-    groups: List[str]
-
-
-def build_toy_corpus() -> ToyCorpus:
-    """
-    Build a small mixed-domain retrieval dataset with confusers.
-
-    The confuser docs intentionally share surface vocabulary across domains to
-    force the retriever to rely on deeper semantics rather than keyword overlap.
-    """
-    tech_docs = [
-        "Smartphone battery life and fast charging",
-        "Laptop CPU performance under sustained load",
-        "GPU driver update improves frame rates in games",
-        "Camera sensor size affects low-light performance",
-    ]
-    cook_docs = [
-        "Braise beef slowly with garlic and onion until tender",
-        "Simmer stew for hours in a slow cooker",
-        "Saute vegetables before baking in the oven",
-        "Reduce a sauce by simmering to concentrate flavor",
-    ]
-    confusers = [
-        "Battery optimization recipe: reduce background activity to improve performance",
-        "Use a food processor to chop onions quickly for a stew recipe",
-        "Camera-ready plating: improve presentation with garnish and sauce reduction",
-        "Thermal load: avoid overheating by reducing power draw under performance spikes",
-        "Slow cooker liner helps cleanup after braising and simmering",
-        "GPU acceleration improves image processing in camera pipelines",
-        "Recipe for faster charging: choose the right charger and cable",
-        "Oven heat affects moisture: reduce temperature for slow cooking",
-    ]
-
-    docs = tech_docs + cook_docs + confusers
-    doc_ids = list(range(len(docs)))
-
-    queries_and_groups: List[Tuple[str, int, str]] = [
-        ("battery lasts all day", 0, "tech"),
-        ("fast charging with the right charger", 0, "tech"),
-        ("cpu throttles when hot under sustained load", 1, "tech"),
-        ("gpu driver update improves frame rates", 2, "tech"),
-        ("camera low light performance sensor size", 3, "tech"),
-        ("braise for hours until tender", 4, "cook"),
-        ("slow cooker stew simmer for hours", 5, "cook"),
-        ("saute vegetables then bake in the oven", 6, "cook"),
-        ("reduce sauce by simmering", 7, "cook"),
-        ("food processor chop onions for stew", 13, "cook"),
-        ("reduce background activity like reducing a sauce", 8, "mixed"),
-        ("thermal load feels like oven heat", 11, "mixed"),
-        ("camera pipeline acceleration on gpu", 14, "mixed"),
-        ("recipe for faster charging", 15, "mixed"),
-        ("smartphone battery lasts longer than a slow cooker braise", 0, "mixed"),
-    ]
-
-    queries = [(q, did) for (q, did, _g) in queries_and_groups]
-    groups = [_g for (_q, _did, _g) in queries_and_groups]
-    return ToyCorpus(docs=docs, doc_ids=doc_ids, queries=queries, groups=groups)
 
 
 def build_doc_matrix(
@@ -197,12 +121,17 @@ def cos(a: np.ndarray, b: np.ndarray) -> float:
 # pylint: disable=too-many-locals
 def main() -> None:
     """Run mixed-domain retrieval evaluation with various routing+fusion strategies."""
-    # Load fine-tuned specialists (same architecture/dim => fusion is valid).
-    tech_embed = make_st_embedder("models/tech-minilm")
-    cook_embed = make_st_embedder("models/cook-minilm")
+    # Grab and use command line args
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tech-path", type=str, default="models/tech-minilm")
+    parser.add_argument("--cook-path", type=str, default="models/cook-minilm")
+    parser.add_argument("--base-sigma2", type=float, default=0.2)
+    parser.add_argument("--scale", type=float, default=3.0)
+    args = parser.parse_args()
+    tech_embed = make_st_embedder(args.tech_path)
+    cook_embed = make_st_embedder(args.cook_path)
 
     # Calibration sets for centroid-distance sigma².
-    # These do not need to be large; they just need to be in-domain.
     tech_cal = [
         "Smartphone battery life and fast charging",
         "Laptop CPU performance under sustained load",
@@ -215,7 +144,7 @@ def main() -> None:
         "Braise beef slowly with garlic and onion until tender",
         "Simmer stew for hours in a slow cooker",
         "Saute vegetables before baking in the oven",
-        "Reduce a sauce by simmering to concentrate flavor",
+        "Reduce a sauce by simmering to concentrate flavour",
         "Taste and adjust seasoning as the sauce reduces",
         "Use a food processor to chop onions quickly",
     ]
@@ -224,14 +153,14 @@ def main() -> None:
     tech_sigma2 = CentroidDistanceSigma2.from_calibration(
         embed=tech_embed,
         calibration_texts=tech_cal,
-        base_sigma2=0.2,
-        scale=8.0,
+        base_sigma2=args.base_sigma2,
+        scale=args.scale,
     )
     cook_sigma2 = CentroidDistanceSigma2.from_calibration(
         embed=cook_embed,
         calibration_texts=cook_cal,
-        base_sigma2=0.2,
-        scale=8.0,
+        base_sigma2=args.base_sigma2,
+        scale=args.scale,
     )
 
     tech = SEF(
@@ -242,7 +171,8 @@ def main() -> None:
     )
     village = Village([tech, cook])
 
-    corpus = build_toy_corpus()
+    # IMPORTANT: corpus comes from the shared library module now
+    corpus = build_toy_corpus(british_spelling=True)
 
     print()
     print("== Specialist disagreement (cosine tech vs cook) ==")
@@ -287,7 +217,7 @@ def main() -> None:
     print()
     print("Mixed-query fusion weights + top-1 predictions:")
 
-    # Precompute doc matrices per strategy once for this section
+    # Precompute doc matrices per strategy once
     doc_mats = {
         name: build_doc_matrix(corpus.docs, village=village, scout=scout, pan=pan)
         for name, scout, pan in strategies
@@ -298,9 +228,7 @@ def main() -> None:
         print(f'  query: "{q}" (true={true_id})')
         for name, scout, pan in strategies:
             potion = pan.brew(q, village=village, scout=scout)
-            doc_embs = doc_mats[name]
-
-            sims = doc_embs @ potion.vector
+            sims = doc_mats[name] @ potion.vector
             pred = int(np.argmax(sims))
             ok = "OK" if pred == true_id else "MISS"
             print(f"    {name:>6}: {pretty(potion.weights)}  top1={pred} {ok}")

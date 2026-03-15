@@ -36,7 +36,7 @@ produce *controlled divergence* cheaply.
 Notes
 -----
 - Requires: sentence-transformers, torch, accelerate (CPU wheels are fine).
-- Output directories are experiment artifacts and usually should be gitignored.
+- Output directories are experiment artefacts and usually should be gitignored.
 - For stronger divergence, increase:
     - number of domain sentences
     - epochs

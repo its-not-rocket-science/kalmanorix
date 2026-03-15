@@ -2,8 +2,8 @@
 """
 SEF calibration script (Phase 1).
 
-This script creates a minimal, portable SEF artifact describing a specialist
-embedding module. The resulting artifact does NOT contain model weights.
+This script creates a minimal, portable SEF artefact describing a specialist
+embedding module. The resulting artefact does NOT contain model weights.
 Instead, it records:
 
 - the specialist name
@@ -16,7 +16,7 @@ retraining or distributing large models.
 
 Current scope (Phase 1):
 - keyword-based sigma² heuristics only
-- JSON-based artifact format
+- JSON-based artefact format
 - no alignment matrices or learned uncertainty models yet
 
 Example
@@ -28,24 +28,24 @@ python scripts/calibrate_sef.py \
   --keywords battery smartphone cpu gpu laptop camera charger \
   --in-sigma2 0.2 \
   --out-sigma2 2.0 \
-  --out artifacts/tech.sef.json
+  --out artefacts/tech.sef.json
 """
 
 from __future__ import annotations
 
 import argparse
 
-from kalmanorix.sef_io import SEFArtifact
+from kalmanorix.sef_io import SEFArtefact
 
 
 def main() -> None:
     """
-    Parse CLI arguments and write a SEF artifact to disk.
+    Parse CLI arguments and write a SEF artefact to disk.
 
-    The output artifact can later be loaded and combined with a runtime
+    The output artefact can later be loaded and combined with a runtime
     embedder registry to construct a full SEF object.
     """
-    ap = argparse.ArgumentParser(description="Create a minimal SEF artifact.")
+    ap = argparse.ArgumentParser(description="Create a minimal SEF artefact.")
     ap.add_argument("--name", required=True, help="Name of the specialist module.")
     ap.add_argument(
         "--embedder-id",
@@ -78,11 +78,11 @@ def main() -> None:
     ap.add_argument(
         "--out",
         required=True,
-        help="Output path for the .sef.json artifact.",
+        help="Output path for the .sef.json artefact.",
     )
     args = ap.parse_args()
 
-    art = SEFArtifact(
+    art = SEFArtefact(
         name=args.name,
         embedder_id=args.embedder_id,
         meta={"domain": args.domain},
@@ -95,7 +95,7 @@ def main() -> None:
     )
 
     art.save(args.out)
-    print(f"Wrote SEF artifact to {args.out}")
+    print(f"Wrote SEF artefact to {args.out}")
 
 
 if __name__ == "__main__":

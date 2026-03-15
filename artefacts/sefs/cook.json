@@ -1,0 +1,21 @@
+{
+  "version": "0.1",
+  "name": "cook",
+  "embedder_id": "cook-minilm",
+  "meta": { "domain": "cooking" },
+  "sigma2": {
+    "kind": "centroid_distance",
+    "params": {
+      "calibration_texts": [
+        "Braise beef slowly with garlic and onion until tender",
+        "Simmer stew for hours in a slow cooker",
+        "Saute vegetables before baking in the oven",
+        "Reduce a sauce by simmering to concentrate flavour",
+        "Use a food processor to chop onions quickly",
+        "Chop onions and garlic, then saute gently in olive oil"
+      ],
+      "base_sigma2": 0.2,
+      "scale": 3.0
+    }
+  }
+}

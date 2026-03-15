@@ -6,6 +6,7 @@ The ScoutRouter decides which specialists to consult for a given query.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import List
 
@@ -32,5 +33,19 @@ class ScoutRouter:
         if self.mode == "all":
             return village.modules
         if self.mode == "hard":
+            q = query.lower()
+
+            charge_like = bool(
+                re.search(
+                    r"\b(usb-?c|pd\b|power delivery|pps|pdo|rdo|watt|wattage|e-?marker|qc\b)\b",
+                    q,
+                )
+            )
+
+            if charge_like:
+                for m in village.modules:
+                    if m.name == "charge":
+                        return [m]
+
             return [min(village.modules, key=lambda m: m.sigma2_for(query))]
         raise ValueError("mode must be 'all' or 'hard'")

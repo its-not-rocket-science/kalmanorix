@@ -1,0 +1,22 @@
+{
+  "version": "0.1",
+  "name": "charge",
+  "embedder_id": "charge-minilm",
+  "sigma2": {
+    "kind": "centroid_distance",
+    "params": {
+        "calibration_texts": [
+          "USB-C Power Delivery negotiation and PD profiles",
+          "PDO / RDO selection and power contracts",
+          "PPS / APDO fast charging voltage and current steps",
+          "Charger wattage and USB-C cable current limits",
+          "E-marked cables and their power capability",
+          "PD compatibility, handshake, and fallback behaviour",
+          "Battery charging curves and thermal limits during fast charging"
+        ],
+        "base_sigma2": 0.2,
+        "scale": 3.0
+    }
+  },
+  "meta": {}
+}

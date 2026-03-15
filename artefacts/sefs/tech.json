@@ -1,0 +1,27 @@
+{
+  "version": "0.1",
+  "name": "tech",
+  "embedder_id": "tech-minilm",
+  "meta": { "domain": "tech" },
+  "sigma2": {
+    "kind": "centroid_distance",
+    "params": {
+      "calibration_texts": [
+        "Smartphone battery life and fast charging",
+        "Background apps reduce battery performance over time",
+        "Reduce background activity to improve battery performance",
+        "Laptop CPU performance under sustained load",
+        "Thermal management reduces overheating during heavy usage",
+
+        "GPU acceleration improves image processing in camera pipelines",
+        "Camera image processing pipeline runs on the GPU",
+        "Optimising an ISP pipeline for low-latency camera processing",
+
+        "GPU driver update improves frame rates in games",
+        "Camera sensor size affects low-light performance"
+    ],
+      "base_sigma2": 0.2,
+      "scale": 3.0
+    }
+  }
+}
