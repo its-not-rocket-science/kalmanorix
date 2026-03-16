@@ -100,7 +100,13 @@ class MeanFuser(Fuser):  # pylint: disable=too-few-public-methods
         query: str,
         modules: List[SEF],
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
-        z = np.stack([m.embed(query) for m in modules], axis=0)
+        embeddings = []
+        for m in modules:
+            emb = m.embed(query)
+            if m.alignment_matrix is not None:
+                emb = m.alignment_matrix @ emb
+            embeddings.append(emb)
+        z = np.stack(embeddings, axis=0)
         w = {m.name: 1.0 / len(modules) for m in modules}
         return z.mean(axis=0), w, None
 
@@ -137,6 +143,9 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
 
         for module in modules:
             emb = module.embed(query)
+            # Apply alignment if available
+            if module.alignment_matrix is not None:
+                emb = module.alignment_matrix @ emb
             sigma2 = module.sigma2_for(query)
             # Convert scalar variance to diagonal covariance vector
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
@@ -206,10 +215,14 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         if not modules:
             raise ValueError("DiagonalKalmanFuser requires at least one module")
 
-        z_by_name: Dict[str, Vec] = {m.name: m.embed(query) for m in modules}
-        r_by_name: Dict[str, float] = {
-            m.name: float(m.sigma2_for(query)) for m in modules
-        }
+        z_by_name: Dict[str, Vec] = {}
+        r_by_name: Dict[str, float] = {}
+        for m in modules:
+            emb = m.embed(query)
+            if m.alignment_matrix is not None:
+                emb = m.alignment_matrix @ emb
+            z_by_name[m.name] = emb
+            r_by_name[m.name] = float(m.sigma2_for(query))
 
         order = [m.name for m in modules]
         if self.sort_by_sigma2:

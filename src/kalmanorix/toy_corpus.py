@@ -11,6 +11,7 @@ Doc index is the list index in `docs` (0..N-1). Queries reference these indices.
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -114,3 +115,250 @@ def print_doc_index(corpus: ToyCorpus) -> None:
     print("Document index:")
     for i, d in enumerate(corpus.docs):
         print(f"  {i:2d}: {d}")
+
+
+def generate_anchor_sentences(
+    n: int = 500,
+    domains: tuple[str, ...] = ("tech", "cook", "medical", "general"),
+    seed: int = 42,
+) -> list[str]:
+    """Generate synthetic sentences for Procrustes alignment.
+
+    Args:
+        n: Number of sentences to generate
+        domains: Domain tags to distribute across sentences
+        seed: Random seed for reproducibility
+
+    Returns:
+        List of anchor sentences
+    """
+
+    random.seed(seed)
+
+    # Vocabulary per domain
+    vocab = {
+        "tech": {
+            "nouns": [
+                "computer",
+                "software",
+                "algorithm",
+                "network",
+                "device",
+                "processor",
+                "memory",
+                "storage",
+                "interface",
+                "protocol",
+            ],
+            "verbs": [
+                "processes",
+                "computes",
+                "transmits",
+                "encrypts",
+                "decodes",
+                "analyses",
+                "optimises",
+                "compiles",
+                "executes",
+                "downloads",
+            ],
+            "adjs": [
+                "digital",
+                "electronic",
+                "wireless",
+                "parallel",
+                "distributed",
+                "secure",
+                "scalable",
+                "efficient",
+                "robust",
+                "modular",
+            ],
+            "advs": [
+                "quickly",
+                "securely",
+                "reliably",
+                "efficiently",
+                "automatically",
+                "seamlessly",
+                "digitally",
+                "wirelessly",
+                "concurrently",
+                "locally",
+            ],
+        },
+        "cook": {
+            "nouns": [
+                "recipe",
+                "ingredient",
+                "flavour",
+                "meal",
+                "dish",
+                "spice",
+                "herb",
+                "sauce",
+                "marinade",
+                "seasoning",
+            ],
+            "verbs": [
+                "cooks",
+                "bakes",
+                "sautes",
+                "simmers",
+                "braises",
+                "grills",
+                "roasts",
+                "steams",
+                "fries",
+                "boils",
+            ],
+            "adjs": [
+                "delicious",
+                "spicy",
+                "savoury",
+                "sweet",
+                "bitter",
+                "creamy",
+                "crispy",
+                "tender",
+                "juicy",
+                "aromatic",
+            ],
+            "advs": [
+                "slowly",
+                "carefully",
+                "evenly",
+                "gently",
+                "thoroughly",
+                "expertly",
+                "skillfully",
+                "patiently",
+                "precisely",
+                "freshly",
+            ],
+        },
+        "medical": {
+            "nouns": [
+                "patient",
+                "treatment",
+                "medicine",
+                "diagnosis",
+                "therapy",
+                "symptom",
+                "condition",
+                "prescription",
+                "dosage",
+                "recovery",
+            ],
+            "verbs": [
+                "treats",
+                "diagnoses",
+                "prescribes",
+                "monitors",
+                "administers",
+                "heals",
+                "prevents",
+                "alleviates",
+                "manages",
+                "rehabilitates",
+            ],
+            "adjs": [
+                "clinical",
+                "medical",
+                "therapeutic",
+                "diagnostic",
+                "preventive",
+                "chronic",
+                "acute",
+                "benign",
+                "malignant",
+                "symptomatic",
+            ],
+            "advs": [
+                "clinically",
+                "medically",
+                "carefully",
+                "accurately",
+                "safely",
+                "effectively",
+                "promptly",
+                "thoroughly",
+                "professionally",
+                "hygienically",
+            ],
+        },
+        "general": {
+            "nouns": [
+                "person",
+                "place",
+                "thing",
+                "idea",
+                "event",
+                "system",
+                "process",
+                "method",
+                "approach",
+                "concept",
+            ],
+            "verbs": [
+                "does",
+                "makes",
+                "creates",
+                "changes",
+                "improves",
+                "affects",
+                "influences",
+                "develops",
+                "achieves",
+                "provides",
+            ],
+            "adjs": [
+                "important",
+                "interesting",
+                "useful",
+                "effective",
+                "simple",
+                "complex",
+                "basic",
+                "advanced",
+                "practical",
+                "theoretical",
+            ],
+            "advs": [
+                "generally",
+                "specifically",
+                "usually",
+                "sometimes",
+                "often",
+                "rarely",
+                "clearly",
+                "obviously",
+                "apparently",
+                "essentially",
+            ],
+        },
+    }
+
+    templates = [
+        "The {adj} {noun} {verb} {adv}.",
+        "A {adj} {noun} {verb} {adv}.",
+        "This {adj} {noun} {verb} {adv}.",
+        "One {adj} {noun} {verb} {adv}.",
+        "Some {adj} {noun} {verb} {adv}.",
+    ]
+
+    sentences = []
+    for i in range(n):
+        domain = domains[i % len(domains)]
+        template = templates[i % len(templates)]
+
+        word_dict = vocab[domain]
+        adj = random.choice(word_dict["adjs"])
+        noun = random.choice(word_dict["nouns"])
+        verb = random.choice(word_dict["verbs"])
+        adv = random.choice(word_dict["advs"])
+
+        sentence = template.format(adj=adj, noun=noun, verb=verb, adv=adv)
+        sentences.append(sentence)
+
+    return sentences

@@ -26,6 +26,7 @@ class SEF:
     embed: Embedder
     sigma2: Sigma2
     meta: Optional[Dict[str, str]] = None
+    alignment_matrix: Optional[np.ndarray] = None
 
     def sigma2_for(self, query: str) -> float:
         """Return uncertainty (variance) for a given query."""

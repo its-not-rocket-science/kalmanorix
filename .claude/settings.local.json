@@ -6,7 +6,11 @@
       "Bash(ruff format:*)",
       "Bash(ruff check:*)",
       "Bash(git add:*)",
-      "Bash(pre-commit run:*)"
+      "Bash(pre-commit run:*)",
+      "Bash(mypy src:*)",
+      "Bash(mypy experiments:*)",
+      "Bash(mypy:*)",
+      "Bash(pytest:*)"
     ]
   }
 }

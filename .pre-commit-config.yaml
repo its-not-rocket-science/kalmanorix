@@ -20,7 +20,7 @@ repos:
         pass_filenames: false
         args:
           - --exclude
-          - ^experiments/01_drift_discovery/
+          - .*drift_discovery.*
           - src
           - tests
           - experiments
