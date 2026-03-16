@@ -4,7 +4,7 @@
 ```markdown
 # Kalmanorix Roadmap
 
-**Last updated: March 2026**
+**Last updated: March 16, 2026**
 **Current version: v0.1.0 (scaffold)**
 **Next release: v0.2.0 (Core Kalman) - April 2026**
 
@@ -61,11 +61,11 @@ We will reconsider the approach if:
 
 **Goal:** Models can report meaningful uncertainty estimates
 
-- [ ] Implement covariance estimation from validation set errors
-- [ ] Add support for per-model diagonal covariance matrices
+- [x] Implement covariance estimation from validation set errors
+- [x] Add support for per-model diagonal covariance matrices
 - [ ] Create visualisation tools for embedding uncertainty
-- [ ] Validate on synthetic data with known noise levels
-- [ ] Document covariance estimation methods
+- [x] Validate on synthetic data with known noise levels
+- [x] Document covariance estimation methods
 
 **Success criteria:** Models return `(embedding, covariance)` tuples where:
 - Covariance correlates with empirical error (r > 0.5)
@@ -76,9 +76,9 @@ We will reconsider the approach if:
 
 **Goal:** Embeddings from different models map to comparable spaces
 
-- [ ] Implement orthogonal Procrustes with SVD
-- [ ] Build reference anchor set for alignment (500 sentences)
-- [ ] Validate alignment quality on STS tasks
+- [x] Implement orthogonal Procrustes with SVD
+- [x] Build reference anchor set for alignment (500 sentences)
+- [x] Validate alignment quality on STS tasks
 - [ ] Add alignment visualisation tools
 - [ ] Benchmark against identity mapping
 
@@ -91,11 +91,11 @@ We will reconsider the approach if:
 
 **Goal:** Working fusion that outperforms averaging
 
-- [ ] Implement Kalman update with diagonal covariance (O(d))
-- [ ] Add batch fusion for multiple measurements
-- [ ] Benchmark against simple averaging on toy domains
-- [ ] Numerical stability testing with extreme covariances
-- [ ] Document update equations and assumptions
+- [x] Implement Kalman update with diagonal covariance (O(d))
+- [x] Add batch fusion for multiple measurements
+- [x] Benchmark against simple averaging on toy domains
+- [x] Numerical stability testing with extreme covariances
+- [x] Document update equations and assumptions
 
 **Success criteria:**
 - Kalman fusion outperforms averaging on mixed-domain retrieval (p < 0.05)
