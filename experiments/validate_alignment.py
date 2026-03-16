@@ -6,6 +6,8 @@ It creates synthetic specialists with known rotations and tests whether
 our Procrustes alignment recovers them accurately.
 """
 
+# pylint: disable=import-outside-toplevel
+
 import hashlib
 import sys
 from pathlib import Path
@@ -154,13 +156,58 @@ def run_validation(  # pylint: disable=too-many-branches,too-many-statements
     # Test 2: Measure alignment quality
     print("\n--- Measuring alignment improvement ---")
     try:
-        improvement = validate_alignment_improvement(
+        improvement, sim_before, sim_after = validate_alignment_improvement(
             sef_list=sef_list,
             alignments=alignments,
             test_sentences=test_sentences,
             reference_sef_name="tech",
         )
         print(f"Alignment improvement ratio: {improvement:.3f}")
+
+        # Statistical significance test (paired t-test)
+        diff = sim_after - sim_before
+        n = len(diff)
+        mean_diff = np.mean(diff)
+        std_diff = np.std(diff, ddof=1)
+        if std_diff > 0:
+            t_stat = mean_diff / (std_diff / np.sqrt(n))
+            # Approximate p-value using t-distribution survival function
+            try:
+                from scipy.stats import t
+
+                p_value = t.sf(np.abs(t_stat), df=n - 1) * 2  # two-tailed
+                print(f"Paired t-test: t = {t_stat:.3f}, p = {p_value:.6f}")
+                if p_value < 0.05:
+                    print("  [OK] Improvement is statistically significant (p < 0.05)")
+                else:
+                    print("  [WARNING] Improvement not statistically significant")
+            except ImportError:
+                print(
+                    f"Paired t-test: t = {t_stat:.3f} (scipy not installed for p-value)"
+                )
+        else:
+            print("No variance in differences (all identical)")
+
+        # Optional visualization if matplotlib available
+        try:
+            from kalmanorix.visualization import plot_similarity_comparison
+
+            plot_similarity_comparison(
+                sim_before,
+                sim_after,
+                title="Similarity Before/After Alignment (Validation)",
+                show=False,  # Don't block execution
+            )
+            # Save figure to file
+            import matplotlib.pyplot as plt
+
+            plt.tight_layout()
+            plt.savefig("alignment_improvement.png")
+            plt.close()
+            print("Saved alignment improvement plot to alignment_improvement.png")
+        except ImportError:
+            pass  # matplotlib not installed, skip visualization
+
     except (ValueError, RuntimeError, LinAlgError) as e:
         print(f"ERROR: Alignment validation failed: {e}")
         return

@@ -10,7 +10,9 @@
       "Bash(mypy src:*)",
       "Bash(mypy experiments:*)",
       "Bash(mypy:*)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "Bash(find:*)",
+      "Bash(git restore:*)"
     ]
   }
 }

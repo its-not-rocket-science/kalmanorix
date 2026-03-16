@@ -5,7 +5,7 @@ specialist embedding spaces into a common reference space.
 """
 
 from dataclasses import replace
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from .village import SEF
@@ -146,11 +146,12 @@ def validate_alignment_improvement(
     alignments: Dict[str, np.ndarray],
     test_sentences: List[str],
     reference_sef_name: str,
-) -> float:
+) -> Tuple[float, np.ndarray, np.ndarray]:
     """Measure how much alignment improves cross‑model similarity.
 
     Computes the average cosine similarity between each specialist and the
-    reference, before and after alignment. Returns the relative improvement.
+    reference, before and after alignment. Returns the relative improvement
+    and the raw similarity scores.
 
     Args:
         sef_list: Original SEF objects
@@ -159,8 +160,10 @@ def validate_alignment_improvement(
         reference_sef_name: Name of reference SEF
 
     Returns:
-        Normalized improvement: (similarity_after - similarity_before) / (1 - similarity_before)
-        Value between 0 and 1 (0 = no improvement, 1 = perfect alignment).
+        Tuple of (normalized_improvement, similarities_before, similarities_after)
+        normalized_improvement: (similarity_after - similarity_before) / (1 - similarity_before)
+        similarities_before: Array of cosine similarities before alignment
+        similarities_after: Array of cosine similarities after alignment
     """
     # Find reference SEF
     ref_sef = None
@@ -214,4 +217,8 @@ def validate_alignment_improvement(
         norm_improvement = float((avg_after - avg_before) / denominator)
     print(f"Normalized improvement: {100 * norm_improvement:.1f}%")
 
-    return float(norm_improvement)
+    return (
+        float(norm_improvement),
+        np.array(similarities_before),
+        np.array(similarities_after),
+    )

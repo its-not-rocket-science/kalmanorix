@@ -63,7 +63,7 @@ We will reconsider the approach if:
 
 - [x] Implement covariance estimation from validation set errors
 - [x] Add support for per-model diagonal covariance matrices
-- [ ] Create visualisation tools for embedding uncertainty
+- [x] Create visualisation tools for embedding uncertainty
 - [x] Validate on synthetic data with known noise levels
 - [x] Document covariance estimation methods
 
@@ -79,8 +79,8 @@ We will reconsider the approach if:
 - [x] Implement orthogonal Procrustes with SVD
 - [x] Build reference anchor set for alignment (500 sentences)
 - [x] Validate alignment quality on STS tasks
-- [ ] Add alignment visualisation tools
-- [ ] Benchmark against identity mapping
+- [x] Add alignment visualisation tools
+- [x] Benchmark against identity mapping
 
 **Success criteria:**
 - Alignment improves cross-model similarity by >20%

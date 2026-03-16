@@ -11,8 +11,17 @@ requires-python = ">=3.11"
 dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6"]
+dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0"]
 viz = ["matplotlib>=3.7"]
+train = [
+    "sentence-transformers>=3.0",
+    "torch>=2.0",
+    "datasets>=2.14",
+    "transformers>=4.36",
+    "accelerate>=0.25",
+    "pyyaml>=6.0",
+    "psutil>=5.9"
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

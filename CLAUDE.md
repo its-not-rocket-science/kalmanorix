@@ -15,7 +15,7 @@ Key concepts:
 - **Fuser**: Strategy for combining embeddings (e.g., `MeanFuser`, `KalmanorixFuser`, `DiagonalKalmanFuser`, `LearnedGateFuser`).
 - **Kalman Fuser**: Core algorithm (`kalman_fuse_diagonal`) that performs sequential updates with diagonal covariance approximation (O(d) complexity).
 
-The project is in early development (Phase 1: Core Algorithm Validation). Current focus is on validating diagonal covariance estimation, Procrustes alignment, and basic Kalman fusion against averaging baselines.
+Phase 1 (Core Algorithm Validation) is complete. Current focus is Phase 2: validating the core hypothesis that fused specialists outperform monolithic models with compute equivalence (Milestone 2.1).
 
 ## Development Setup
 
@@ -30,6 +30,11 @@ The project uses Python ≥3.11 with dependencies managed via `pyproject.toml`. 
 2. Install the package in development mode with all dev dependencies:
    ```bash
    pip install -e ".[dev]"
+   ```
+
+   For training experiments (Milestone 2+), also install the optional `train` group:
+   ```bash
+   pip install -e ".[dev,train]"
    ```
 
 ## Common Commands
@@ -49,6 +54,15 @@ The project uses Python ≥3.11 with dependencies managed via `pyproject.toml`. 
 ### Running Examples
 - Run the minimal fusion demo: `python examples/minimal_fusion_demo.py`
 - The demo creates toy keyword‑sensitive specialists and compares fusion strategies.
+
+### Running Milestone 2.1 Experiment (Specialists vs Monolith)
+- Install training dependencies: `pip install -e ".[train]"`
+- Generate example configurations: `python experiments/create_configs.py`
+- Run full experiment with default config: `python experiments/run_milestone_2_1.py`
+- Run with custom config: `python experiments/run_milestone_2_1.py --config experiments/configs/milestone_2_1.yaml`
+- Train specialists only: `python experiments/train_specialists_st.py --config experiments/configs/milestone_2_1.yaml`
+- Train monolith only: `python experiments/train_monolith.py --config experiments/configs/milestone_2_1.yaml`
+- Generate test set: `python experiments/generate_test_set.py --config experiments/configs/milestone_2_1.yaml`
 
 ### Pre‑commit Hooks
 Pre‑commit hooks run ruff (formatting and linting), mypy, pylint, and basic file checks. They are configured in `.pre-commit-config.yaml`. To install and run:
@@ -105,12 +119,19 @@ pytest
 - **Pluggable components**: Uncertainty estimation (`CovarianceEstimator`), alignment methods, and routing strategies are configurable.
 - **Fuser abstraction**: Fusion strategies are decoupled from routing and orchestration via the `Fuser` base class.
 
-### Current Limitations (Phase 1)
-- Covariance estimation exists but needs validation and visualization (Milestone 1.1 in progress).
-- Alignment is identity (Procrustes not yet implemented).
-- Serialization (`SEFModel.save_pretrained`) is a placeholder.
-- No real specialist models are included; tests use toy embedders.
-- The `LearnedGateFuser` is still imported from legacy module.
+### Current Status
+- **Phase 1 (Core Algorithm Validation)**: Completed
+  - ✓ Diagonal covariance estimation framework (Milestone 1.1)
+  - ✓ Procrustes alignment for embedding-space unification (Milestone 1.2)
+  - ✓ Basic Kalman fusion against averaging baselines (Milestone 1.3)
+- **Phase 2 (Specialists vs Monolith)**: In progress
+  - Milestone 2.1: Specialists vs monolith test with compute equivalence
+  - Real dataset integration (PubMed, legal case law)
+  - Compute tracking (FLOPs, energy)
+- **Remaining limitations**:
+  - Serialization (`SEFModel.save_pretrained`) is a placeholder
+  - No production-scale specialist models included
+  - The `LearnedGateFuser` is still imported from legacy module
 
 ## Testing Philosophy
 

@@ -1,0 +1,35 @@
+experiment_name: milestone_2_1_5dom
+output_dir: experiments\outputs
+seed: 42
+domains:
+- legal
+- medical
+- tech
+- cook
+- general
+samples_per_domain: 50000
+mixed_test_proportions:
+  legal: 0.15
+  medical: 0.15
+  tech: 0.15
+  cook: 0.15
+  mixed: 0.4
+base_model: sentence-transformers/all-MiniLM-L6-v2
+embedding_dimension: 384
+batch_size: 32
+learning_rate: 2.0e-05
+epochs_per_specialist: 1
+epochs_monolith: 5
+lambda_cls: 0.8
+lambda_away: 0.8
+div_steps: 200
+div_batch_size: 16
+augmentation_k: 8
+eval_batch_size: 64
+recall_k_values:
+- 1
+- 5
+- 10
+track_compute: true
+track_energy: false
+dataset_configs: {}

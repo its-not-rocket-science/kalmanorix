@@ -68,20 +68,26 @@ Usage
     python experiments/train_specialists_st.py
 """
 
+# pylint: disable=wrong-import-position,import-outside-toplevel,logging-fstring-interpolation,redefined-outer-name,reimported,wrong-import-order
 from __future__ import annotations
 
-from dataclasses import dataclass
+import logging
+import sys
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import List, Tuple
 
-import numpy as np
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import numpy as np
 from sentence_transformers import InputExample, SentenceTransformer, losses
 from torch.utils.data import DataLoader, Dataset
-
 import torch
 from torch import nn
 import torch.nn.functional as F
+
+from experiments.config import TrainingConfig, DomainEnum
+from src.kalmanorix.compute_tracker import track_compute
 
 BASE_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 OUT_DIR = Path("models")
@@ -378,56 +384,217 @@ def train_specialist(
     return out_path
 
 
+def train_specialists_from_config(
+    config: TrainingConfig,
+    domain_data: dict[DomainEnum, list[str]],
+    output_dir: Path,
+) -> dict[DomainEnum, Path]:
+    """
+    Train one specialist per domain using configuration.
+
+    Parameters
+    ----------
+    config : TrainingConfig
+        Experiment configuration.
+    domain_data : dict[DomainEnum, list[str]]
+        Mapping from domain to list of training sentences.
+    output_dir : Path
+        Base output directory.
+
+    Returns
+    -------
+    dict[DomainEnum, Path]
+        Mapping from domain to saved model path.
+    """
+
+    results = {}
+    metrics_paths = {}
+
+    for i, domain in enumerate(config.domains):
+        logger = logging.getLogger(__name__)
+        logger.info(f"Training specialist for domain: {domain.value}")
+
+        # Prepare in-domain and out-domain data
+        in_domain = domain_data[domain]
+        # Out-domain: combine data from all other domains
+        out_domains = [d for d in config.domains if d != domain]
+        out_domain = []
+        for out_d in out_domains:
+            out_domain.extend(domain_data[out_d])
+
+        # Limit out-domain samples for balance
+        if len(out_domain) > len(in_domain):
+            np.random.seed(config.seed + hash(domain))
+            idx = np.random.choice(len(out_domain), len(in_domain), replace=False)
+            out_domain = [out_domain[i] for i in idx]
+
+        # Specialist-specific output directory
+        specialist_dir = output_dir / "specialists"
+        specialist_dir.mkdir(parents=True, exist_ok=True)
+
+        # Compute metrics path
+        metrics_path = specialist_dir / f"{domain.value}_compute_metrics.json"
+
+        # Train with compute tracking
+        with track_compute(  # type: ignore
+            model_name=config.base_model,
+            output_path=metrics_path,
+            track_gpu=config.track_energy,
+        ) as tracker:
+            # Train specialist (using existing function with config parameters)
+            model_path = train_specialist(
+                domain_name=domain.value,
+                in_domain=in_domain,
+                out_domain=out_domain,
+                out_dir=specialist_dir,
+                epochs=config.epochs_per_specialist,
+                batch_size=config.batch_size,
+                lr=config.learning_rate,
+                seed=config.seed + i * 1000,
+                k=config.augmentation_k,
+                lambda_cls=config.lambda_cls,
+                lambda_away=config.lambda_away,
+                div_steps=config.div_steps,
+                div_batch_size=config.div_batch_size,
+            )
+
+            # Estimate tokens processed
+            # Each example seen epochs_per_specialist times
+            # Each example: 2 sentences * avg_sequence_length tokens * 2 (forward+backward)
+            avg_sequence_length = 64
+            total_examples = (
+                len(in_domain) * config.augmentation_k * config.epochs_per_specialist
+            )
+            estimated_tokens = total_examples * avg_sequence_length * 2 * 2
+            tracker.add_tokens(estimated_tokens)
+
+        results[domain] = model_path
+        metrics_paths[domain] = metrics_path
+
+    return results
+
+
 def main() -> None:
     """
-    Train both specialists with explicit divergence.
+    Train specialists with explicit divergence.
 
-    Tech specialist:
-      in_domain = TECH_SENTENCES
-      out_domain = COOK_SENTENCES
-
-    Cook specialist:
-      in_domain = COOK_SENTENCES
-      out_domain = TECH_SENTENCES
+    By default, trains tech/cook specialists as before.
+    With --config, trains specialists according to configuration.
     """
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    import argparse
 
-    print(f"Base model: {BASE_MODEL}")
-    print(f"Output dir: {OUT_DIR.resolve()}")
-    print()
-
-    tech_path = train_specialist(
-        domain_name="tech",
-        in_domain=TECH_SENTENCES,
-        out_domain=COOK_SENTENCES,
-        out_dir=OUT_DIR,
-        epochs=20,
-        batch_size=16,
-        lr=2e-5,
-        seed=123,
-        k=16,
-        lambda_cls=0.8,
-        lambda_away=0.8,
+    parser = argparse.ArgumentParser(
+        description="Train domain specialists with divergence"
     )
-    print(f"Saved tech specialist to: {tech_path}")
-
-    cook_path = train_specialist(
-        domain_name="cook",
-        in_domain=COOK_SENTENCES,
-        out_domain=TECH_SENTENCES,
-        out_dir=OUT_DIR,
-        epochs=20,
-        batch_size=16,
-        lr=2e-5,
-        seed=456,
-        k=16,
-        lambda_cls=0.8,
-        lambda_away=0.8,
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to configuration YAML file",
     )
-    print(f"Saved cook specialist to: {cook_path}")
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Override output directory",
+    )
+    parser.add_argument(
+        "--domains",
+        nargs="+",
+        choices=["medical", "legal", "tech", "cook", "general"],
+        help="Domains to train (requires --config or overrides default)",
+    )
 
-    print()
-    print("Done.")
+    args = parser.parse_args()
+
+    if args.config is not None or args.domains is not None:
+        # Configuration mode
+        from experiments.config import load_config
+
+        # Load config
+        config = load_config(args.config)
+
+        # Override domains if specified
+        if args.domains:
+            config = replace(config, domains=[DomainEnum(d) for d in args.domains])
+
+        # Override output directory if specified
+        if args.output_dir:
+            config = replace(config, output_dir=Path(args.output_dir))
+
+        # Load domain data
+        # For now, use synthetic data. In full experiment, use datasets.py
+        from src.kalmanorix.toy_corpus import generate_anchor_sentences
+
+        domain_data = {}
+        for domain in config.domains:
+            # Map domain to toy_corpus domain tag
+            tag = {
+                DomainEnum.MEDICAL: "medical",
+                DomainEnum.LEGAL: "general",
+                DomainEnum.TECH: "tech",
+                DomainEnum.COOK: "cook",
+                DomainEnum.GENERAL: "general",
+            }.get(domain, "general")
+
+            sentences = generate_anchor_sentences(
+                n=config.samples_per_domain,
+                domains=(tag,),
+                seed=config.seed + hash(domain),
+            )
+            domain_data[domain] = sentences
+
+        # Train specialists
+        results = train_specialists_from_config(
+            config=config,
+            domain_data=domain_data,
+            output_dir=config.output_dir,
+        )
+
+        print("Specialist training complete:")
+        for domain, path in results.items():
+            print(f"  {domain.value}: {path}")
+
+    else:
+        # Default mode: train tech/cook specialists (backward compatibility)
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        print(f"Base model: {BASE_MODEL}")
+        print(f"Output dir: {OUT_DIR.resolve()}")
+        print()
+
+        tech_path = train_specialist(
+            domain_name="tech",
+            in_domain=TECH_SENTENCES,
+            out_domain=COOK_SENTENCES,
+            out_dir=OUT_DIR,
+            epochs=20,
+            batch_size=16,
+            lr=2e-5,
+            seed=123,
+            k=16,
+            lambda_cls=0.8,
+            lambda_away=0.8,
+        )
+        print(f"Saved tech specialist to: {tech_path}")
+
+        cook_path = train_specialist(
+            domain_name="cook",
+            in_domain=COOK_SENTENCES,
+            out_domain=TECH_SENTENCES,
+            out_dir=OUT_DIR,
+            epochs=20,
+            batch_size=16,
+            lr=2e-5,
+            seed=456,
+            k=16,
+            lambda_cls=0.8,
+            lambda_away=0.8,
+        )
+        print(f"Saved cook specialist to: {cook_path}")
+
+        print()
+        print("Done.")
 
 
 if __name__ == "__main__":
