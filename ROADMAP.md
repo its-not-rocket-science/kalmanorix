@@ -4,7 +4,7 @@
 # Kalmanorix Roadmap
 
 **Last updated: March 19, 2026**
-**Current version: v0.1.0 (scaffold)**
+**Current version: v0.2.0 (Core Kalman)**
 
 This roadmap reflects the actual development status and prioritises the critical path to validating the KEFF hypotheses.
 
@@ -92,7 +92,18 @@ This roadmap reflects the actual development status and prioritises the critical
 - [ ] Hugging Face integration (`AutoModel` wrapper)
 - [ ] ONNX runtime support
 - [ ] Basic model registry (local directory/index)
+- [ ] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
+- [ ] Implement API rate limiting, error handling, and caching
+- [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback)
+- [ ] Create interactive Jupyter notebook for education and debugging
 - **Deliverable:** v1.0.0 - Production-ready framework
+
+### Milestone 3.4: Intelligent Routing
+- [ ] Implement semantic router using fast embedder for query encoding
+- [ ] Add dynamic thresholding based on query characteristics
+- [ ] Create domain centroid pre-computation for similarity matching
+- [ ] Add confidence-based routing decisions (single specialist vs fusion)
+- [ ] Create unified routing evaluation harness
 
 ---
 
@@ -105,7 +116,9 @@ This roadmap reflects the actual development status and prioritises the critical
 - Test on massively multilingual scenarios
 
 ### Research Track B: Query-Dependent Uncertainty
-- Train sidecar models to predict uncertainty from query
+- Implement Heteroscedastic Uncertainty Network (HUN) estimator
+- Train sidecar neural networks to predict covariance from query features
+- Compare neural vs statistical uncertainty estimation approaches
 - Implement Monte Carlo dropout for on-the-fly uncertainty
 - Compare against deep ensemble methods
 

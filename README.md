@@ -202,12 +202,26 @@ We will reconsider the approach if:
 - [ ] Documentation site with examples
 - [ ] Tutorials: 3 complete use cases
 - [ ] PyPI release
+- [ ] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
+- [ ] Implement API rate limiting, error handling, and caching
+- [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback)
+- [ ] Create interactive Jupyter notebook for education and debugging
 
 **Deliverable:** v1.0.0 - Production-ready framework
 **Metrics:**
 - 100+ GitHub stars
 - 5+ external contributors
 - 3+ blog posts/tutorials
+
+### Milestone 3.4: Intelligent Routing (Q1 2027)
+
+**Goal:** Adaptive routing based on query semantics
+
+- [ ] Implement semantic router using fast embedder for query encoding
+- [ ] Add dynamic thresholding based on query characteristics
+- [ ] Create domain centroid pre-computation for similarity matching
+- [ ] Add confidence-based routing decisions (single specialist vs fusion)
+- [ ] Create unified routing evaluation harness
 
 ---
 
@@ -230,7 +244,9 @@ We will reconsider the approach if:
 
 **Challenge:** Fixed covariance per model ignores query difficulty
 
-- Train sidecar models to predict uncertainty from query
+- Implement Heteroscedastic Uncertainty Network (HUN) estimator
+- Train sidecar neural networks to predict covariance from query features
+- Compare neural vs statistical uncertainty estimation approaches
 - Implement Monte Carlo dropout for on-the-fly uncertainty
 - Compare against deep ensemble methods
 - Test on adversarial/hard queries
