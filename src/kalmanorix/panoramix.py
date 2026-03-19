@@ -174,6 +174,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
             "fused_covariance": fused_cov,
             "total_uncertainties": total_uncertainties,
             "sort_by_certainty": self.sort_by_certainty,
+            "variance": float(np.mean(fused_cov)),
         }
 
         return fused, weights, meta
@@ -237,6 +238,7 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         meta: Dict[str, object] = {
             "prior_sigma2": float(self.prior_sigma2),
             "post_sigma2": float(p),
+            "variance": float(p),
             "kalman_gains": dict(k_by_name),
             "order": list(order),
             "sort_by_sigma2": self.sort_by_sigma2,

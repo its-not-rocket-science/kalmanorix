@@ -15,7 +15,7 @@ Key concepts:
 - **Fuser**: Strategy for combining embeddings (e.g., `MeanFuser`, `KalmanorixFuser`, `DiagonalKalmanFuser`, `LearnedGateFuser`).
 - **Kalman Fuser**: Core algorithm (`kalman_fuse_diagonal`) that performs sequential updates with diagonal covariance approximation (O(d) complexity).
 
-Phase 1 (Core Algorithm Validation) is complete. Current focus is Phase 2: validating the core hypothesis that fused specialists outperform monolithic models with compute equivalence (Milestone 2.1).
+Phase 1 (Core Algorithm Validation) is complete. Phase 2: validating the core hypothesis that fused specialists outperform monolithic models with compute equivalence. Milestone 2.1 (Specialists vs Monolith) and Milestone 2.2 (Uncertainty Robustness) are completed.
 
 ## Development Setup
 

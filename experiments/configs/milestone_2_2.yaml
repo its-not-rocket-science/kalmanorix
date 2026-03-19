@@ -1,0 +1,59 @@
+# Configuration for Milestone 2.2: Uncertainty Robustness Test
+experiment_name: milestone_2_2
+output_dir: experiments/outputs
+seed: 42
+
+# Seen domains (trained specialists)
+domains:
+- legal
+- medical
+
+# OOD domain (unseen during training)
+ood_domain: tech
+
+# OOD test set parameters
+ood_proportion: 0.5  # Half OOD queries, half seen-domain queries
+ood_n_docs: 5000
+ood_n_queries: 500
+
+# Mis-specification scaling factors to test
+scaling_factors:
+- 0.1
+- 0.5
+- 1.0
+- 2.0
+- 10.0
+
+# Calibration parameters
+calibration_n_bins: 10
+calibration_distance_metric: cosine  # "cosine" or "l2"
+calibration_reference: monolith  # "monolith" or "ensemble"
+
+# Ablation: constant variance for all specialists
+ablation_constant_variance: 1.0
+
+# Original Milestone 2.1 parameters (keep compute equivalence)
+samples_per_domain: 50000
+mixed_test_proportions:
+  legal: 0.25
+  medical: 0.25
+  mixed: 0.5
+base_model: sentence-transformers/all-MiniLM-L6-v2
+embedding_dimension: 384
+batch_size: 32
+learning_rate: 2.0e-05
+epochs_per_specialist: 1
+epochs_monolith: 2
+lambda_cls: 0.8
+lambda_away: 0.8
+div_steps: 200
+div_batch_size: 16
+augmentation_k: 8
+eval_batch_size: 64
+recall_k_values:
+- 1
+- 5
+- 10
+track_compute: true
+track_energy: false
+dataset_configs: {}

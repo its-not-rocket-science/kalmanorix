@@ -70,3 +70,29 @@ class CentroidDistanceSigma2:
         sim = float(z @ self.centroid)
         sim01 = (sim + 1.0) / 2.0  # [0, 1]
         return float(self.base_sigma2 + self.scale * (1.0 - sim01))
+
+
+@dataclass(frozen=True)
+class ConstantSigma2:
+    """Fixed variance regardless of query (ablation study)."""
+
+    value: float
+
+    def __call__(self, query: str) -> float:
+        return float(self.value)
+
+
+@dataclass(frozen=True)
+class ScaledSigma2:
+    """Scale another sigma2 callable by constant factor.
+
+    Useful for testing robustness to mis-specified uncertainties.
+    scale > 1: over-confident (underestimates variance)
+    scale < 1: under-confident (overestimates variance)
+    """
+
+    base_sigma2: Callable[[str], float]
+    scale: float
+
+    def __call__(self, query: str) -> float:
+        return float(self.base_sigma2(query) * self.scale)

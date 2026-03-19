@@ -60,8 +60,8 @@ This roadmap reflects the actual development status and prioritises the critical
 - **Target:** Fused specialists achieve higher accuracy with same training FLOPs
 
 ### Milestone 2.2: H2 Test - Uncertainty Robustness
-- [ ] Create out-of-domain test queries
-- [ ] Compare Kalman fusion (uncertainty-weighted) vs naive averaging
+- [x] Create out-of-domain test queries
+- [x] Compare Kalman fusion (uncertainty-weighted) vs naive averaging
 - **Target:** Kalman shows smaller performance drop on OOD queries
 
 ### Milestone 2.3: Efficiency Benchmarking
