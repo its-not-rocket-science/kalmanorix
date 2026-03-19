@@ -4,7 +4,7 @@
 ```markdown
 # Kalmanorix Roadmap
 
-**Last updated: March 16, 2026**
+**Last updated: March 19, 2026**
 **Current version: v0.1.0 (scaffold)**
 **Next release: v0.2.0 (Core Kalman) - April 2026**
 
@@ -114,12 +114,12 @@ We will reconsider the approach if:
 
 **Goal:** Prove fused specialists beat monolithic training
 
-- [ ] Create two disjoint domain datasets (legal, medical - 50k each)
-- [ ] Train two specialists (each on one domain, 1 epoch)
-- [ ] Train monolithic model on combined data (2 epochs = same compute)
-- [ ] Compare on mixed-domain test set (25% legal, 25% medical, 50% mixed)
-- [ ] Repeat with 3, 4, 5 domains
-- [ ] Document compute and energy usage
+- [x] Create two disjoint domain datasets (legal, medical - 50k each)
+- [x] Train two specialists (each on one domain, 1 epoch)
+- [x] Train monolithic model on combined data (2 epochs = same compute)
+- [x] Compare on mixed-domain test set (25% legal, 25% medical, 50% mixed)
+- [x] Repeat with 3, 4, 5 domains
+- [x] Document compute and energy usage
 
 **Target:** Fused specialists achieve higher accuracy with same training FLOPs
 **Expected improvement:** 5-15% on mixed queries

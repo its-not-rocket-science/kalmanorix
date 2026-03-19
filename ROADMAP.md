@@ -3,7 +3,7 @@
 ```markdown
 # Kalmanorix Roadmap
 
-**Last updated: March 2026**
+**Last updated: March 19, 2026**
 **Current version: v0.1.0 (scaffold)**
 
 This roadmap reflects the actual development status and prioritises the critical path to validating the KEFF hypotheses.
@@ -53,10 +53,10 @@ This roadmap reflects the actual development status and prioritises the critical
 *Validate the core claims from the original proposal*
 
 ### Milestone 2.1: H1 Test - Specialists vs Monolith
-- [ ] Create two disjoint domain datasets (e.g., legal, medical)
-- [ ] Train two specialists (each on one domain)
-- [ ] Train monolithic model on combined data (same total compute)
-- [ ] Compare: fused specialists vs monolithic on mixed-domain test
+- [x] Create two disjoint domain datasets (e.g., legal, medical)
+- [x] Train two specialists (each on one domain)
+- [x] Train monolithic model on combined data (same total compute)
+- [x] Compare: fused specialists vs monolithic on mixed-domain test
 - **Target:** Fused specialists achieve higher accuracy with same training FLOPs
 
 ### Milestone 2.2: H2 Test - Uncertainty Robustness
