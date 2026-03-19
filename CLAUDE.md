@@ -157,6 +157,8 @@ The roadmap (`README.md`) outlines the planned milestones; contributions should 
 
 Use descriptive commit messages that explain *why* changes were made, not just *what* changed. Focus on the purpose and impact.
 
+**Important**: Do NOT add "Co-Authored-By:" lines or any other automatic attribution tags to commit messages. Commit messages should only contain the actual change description.
+
 Good patterns:
 - **Feature additions**: "Add X for Y" (e.g., "Add EmpiricalCovariance estimator for diagonal covariance estimation")
 - **Bug fixes**: "Fix X in Y" (e.g., "Fix return type in DiagonalKalmanFuser._kalman_updates")
