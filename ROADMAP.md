@@ -28,21 +28,21 @@ This roadmap reflects the actual development status and prioritises the critical
 *Prove the Kalman fusion works in principle*
 
 ### Milestone 1.1: Diagonal Covariance Estimation
-- [ ] Implement covariance estimation from validation set errors
-- [ ] Add support for per-model diagonal covariance matrices
-- [ ] Create visualisation tools for embedding uncertainty
+- [x] Implement covariance estimation from validation set errors
+- [x] Add support for per-model diagonal covariance matrices
+- [x] Create visualisation tools for embedding uncertainty
 - **Success criteria:** Models can report `(embedding, covariance)` tuples
 
 ### Milestone 1.2: Procrustes Alignment
-- [ ] Implement orthogonal Procrustes for embedding space alignment
-- [ ] Build reference anchor set for alignment
-- [ ] Validate alignment quality on STS tasks
+- [x] Implement orthogonal Procrustes for embedding space alignment
+- [x] Build reference anchor set for alignment
+- [x] Validate alignment quality on STS tasks
 - **Success criteria:** Embeddings from different specialists map to comparable spaces
 
 ### Milestone 1.3: Basic Kalman Fuser
-- [ ] Implement Kalman update with diagonal covariance
-- [ ] Add batch fusion for multiple measurements
-- [ ] Benchmark against simple averaging
+- [x] Implement Kalman update with diagonal covariance
+- [x] Add batch fusion for multiple measurements
+- [x] Benchmark against simple averaging
 - **Success criteria:** Kalman fusion outperforms averaging on mixed-domain retrieval (p < 0.05)
 
 **Deliverable:** v0.2.0 - Working Kalman fusion on toy domains

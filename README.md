@@ -5,8 +5,8 @@
 # Kalmanorix Roadmap
 
 **Last updated: March 19, 2026**
-**Current version: v0.1.0 (scaffold)**
-**Next release: v0.2.0 (Core Kalman) - April 2026**
+**Current version: v0.2.0 (Core Kalman)**
+**Next release: v0.3.0 (Experimental validation) - September 2026**
 
 This roadmap reflects the actual development status and prioritises the critical path to validating the KEFF hypotheses. It's a living document - updates occur after each milestone.
 
@@ -128,11 +128,11 @@ We will reconsider the approach if:
 
 **Goal:** Demonstrate uncertainty weighting improves OOD performance
 
-- [ ] Create out-of-domain test queries (unseen domains)
-- [ ] Compare Kalman fusion vs naive averaging
-- [ ] Test with mis-specified covariances (over/under-confident)
-- [ ] Measure calibration of uncertainty estimates
-- [ ] Ablation: fix all covariances equal (degenerates to averaging)
+- [x] Create out-of-domain test queries (unseen domains)
+- [x] Compare Kalman fusion vs naive averaging
+- [x] Test with mis-specified covariances (over/under-confident)
+- [x] Measure calibration of uncertainty estimates
+- [x] Ablation: fix all covariances equal (degenerates to averaging)
 
 **Target:** Kalman shows smaller performance drop on OOD queries
 **Expected:** 20% smaller drop than averaging
