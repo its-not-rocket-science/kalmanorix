@@ -7,5 +7,13 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .DS_Store
-/models/
-/experiments/test_outputs/
+models/
+experiments/test_outputs/
+experiments/outputs/
+experiments/outputs_*/
+experiments/debug_*.py
+experiments/test_*.py
+experiments/analyze_*.py
+experiments/data/cache/
+.claude/settings.local.json
+.claude/

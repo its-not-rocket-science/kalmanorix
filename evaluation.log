@@ -1,0 +1,50 @@
+2026-03-17 23:45:50,477 - __main__ - INFO - Starting evaluation of Milestone 2.1 experiment
+2026-03-17 23:45:50,477 - __main__ - INFO - Experiment directory: experiments\outputs\milestone_2_1
+2026-03-17 23:45:50,483 - __main__ - INFO - Loaded configuration: seed=42, domains=['legal', 'medical']
+2026-03-17 23:45:50,483 - __main__ - INFO - Step 1: Loading test set...
+2026-03-17 23:45:50,484 - __main__ - INFO -   Loaded 1000 documents, 100 queries
+2026-03-17 23:45:50,486 - __main__ - INFO - Found 2 specialists and monolith at experiments\outputs\milestone_2_1\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-17 23:45:50,486 - __main__ - INFO - Step 2: Evaluating specialists individually...
+2026-03-17 23:45:50,486 - __main__ - INFO -   Evaluating legal...
+2026-03-17 23:45:58,803 - numexpr.utils - INFO - NumExpr defaulting to 8 threads.
+2026-03-17 23:46:00,525 - datasets - INFO - PyTorch version 2.6.0+cu126 available.
+2026-03-17 23:46:01,147 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:46:01,148 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\legal-minilm
+2026-03-17 23:46:15,418 - __main__ - INFO -   Calibrated uncertainty for legal using 1000 texts
+2026-03-17 23:46:30,092 - __main__ - INFO -   Evaluating medical...
+2026-03-17 23:46:30,097 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:46:30,097 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\medical-minilm
+2026-03-17 23:46:43,194 - __main__ - INFO -   Calibrated uncertainty for medical using 1000 texts
+2026-03-17 23:47:05,326 - __main__ - INFO - Step 3: Evaluating monolithic model...
+2026-03-17 23:47:05,334 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:47:05,334 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-17 23:47:13,747 - __main__ - INFO - Step 4: Evaluating fused specialists...
+2026-03-17 23:47:13,753 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:47:13,753 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\legal-minilm
+2026-03-17 23:47:29,443 - __main__ - INFO -   Calibrated uncertainty for legal using 1000 texts
+2026-03-17 23:47:29,449 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:47:29,449 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\medical-minilm
+2026-03-17 23:47:54,507 - __main__ - INFO -   Calibrated uncertainty for medical using 1000 texts
+2026-03-17 23:47:54,507 - __main__ - WARNING - Using mean specialist embedding for document encoding
+2026-03-17 23:51:23,506 - __main__ - INFO - Results saved to experiments\outputs\milestone_2_1\results.json
+
+============================================================
+MILESTONE 2.1 EVALUATION RESULTS
+============================================================
+Domains: ['legal', 'medical']
+Test set: 1000 docs, 100 queries
+
+Recall@k:
+   k   Monolith      Fused  Improvement
+   1      0.990      0.910        -8.1%
+   5      1.000      0.910        -9.0%
+  10      1.000      0.910        -9.0%
+
+Individual specialist performance:
+  legal      Avg Recall: 0.997
+  medical    Avg Recall: 0.997
+
+============================================================
+
+Evaluation completed successfully!
+Results saved to: experiments\outputs\milestone_2_1\results.json

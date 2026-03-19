@@ -1,0 +1,79 @@
+2026-03-17 23:48:02,074 - __main__ - INFO - Starting Milestone 2.1 experiment: test_tiny
+2026-03-17 23:48:02,074 - __main__ - INFO - Domains: ['legal', 'medical']
+2026-03-17 23:48:02,074 - __main__ - INFO - Output directory: experiments\test_outputs
+2026-03-17 23:48:02,079 - __main__ - INFO - Step 1: Loading domain data...
+2026-03-17 23:48:02,082 - __main__ - INFO - Step 2: Training specialists...
+2026-03-17 23:48:02,082 - experiments.train_specialists_st - INFO - Training specialist for domain: legal
+2026-03-17 23:48:02,097 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:48:02,097 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+Computing widget examples:   0%|          | 0/1 [00:00<?, ?example/s]                                                                       0%|          | 0/10 [00:00<?, ?it/s] 10%|#         | 1/10 [00:00<00:06,  1.49it/s] 20%|##        | 2/10 [00:01<00:04,  1.82it/s] 30%|###       | 3/10 [00:01<00:03,  2.18it/s] 40%|####      | 4/10 [00:01<00:02,  2.38it/s] 50%|#####     | 5/10 [00:02<00:01,  2.58it/s] 60%|######    | 6/10 [00:02<00:01,  2.36it/s] 70%|#######   | 7/10 [00:03<00:01,  2.23it/s] 80%|########  | 8/10 [00:03<00:00,  2.31it/s] 90%|######### | 9/10 [00:03<00:00,  2.47it/s]100%|##########| 10/10 [00:04<00:00,  2.61it/s]                                               100%|##########| 10/10 [00:04<00:00,  2.61it/s]100%|##########| 10/10 [00:04<00:00,  2.35it/s]
+{'train_runtime': 4.2491, 'train_samples_per_second': 4.707, 'train_steps_per_second': 2.353, 'train_loss': 0.09625665545463562, 'epoch': 1.0}
+Batches:   0%|          | 0/1 [00:00<?, ?it/s]Batches: 100%|##########| 1/1 [00:00<00:00, 15.64it/s]
+2026-03-17 23:48:13,664 - sentence_transformers.SentenceTransformer - INFO - Save model to experiments\test_outputs\test_tiny\specialists\specialists\legal-minilm
+2026-03-17 23:48:14,022 - experiments.train_specialists_st - INFO - Training specialist for domain: medical
+2026-03-17 23:48:14,034 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:48:14,034 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+Computing widget examples:   0%|          | 0/1 [00:00<?, ?example/s]                                                                       0%|          | 0/10 [00:00<?, ?it/s] 10%|#         | 1/10 [00:00<00:03,  2.82it/s] 20%|##        | 2/10 [00:00<00:02,  3.20it/s] 30%|###       | 3/10 [00:00<00:02,  3.36it/s] 40%|####      | 4/10 [00:01<00:01,  3.17it/s] 50%|#####     | 5/10 [00:01<00:01,  3.08it/s] 60%|######    | 6/10 [00:01<00:01,  3.18it/s] 70%|#######   | 7/10 [00:02<00:00,  3.19it/s] 80%|########  | 8/10 [00:02<00:00,  3.26it/s] 90%|######### | 9/10 [00:02<00:00,  3.36it/s]100%|##########| 10/10 [00:03<00:00,  3.35it/s]                                               100%|##########| 10/10 [00:03<00:00,  3.35it/s]100%|##########| 10/10 [00:03<00:00,  3.25it/s]
+{'train_runtime': 3.0783, 'train_samples_per_second': 6.497, 'train_steps_per_second': 3.249, 'train_loss': 0.29541854858398436, 'epoch': 1.0}
+Batches:   0%|          | 0/1 [00:00<?, ?it/s]Batches: 100%|##########| 1/1 [00:00<00:00, 27.04it/s]
+2026-03-17 23:48:21,289 - sentence_transformers.SentenceTransformer - INFO - Save model to experiments\test_outputs\test_tiny\specialists\specialists\medical-minilm
+2026-03-17 23:48:21,589 - __main__ - INFO - Step 3: Training monolithic model...
+2026-03-17 23:48:21,589 - experiments.train_monolith - INFO - Training monolithic model on 2 domains
+2026-03-17 23:48:21,589 - experiments.train_monolith - INFO - Base model: sentence-transformers/all-MiniLM-L6-v2
+2026-03-17 23:48:21,589 - experiments.train_monolith - INFO - Output path: experiments\test_outputs\test_tiny\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-17 23:48:21,589 - experiments.train_monolith - INFO - Combined 20 sentences from 2 domains
+2026-03-17 23:48:21,590 - experiments.train_monolith - INFO - Created 40 training pairs
+2026-03-17 23:48:21,597 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:48:21,597 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2026-03-17 23:48:22,847 - experiments.train_monolith - INFO - Training for 2 epochs
+2026-03-17 23:48:22,847 - experiments.train_monolith - INFO - Total steps: 40, warmup steps: 10
+Computing widget examples:   0%|          | 0/1 [00:00<?, ?example/s]                                                                       0%|          | 0/40 [00:00<?, ?it/s]  2%|2         | 1/40 [00:00<00:13,  2.89it/s]  5%|5         | 2/40 [00:00<00:11,  3.17it/s]  8%|7         | 3/40 [00:00<00:11,  3.30it/s] 10%|#         | 4/40 [00:01<00:10,  3.50it/s] 12%|#2        | 5/40 [00:01<00:10,  3.38it/s] 15%|#5        | 6/40 [00:01<00:10,  3.39it/s] 18%|#7        | 7/40 [00:02<00:09,  3.46it/s] 20%|##        | 8/40 [00:02<00:09,  3.55it/s] 22%|##2       | 9/40 [00:02<00:08,  3.47it/s] 25%|##5       | 10/40 [00:02<00:08,  3.51it/s] 28%|##7       | 11/40 [00:03<00:08,  3.43it/s] 30%|###       | 12/40 [00:03<00:09,  3.03it/s] 32%|###2      | 13/40 [00:04<00:09,  2.86it/s] 35%|###5      | 14/40 [00:04<00:08,  3.00it/s] 38%|###7      | 15/40 [00:04<00:08,  3.09it/s] 40%|####      | 16/40 [00:04<00:07,  3.21it/s] 42%|####2     | 17/40 [00:05<00:07,  3.24it/s] 45%|####5     | 18/40 [00:05<00:06,  3.25it/s] 48%|####7     | 19/40 [00:05<00:06,  3.18it/s] 50%|#####     | 20/40 [00:06<00:06,  3.10it/s] 52%|#####2    | 21/40 [00:06<00:06,  3.13it/s] 55%|#####5    | 22/40 [00:06<00:05,  3.17it/s] 57%|#####7    | 23/40 [00:07<00:05,  2.94it/s] 60%|######    | 24/40 [00:07<00:05,  2.78it/s] 62%|######2   | 25/40 [00:07<00:05,  2.87it/s] 65%|######5   | 26/40 [00:08<00:04,  3.01it/s] 68%|######7   | 27/40 [00:08<00:04,  2.84it/s] 70%|#######   | 28/40 [00:08<00:03,  3.04it/s] 72%|#######2  | 29/40 [00:09<00:03,  3.21it/s] 75%|#######5  | 30/40 [00:09<00:03,  3.22it/s] 78%|#######7  | 31/40 [00:09<00:02,  3.16it/s] 80%|########  | 32/40 [00:10<00:02,  3.02it/s] 82%|########2 | 33/40 [00:10<00:02,  3.00it/s] 85%|########5 | 34/40 [00:10<00:02,  2.68it/s] 88%|########7 | 35/40 [00:11<00:01,  2.83it/s] 90%|######### | 36/40 [00:11<00:01,  2.91it/s] 92%|#########2| 37/40 [00:11<00:00,  3.07it/s] 95%|#########5| 38/40 [00:12<00:00,  2.88it/s] 98%|#########7| 39/40 [00:12<00:00,  2.55it/s]100%|##########| 40/40 [00:13<00:00,  2.51it/s]                                               100%|##########| 40/40 [00:13<00:00,  2.51it/s]100%|##########| 40/40 [00:13<00:00,  3.03it/s]
+2026-03-17 23:48:36,319 - sentence_transformers.SentenceTransformer - INFO - Save model to experiments\test_outputs\test_tiny\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-17 23:48:36,647 - experiments.train_monolith - INFO - Model saved to experiments\test_outputs\test_tiny\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-17 23:48:36,649 - __main__ - INFO - Step 4: Generating mixed-domain test set...
+2026-03-17 23:48:36,649 - experiments.generate_test_set - INFO - Generating test set with proportions: {'legal': 0.25, 'medical': 0.25, 'mixed': 0.5}
+2026-03-17 23:48:36,649 - experiments.generate_test_set - INFO - Domains: ['legal', 'medical']
+2026-03-17 23:48:36,705 - experiments.generate_test_set - INFO - Generated 1000 documents and 100 queries
+2026-03-17 23:48:36,711 - experiments.generate_test_set - INFO - Test set saved to experiments\test_outputs\test_tiny\test_set.json
+2026-03-17 23:48:36,711 - __main__ - INFO - Step 5: Evaluating specialists individually...
+2026-03-17 23:48:36,712 - __main__ - INFO -   Evaluating legal...
+2026-03-17 23:48:36,722 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:48:36,722 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\test_outputs\test_tiny\specialists\specialists\legal-minilm
+2026-03-17 23:48:37,217 - __main__ - INFO -   Calibrated uncertainty for legal using 10 texts
+2026-03-17 23:49:52,033 - __main__ - INFO -   Evaluating medical...
+2026-03-17 23:49:52,043 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:49:52,043 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\test_outputs\test_tiny\specialists\specialists\medical-minilm
+2026-03-17 23:49:52,667 - __main__ - INFO -   Calibrated uncertainty for medical using 10 texts
+2026-03-17 23:50:47,231 - __main__ - INFO - Step 6: Evaluating monolithic model...
+2026-03-17 23:50:47,241 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:50:47,241 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\test_outputs\test_tiny\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-17 23:51:18,605 - __main__ - INFO - Step 7: Evaluating fused specialists...
+2026-03-17 23:51:18,614 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:51:18,614 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\test_outputs\test_tiny\specialists\specialists\legal-minilm
+2026-03-17 23:51:19,711 - __main__ - INFO -   Calibrated uncertainty for legal using 10 texts
+2026-03-17 23:51:19,722 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-17 23:51:19,722 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\test_outputs\test_tiny\specialists\specialists\medical-minilm
+2026-03-17 23:51:20,481 - __main__ - INFO -   Calibrated uncertainty for medical using 10 texts
+2026-03-17 23:51:20,481 - __main__ - WARNING - Using mean specialist embedding for document encoding
+2026-03-17 23:53:01,500 - __main__ - INFO - Results saved to experiments\test_outputs\test_tiny\results.json
+{'train_runtime': 13.2065, 'train_samples_per_second': 6.058, 'train_steps_per_second': 3.029, 'train_loss': 0.007121159136295319, 'epoch': 2.0}
+
+============================================================
+MILESTONE 2.1 EXPERIMENT RESULTS
+============================================================
+Domains: ['legal', 'medical']
+Test set: 1000 docs, 100 queries
+
+Recall@k:
+   k   Monolith      Fused  Improvement
+   1      1.000      1.000         0.0%
+   5      1.000      1.000         0.0%
+
+Individual specialist performance:
+  legal      Avg Recall: 1.000
+  medical    Avg Recall: 1.000
+
+============================================================
+
+Experiment completed successfully!
+Results saved to: experiments\test_outputs\test_tiny

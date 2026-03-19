@@ -1,0 +1,154 @@
+NumExpr defaulting to 8 threads.
+PyTorch version 2.6.0+cu126 available.
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\legal-minilm
+  Calibrated uncertainty for legal using 1000 texts
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\medical-minilm
+  Calibrated uncertainty for medical using 1000 texts
+Loaded 2 specialists
+
+============================================================
+Step 1: Computing Procrustes alignments
+============================================================
+
+============================================================
+Step 2: Analyzing uncertainties and fusion weights
+============================================================
+
+Query 1: This complex method affects sometimes....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2006
+    medical-minilm                 sigma²=2.0041
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9090
+    medical-minilm                 weight=0.0910
+    legal-minilm                   centroid similarity=0.9994
+    medical-minilm                 centroid similarity=-0.8041
+
+Query 2: A effective concept does obviously....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2005
+    medical-minilm                 sigma²=2.0201
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9097
+    medical-minilm                 weight=0.0903
+    legal-minilm                   centroid similarity=0.9995
+    medical-minilm                 centroid similarity=-0.8201
+
+Query 3: This theoretical event develops apparently....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2007
+    medical-minilm                 sigma²=2.0043
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9090
+    medical-minilm                 weight=0.0910
+    legal-minilm                   centroid similarity=0.9993
+    medical-minilm                 centroid similarity=-0.8043
+
+Query 4: The advanced process changes usually....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2008
+    medical-minilm                 sigma²=1.9965
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9086
+    medical-minilm                 weight=0.0914
+    legal-minilm                   centroid similarity=0.9992
+    medical-minilm                 centroid similarity=-0.7965
+
+Query 5: This effective person creates apparently....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2009
+    medical-minilm                 sigma²=1.9768
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9078
+    medical-minilm                 weight=0.0922
+    legal-minilm                   centroid similarity=0.9991
+    medical-minilm                 centroid similarity=-0.7768
+
+Query 6: A useful process makes sometimes....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2009
+    medical-minilm                 sigma²=2.0214
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9096
+    medical-minilm                 weight=0.0904
+    legal-minilm                   centroid similarity=0.9991
+    medical-minilm                 centroid similarity=-0.8214
+
+Query 7: This practical thing influences clearly....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2006
+    medical-minilm                 sigma²=2.0185
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9096
+    medical-minilm                 weight=0.0904
+    legal-minilm                   centroid similarity=0.9994
+    medical-minilm                 centroid similarity=-0.8185
+
+Query 8: Some simple event affects obviously....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2007
+    medical-minilm                 sigma²=2.0228
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9098
+    medical-minilm                 weight=0.0902
+    legal-minilm                   centroid similarity=0.9993
+    medical-minilm                 centroid similarity=-0.8228
+
+Query 9: Some theoretical thing develops obviously....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2005
+    medical-minilm                 sigma²=2.0198
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9097
+    medical-minilm                 weight=0.0903
+    legal-minilm                   centroid similarity=0.9995
+    medical-minilm                 centroid similarity=-0.8198
+
+Query 10: Some basic method improves obviously....
+  Original specialists (no alignment):
+    legal-minilm                   sigma²=0.2007
+    medical-minilm                 sigma²=2.0355
+  Fusion weights (with alignment):
+    legal-minilm                   weight=0.9102
+    medical-minilm                 weight=0.0898
+    legal-minilm                   centroid similarity=0.9993
+    medical-minilm                 centroid similarity=-0.8355
+
+============================================================
+Step 3: Comparing fused vs specialist embeddings
+============================================================
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\monolith\sentence-transformers-all-MiniLM-L6-v2
+
+Query 1:
+  Monolith vs Fused similarity: -0.0293
+  Monolith vs legal-minilm                  : -0.0320
+  Fused vs legal-minilm                  : 0.9993
+  Monolith vs medical-minilm                : 0.1071
+  Fused vs medical-minilm                : 0.2684
+
+Query 2:
+  Monolith vs Fused similarity: -0.0515
+  Monolith vs legal-minilm                  : -0.0553
+  Fused vs legal-minilm                  : 0.9994
+  Monolith vs medical-minilm                : 0.0741
+  Fused vs medical-minilm                : 0.2679
+
+Query 3:
+  Monolith vs Fused similarity: -0.0397
+  Monolith vs legal-minilm                  : -0.0446
+  Fused vs legal-minilm                  : 0.9993
+  Monolith vs medical-minilm                : 0.1177
+  Fused vs medical-minilm                : 0.2852
+
+============================================================
+Debug analysis complete
+============================================================
+Computing reference embeddings for legal-minilm...
+Computing alignment for medical-minilm...
+  Warning: alignment matrix for medical-minilm is not orthogonal (error=8.24e-06)
+Average similarity before alignment: 0.2707
+Average similarity after alignment:  0.9171
+Normalized improvement: 88.6%

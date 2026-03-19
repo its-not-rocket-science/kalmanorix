@@ -233,10 +233,15 @@ def load_domain_dataset(
         subset = config.get("subset")
 
         try:
+            # Some datasets require trust_remote_code=True
+            load_kwargs = {"trust_remote_code": True}
+
             if subset:
-                hf_dataset = load_dataset(dataset_name, subset, split=split)
+                hf_dataset = load_dataset(
+                    dataset_name, subset, split=split, **load_kwargs
+                )
             else:
-                hf_dataset = load_dataset(dataset_name, split=split)
+                hf_dataset = load_dataset(dataset_name, split=split, **load_kwargs)
         except Exception as e:
             logger.warning("Failed to load %s %s: %s", dataset_name, split, e)
             # Fallback: generate synthetic data
@@ -409,8 +414,9 @@ def create_mixed_test_set(
             n_queries = max(1, int(n_docs * 0.1))  # 10% of docs as queries
             query_idx = np.random.choice(n_docs, n_queries, replace=False)
             for q_idx in query_idx:
-                doc_idx = len(docs) + q_idx  # Position in final corpus
-                queries.append((domain_docs[q_idx], doc_idx))
+                q_idx_int = int(q_idx)
+                doc_idx = len(docs) + q_idx_int  # Position in final corpus
+                queries.append((domain_docs[q_idx_int], doc_idx))
 
             docs.extend(domain_docs)
 
@@ -419,7 +425,7 @@ def create_mixed_test_set(
             all_domains = list(domain_datasets.keys())
             for _ in range(n_docs):
                 # Sample 2-3 domains to mix
-                n_mix = np.random.randint(2, min(4, len(all_domains) + 1))
+                n_mix = int(np.random.randint(2, min(4, len(all_domains) + 1)))
                 mix_domains = np.random.choice(all_domains, n_mix, replace=False)
 
                 # Take a sentence from each domain
@@ -437,7 +443,8 @@ def create_mixed_test_set(
             n_queries = max(1, int(n_docs * 0.1))
             query_idx = np.random.choice(n_docs, n_queries, replace=False)
             for q_idx in query_idx:
-                doc_idx = len(docs) - n_docs + q_idx  # Position of mixed docs
+                q_idx_int = int(q_idx)
+                doc_idx = len(docs) - n_docs + q_idx_int  # Position of mixed docs
                 queries.append((docs[doc_idx], doc_idx))
 
     return docs, queries

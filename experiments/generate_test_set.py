@@ -87,7 +87,7 @@ def generate_test_set(
         # Map domain enum to toy_corpus domain tag
         domain_tags = {
             DomainEnum.MEDICAL: "medical",
-            DomainEnum.LEGAL: "general",  # No legal-specific vocabulary
+            DomainEnum.LEGAL: "legal",
             DomainEnum.TECH: "tech",
             DomainEnum.COOK: "cook",
             DomainEnum.GENERAL: "general",
@@ -128,8 +128,9 @@ def generate_test_set(
                 n_queries = max(1, int(n_docs * 0.1))
                 query_idx = np.random.choice(n_docs, n_queries, replace=False)
                 for q_idx in query_idx:
-                    doc_idx = len(docs) - n_docs + q_idx
-                    queries.append((docs[doc_idx], int(doc_idx)))
+                    q_idx_int = int(q_idx)
+                    doc_idx = len(docs) - n_docs + q_idx_int
+                    queries.append((docs[doc_idx], doc_idx))
 
             else:
                 # Pure domain document
@@ -149,8 +150,9 @@ def generate_test_set(
                 n_queries = max(1, int(n_docs * 0.1))
                 query_idx = np.random.choice(n_docs, n_queries, replace=False)
                 for q_idx in query_idx:
-                    doc_idx = domain_starts[domain_type] + q_idx
-                    queries.append((domain_docs[int(q_idx)], int(doc_idx)))
+                    q_idx_int = int(q_idx)
+                    doc_idx = domain_starts[domain_type] + q_idx_int
+                    queries.append((domain_docs[q_idx_int], doc_idx))
 
     logger.info(f"Generated {len(docs)} documents and {len(queries)} queries")
 

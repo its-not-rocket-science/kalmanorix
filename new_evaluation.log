@@ -1,0 +1,28 @@
+2026-03-18 15:41:07,392 - __main__ - INFO - Starting evaluation of Milestone 2.1 experiment
+2026-03-18 15:41:07,392 - __main__ - INFO - Experiment directory: experiments\outputs\milestone_2_1
+2026-03-18 15:41:07,398 - __main__ - INFO - Loaded configuration: seed=42, domains=['legal', 'medical']
+2026-03-18 15:41:07,398 - __main__ - INFO - Step 1: Loading test set...
+2026-03-18 15:41:07,399 - __main__ - INFO -   Loaded 1000 documents, 100 queries
+2026-03-18 15:41:07,402 - __main__ - INFO - Found 2 specialists and monolith at experiments\outputs\milestone_2_1\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-18 15:41:07,402 - __main__ - INFO - Step 2: Evaluating specialists individually...
+2026-03-18 15:41:07,402 - __main__ - INFO -   Evaluating legal...
+2026-03-18 15:41:16,203 - numexpr.utils - INFO - NumExpr defaulting to 8 threads.
+2026-03-18 15:41:17,373 - datasets - INFO - PyTorch version 2.6.0+cu126 available.
+2026-03-18 15:41:17,964 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-18 15:41:17,964 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\legal-minilm
+2026-03-18 15:41:32,667 - __main__ - INFO -   Calibrated uncertainty for legal using 1000 texts
+2026-03-18 15:41:50,877 - __main__ - INFO -   Evaluating medical...
+2026-03-18 15:41:50,884 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-18 15:41:50,884 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\medical-minilm
+2026-03-18 15:42:06,994 - __main__ - INFO -   Calibrated uncertainty for medical using 1000 texts
+2026-03-18 15:42:30,217 - __main__ - INFO - Step 3: Evaluating monolithic model...
+2026-03-18 15:42:30,222 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-18 15:42:30,222 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\monolith\sentence-transformers-all-MiniLM-L6-v2
+2026-03-18 15:42:36,944 - __main__ - INFO - Step 4: Evaluating fused specialists...
+2026-03-18 15:42:36,955 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-18 15:42:36,956 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\legal-minilm
+2026-03-18 15:42:59,202 - __main__ - INFO -   Calibrated uncertainty for legal using 1000 texts
+2026-03-18 15:42:59,212 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2026-03-18 15:42:59,212 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: experiments\outputs\milestone_2_1\specialists\specialists\medical-minilm
+2026-03-18 15:43:22,253 - __main__ - INFO -   Calibrated uncertainty for medical using 1000 texts
+2026-03-18 15:43:22,254 - __main__ - INFO -   Computing Procrustes alignments...

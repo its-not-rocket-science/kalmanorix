@@ -1,26 +1,23 @@
+#!/usr/bin/env python3
 """
-Orchestration script for Milestone 2.1: Specialists vs Monolith test.
+Evaluation-only script for Milestone 2.1: Specialists vs Monolith test.
 
-Runs the full experiment:
-1. Load configuration
-2. Train specialists (1 epoch each domain) with compute tracking
-3. Train monolith (2 epochs combined) with compute tracking
-4. Generate mixed-domain test corpus
-5. Evaluate: individual specialists, monolith, fused specialists
-6. Compare Recall@k metrics
-7. Log compute usage and results
+Loads pre-trained models from experiments/outputs/milestone_2_1/ and evaluates:
+1. Individual specialists
+2. Monolithic model
+3. Fused specialists (Kalmanorix fusion)
+
+Outputs results.json with Recall@k metrics and compute comparison.
 """
-
-# pylint: disable=wrong-import-position,import-outside-toplevel,logging-fstring-interpolation,too-many-statements,unnecessary-comprehension,no-else-return
 
 from __future__ import annotations
 
 import json
 import logging
 import statistics
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import sys
 
@@ -28,12 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import numpy as np
 
-from experiments.config import TrainingConfig, DomainEnum, load_config
-from experiments.train_specialists_st import train_specialists_from_config
-from experiments.train_monolith import train_monolith
-from experiments.generate_test_set import generate_test_set
-
-# Import Kalmanorix components for evaluation
+from experiments.config import DomainEnum, load_config
 from src.kalmanorix.village import Village, SEF
 from src.kalmanorix.scout import ScoutRouter
 from src.kalmanorix.panoramix import Panoramix
@@ -45,19 +37,16 @@ from src.kalmanorix.alignment import compute_alignments, align_sef_list
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=too-many-instance-attributes
 @dataclass
 class ExperimentResults:
     """Container for all experiment results."""
-
-    config: TrainingConfig
 
     # Paths
     specialist_paths: Dict[DomainEnum, Path]
     monolith_path: Path
     test_set_path: Path
 
-    # Compute metrics
+    # Compute metrics paths
     specialist_compute_paths: Dict[DomainEnum, Path]
     monolith_compute_path: Path
 
@@ -72,7 +61,6 @@ class ExperimentResults:
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dictionary."""
         return {
-            "config": json.loads(self.config.to_json()),
             "specialist_paths": {
                 d.value: str(p) for d, p in self.specialist_paths.items()
             },
@@ -83,12 +71,14 @@ class ExperimentResults:
             },
             "monolith_compute_path": str(self.monolith_compute_path),
             "specialist_recalls": {
-                d.value: {k: v for k, v in recalls.items()}
+                d.value: {k: float(v) for k, v in recalls.items()}
                 for d, recalls in self.specialist_recalls.items()
             },
-            "monolith_recalls": self.monolith_recalls,
-            "fused_recalls": self.fused_recalls,
-            "p_values": self.p_values,
+            "monolith_recalls": {k: float(v) for k, v in self.monolith_recalls.items()},
+            "fused_recalls": {k: float(v) for k, v in self.fused_recalls.items()},
+            "p_values": {k: float(v) for k, v in self.p_values.items()}
+            if self.p_values
+            else None,
         }
 
     def save(self, path: Path) -> None:
@@ -101,12 +91,12 @@ class ExperimentResults:
 def load_specialist_model(
     model_path: Path,
     domain: Optional[DomainEnum] = None,
-    calibration_texts: Optional[List[str]] = None,
+    config: Optional[Any] = None,
 ) -> SEF:
     """Load a trained specialist as SEF with uncertainty.
 
-    If domain and calibration_texts are provided, uses centroid-based uncertainty
-    calibrated on the provided texts.
+    If domain and config are provided, uses centroid-based uncertainty
+    calibrated on synthetic texts from the same domain.
     Otherwise uses constant uncertainty (backward compatibility).
     """
     from sentence_transformers import SentenceTransformer
@@ -118,12 +108,28 @@ def load_specialist_model(
     def embed_fn(s):
         return st_model.encode(s, convert_to_numpy=True, show_progress_bar=False)
 
-    if (
-        domain is not None
-        and calibration_texts is not None
-        and len(calibration_texts) > 0
-    ):
-        # Use centroid-based uncertainty calibrated on domain texts
+    if domain is not None and config is not None:
+        # Generate calibration texts matching the domain's training distribution
+        from src.kalmanorix.toy_corpus import generate_anchor_sentences
+
+        # Map domain enum to tag used in synthetic data generation
+        # Same mapping as in run_milestone_2_1.py
+        tag = {
+            DomainEnum.MEDICAL: "medical",
+            DomainEnum.LEGAL: "legal",
+            DomainEnum.TECH: "tech",
+            DomainEnum.COOK: "cook",
+            DomainEnum.GENERAL: "general",
+        }.get(domain, "general")
+
+        # Use same seed as training: config.seed + hash(domain)
+        # Generate smaller set for calibration (1000 texts)
+        calibration_texts = generate_anchor_sentences(
+            n=1000,
+            domains=(tag,),
+            seed=config.seed + hash(domain),
+        )
+
         sigma2 = CentroidDistanceSigma2.from_calibration(
             embed=embed_fn,
             calibration_texts=calibration_texts,
@@ -143,7 +149,7 @@ def load_specialist_model(
             base_sigma2=0.5,
         )
         logger.warning(
-            f"Using constant uncertainty for {model_path.name} (no domain/calibration texts provided)"
+            f"Using constant uncertainty for {model_path.name} (no domain/config provided)"
         )
 
     return SEF(
@@ -210,7 +216,7 @@ def evaluate_model(
         return results
 
     else:
-        # Monolithic model
+        # Monolithic model or specialist wrapper
         model = model_or_village
         # Encode all documents
         doc_embs = model.encode(
@@ -232,118 +238,114 @@ def evaluate_model(
         return {k: statistics.mean(model_recalls[k]) for k in k_values}
 
 
-def run_experiment(
-    config_path: Optional[Path] = None,
-    output_dir: Optional[Path] = None,
-    use_real_data: bool = False,
+def run_evaluation(
+    experiment_dir: Path,
+    recall_k_values: Optional[List[int]] = None,
 ) -> ExperimentResults:
     """
-    Run the full Milestone 2.1 experiment.
+    Run evaluation on pre-trained models.
 
     Parameters
     ----------
-    config_path : Optional[Path]
-        Path to configuration YAML file.
-    output_dir : Optional[Path]
-        Override output directory.
-    use_real_data : bool
-        Whether to use real datasets (requires internet).
+    experiment_dir : Path
+        Directory containing the experiment (should have specialists/, monolith/, test_set.json).
+    recall_k_values : List[int], optional
+        Recall@k values to compute. Defaults to [1, 5, 10].
 
     Returns
     -------
     ExperimentResults
-        Complete experiment results.
+        Complete evaluation results.
     """
-    # Load configuration
-    config = load_config(config_path)
-    if output_dir:
-        config = replace(config, output_dir=output_dir)
+    if recall_k_values is None:
+        recall_k_values = [1, 5, 10]
 
-    logger.info(f"Starting Milestone 2.1 experiment: {config.experiment_name}")
-    logger.info(f"Domains: {[d.value for d in config.domains]}")
-    logger.info(f"Output directory: {config.output_dir}")
+    logger.info("Starting evaluation of Milestone 2.1 experiment")
+    logger.info(f"Experiment directory: {experiment_dir}")
 
-    # Create experiment directory
-    experiment_dir = config.output_dir / config.experiment_name
-    experiment_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save configuration for reproducibility
-    config.to_yaml(experiment_dir / "config.yaml")
-
-    # Step 1: Load domain data
-    logger.info("Step 1: Loading domain data...")
-    if use_real_data:
-        from src.kalmanorix.datasets import load_multiple_domains
-
-        domain_datasets = load_multiple_domains(
-            domains=[d.value for d in config.domains],
-            samples_per_domain=config.samples_per_domain,
-            cache=True,
-            force_download=False,
+    # Load experiment configuration
+    config_path = experiment_dir / "config.yaml"
+    if config_path.exists():
+        config = load_config(config_path)
+        logger.info(
+            f"Loaded configuration: seed={config.seed}, domains={[d.value for d in config.domains]}"
         )
-        domain_data = {
-            DomainEnum(d): dataset.train  # Use training split
-            for d, dataset in domain_datasets.items()
-        }
     else:
-        # Use synthetic data
-        from src.kalmanorix.toy_corpus import generate_anchor_sentences
+        logger.warning(f"Configuration not found at {config_path}, using default")
+        config = load_config(None)
 
-        domain_data = {}
-        for domain in config.domains:
-            tag = {
-                DomainEnum.MEDICAL: "medical",
-                DomainEnum.LEGAL: "legal",
-                DomainEnum.TECH: "tech",
-                DomainEnum.COOK: "cook",
-                DomainEnum.GENERAL: "general",
-            }.get(domain, "general")
-
-            sentences = generate_anchor_sentences(
-                n=config.samples_per_domain,
-                domains=(tag,),
-                seed=config.seed + hash(domain),
-            )
-            domain_data[domain] = sentences
-
-    # Step 2: Train specialists
-    logger.info("Step 2: Training specialists...")
-    specialist_dir = experiment_dir / "specialists"
-    specialist_paths = train_specialists_from_config(
-        config=config,
-        domain_data=domain_data,
-        output_dir=specialist_dir,
-    )
-
-    # Step 3: Train monolithic model
-    logger.info("Step 3: Training monolithic model...")
-    monolith_dir = experiment_dir / "monolith"
-    monolith_result = train_monolith(
-        config=config,
-        domain_data=domain_data,
-        output_dir=monolith_dir,
-    )
-
-    # Step 4: Generate test set
-    logger.info("Step 4: Generating mixed-domain test set...")
+    # Step 1: Load test set
     test_set_path = experiment_dir / "test_set.json"
-    test_docs, test_queries = generate_test_set(
-        config=config,
-        output_path=test_set_path,
-        use_real_data=use_real_data,
+    if not test_set_path.exists():
+        raise FileNotFoundError(f"Test set not found at {test_set_path}")
+
+    logger.info("Step 1: Loading test set...")
+    with open(test_set_path, "r", encoding="utf-8") as f:
+        test_data = json.load(f)
+
+    test_docs = test_data["documents"]
+    test_queries = [(q["query"], q["true_doc_id"]) for q in test_data["queries"]]
+
+    logger.info(f"  Loaded {len(test_docs)} documents, {len(test_queries)} queries")
+
+    # Step 2: Locate models
+    specialist_dir = experiment_dir / "specialists" / "specialists"
+    if not specialist_dir.exists():
+        # Try alternative structure
+        specialist_dir = experiment_dir / "specialists"
+
+    # Find specialist models
+    specialist_paths = {}
+    specialist_compute_paths = {}
+
+    for domain in [DomainEnum.LEGAL, DomainEnum.MEDICAL]:
+        # Look for model directory
+        domain_model_dir = None
+        for candidate in specialist_dir.glob(f"*{domain.value}*"):
+            if candidate.is_dir() and (candidate / "model.safetensors").exists():
+                domain_model_dir = candidate
+                break
+
+        if domain_model_dir is None:
+            logger.warning(f"Could not find model for domain {domain.value}")
+            continue
+
+        specialist_paths[domain] = domain_model_dir
+
+        # Look for compute metrics
+        compute_path = specialist_dir / f"{domain.value}_compute_metrics.json"
+        if compute_path.exists():
+            specialist_compute_paths[domain] = compute_path
+        else:
+            logger.warning(f"Could not find compute metrics for {domain.value}")
+
+    # Locate monolith
+    monolith_dir = experiment_dir / "monolith"
+    monolith_path = None
+    for candidate in monolith_dir.glob("*"):
+        if candidate.is_dir() and (candidate / "model.safetensors").exists():
+            monolith_path = candidate
+            break
+
+    if monolith_path is None:
+        raise FileNotFoundError(f"Monolith model not found in {monolith_dir}")
+
+    monolith_compute_path = monolith_dir / "compute_metrics.json"
+    if not monolith_compute_path.exists():
+        logger.warning(
+            f"Could not find monolith compute metrics at {monolith_compute_path}"
+        )
+
+    logger.info(
+        f"Found {len(specialist_paths)} specialists and monolith at {monolith_path}"
     )
 
-    # Step 5: Evaluate specialists individually
-    logger.info("Step 5: Evaluating specialists individually...")
+    # Step 3: Evaluate specialists individually
+    logger.info("Step 2: Evaluating specialists individually...")
     specialist_recalls = {}
     for domain, model_path in specialist_paths.items():
         logger.info(f"  Evaluating {domain.value}...")
-        calibration_texts = domain_data[domain][
-            :1000
-        ]  # Use first 1000 training sentences
-        model = load_specialist_model(
-            model_path, domain=domain, calibration_texts=calibration_texts
-        )
+        model = load_specialist_model(model_path, domain=domain, config=config)
 
         # Convert SEF to SentenceTransformer-like interface
         class ModelWrapper:
@@ -367,42 +369,33 @@ def run_experiment(
             wrapper,
             test_docs,
             test_queries,
-            k_values=config.recall_k_values,
+            k_values=recall_k_values,
         )
         specialist_recalls[domain] = recalls
 
-    # Step 6: Evaluate monolith
-    logger.info("Step 6: Evaluating monolithic model...")
+    # Step 4: Evaluate monolith
+    logger.info("Step 3: Evaluating monolithic model...")
     from sentence_transformers import SentenceTransformer
 
-    monolith_model = SentenceTransformer(str(monolith_result.model_path))
+    monolith_model = SentenceTransformer(str(monolith_path))
     monolith_recalls = evaluate_model(
         monolith_model,
         test_docs,
         test_queries,
-        k_values=config.recall_k_values,
+        k_values=recall_k_values,
     )
 
-    # Step 7: Evaluate fused specialists
-    logger.info("Step 7: Evaluating fused specialists...")
-    # Build village from all specialists
+    # Step 5: Evaluate fused specialists
+    logger.info("Step 4: Evaluating fused specialists...")
+    # Build village from all specialists with Procrustes alignment
     sef_list = []
     for domain, model_path in specialist_paths.items():
-        calibration_texts = domain_data[domain][
-            :1000
-        ]  # Use first 1000 training sentences
-        sef = load_specialist_model(
-            model_path, domain=domain, calibration_texts=calibration_texts
-        )
+        sef = load_specialist_model(model_path, domain=domain, config=config)
         sef_list.append(sef)
 
-    # Compute Procrustes alignments
+    # Compute alignments using first 100 test documents as anchors
     logger.info("  Computing Procrustes alignments...")
-    anchor_sentences = []
-    for domain in config.domains:
-        anchor_sentences.extend(
-            domain_data[domain][:200]
-        )  # 200 sentences per domain for alignment
+    anchor_sentences = test_docs[:100]
     reference_sef_name = sef_list[0].name
     alignments = compute_alignments(
         sef_list=sef_list,
@@ -410,7 +403,6 @@ def run_experiment(
         reference_sef_name=reference_sef_name,
     )
     aligned_sefs = align_sef_list(sef_list, alignments)
-
     village = Village(aligned_sefs)
 
     # Evaluate fusion
@@ -418,25 +410,17 @@ def run_experiment(
         village,
         test_docs,
         test_queries,
-        k_values=config.recall_k_values,
+        k_values=recall_k_values,
         is_village=True,
     )
 
-    # Step 8: Collect compute metrics paths
-    specialist_compute_paths = {}
-    for domain in config.domains:
-        path = specialist_dir / f"{domain.value}_compute_metrics.json"
-        if path.exists():
-            specialist_compute_paths[domain] = path
-
-    # Step 9: Compile results
+    # Step 6: Compile results
     results = ExperimentResults(
-        config=config,
         specialist_paths=specialist_paths,
-        monolith_path=monolith_result.model_path,
+        monolith_path=monolith_path,
         test_set_path=test_set_path,
         specialist_compute_paths=specialist_compute_paths,
-        monolith_compute_path=monolith_result.compute_metrics_path,
+        monolith_compute_path=monolith_compute_path,
         specialist_recalls=specialist_recalls,
         monolith_recalls=monolith_recalls,
         fused_recalls=fused_recalls,
@@ -449,15 +433,15 @@ def run_experiment(
 
     # Print summary
     print("\n" + "=" * 60)
-    print("MILESTONE 2.1 EXPERIMENT RESULTS")
+    print("MILESTONE 2.1 EVALUATION RESULTS")
     print("=" * 60)
-    print(f"Domains: {[d.value for d in config.domains]}")
+    print(f"Domains: {[d.value for d in specialist_paths.keys()]}")
     print(f"Test set: {len(test_docs)} docs, {len(test_queries)} queries")
     print()
 
     print("Recall@k:")
     print(f"{'k':>4} {'Monolith':>10} {'Fused':>10} {'Improvement':>12}")
-    for k in config.recall_k_values:
+    for k in recall_k_values:
         mono = monolith_recalls.get(k, 0.0)
         fused = fused_recalls.get(k, 0.0)
         improvement = (fused - mono) / mono * 100 if mono > 0 else 0.0
@@ -479,29 +463,20 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Run Milestone 2.1 experiment: Specialists vs Monolith"
+        description="Evaluate Milestone 2.1 experiment (specialists vs monolith)"
     )
     parser.add_argument(
-        "--config",
+        "--experiment-dir",
         type=str,
-        default=None,
-        help="Path to configuration YAML file",
+        default="experiments/outputs/milestone_2_1",
+        help="Path to experiment directory (default: experiments/outputs/milestone_2_1)",
     )
     parser.add_argument(
-        "--output-dir",
-        type=str,
-        default=None,
-        help="Override output directory",
-    )
-    parser.add_argument(
-        "--real-data",
-        action="store_true",
-        help="Use real datasets (requires internet)",
-    )
-    parser.add_argument(
-        "--skip-training",
-        action="store_true",
-        help="Skip training, use existing models (not implemented)",
+        "--k-values",
+        type=int,
+        nargs="+",
+        default=[1, 5, 10],
+        help="Recall@k values to compute (default: 1 5 10)",
     )
 
     args = parser.parse_args()
@@ -512,17 +487,14 @@ def main() -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    # Run experiment
-    results = run_experiment(
-        config_path=Path(args.config) if args.config else None,
-        output_dir=Path(args.output_dir) if args.output_dir else None,
-        use_real_data=args.real_data,
+    # Run evaluation
+    results = run_evaluation(
+        experiment_dir=Path(args.experiment_dir),
+        recall_k_values=args.k_values,
     )
 
-    print("\nExperiment completed successfully!")
-    print(
-        f"Results saved to: {results.config.output_dir / results.config.experiment_name}"
-    )
+    print("\nEvaluation completed successfully!")
+    print(f"Results saved to: {results.test_set_path.parent / 'results.json'}")
 
 
 if __name__ == "__main__":
