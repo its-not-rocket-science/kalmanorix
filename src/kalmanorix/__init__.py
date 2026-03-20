@@ -1,6 +1,6 @@
 """Kalmanorix public API."""
 
-from .village import SEF, Village
+from .village import SEF, Village, compute_domain_centroid
 from .scout import ScoutRouter
 from .panoramix import (
     Panoramix,
@@ -11,10 +11,25 @@ from .panoramix import (
     LearnedGateFuser,
 )
 from .arena import eval_retrieval
+from .embedder_adapters import (
+    STEmbedder,
+    OpenAIEmbedder,
+    CohereEmbedder,
+    AnthropicEmbedder,
+    VertexAIEmbedder,
+    AzureOpenAIEmbedder,
+)
+from .threshold_heuristics import (
+    threshold_top_k,
+    threshold_relative_to_max,
+    threshold_adaptive_spread,
+    threshold_query_length_adaptive,
+)
 
 __all__ = [
     "SEF",
     "Village",
+    "compute_domain_centroid",
     "ScoutRouter",
     "Panoramix",
     "Potion",
@@ -23,4 +38,14 @@ __all__ = [
     "DiagonalKalmanFuser",
     "LearnedGateFuser",
     "eval_retrieval",
+    "STEmbedder",
+    "OpenAIEmbedder",
+    "CohereEmbedder",
+    "AnthropicEmbedder",
+    "VertexAIEmbedder",
+    "AzureOpenAIEmbedder",
+    "threshold_top_k",
+    "threshold_relative_to_max",
+    "threshold_adaptive_spread",
+    "threshold_query_length_adaptive",
 ]

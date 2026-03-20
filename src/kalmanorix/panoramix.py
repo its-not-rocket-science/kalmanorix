@@ -21,6 +21,7 @@ import numpy as np
 
 from .scout import ScoutRouter
 from .village import SEF, Village
+from .types import Vec
 from .kalman_engine.kalman_fuser import kalman_fuse_diagonal
 
 # Re-export LearnedGateFuser from legacy module for now
@@ -28,8 +29,6 @@ from .kalman_engine.kalman_fuser import kalman_fuse_diagonal
 from .panoramix_legacy import LearnedGateFuser  # noqa: F401, E402  # pylint: disable=unused-import
 
 logger = logging.getLogger(__name__)
-
-Vec = np.ndarray
 
 
 @dataclass(frozen=True)
@@ -280,3 +279,14 @@ class Panoramix:  # pylint: disable=too-few-public-methods
         chosen = scout.select(query, village)
         vec, weights, meta = self.fuser.fuse(query, chosen)
         return Potion(vector=vec, weights=weights, meta=meta)
+
+
+__all__ = [
+    "Potion",
+    "Fuser",
+    "MeanFuser",
+    "KalmanorixFuser",
+    "DiagonalKalmanFuser",
+    "LearnedGateFuser",
+    "Panoramix",
+]

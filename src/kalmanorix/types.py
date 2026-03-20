@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from typing import Protocol
-
 import numpy as np
+import numpy.typing as npt
 
-Vec = np.ndarray
+Vec = npt.NDArray[np.float64]
 
 
 # pylint: disable=too-few-public-methods

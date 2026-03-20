@@ -3,7 +3,7 @@
 ```markdown
 # Kalmanorix Roadmap
 
-**Last updated: March 19, 2026**
+**Last updated: March 20, 2026**
 **Current version: v0.2.0 (Core Kalman)**
 
 This roadmap reflects the actual development status and prioritises the critical path to validating the KEFF hypotheses.
@@ -92,16 +92,17 @@ This roadmap reflects the actual development status and prioritises the critical
 - [ ] Hugging Face integration (`AutoModel` wrapper)
 - [ ] ONNX runtime support
 - [ ] Basic model registry (local directory/index)
-- [ ] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
+- [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
 - [ ] Implement API rate limiting, error handling, and caching
 - [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback)
-- [ ] Create interactive Jupyter notebook for education and debugging
+- [x] Create interactive Jupyter notebook for education and debugging
 - **Deliverable:** v1.0.0 - Production-ready framework
 
 ### Milestone 3.4: Intelligent Routing
-- [ ] Implement semantic router using fast embedder for query encoding
-- [ ] Add dynamic thresholding based on query characteristics
-- [ ] Create domain centroid pre-computation for similarity matching
+- [x] Implement semantic router using fast embedder for query encoding
+- [x] Add dynamic thresholding based on query characteristics
+- [x] Create domain centroid pre-computation for similarity matching
+- [x] Add threshold heuristics module (top-k, relative-to-max, adaptive spread, query-length adaptive)
 - [ ] Add confidence-based routing decisions (single specialist vs fusion)
 - [ ] Create unified routing evaluation harness
 

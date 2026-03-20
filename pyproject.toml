@@ -22,6 +22,12 @@ train = [
     "pyyaml>=6.0",
     "psutil>=5.9"
 ]
+cloud = [
+    "openai>=1.0",
+    "cohere>=5.0",
+    "anthropic>=0.25",
+    "google-cloud-aiplatform>=1.50"
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
