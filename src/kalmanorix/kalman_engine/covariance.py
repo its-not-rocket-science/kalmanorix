@@ -44,6 +44,14 @@ import logging
 
 import numpy as np
 
+# Optional PyTorch import
+try:
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -421,6 +429,228 @@ class DomainBasedCovariance(CovarianceEstimator):
         # Apply scaling with epsilon clipping
         scaled = base_cov * max(factor, self.epsilon)
         return scaled
+
+
+class NeuralCovariance(CovarianceEstimator):
+    """Heteroscedastic Uncertainty Network (HUN) estimator.
+
+    Neural network that predicts diagonal covariance from embedding vectors.
+    This is a "sidecar" model that learns to estimate uncertainty from
+    query embeddings, capturing complex input-dependent uncertainty patterns.
+
+    Architecture:
+        embedding (d) -> MLP with hidden layers -> log variance (d)
+        variance = exp(log variance) + epsilon
+
+    The network is trained on a dataset of (embedding, target_covariance) pairs,
+    where target_covariance can be obtained from validation errors or
+    ensemble methods.
+
+    Example:
+        >>> # Train on validation data
+        >>> estimator = NeuralCovariance(dimension=768)
+        >>> estimator.fit(embeddings, target_covariances, epochs=10)
+        >>> # Use for uncertainty estimation
+        >>> cov = estimator.estimate(model, query_text)
+    """
+
+    def __init__(
+        self,
+        dimension: int,
+        hidden_layers: list[int] = [256, 128],
+        activation: str = "ReLU",
+        learning_rate: float = 1e-3,
+        epsilon: float = 1e-8,
+        device: str = "cpu",
+    ):
+        """Initialize the neural covariance estimator.
+
+        Args:
+            dimension: Embedding dimension (input and output size).
+            hidden_layers: List of hidden layer sizes.
+            activation: Activation function name ('ReLU', 'Sigmoid', 'Tanh').
+            learning_rate: Learning rate for optimizer.
+            epsilon: Small constant added to variance for numerical stability.
+            device: 'cpu' or 'cuda'.
+
+        Raises:
+            ImportError: If PyTorch is not available.
+        """
+        if not TORCH_AVAILABLE:
+            raise ImportError(
+                "NeuralCovariance requires PyTorch. "
+                "Install with 'pip install torch' or 'pip install kalmanorix[train]'."
+            )
+
+        super().__init__()
+        self.dimension = dimension
+        self.hidden_layers = hidden_layers
+        self.activation = activation
+        self.learning_rate = learning_rate
+        self.epsilon = epsilon
+        self.device = torch.device(device)
+
+        # Build network
+        self.network = self._build_network()
+        self.network.to(self.device)
+
+        # Optimizer and loss
+        self.optimizer = torch.optim.Adam(
+            self.network.parameters(), lr=self.learning_rate
+        )
+        self.loss_fn = nn.MSELoss()
+
+        # Training flag
+        self.is_trained = False
+
+    def _build_network(self) -> nn.Module:
+        """Construct MLP with given architecture."""
+        layers = []
+        prev_size = self.dimension
+        for hidden_size in self.hidden_layers:
+            layers.append(nn.Linear(prev_size, hidden_size))
+            layers.append(getattr(nn, self.activation)())
+            prev_size = hidden_size
+        # Output layer: predict log variance
+        layers.append(nn.Linear(prev_size, self.dimension))
+        return nn.Sequential(*layers)
+
+    def estimate(
+        self,
+        model: Callable[[str], np.ndarray],
+        text: str,
+        domain_hint: Optional[str] = None,
+    ) -> np.ndarray:
+        """Predict diagonal covariance for given query.
+
+        Args:
+            model: Embedder function.
+            text: Input text.
+            domain_hint: Ignored (network uses only embedding).
+
+        Returns:
+            Diagonal covariance vector (d,).
+        """
+        # Get embedding from model
+        embedding = model(text)
+        if embedding.shape[0] != self.dimension:
+            raise ValueError(
+                f"Embedding dimension {embedding.shape[0]} "
+                f"does not match network dimension {self.dimension}"
+            )
+
+        # Convert to tensor and predict log variance
+        with torch.no_grad():
+            x = torch.from_numpy(embedding).float().to(self.device)
+            log_var = self.network(x)
+            var = torch.exp(log_var) + self.epsilon
+
+        return var.cpu().numpy()
+
+    def fit(
+        self,
+        embeddings: np.ndarray,
+        target_covariances: np.ndarray,
+        epochs: int = 10,
+        batch_size: int = 32,
+        validation_split: float = 0.1,
+        verbose: bool = True,
+    ) -> None:
+        """Train the neural network on embedding–covariance pairs.
+
+        Args:
+            embeddings: Array of shape (n_samples, dimension).
+            target_covariances: Array of shape (n_samples, dimension).
+            epochs: Number of training epochs.
+            batch_size: Batch size.
+            validation_split: Fraction of data to use for validation.
+            verbose: Print training progress.
+        """
+        # Convert to PyTorch datasets
+        from torch.utils.data import DataLoader, TensorDataset, random_split
+
+        X = torch.from_numpy(embeddings).float().to(self.device)
+        y = torch.from_numpy(target_covariances).float().to(self.device)
+
+        dataset = TensorDataset(X, y)
+
+        # Train/validation split
+        val_size = int(len(dataset) * validation_split)
+        train_size = len(dataset) - val_size
+        train_set, val_set = random_split(dataset, [train_size, val_size])
+
+        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(val_set, batch_size=batch_size)
+
+        # Training loop
+        self.network.train()
+        for epoch in range(epochs):
+            train_loss = 0.0
+            for batch_x, batch_y in train_loader:
+                self.optimizer.zero_grad()
+                log_var = self.network(batch_x)
+                pred_var = torch.exp(log_var) + self.epsilon
+                loss = self.loss_fn(pred_var, batch_y)
+                loss.backward()
+                self.optimizer.step()
+                train_loss += loss.item() * batch_x.size(0)
+
+            # Validation loss
+            val_loss = 0.0
+            self.network.eval()
+            with torch.no_grad():
+                for batch_x, batch_y in val_loader:
+                    log_var = self.network(batch_x)
+                    pred_var = torch.exp(log_var) + self.epsilon
+                    loss = self.loss_fn(pred_var, batch_y)
+                    val_loss += loss.item() * batch_x.size(0)
+            self.network.train()
+
+            train_loss /= train_size
+            val_loss /= val_size
+
+            if verbose:
+                logger.info(
+                    "Epoch %d/%d - train loss: %.6f - val loss: %.6f",
+                    epoch + 1,
+                    epochs,
+                    train_loss,
+                    val_loss,
+                )
+
+        self.is_trained = True
+
+    def save(self, path: str) -> None:
+        """Save model weights to file."""
+        torch.save(
+            {
+                "network_state": self.network.state_dict(),
+                "optimizer_state": self.optimizer.state_dict(),
+                "dimension": self.dimension,
+                "hidden_layers": self.hidden_layers,
+                "activation": self.activation,
+                "learning_rate": self.learning_rate,
+                "epsilon": self.epsilon,
+            },
+            path,
+        )
+
+    @classmethod
+    def load(cls, path: str, device: str = "cpu") -> "NeuralCovariance":
+        """Load model from saved weights."""
+        checkpoint = torch.load(path, map_location=device)
+        estimator = cls(
+            dimension=checkpoint["dimension"],
+            hidden_layers=checkpoint["hidden_layers"],
+            activation=checkpoint["activation"],
+            learning_rate=checkpoint["learning_rate"],
+            epsilon=checkpoint["epsilon"],
+            device=device,
+        )
+        estimator.network.load_state_dict(checkpoint["network_state"])
+        estimator.optimizer.load_state_dict(checkpoint["optimizer_state"])
+        estimator.is_trained = True
+        return estimator
 
 
 class DiagonalCovariance:
