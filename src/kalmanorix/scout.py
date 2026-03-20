@@ -105,10 +105,8 @@ class ScoutRouter:
                 module for module, sim in module_similarities if sim >= threshold
             ]
 
-            if selected:
-                return selected
-            # No matches, fallback
-            return self._fallback_selection(query, village)
+            # Return selected modules or fallback if none
+            return selected if selected else self._fallback_selection(query, village)
         raise ValueError("mode must be 'all', 'hard', or 'semantic'")
 
     def _fallback_selection(self, query: str, village: Village) -> List[SEF]:

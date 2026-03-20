@@ -47,7 +47,7 @@ import numpy as np
 # Optional PyTorch import
 try:
     import torch
-    import torch.nn as nn
+    from torch import nn
 
     TORCH_AVAILABLE = True
 except ImportError:

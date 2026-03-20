@@ -14,7 +14,7 @@ import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterator, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 
 @dataclass
@@ -35,6 +35,11 @@ class ComputeMetrics:
     gpu_energy_joules: Optional[float] = None
     gpu_memory_mb: Optional[int] = None
     gpu_utilization_percent: Optional[float] = None
+
+    # Memory metrics (optional)
+    cpu_memory_mb: Optional[int] = None
+    peak_cpu_memory_mb: Optional[int] = None
+    peak_gpu_memory_mb: Optional[int] = None
 
     # Derived metrics
     flops_per_second: float = field(init=False)
@@ -68,6 +73,14 @@ class ComputeMetrics:
             data["gpu_memory_mb"] = self.gpu_memory_mb
         if self.gpu_utilization_percent is not None:
             data["gpu_utilization_percent"] = self.gpu_utilization_percent
+
+        # Add memory metrics if present
+        if self.cpu_memory_mb is not None:
+            data["cpu_memory_mb"] = self.cpu_memory_mb
+        if self.peak_cpu_memory_mb is not None:
+            data["peak_cpu_memory_mb"] = self.peak_cpu_memory_mb
+        if self.peak_gpu_memory_mb is not None:
+            data["peak_gpu_memory_mb"] = self.peak_gpu_memory_mb
 
         return data
 
@@ -105,6 +118,8 @@ class ComputeTracker:
         model_parameters: int,
         track_gpu: bool = False,
         gpu_index: int = 0,
+        mode: str = "training",
+        track_memory: bool = False,
     ) -> None:
         """
         Initialize compute tracker.
@@ -117,10 +132,20 @@ class ComputeTracker:
             Whether to track GPU energy (requires pynvml).
         gpu_index : int
             GPU device index to monitor.
+        mode : str
+            "training" (6× FLOP multiplier) or "inference" (2× FLOP multiplier).
+        track_memory : bool
+            Whether to track CPU/GPU memory usage (requires psutil for CPU).
         """
         self.parameters = model_parameters
         self.track_gpu = track_gpu
         self.gpu_index = gpu_index
+        self.mode = mode
+        self.track_memory = track_memory
+
+        # Validate mode
+        if self.mode not in ("training", "inference"):
+            raise ValueError(f"mode must be 'training' or 'inference', got {mode}")
 
         # State
         self.start_time: Optional[float] = None
@@ -130,6 +155,20 @@ class ComputeTracker:
         self.gpu_energy_end: Optional[float] = None
         self.gpu_memory_mb: Optional[int] = None
         self.gpu_utilization: Optional[float] = None
+
+        # Memory tracking state (if track_memory)
+        self.psutil = None
+        self.memory_samples: List[
+            Tuple[float, Optional[int], Optional[int]]
+        ] = []  # (timestamp, cpu_mb, gpu_mb)
+        if self.track_memory:
+            try:
+                import psutil  # pylint: disable=import-outside-toplevel
+
+                self.psutil = psutil
+            except ImportError:
+                print("Warning: psutil not installed, memory tracking disabled")
+                self.track_memory = False
 
         # Initialize GPU monitoring if requested
         self.pynvml = None
@@ -151,6 +190,7 @@ class ComputeTracker:
     def __enter__(self) -> ComputeTracker:
         """Start tracking."""
         self.start_time = time.perf_counter()
+        self._record_memory_sample()
 
         if self.track_gpu and self.pynvml and self.handle:
             try:
@@ -166,9 +206,10 @@ class ComputeTracker:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Stop tracking and record final metrics."""
         self.end_time = time.perf_counter()
+        self._record_memory_sample()
 
         if self.track_gpu and self.pynvml and self.handle:
             try:
@@ -196,6 +237,25 @@ class ComputeTracker:
         """Record a batch of tokens (assumes each token processed once)."""
         self.add_tokens(batch_size * sequence_length)
 
+    def _record_memory_sample(self) -> None:
+        """Record current memory usage."""
+        timestamp = time.perf_counter()
+        cpu_mb = None
+        gpu_mb = None
+
+        if self.track_memory and self.psutil:
+            process = self.psutil.Process()
+            cpu_mb = process.memory_info().rss // (1024 * 1024)  # MB
+
+        if self.track_gpu and self.pynvml and self.handle:
+            try:
+                mem_info = self.pynvml.nvmlDeviceGetMemoryInfo(self.handle)
+                gpu_mb = mem_info.used // (1024 * 1024)
+            except Exception:
+                pass
+
+        self.memory_samples.append((timestamp, cpu_mb, gpu_mb))
+
     def get_metrics(self) -> ComputeMetrics:
         """
         Compute metrics based on recorded data.
@@ -210,8 +270,11 @@ class ComputeTracker:
 
         wall_time = self.end_time - self.start_time
 
-        # Estimate FLOPs: 6 * parameters * tokens (forward+backward)
-        total_flops = 6 * self.parameters * self.tokens_processed
+        # Estimate FLOPs based on mode
+        if self.mode == "training":
+            total_flops = 6 * self.parameters * self.tokens_processed
+        else:  # inference
+            total_flops = 2 * self.parameters * self.tokens_processed
 
         # GPU energy
         gpu_energy = None
@@ -223,6 +286,23 @@ class ComputeTracker:
             # Energy in millijoules, convert to joules
             gpu_energy = (self.gpu_energy_end - self.gpu_energy_start) / 1000.0
 
+        # Memory metrics
+        cpu_memory_mb = None
+        peak_cpu_memory_mb = None
+        peak_gpu_memory_mb = None
+        if self.memory_samples:
+            cpu_values = [
+                sample[1] for sample in self.memory_samples if sample[1] is not None
+            ]
+            gpu_values = [
+                sample[2] for sample in self.memory_samples if sample[2] is not None
+            ]
+            if cpu_values:
+                cpu_memory_mb = cpu_values[-1]  # last sample
+                peak_cpu_memory_mb = max(cpu_values)
+            if gpu_values:
+                peak_gpu_memory_mb = max(gpu_values)
+
         return ComputeMetrics(
             total_flops=total_flops,
             parameters=self.parameters,
@@ -232,6 +312,9 @@ class ComputeTracker:
             gpu_energy_joules=gpu_energy,
             gpu_memory_mb=self.gpu_memory_mb,
             gpu_utilization_percent=self.gpu_utilization,
+            cpu_memory_mb=cpu_memory_mb,
+            peak_cpu_memory_mb=peak_cpu_memory_mb,
+            peak_gpu_memory_mb=peak_gpu_memory_mb,
         )
 
 
@@ -285,6 +368,8 @@ def track_compute(
     model_name: str,
     output_path: Optional[Union[str, Path]] = None,
     track_gpu: bool = False,
+    mode: str = "training",
+    track_memory: bool = False,
 ) -> Iterator[ComputeTracker]:
     """
     Context manager for compute tracking.
@@ -297,6 +382,10 @@ def track_compute(
         If provided, metrics will be saved to this path on exit.
     track_gpu : bool
         Whether to track GPU energy.
+    mode : str
+        "training" (6× FLOP multiplier) or "inference" (2× FLOP multiplier).
+    track_memory : bool
+        Whether to track CPU/GPU memory usage (requires psutil for CPU).
 
     Yields
     ------
@@ -304,7 +393,9 @@ def track_compute(
         Tracker instance to record token batches.
     """
     params = estimate_parameters(model_name)
-    tracker = ComputeTracker(params, track_gpu=track_gpu)
+    tracker = ComputeTracker(
+        params, track_gpu=track_gpu, mode=mode, track_memory=track_memory
+    )
 
     with tracker as t:
         yield t
