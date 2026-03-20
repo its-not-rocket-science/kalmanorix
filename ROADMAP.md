@@ -84,7 +84,7 @@ This roadmap reflects the actual development status and prioritises the critical
 
 ### Milestone 3.2: Performance Optimisation
 - [ ] Implement low-rank covariance approximations
-- [ ] Add support for Ensemble Kalman Filter (parallel updates)
+- [x] Add support for Ensemble Kalman Filter (parallel updates)
 - [ ] Optimise router for minimal latency
 - **Target:** Fusion adds <10ms latency for d=768, 5 specialists
 

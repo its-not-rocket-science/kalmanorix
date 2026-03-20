@@ -7,6 +7,7 @@ from .panoramix import (
     Potion,
     MeanFuser,
     KalmanorixFuser,
+    EnsembleKalmanFuser,
     DiagonalKalmanFuser,
     LearnedGateFuser,
 )
@@ -35,6 +36,7 @@ __all__ = [
     "Potion",
     "MeanFuser",
     "KalmanorixFuser",
+    "EnsembleKalmanFuser",
     "DiagonalKalmanFuser",
     "LearnedGateFuser",
     "eval_retrieval",

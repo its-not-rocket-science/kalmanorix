@@ -22,7 +22,10 @@ import numpy as np
 from .scout import ScoutRouter
 from .village import SEF, Village
 from .types import Vec
-from .kalman_engine.kalman_fuser import kalman_fuse_diagonal
+from .kalman_engine.kalman_fuser import (
+    kalman_fuse_diagonal,
+    kalman_fuse_diagonal_ensemble,
+)
 
 # Re-export LearnedGateFuser from legacy module for now
 # TODO: Integrate properly  # pylint: disable=fixme
@@ -179,6 +182,78 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         return fused, weights, meta
 
 
+class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
+    """
+    Ensemble Kalman fusion with parallel updates.
+
+    Uses the ensemble Kalman filter formulation that processes all measurements
+    simultaneously (parallel updates). For diagonal covariance and independent
+    measurements, this is mathematically equivalent to sequential Kalman updates
+    but can be more computationally efficient.
+
+    This implementation uses `kalman_fuse_diagonal_ensemble` for parallel fusion.
+    """
+
+    def __init__(self, epsilon: float = 1e-8):
+        """
+        Args:
+            epsilon: Small constant for numerical stability
+        """
+        self.epsilon = epsilon
+
+    def fuse(
+        self,
+        query: str,
+        modules: List[SEF],
+    ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        if not modules:
+            raise ValueError("EnsembleKalmanFuser requires at least one module")
+
+        # Get embeddings and convert scalar sigma² to diagonal covariance
+        embeddings = []
+        covariances = []
+
+        for module in modules:
+            emb = module.embed(query)
+            # Apply alignment if available
+            if module.alignment_matrix is not None:
+                emb = module.alignment_matrix @ emb
+            sigma2 = module.sigma2_for(query)
+            # Convert scalar variance to diagonal covariance vector
+            cov = np.full(emb.shape, sigma2, dtype=np.float64)
+            embeddings.append(emb)
+            covariances.append(cov)
+
+        # Perform ensemble Kalman fusion (parallel updates)
+        fused, fused_cov = kalman_fuse_diagonal_ensemble(
+            embeddings,
+            covariances,
+            epsilon=self.epsilon,
+        )
+
+        # Compute weights from precision contributions
+        # Weight proportional to total precision (sum of 1/covariance)
+        total_precisions = []
+        for cov in covariances:
+            inv_cov = 1.0 / (cov + self.epsilon)
+            total_precisions.append(np.sum(inv_cov))
+
+        total_precisions_sum = sum(total_precisions)
+        weights = {
+            module.name: float(prec / total_precisions_sum)
+            for module, prec in zip(modules, total_precisions)
+        }
+
+        meta = {
+            "fused_covariance": fused_cov,
+            "total_precisions": total_precisions,
+            "epsilon": self.epsilon,
+            "variance": float(np.mean(fused_cov)),
+        }
+
+        return fused, weights, meta
+
+
 class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
     """
     Sequential diagonal Kalman-style fusion with scalar prior variance.
@@ -286,6 +361,7 @@ __all__ = [
     "Fuser",
     "MeanFuser",
     "KalmanorixFuser",
+    "EnsembleKalmanFuser",
     "DiagonalKalmanFuser",
     "LearnedGateFuser",
     "Panoramix",

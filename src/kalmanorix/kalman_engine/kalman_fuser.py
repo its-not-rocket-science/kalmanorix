@@ -294,6 +294,103 @@ def fuse_with_prior(
     )
 
 
+def kalman_fuse_diagonal_ensemble(
+    embeddings: List[np.ndarray],
+    covariances: List[np.ndarray],
+    initial_state: Optional[np.ndarray] = None,
+    initial_covariance: Optional[np.ndarray] = None,
+    epsilon: float = 1e-8,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Fuse multiple embeddings using ensemble Kalman filter with diagonal covariance.
+
+    This implementation performs parallel fusion of all measurements simultaneously
+    rather than sequential updates. For diagonal covariance and independent
+    measurements, this produces the same result as sequential Kalman updates
+    but can be more computationally efficient (single pass).
+
+    Mathematical derivation:
+        P_fused = (P0^{-1} + Σ R_i^{-1})^{-1}
+        x_fused = P_fused ⊙ (P0^{-1} ⊙ x0 + Σ R_i^{-1} ⊙ z_i)
+
+    where ⊙ denotes elementwise multiplication, and inverses are elementwise.
+
+    Args:
+        embeddings: List of embedding vectors, each shape (d,)
+        covariances: List of diagonal covariance vectors, each shape (d,)
+        initial_state: Prior state vector (d,). If None, uses non-informative prior.
+        initial_covariance: Prior covariance vector (d,). If None, uses non-informative prior.
+        epsilon: Small constant to avoid division by zero.
+
+    Returns:
+        fused_embedding: Final state estimate after all updates, shape (d,)
+        fused_covariance: Final covariance after all updates, shape (d,)
+
+    Raises:
+        ValueError: If embeddings and covariances lists have different lengths,
+                   or if any vectors have incorrect shape/dimensions.
+        TypeError: If inputs are not numpy arrays or have wrong dtype.
+    """
+    # Input validation (reuse existing validation)
+    _validate_inputs(embeddings, covariances)
+
+    d = embeddings[0].shape[0]
+
+    # Convert to float64 for numerical stability
+    embeddings_f64 = [emb.astype(np.float64) for emb in embeddings]
+    covariances_f64 = [cov.astype(np.float64) for cov in covariances]
+
+    # Initialize prior terms
+    if initial_state is not None:
+        if initial_state.shape != (d,):
+            raise ValueError(
+                f"initial_state must be shape ({d},), got {initial_state.shape}"
+            )
+        x0 = initial_state.astype(np.float64)
+    else:
+        # Non-informative prior: zero contribution
+        x0 = None
+
+    if initial_covariance is not None:
+        if initial_covariance.shape != (d,):
+            raise ValueError(
+                f"initial_covariance must be shape ({d},), got {initial_covariance.shape}"
+            )
+        P0 = initial_covariance.astype(np.float64)
+    else:
+        # Non-informative prior: infinite variance (zero precision)
+        P0 = None
+
+    # Compute sum of precision-weighted measurements: Σ R_i^{-1} ⊙ z_i
+    # and sum of precisions: Σ R_i^{-1}
+    sum_precision_weighted = np.zeros(d, dtype=np.float64)
+    sum_precision = np.zeros(d, dtype=np.float64)
+
+    for emb, cov in zip(embeddings_f64, covariances_f64):
+        # Add epsilon to avoid division by zero
+        inv_cov = 1.0 / (cov + epsilon)
+        sum_precision_weighted += inv_cov * emb
+        sum_precision += inv_cov
+
+    # Add prior contribution if provided
+    if x0 is not None and P0 is not None:
+        inv_P0 = 1.0 / (P0 + epsilon)
+        sum_precision_weighted += inv_P0 * x0
+        sum_precision += inv_P0
+    elif x0 is not None or P0 is not None:
+        raise ValueError(
+            "Both initial_state and initial_covariance must be provided together, or neither"
+        )
+
+    # Compute fused covariance: P = (sum_precision)^{-1}
+    # Handle zero precision (should not happen with epsilon > 0)
+    fused_covariance = 1.0 / (sum_precision + epsilon)
+
+    # Compute fused state: x = P ⊙ sum_precision_weighted
+    fused_embedding = fused_covariance * sum_precision_weighted
+
+    return fused_embedding, fused_covariance
+
+
 def weighted_average_baseline(
     embeddings: List[np.ndarray],
     weights: Optional[List[float]] = None,
