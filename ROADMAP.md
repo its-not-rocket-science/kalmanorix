@@ -65,8 +65,8 @@ This roadmap reflects the actual development status and prioritises the critical
 - **Target:** Kalman shows smaller performance drop on OOD queries
 
 ### Milestone 2.3: Efficiency Benchmarking
-- [ ] Measure inference FLOPs for fusion vs single large model
-- [ ] Track memory usage for multiple loaded specialists
+- [x] Measure inference FLOPs for fusion vs single large model
+- [x] Track memory usage for multiple loaded specialists
 - **Target:** Demonstrate efficiency advantage of modular deployment
 
 **Deliverable:** v0.3.0 - Experimental validation of KEFF hypotheses
@@ -77,10 +77,10 @@ This roadmap reflects the actual development status and prioritises the critical
 *Make it usable by real applications*
 
 ### Milestone 3.1: SEF Specification v0.1
-- [ ] Define Shareable Embedding Format serialisation
-- [ ] Implement `SEFModel.save_pretrained()` and `from_pretrained()`
-- [ ] Add metadata manifest (domain tags, benchmarks, licence)
-- **Success criteria:** Models can be packaged and shared as single files
+- [x] Define Shareable Embedding Format serialisation
+- [x] Implement `SEFModel.save_pretrained()` and `from_pretrained()`
+- [x] Add metadata manifest (domain tags, benchmarks, licence)
+- **Success criteria:** Models can be packaged and shared as single files (directory format with checksum verification)
 
 ### Milestone 3.2: Performance Optimisation
 - [ ] Implement low-rank covariance approximations

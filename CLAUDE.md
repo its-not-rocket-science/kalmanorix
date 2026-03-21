@@ -92,7 +92,7 @@ pytest
     - `covariance.py` – Uncertainty estimation strategies (`CovarianceEstimator`)
     - `fuser.py` – New `Panoramix` orchestrator using the Kalman engine directly (not yet exported)
     - `__init__.py` – Exports core algorithms
-  - `models/sef.py` – SEFModel (placeholder for future serialization)
+  - `models/sef.py` – SEFModel (Shareable Embedding Format with save/load capabilities)
   - `sef_io.py` – I/O utilities for SEF (future)
   - `uncertainty.py` – Uncertainty helpers (`KeywordSigma2`, `CentroidDistanceSigma2`)
   - `embedder_adapters.py` – Adapters for third‑party embedders
@@ -129,7 +129,7 @@ pytest
   - Real dataset integration (PubMed, legal case law)
   - Compute tracking (FLOPs, energy)
 - **Remaining limitations**:
-  - Serialization (`SEFModel.save_pretrained`) is a placeholder
+  - Serialization (`SEFModel.save_pretrained`) is implemented (Milestone 3.1)
   - No production-scale specialist models included
   - The `LearnedGateFuser` is still imported from legacy module
 
