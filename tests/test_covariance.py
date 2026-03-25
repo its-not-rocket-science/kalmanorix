@@ -15,6 +15,7 @@ from kalmanorix.kalman_engine.covariance import (
     KNNBasedCovariance,
     DomainBasedCovariance,
 )
+from kalmanorix.kalman_engine.structured_covariance import StructuredCovariance
 
 
 def test_empirical_covariance_basic():
@@ -306,6 +307,113 @@ def test_domain_based_covariance():
     cov_zero = estimator_zero.estimate(dummy_model, "any", domain_hint="zero")
     # Factor should be clipped to epsilon (0.1)
     assert np.allclose(cov_zero, base_cov * 0.1)
+
+
+def test_estimate_structured_default():
+    """Test default estimate_structured() returns diagonal‑only StructuredCovariance."""
+    np.random.seed(42)
+    d = 10
+    n_samples = 100
+
+    # Create a simple estimator
+    embeddings = np.random.randn(n_samples, d)
+    estimator = EmpiricalCovariance(embeddings, epsilon=1e-8)
+
+    def dummy_model(text):  # pylint: disable=unused-argument
+        return np.zeros(d)
+
+    # Check property
+    assert not estimator.supports_structured  # default False
+
+    # Get structured covariance
+    structured = estimator.estimate_structured(dummy_model, "any text")
+
+    # Should be a StructuredCovariance instance
+    assert isinstance(structured, StructuredCovariance)
+
+    # Should be diagonal‑only (no low‑rank factor)
+    assert structured.is_diagonal
+    assert structured.rank == 0
+    assert structured.lowrank_factor is None
+
+    # Diagonal should match estimate()
+    diagonal_from_estimate = estimator.estimate(dummy_model, "any text")
+    assert np.allclose(structured.diagonal, diagonal_from_estimate)
+
+    # Uncertainty score should match
+    assert np.isclose(structured.uncertainty_score(), np.sum(diagonal_from_estimate))
+
+
+def test_estimate_structured_all_estimators():
+    """Test estimate_structured() works for all concrete estimator classes."""
+    np.random.seed(123)
+    d = 8
+    n_ref = 20
+
+    # Create dummy model
+    def dummy_model(text):  # pylint: disable=unused-argument
+        return np.zeros(d)
+
+    # Test each estimator type
+    # 1. EmpiricalCovariance
+    embeddings = np.random.randn(n_ref, d)
+    estimators = [
+        EmpiricalCovariance(embeddings),
+        ConstantCovariance(np.ones(d)),
+        ScalarCovariance(0.5),
+    ]
+
+    # 2. DistanceBasedCovariance needs base estimator
+    base = EmpiricalCovariance(embeddings * 0.1)
+    ref_embeddings = np.random.randn(n_ref, d)
+    ref_embeddings = ref_embeddings / np.linalg.norm(
+        ref_embeddings, axis=1, keepdims=True
+    )
+    estimators.append(
+        DistanceBasedCovariance(
+            base_estimator=base,
+            reference_texts=[f"text{i}" for i in range(n_ref)],
+            reference_embeddings=ref_embeddings,
+            alpha=1.0,
+            distance_metric="cosine",
+        )
+    )
+
+    # 3. KNNBasedCovariance
+    reference_covariances = np.exp(np.random.randn(n_ref, d))
+    estimators.append(
+        KNNBasedCovariance(
+            reference_embeddings=ref_embeddings,
+            reference_covariances=reference_covariances,
+            k=3,
+            distance_metric="cosine",
+        )
+    )
+
+    # 4. DomainBasedCovariance
+    estimators.append(
+        DomainBasedCovariance(
+            base,
+            {"medical": 0.5, "legal": 2.0},
+            default_factor=1.0,
+        )
+    )
+
+    # Test each estimator
+    for estimator in estimators:
+        # Should not support structured (by default)
+        assert not estimator.supports_structured
+
+        # estimate_structured should return StructuredCovariance
+        structured = estimator.estimate_structured(dummy_model, "test")
+
+        assert isinstance(structured, StructuredCovariance)
+        assert structured.is_diagonal
+        assert structured.rank == 0
+
+        # Diagonal should match estimate()
+        diagonal = estimator.estimate(dummy_model, "test")
+        assert np.allclose(structured.diagonal, diagonal)
 
 
 if __name__ == "__main__":

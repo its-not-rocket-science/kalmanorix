@@ -52,6 +52,7 @@ Numerical Considerations:
 from typing import List, Tuple, Optional
 import logging
 import numpy as np
+from .structured_covariance import StructuredCovariance
 
 logger = logging.getLogger(__name__)
 
@@ -389,6 +390,166 @@ def kalman_fuse_diagonal_ensemble(
     fused_embedding = fused_covariance * sum_precision_weighted
 
     return fused_embedding, fused_covariance
+
+
+def _structured_kalman_update_diagonal(
+    x: np.ndarray,
+    P: np.ndarray,
+    z: np.ndarray,
+    R: StructuredCovariance,
+    epsilon: float = 1e-8,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Perform a single Kalman update step with structured covariance R = D + UUᵀ.
+
+    Args:
+        x: Prior state vector (d,)
+        P: Prior diagonal covariance (d,)
+        z: Measurement vector (d,)
+        R: Structured covariance measurement uncertainty
+        epsilon: Small constant to avoid division by zero
+
+    Returns:
+        x_new: Updated state vector (d,)
+        P_new: Updated diagonal covariance (d,)
+    """
+    # Ensure float64 for numerical stability
+    x = x.astype(np.float64)
+    P = P.astype(np.float64)
+    z = z.astype(np.float64)
+    d = x.shape[0]
+
+    # Innovation
+    v = z - x
+
+    # Solve (P + R) w = v using Woodbury identity
+    # R.woodbury_solve(P, v) solves (P + D + UUᵀ) w = v
+    w = R.woodbury_solve(P, v, epsilon)
+
+    # Kalman gain applied to innovation: K v = P w (since K = P (P+R)⁻¹ and P diagonal)
+    K_v = P * w
+
+    # State update
+    x_new = x + K_v
+
+    # Approximate covariance update: P_new = P - diag(K) * P
+    # Compute diag(K) = P * diag((P+R)⁻¹) ≈ P * w_e where w_e solves (P+R) w_e = e (vector of ones)
+    e = np.ones(d, dtype=np.float64)
+    w_e = R.woodbury_solve(P, e, epsilon)
+    diag_K = P * w_e
+
+    P_new = P - diag_K * P
+    # Numerical safeguard: ensure covariance stays positive
+    P_new = np.maximum(P_new, epsilon)
+
+    return x_new, P_new
+
+
+def kalman_fuse_structured(
+    embeddings: List[np.ndarray],
+    structured_covariances: List[StructuredCovariance],
+    initial_state: Optional[np.ndarray] = None,
+    initial_covariance: Optional[np.ndarray] = None,
+    sort_by_certainty: bool = True,
+    epsilon: float = 1e-8,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Fuse multiple embeddings using Kalman filter with structured covariance.
+
+    Supports low‑rank covariance R = D + UUᵀ where D is diagonal and U is a
+    low‑rank factor matrix (d × k). Complexity O(d·k + k³) per measurement.
+
+    Args:
+        embeddings: List of embedding vectors, each shape (d,)
+        structured_covariances: List of StructuredCovariance objects.
+            Must correspond 1:1 with embeddings.
+        initial_state: Starting state vector (d,). If None, uses first embedding.
+        initial_covariance: Starting covariance vector (d,). If None, uses first covariance.
+        sort_by_certainty: If True, process measurements from lowest to highest
+                          total uncertainty (sum of diagonal + trace(UUᵀ)).
+        epsilon: Small constant to avoid division by zero.
+
+    Returns:
+        fused_embedding: Final state estimate after all updates, shape (d,)
+        fused_covariance: Final covariance after all updates, shape (d,)
+
+    Raises:
+        ValueError: If embeddings and covariances lists have different lengths,
+                   or if any vectors have incorrect shape/dimensions.
+        TypeError: If inputs are not numpy arrays or have wrong dtype.
+    """
+    # Input validation
+    if len(embeddings) != len(structured_covariances):
+        raise ValueError(
+            f"Number of embeddings ({len(embeddings)}) must match "
+            f"number of structured_covariances ({len(structured_covariances)})"
+        )
+
+    if len(embeddings) == 0:
+        raise ValueError("At least one embedding required")
+
+    # Check first embedding for dimension
+    d = embeddings[0].shape[0]
+
+    for i, (emb, cov) in enumerate(zip(embeddings, structured_covariances)):
+        if not isinstance(emb, np.ndarray):
+            raise TypeError(f"Item {i}: embedding must be numpy array")
+        if emb.shape != (d,):
+            raise ValueError(f"Embedding {i}: expected shape ({d},), got {emb.shape}")
+        if cov.dimension != d:
+            raise ValueError(
+                f"Covariance {i}: dimension {cov.dimension} does not match embedding dimension {d}"
+            )
+        # Check for NaN or inf
+        if not np.all(np.isfinite(emb)):
+            raise ValueError(f"Item {i}: embedding must be finite")
+
+    # Initialize state
+    if initial_state is not None:
+        if initial_state.shape != (d,):
+            raise ValueError(
+                f"initial_state must be shape ({d},), got {initial_state.shape}"
+            )
+        x = initial_state.copy().astype(np.float64)
+    else:
+        x = embeddings[0].copy().astype(np.float64)
+
+    if initial_covariance is not None:
+        if initial_covariance.shape != (d,):
+            raise ValueError(
+                f"initial_covariance must be shape ({d},), got {initial_covariance.shape}"
+            )
+        P = initial_covariance.copy().astype(np.float64)
+    else:
+        # Use first covariance diagonal as initial (ignore low-rank factor)
+        P = structured_covariances[0].diagonal.copy().astype(np.float64)
+
+    # Create list of measurements to process
+    measurements = list(zip(embeddings, structured_covariances))
+
+    # Optionally sort by total uncertainty (sum of diagonal + trace(UUᵀ))
+    if sort_by_certainty and len(measurements) > 1:
+        # Sort from most certain (smallest total covariance) to least certain
+        measurements.sort(key=lambda m: m[1].uncertainty_score())
+        logger.debug(
+            "Sorted measurements by total uncertainty: %s",
+            [m[1].uncertainty_score() for m in measurements],
+        )
+
+    # Sequential Kalman updates
+    for i, (z, R) in enumerate(measurements):
+        # Skip first if we used it as initial state
+        if i == 0 and initial_state is None and initial_covariance is None:
+            continue
+
+        x, P = _structured_kalman_update_diagonal(x, P, z, R, epsilon)
+
+        logger.debug(
+            "After measurement %d: state norm=%.4f, total uncertainty=%.4f",
+            i,
+            np.linalg.norm(x),
+            np.sum(P),
+        )
+
+    return x, P
 
 
 def weighted_average_baseline(

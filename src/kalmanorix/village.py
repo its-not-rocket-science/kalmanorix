@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Callable, Dict, Iterable, List, Optional, Union
+from typing import Callable, Dict, Iterable, List, Optional, Union, TYPE_CHECKING
 import numpy as np
 
 
 from .types import Embedder, Vec
+
+if TYPE_CHECKING:
+    from .models.sef import SEFModel
+    from .kalman_engine.structured_covariance import StructuredCovariance
 
 Sigma2 = Union[float, Callable[[str], float]]
 
@@ -19,6 +23,9 @@ class SEF:
     sigma2 can be:
       - float: constant uncertainty
       - Callable[[str], float]: query-dependent uncertainty
+
+    If model is provided, it should be a SEFModel instance that can provide
+    structured covariance (low‑rank) via get_structured_covariance().
     """
 
     name: str
@@ -27,6 +34,7 @@ class SEF:
     meta: Optional[Dict[str, str]] = None
     alignment_matrix: Optional[np.ndarray] = None
     domain_centroid: Optional[Vec] = None
+    model: Optional["SEFModel"] = None
 
     def sigma2_for(self, query: str) -> float:
         """Return uncertainty (variance) for a given query."""
@@ -37,6 +45,36 @@ class SEF:
 
         # Safety: avoid zero/negative variances
         return max(val, 1e-12)
+
+    def get_covariance(self, query: str) -> np.ndarray:
+        """Return diagonal covariance vector for this query.
+
+        If the SEF has an attached SEFModel, returns its diagonal covariance.
+        Otherwise, returns sigma2_for(query) * ones(d).
+        """
+        if self.model is not None:
+            # Use model's diagonal covariance
+            from .models.sef import SEFModel  # lazy import to avoid circular
+
+            assert isinstance(self.model, SEFModel)
+            return self.model.get_covariance(query)
+        # Fallback: scalar sigma2 converted to diagonal
+        d = self.embed("dummy").shape[0]  # dimension
+        sigma2 = self.sigma2_for(query)
+        return np.full(d, sigma2, dtype=np.float64)
+
+    def get_structured_covariance(self, query: str) -> Optional["StructuredCovariance"]:
+        """Return structured covariance (diagonal + low‑rank) if available.
+
+        If the SEF has an attached SEFModel that supports low‑rank covariance,
+        returns a StructuredCovariance object. Otherwise returns None.
+        """
+        if self.model is not None:
+            from .models.sef import SEFModel  # lazy import to avoid circular
+
+            assert isinstance(self.model, SEFModel)
+            return self.model.get_structured_covariance(query)
+        return None
 
     def with_domain_centroid(self, calibration_texts: Iterable[str]) -> "SEF":
         """Return a new SEF with domain centroid computed from calibration texts.

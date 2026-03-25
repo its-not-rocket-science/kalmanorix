@@ -25,6 +25,8 @@ import logging
 
 import numpy as np
 
+from ..kalman_engine.structured_covariance import StructuredCovariance
+
 logger = logging.getLogger(__name__)
 
 
@@ -167,6 +169,58 @@ class SEFModel:
                 "Unknown covariance method '%s', returning unit covariance", method
             )
             return np.ones(self.dimension)
+
+    def get_structured_covariance(self, text: str) -> StructuredCovariance:
+        """Get structured covariance (diagonal + low‑rank) for this text.
+
+        Returns a StructuredCovariance object representing R = D + UUᵀ.
+        If the model uses diagonal‑only covariance (metadata.covariance_format == "diagonal"),
+        returns a diagonal‑only StructuredCovariance.
+
+        Currently only supports "fixed" method for low‑rank covariance.
+        Distance‑based scaling is applied to both diagonal and low‑rank factor.
+        """
+        method = self.covariance_data.get("method", "fixed")
+
+        # Get base diagonal
+        diagonal: np.ndarray
+        scale: float = 1.0
+        if method == "fixed":
+            diagonal = self.covariance_data["diagonal"].copy()
+        elif method == "distance_based":
+            base_diagonal = self.covariance_data["diagonal"]
+            alpha = self.covariance_data.get("alpha", 1.0)
+            ref_embeddings = self.covariance_data["reference_embeddings"]
+
+            # Compute distance
+            emb = self.embed(text)
+            # Normalise for cosine distance
+            emb_norm = emb / (np.linalg.norm(emb) + 1e-8)
+            ref_norm = ref_embeddings / (
+                np.linalg.norm(ref_embeddings, axis=1, keepdims=True) + 1e-8
+            )
+            similarities = ref_norm @ emb_norm
+            distance = 1.0 - np.max(similarities)
+            scale = 1.0 + alpha * distance
+            diagonal = base_diagonal * scale
+        else:
+            # Unknown method, return diagonal‑only with unit covariance
+            logger.warning(
+                "Unknown covariance method '%s', returning diagonal‑only unit covariance",
+                method,
+            )
+            return StructuredCovariance.from_diagonal(np.ones(self.dimension))
+
+        # Get low‑rank factor if present and format is low_rank
+        lowrank_factor: Optional[np.ndarray] = None
+        if self.metadata.covariance_format == "low_rank":
+            lowrank_factor = self.covariance_data.get("lowrank_factor")
+            if lowrank_factor is not None:
+                # Apply sqrt(scale) to low‑rank factor to keep R = scale * (D + UUᵀ)
+                if method == "distance_based":
+                    lowrank_factor = lowrank_factor * np.sqrt(scale)
+
+        return StructuredCovariance(diagonal, lowrank_factor=lowrank_factor)
 
     def save_pretrained(self, path: Union[str, Path]) -> None:
         """Save model to disk in SEF format.

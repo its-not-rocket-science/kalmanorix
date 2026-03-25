@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from kalmanorix.models.sef import SEFModel, SEFMetadata, create_procrustes_alignment
+from kalmanorix.kalman_engine.structured_covariance import StructuredCovariance
 
 
 def dummy_embedder(text: str) -> np.ndarray:
@@ -353,6 +354,184 @@ def test_sefmodel_dimension_mismatch():
             alignment_matrix=None,
             covariance_data={},
         )
+
+
+def test_sefmodel_lowrank_covariance(tmp_path):
+    """Test SEFModel with low‑rank covariance (fixed method)."""
+    metadata = SEFMetadata(
+        model_id="lowrank-test",
+        name="LowRank Test",
+        version="1.0",
+        description="Test low‑rank covariance",
+        domain_tags=["test"],
+        task_tags=["test"],
+        benchmarks={},
+        training_data_description="Synthetic",
+        base_model="dummy",
+        training_date="2026-03-21",
+        author="Test",
+        licence="MIT",
+        embedding_dimension=384,
+        covariance_format="low_rank",  # Important!
+        alignment_method="identity",
+        checksum="",
+    )
+
+    # Create diagonal and low‑rank factor
+    d = 384
+    k = 10
+    diagonal = np.ones(d) * 0.1
+    lowrank_factor = np.random.randn(d, k) * 0.05  # Small factor
+
+    covariance_data = {
+        "method": "fixed",
+        "diagonal": diagonal,
+        "lowrank_factor": lowrank_factor,
+    }
+
+    model = SEFModel(
+        embed_function=dummy_embedder,
+        metadata=metadata,
+        alignment_matrix=None,
+        covariance_data=covariance_data,
+    )
+
+    # Test get_structured_covariance
+    structured = model.get_structured_covariance("any text")
+    assert isinstance(structured, StructuredCovariance)
+    assert not structured.is_diagonal
+    assert structured.rank == k
+    assert np.allclose(structured.diagonal, diagonal)
+    assert np.allclose(structured.lowrank_factor, lowrank_factor)
+
+    # Test get_covariance returns diagonal only (backward compatibility)
+    diag_only = model.get_covariance("any text")
+    assert diag_only.shape == (d,)
+    assert np.allclose(diag_only, diagonal)
+
+    # Save and load round‑trip
+    save_dir = tmp_path / "lowrank_model"
+    model.save_pretrained(save_dir)
+
+    # Verify lowrank_factor was saved
+    with np.load(save_dir / "covariance.npz") as data:
+        assert "lowrank_factor" in data
+        assert np.allclose(data["lowrank_factor"], lowrank_factor)
+
+    # Load back
+    loaded = SEFModel.from_pretrained(save_dir, embed_loader=lambda p: dummy_embedder)
+
+    # Verify metadata
+    assert loaded.metadata.covariance_format == "low_rank"
+
+    # Verify structured covariance matches
+    loaded_structured = loaded.get_structured_covariance("any text")
+    assert isinstance(loaded_structured, StructuredCovariance)
+    assert not loaded_structured.is_diagonal
+    assert loaded_structured.rank == k
+    assert np.allclose(loaded_structured.diagonal, diagonal)
+    assert np.allclose(loaded_structured.lowrank_factor, lowrank_factor)
+
+    # Verify diagonal‑only covariance matches
+    loaded_diag = loaded.get_covariance("any text")
+    assert np.allclose(loaded_diag, diagonal)
+
+
+def test_sefmodel_lowrank_distance_based(tmp_path):
+    """Test low‑rank covariance with distance‑based scaling."""
+    metadata = SEFMetadata(
+        model_id="lowrank-dist",
+        name="LowRank Distance",
+        version="1.0",
+        description="Test low‑rank with distance scaling",
+        domain_tags=["test"],
+        task_tags=["test"],
+        benchmarks={},
+        training_data_description="Synthetic",
+        base_model="dummy",
+        training_date="2026-03-21",
+        author="Test",
+        licence="MIT",
+        embedding_dimension=384,
+        covariance_format="low_rank",
+        alignment_method="identity",
+        checksum="",
+    )
+
+    d = 384
+    k = 5
+    base_diagonal = np.ones(d) * 0.1
+    lowrank_factor = np.random.randn(d, k) * 0.03
+
+    # Reference embeddings for distance scaling
+    n_ref = 10
+    rng = np.random.RandomState(42)  # pylint: disable=no-member
+    reference_embeddings = rng.randn(n_ref, d).astype(np.float64)
+    norms = np.linalg.norm(reference_embeddings, axis=1, keepdims=True)
+    reference_embeddings = reference_embeddings / (norms + 1e-8)
+
+    covariance_data = {
+        "method": "distance_based",
+        "diagonal": base_diagonal,
+        "lowrank_factor": lowrank_factor,
+        "alpha": 2.0,
+        "reference_embeddings": reference_embeddings,
+    }
+
+    model = SEFModel(
+        embed_function=dummy_embedder,
+        metadata=metadata,
+        alignment_matrix=None,
+        covariance_data=covariance_data,
+    )
+
+    # Test with two different queries (distance will differ due to random embedder)
+    query1 = "similar query"
+    query2 = "different query"
+
+    structured1 = model.get_structured_covariance(query1)
+    structured2 = model.get_structured_covariance(query2)
+
+    # Both should be low‑rank
+    assert not structured1.is_diagonal
+    assert not structured2.is_diagonal
+    assert structured1.rank == k
+    assert structured2.rank == k
+
+    # Diagonal parts should be scaled differently
+    diag1 = structured1.diagonal
+    diag2 = structured2.diagonal
+    # They may be equal if distances happen to be same (unlikely with random embedder)
+    # We just check shapes
+    assert diag1.shape == (d,)
+    assert diag2.shape == (d,)
+
+    # Low‑rank factors should be scaled by sqrt(scale)
+    # Verify that R = D + UUᵀ is scaled consistently
+    # Compute full matrices
+    R1 = structured1.to_full()
+    R2 = structured2.to_full()
+    # Each should be equal to scale * (base_diagonal + lowrank_factor @ lowrank_factor.T)
+    # where scale = 1 + alpha * distance
+    # We can't compute distance directly because embedder is random, but we can verify
+    # that R1 and R2 are not equal (likely)
+    # Use tolerance: if distances differ, matrices differ
+    # Not asserting equality, just that they are valid covariances
+    assert np.all(np.linalg.eigvalsh(R1) >= -1e-10)  # Positive semidefinite
+    assert np.all(np.linalg.eigvalsh(R2) >= -1e-10)
+
+    # Save and load
+    save_dir = tmp_path / "lowrank_dist_model"
+    model.save_pretrained(save_dir)
+    loaded = SEFModel.from_pretrained(save_dir, embed_loader=lambda p: dummy_embedder)
+
+    # Verify loaded structured covariance for same query matches
+    loaded_structured1 = loaded.get_structured_covariance(query1)
+    assert np.allclose(loaded_structured1.diagonal, diag1, rtol=1e-5)
+    # Low‑rank factor may differ by sqrt(scale) tolerance
+    # Compare full matrices instead
+    R1_loaded = loaded_structured1.to_full()
+    assert np.allclose(R1, R1_loaded, rtol=1e-5)
 
 
 if __name__ == "__main__":

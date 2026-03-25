@@ -44,6 +44,8 @@ import logging
 
 import numpy as np
 
+from .structured_covariance import StructuredCovariance
+
 # Optional PyTorch import
 try:
     import torch
@@ -76,6 +78,40 @@ class CovarianceEstimator(ABC):
         Returns:
             covariance: Diagonal covariance vector (d,)
         """
+
+    @property
+    def supports_structured(self) -> bool:
+        """Whether this estimator can produce structured (low‑rank) covariance.
+
+        Default is False (only diagonal covariance). Override to True if the
+        estimator can produce low‑rank factor matrices.
+        """
+        return False
+
+    def estimate_structured(
+        self,
+        model: Callable[[str], np.ndarray],
+        text: str,
+        domain_hint: Optional[str] = None,
+    ) -> StructuredCovariance:
+        """Estimate structured covariance (diagonal + optional low‑rank factor).
+
+        Default implementation returns a diagonal‑only StructuredCovariance
+        using the result of `estimate()`. Override if the estimator can
+        produce low‑rank factor matrices.
+
+        Args:
+            model: Function that takes text and returns embedding
+            text: Input text to estimate uncertainty for
+            domain_hint: Optional domain tag to inform estimation
+
+        Returns:
+            StructuredCovariance instance with diagonal entries from
+            `estimate()`. If `supports_structured` is True, may also include
+            a low‑rank factor matrix.
+        """
+        diagonal = self.estimate(model, text, domain_hint)
+        return StructuredCovariance.from_diagonal(diagonal)
 
 
 class EmpiricalCovariance(CovarianceEstimator):
