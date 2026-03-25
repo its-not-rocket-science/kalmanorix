@@ -1,0 +1,34 @@
+[
+  {
+    "specialist_count": 3,
+    "strategy": "mean",
+    "routing_mode": "semantic",
+    "num_modules_loaded": 3,
+    "specialists_selected_count": 3,
+    "selection_efficiency": 1.0,
+    "latency_mean_ms": 24.53769997227937,
+    "latency_std_ms": 4.003182071554086,
+    "total_flops": 6006000000,
+    "flops_per_token": 132000000.0,
+    "tokens_per_second": 1112.573714359587,
+    "cpu_memory_mb": 779,
+    "peak_cpu_memory_mb": 779,
+    "flops_vs_monolith": 3.0
+  },
+  {
+    "specialist_count": 3,
+    "strategy": "kalman",
+    "routing_mode": "semantic",
+    "num_modules_loaded": 3,
+    "specialists_selected_count": 3,
+    "selection_efficiency": 1.0,
+    "latency_mean_ms": 40.39097998756915,
+    "latency_std_ms": 5.034336760283256,
+    "total_flops": 6006000000,
+    "flops_per_token": 132000000.0,
+    "tokens_per_second": 675.893479395695,
+    "cpu_memory_mb": 779,
+    "peak_cpu_memory_mb": 779,
+    "flops_vs_monolith": 3.0
+  }
+]

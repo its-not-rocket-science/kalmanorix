@@ -1,0 +1,30 @@
+[
+  {
+    "specialist_count": 5,
+    "strategy": "mean",
+    "routing_mode": "all",
+    "num_modules_loaded": 5,
+    "specialists_selected_count": 5,
+    "selection_efficiency": 1.0,
+    "latency_mean_ms": 57.60519998148084,
+    "latency_std_ms": 0.16109994612634182,
+    "total_flops": 4576000000,
+    "flops_per_token": 220000000.0,
+    "tokens_per_second": 902.6962846534199,
+    "flops_vs_monolith": 5.0
+  },
+  {
+    "specialist_count": 5,
+    "strategy": "mean",
+    "routing_mode": "semantic",
+    "num_modules_loaded": 5,
+    "specialists_selected_count": 5,
+    "selection_efficiency": 1.0,
+    "latency_mean_ms": 82.06709998194128,
+    "latency_std_ms": 4.279399989172816,
+    "total_flops": 4576000000,
+    "flops_per_token": 220000000.0,
+    "tokens_per_second": 633.6278485707733,
+    "flops_vs_monolith": 5.0
+  }
+]

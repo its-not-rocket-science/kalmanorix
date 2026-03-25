@@ -352,7 +352,10 @@ class Panoramix:  # pylint: disable=too-few-public-methods
             The fused embedding and diagnostics.
         """
         chosen = scout.select(query, village)
-        vec, weights, meta = self.fuser.fuse(query, chosen)
+        vec, weights, fuser_meta = self.fuser.fuse(query, chosen)
+        meta: Dict[str, object] = {"selected_modules": [m.name for m in chosen]}
+        if fuser_meta is not None:
+            meta.update(fuser_meta)
         return Potion(vector=vec, weights=weights, meta=meta)
 
 

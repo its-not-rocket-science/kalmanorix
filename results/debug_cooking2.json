@@ -1,0 +1,18 @@
+[
+  {
+    "specialist_count": 3,
+    "strategy": "mean",
+    "routing_mode": "semantic",
+    "num_modules_loaded": 3,
+    "specialists_selected_count": 1,
+    "selection_efficiency": 0.3333333333333333,
+    "latency_mean_ms": 42.681299964897335,
+    "latency_std_ms": 0.0,
+    "total_flops": 343200000,
+    "flops_per_token": 44000000.0,
+    "tokens_per_second": 182.74982267210714,
+    "cpu_memory_mb": 826,
+    "peak_cpu_memory_mb": 826,
+    "flops_vs_monolith": 1.0
+  }
+]

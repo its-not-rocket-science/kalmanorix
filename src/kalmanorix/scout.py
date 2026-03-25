@@ -97,13 +97,16 @@ class ScoutRouter:
             # Determine threshold
             if callable(self.similarity_threshold):
                 threshold = self.similarity_threshold(query, query_vec, similarities)
+                print(f"[ScoutRouter] threshold={threshold:.6f} (dynamic)")
             else:
                 threshold = self.similarity_threshold
+                print(f"[ScoutRouter] threshold={threshold:.6f}")
 
             # Select modules meeting threshold
             selected = [
                 module for module, sim in module_similarities if sim >= threshold
             ]
+            print(f"[ScoutRouter] selected modules: {[m.name for m in selected]}")
 
             # Return selected modules or fallback if none
             return selected if selected else self._fallback_selection(query, village)
