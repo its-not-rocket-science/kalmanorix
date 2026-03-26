@@ -1,0 +1,339 @@
+"""
+FastAPI server for Kalmanorix remote fusion.
+
+This server exposes Kalmanorix fusion capabilities via REST API, allowing
+remote clients to fuse embeddings from multiple specialist models.
+
+Endpoints:
+- GET /: Server info and available fusion strategies
+- GET /modules: List available specialist modules
+- POST /fuse: Fuse embeddings for a query with specified strategy
+
+Run with:
+    uvicorn examples.fastapi_server:app --reload
+"""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Literal, Optional
+
+import numpy as np
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+from kalmanorix import (
+    SEF,
+    Village,
+    ScoutRouter,
+    Panoramix,
+    MeanFuser,
+    KalmanorixFuser,
+    EnsembleKalmanFuser,
+    StructuredKalmanFuser,
+    DiagonalKalmanFuser,
+    LearnedGateFuser,
+)
+from kalmanorix.types import Vec
+from kalmanorix.uncertainty import KeywordSigma2
+
+# -----------------------------------------------------------------------------
+# Toy specialist setup (same as minimal_fusion_demo.py)
+# -----------------------------------------------------------------------------
+
+DIM = 16
+
+
+class KeywordEmbedder:
+    """Toy keyword-sensitive embedder (deterministic)."""
+
+    def __init__(
+        self,
+        dim: int,
+        seed: int,
+        keywords: set[str],
+        keyword_boost: float = 2.5,
+    ):
+        self.dim = dim
+        self.keywords = keywords
+        self.keyword_boost = keyword_boost
+
+        rng = np.random.default_rng(seed)
+        self._base_dir = rng.normal(size=(dim,))
+        self._base_dir = self._base_dir / (np.linalg.norm(self._base_dir) + 1e-12)
+        self._kw_dir = rng.normal(size=(dim,))
+        self._kw_dir = self._kw_dir / (np.linalg.norm(self._kw_dir) + 1e-12)
+
+    def __call__(self, text: str) -> Vec:
+        t = text.lower()
+
+        # Tiny deterministic "noise"
+        noise = np.zeros(self.dim, dtype=np.float64)
+        for ch in t[:64]:
+            noise[(ord(ch) * 13) % self.dim] += 0.01
+
+        vec = self._base_dir + noise
+
+        if any(kw in t for kw in self.keywords):
+            vec = vec + self.keyword_boost * self._kw_dir
+
+        vec = vec / (np.linalg.norm(vec) + 1e-12)
+        return vec.astype(np.float64)
+
+
+def create_toy_village() -> Village:
+    """Create the same toy specialists as minimal_fusion_demo."""
+    tech_keywords = {
+        "battery",
+        "smartphone",
+        "cpu",
+        "gpu",
+        "laptop",
+        "android",
+        "ios",
+        "camera",
+        "charger",
+    }
+    cook_keywords = {
+        "braise",
+        "simmer",
+        "slow cooker",
+        "recipe",
+        "garlic",
+        "onion",
+        "saute",
+        "oven",
+        "stew",
+    }
+
+    tech = SEF(
+        name="tech",
+        embed=KeywordEmbedder(dim=DIM, seed=7, keywords=tech_keywords),
+        sigma2=KeywordSigma2(
+            tech_keywords, in_domain_sigma2=0.2, out_domain_sigma2=2.5
+        ),
+        meta={"domain": "tech"},
+    )
+    cook = SEF(
+        name="cook",
+        embed=KeywordEmbedder(dim=DIM, seed=11, keywords=cook_keywords),
+        sigma2=KeywordSigma2(
+            cook_keywords, in_domain_sigma2=0.2, out_domain_sigma2=2.5
+        ),
+        meta={"domain": "cooking"},
+    )
+
+    return Village([tech, cook])
+
+
+# -----------------------------------------------------------------------------
+# Global server state
+# -----------------------------------------------------------------------------
+
+VILLAGE = create_toy_village()
+SCOUT_ALL = ScoutRouter(mode="all")
+SCOUT_HARD = ScoutRouter(mode="hard")
+
+# Available fusion strategies
+FUSERS = {
+    "mean": MeanFuser(),
+    "kalmanorix": KalmanorixFuser(),
+    "ensemble_kalman": EnsembleKalmanFuser(),
+    "structured_kalman": StructuredKalmanFuser(),
+    "diagonal_kalman": DiagonalKalmanFuser(),
+}
+
+# Learned gate fuser needs training data - create and train it
+GATE_FUSER = LearnedGateFuser(
+    module_a="tech",
+    module_b="cook",
+    n_features=128,
+    lr=0.6,
+    l2=1e-3,
+    steps=400,
+)
+train_texts = [
+    "Battery life is excellent on this smartphone",
+    "The laptop CPU throttles under load",
+    "Camera quality and charger compatibility",
+    "Android update improved performance",
+    "Braise the beef and simmer for hours",
+    "Slow cooker recipe with garlic and onion",
+    "Saute the vegetables then bake in the oven",
+    "Stew tastes better after simmering",
+]
+train_y = [1, 1, 1, 1, 0, 0, 0, 0]
+GATE_FUSER.fit(train_texts, train_y)
+FUSERS["learned_gate"] = GATE_FUSER
+
+# -----------------------------------------------------------------------------
+# FastAPI app and models
+# -----------------------------------------------------------------------------
+
+app = FastAPI(
+    title="Kalmanorix Fusion Server",
+    description="REST API for fusing embeddings from multiple specialist models",
+    version="0.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+class FusionRequest(BaseModel):
+    """Request body for fusion endpoint."""
+
+    query: str = Field(..., description="Input text query to fuse")
+    strategy: Literal[
+        "mean",
+        "kalmanorix",
+        "ensemble_kalman",
+        "structured_kalman",
+        "diagonal_kalman",
+        "learned_gate",
+    ] = Field("kalmanorix", description="Fusion strategy to use")
+    routing: Literal["all", "hard"] = Field(
+        "all", description="Routing mode: 'all' (fusion) or 'hard' (single module)"
+    )
+
+
+class ModuleInfo(BaseModel):
+    """Information about a specialist module."""
+
+    name: str
+    domain: Optional[str] = None
+    sigma2_type: str
+    sigma2_in_domain: Optional[float] = None
+    sigma2_out_domain: Optional[float] = None
+
+
+class FusionResponse(BaseModel):
+    """Response from fusion endpoint."""
+
+    query: str
+    strategy: str
+    routing: str
+    selected_modules: List[str]
+    fused_vector: List[float]
+    weights: Dict[str, float]
+    meta: Optional[Dict[str, object]] = None
+
+
+# -----------------------------------------------------------------------------
+# Helper functions
+# -----------------------------------------------------------------------------
+
+
+def numpy_to_list(obj):
+    """Recursively convert numpy arrays to Python lists."""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, dict):
+        return {k: numpy_to_list(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [numpy_to_list(item) for item in obj]
+    return obj
+
+
+# -----------------------------------------------------------------------------
+# API endpoints
+# -----------------------------------------------------------------------------
+
+
+@app.get("/", response_model=Dict[str, Any])
+async def root():
+    """Server info and available endpoints."""
+    return {
+        "name": "Kalmanorix Fusion Server",
+        "version": "0.1.0",
+        "description": "REST API for fusing embeddings from multiple specialist models",
+        "endpoints": {
+            "GET /": "This info",
+            "GET /modules": "List available specialist modules",
+            "POST /fuse": "Fuse embeddings for a query",
+        },
+    }
+
+
+@app.get("/modules", response_model=List[ModuleInfo])
+async def list_modules():
+    """List available specialist modules in the village."""
+    modules = []
+    for sef in VILLAGE.modules:
+        sigma2 = sef.sigma2
+        sigma2_type = type(sigma2).__name__
+        sigma2_in_domain = None
+        sigma2_out_domain = None
+
+        # Extract sigma2 values for KeywordSigma2
+        if hasattr(sigma2, "in_domain_sigma2") and hasattr(sigma2, "out_domain_sigma2"):
+            sigma2_in_domain = sigma2.in_domain_sigma2
+            sigma2_out_domain = sigma2.out_domain_sigma2
+
+        modules.append(
+            ModuleInfo(
+                name=sef.name,
+                domain=sef.meta.get("domain") if sef.meta else None,
+                sigma2_type=sigma2_type,
+                sigma2_in_domain=sigma2_in_domain,
+                sigma2_out_domain=sigma2_out_domain,
+            )
+        )
+    return modules
+
+
+@app.post("/fuse", response_model=FusionResponse)
+async def fuse(request: FusionRequest):
+    """Fuse embeddings for a query using the specified strategy."""
+    # Select routing
+    scout = SCOUT_ALL if request.routing == "all" else SCOUT_HARD
+
+    # Select fuser
+    if request.strategy not in FUSERS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown fusion strategy: {request.strategy}. "
+            f"Available: {list(FUSERS.keys())}",
+        )
+    fuser = FUSERS[request.strategy]
+
+    # Perform fusion
+    try:
+        panoramix = Panoramix(fuser=fuser)
+        potion = panoramix.brew(request.query, village=VILLAGE, scout=scout)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Fusion error: {str(e)}") from e
+
+    # Convert numpy arrays to lists for JSON serialization
+    fused_vector_list = potion.vector.tolist()
+    weights_dict = {k: float(v) for k, v in potion.weights.items()}
+
+    # Convert metadata if present
+    meta_dict = None
+    if potion.meta:
+        meta_dict = numpy_to_list(potion.meta)
+
+    return FusionResponse(
+        query=request.query,
+        strategy=request.strategy,
+        routing=request.routing,
+        selected_modules=potion.meta.get("selected_modules", []) if potion.meta else [],
+        fused_vector=fused_vector_list,
+        weights=weights_dict,
+        meta=meta_dict,
+    )
+
+
+# -----------------------------------------------------------------------------
+# Main entry point (for running directly)
+# -----------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,0 +1,172 @@
+"""
+Tests for FastAPI server (Milestone 3.3 integration).
+
+These tests verify that the REST API endpoints work correctly and return
+the expected data structures. They use the TestClient from fastapi.testclient.
+"""
+
+import sys
+
+import numpy as np
+import pytest
+from fastapi.testclient import TestClient
+
+# Import the FastAPI app from examples
+sys.path.insert(0, "examples")
+from fastapi_server import app  # pylint: disable=wrong-import-position
+
+client = TestClient(app)
+
+
+def test_root_endpoint():
+    """GET / returns server info."""
+    response = client.get("/")
+    assert response.status_code == 200
+    data = response.json()
+    assert "name" in data
+    assert data["name"] == "Kalmanorix Fusion Server"
+    assert "version" in data
+    assert "endpoints" in data
+
+
+def test_modules_endpoint():
+    """GET /modules lists available specialist modules."""
+    response = client.get("/modules")
+    assert response.status_code == 200
+    modules = response.json()
+    assert isinstance(modules, list)
+    assert len(modules) == 2  # tech and cook
+    names = {m["name"] for m in modules}
+    assert names == {"tech", "cook"}
+    for module in modules:
+        assert "name" in module
+        assert "sigma2_type" in module
+        assert module["sigma2_type"] == "KeywordSigma2"
+
+
+@pytest.mark.parametrize(
+    "strategy",
+    [
+        "mean",
+        "kalmanorix",
+        "ensemble_kalman",
+        "structured_kalman",
+        "diagonal_kalman",
+        "learned_gate",
+    ],
+)
+def test_fuse_endpoint_all_routing(strategy: str):
+    """POST /fuse works with all fusion strategies (routing='all')."""
+    payload = {
+        "query": "This smartphone battery lasts longer than a slow cooker braise.",
+        "strategy": strategy,
+        "routing": "all",
+    }
+    response = client.post("/fuse", json=payload)
+    assert response.status_code == 200, (
+        f"Failed for strategy {strategy}: {response.text}"
+    )
+    data = response.json()
+
+    # Validate response structure
+    assert data["query"] == payload["query"]
+    assert data["strategy"] == strategy
+    assert data["routing"] == "all"
+    assert "selected_modules" in data
+    assert isinstance(data["selected_modules"], list)
+    assert set(data["selected_modules"]) == {"tech", "cook"}
+    assert "fused_vector" in data
+    assert isinstance(data["fused_vector"], list)
+    assert len(data["fused_vector"]) == 16  # DIM from server
+    assert "weights" in data
+    assert isinstance(data["weights"], dict)
+    assert set(data["weights"].keys()) == {"tech", "cook"}
+    # Weights should sum to approximately 1
+    weight_sum = sum(data["weights"].values())
+    assert abs(weight_sum - 1.0) < 1e-6
+
+
+def test_fuse_endpoint_hard_routing():
+    """POST /fuse with routing='hard' selects only one module."""
+    payload = {
+        "query": "This smartphone battery lasts longer than a slow cooker braise.",
+        "strategy": "mean",  # strategy irrelevant for hard routing
+        "routing": "hard",
+    }
+    response = client.post("/fuse", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["routing"] == "hard"
+    assert len(data["selected_modules"]) == 1
+    assert data["selected_modules"][0] in {"tech", "cook"}
+    # With hard routing, the selected module should have weight 1.0
+    assert abs(data["weights"][data["selected_modules"][0]] - 1.0) < 1e-6
+
+
+def test_fuse_endpoint_invalid_strategy():
+    """POST /fuse with unknown strategy returns 422 validation error."""
+    payload = {
+        "query": "test",
+        "strategy": "invalid_strategy",
+        "routing": "all",
+    }
+    response = client.post("/fuse", json=payload)
+    assert response.status_code == 422
+    data = response.json()
+    assert "detail" in data
+    # Pydantic validation error details should mention the invalid value
+
+
+def test_fuse_endpoint_missing_field():
+    """POST /fuse with missing required field returns 422 validation error."""
+    payload = {
+        "strategy": "mean",
+        "routing": "all",
+        # missing "query"
+    }
+    response = client.post("/fuse", json=payload)
+    assert response.status_code == 422
+    data = response.json()
+    assert "detail" in data
+
+
+def test_fuse_metadata_structure():
+    """Check that meta field is present and serializable."""
+    payload = {
+        "query": "test query",
+        "strategy": "kalmanorix",
+        "routing": "all",
+    }
+    response = client.post("/fuse", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    # meta may be None or a dict
+    if data["meta"] is not None:
+        assert isinstance(data["meta"], dict)
+        # Check for some expected keys in meta
+        if "selected_modules" in data["meta"]:
+            assert isinstance(data["meta"]["selected_modules"], list)
+
+
+def test_numpy_serialization():
+    """Ensure numpy arrays in metadata are properly converted to lists."""
+    # This test uses the server's internal functions to verify numpy_to_list
+    from fastapi_server import numpy_to_list  # pylint: disable=import-error
+
+    # Test with numpy array
+    arr = np.array([1.0, 2.0, 3.0])
+    assert numpy_to_list(arr) == [1.0, 2.0, 3.0]
+
+    # Test with dict containing numpy arrays
+    d = {"a": arr, "b": 5}
+    result = numpy_to_list(d)
+    assert result == {"a": [1.0, 2.0, 3.0], "b": 5}
+
+    # Test with nested list
+    lst = [arr, arr]
+    result = numpy_to_list(lst)
+    assert result == [[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

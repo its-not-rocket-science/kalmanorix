@@ -20,6 +20,7 @@ from .embedder_adapters import (
     AnthropicEmbedder,
     VertexAIEmbedder,
     AzureOpenAIEmbedder,
+    HuggingFaceEmbedder,
 )
 from .threshold_heuristics import (
     threshold_top_k,
@@ -48,6 +49,7 @@ __all__ = [
     "AnthropicEmbedder",
     "VertexAIEmbedder",
     "AzureOpenAIEmbedder",
+    "HuggingFaceEmbedder",
     "threshold_top_k",
     "threshold_relative_to_max",
     "threshold_adaptive_spread",

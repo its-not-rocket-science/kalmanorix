@@ -53,7 +53,10 @@ The project uses Python ≥3.11 with dependencies managed via `pyproject.toml`. 
 
 ### Running Examples
 - Run the minimal fusion demo: `python examples/minimal_fusion_demo.py`
-- The demo creates toy keyword‑sensitive specialists and compares fusion strategies.
+  - Creates toy keyword‑sensitive specialists and compares fusion strategies.
+- Run the Hugging Face embedder demo: `python examples/huggingface_embedder_demo.py`
+  - Shows how to wrap a Hugging Face transformer model as a specialist.
+  - Requires optional `train` dependencies (`pip install -e ".[train]"`).
 
 ### Running Milestone 2.1 Experiment (Specialists vs Monolith)
 - Install training dependencies: `pip install -e ".[train]"`
@@ -95,7 +98,7 @@ pytest
   - `models/sef.py` – SEFModel (Shareable Embedding Format with save/load capabilities)
   - `sef_io.py` – I/O utilities for SEF (future)
   - `uncertainty.py` – Uncertainty helpers (`KeywordSigma2`, `CentroidDistanceSigma2`)
-  - `embedder_adapters.py` – Adapters for third‑party embedders
+  - `embedder_adapters.py` – Adapters for third‑party embedders (Sentence‑Transformers, OpenAI, Cohere, Anthropic, Vertex AI, Azure OpenAI, Hugging Face Transformers)
   - `arena.py` – Evaluation utilities (retrieval benchmark)
   - `types.py` – Shared type definitions (`Embedder` protocol, `Vec`)
   - `toy_corpus.py` – Synthetic data for testing

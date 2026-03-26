@@ -28,6 +28,11 @@ cloud = [
     "anthropic>=0.25",
     "google-cloud-aiplatform>=1.50"
 ]
+api = [
+    "fastapi>=0.104",
+    "uvicorn[standard]>=0.24",
+    "pydantic>=2.5"
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
