@@ -22,6 +22,7 @@ from kalmanorix import (
     Panoramix,
     MeanFuser,
     KalmanorixFuser,
+    StructuredKalmanFuser,
     LearnedGateFuser,
 )
 
@@ -85,6 +86,37 @@ def test_fuser_weight_invariants_kalman():
     village = Village([SEF("a", e1, sigma2=s1), SEF("b", e2, sigma2=s2)])
     scout = ScoutRouter(mode="all")
     pan = Panoramix(fuser=KalmanorixFuser())
+
+    potion = pan.brew("q", village=village, scout=scout)
+
+    _assert_potion_invariants(
+        potion_vector=potion.vector,
+        weights=potion.weights,
+        expected_keys={"a", "b"},
+        dim=dim,
+    )
+
+
+def test_fuser_weight_invariants_structured_kalman():
+    """StructuredKalmanFuser: weights sane and normalized, finite output."""
+    dim = 3
+
+    def e1(_q: str) -> np.ndarray:
+        return np.array([1.0, 0.0, 0.0])
+
+    def e2(_q: str) -> np.ndarray:
+        return np.array([0.0, 1.0, 0.0])
+
+    # Make uncertainties query-dependent to exercise sigma2_for(query)
+    def s1(_q: str) -> float:
+        return 0.5
+
+    def s2(_q: str) -> float:
+        return 2.0
+
+    village = Village([SEF("a", e1, sigma2=s1), SEF("b", e2, sigma2=s2)])
+    scout = ScoutRouter(mode="all")
+    pan = Panoramix(fuser=StructuredKalmanFuser())
 
     potion = pan.brew("q", village=village, scout=scout)
 

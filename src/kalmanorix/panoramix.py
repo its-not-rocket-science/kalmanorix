@@ -25,7 +25,9 @@ from .types import Vec
 from .kalman_engine.kalman_fuser import (
     kalman_fuse_diagonal,
     kalman_fuse_diagonal_ensemble,
+    kalman_fuse_structured,
 )
+from .kalman_engine.structured_covariance import StructuredCovariance
 
 # Re-export LearnedGateFuser from legacy module for now
 # TODO: Integrate properly  # pylint: disable=fixme
@@ -254,6 +256,81 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         return fused, weights, meta
 
 
+class StructuredKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
+    """
+    Kalman fusion with structured covariance (diagonal + low‑rank).
+
+    Uses `kalman_fuse_structured` to fuse embeddings with structured covariance
+    matrices of the form R = D + UUᵀ. If a module provides a structured covariance
+    (via `get_structured_covariance`), it is used directly; otherwise a diagonal‑only
+    structured covariance is created from the module's scalar sigma².
+    """
+
+    def __init__(self, sort_by_certainty: bool = True, epsilon: float = 1e-8):
+        """
+        Args:
+            sort_by_certainty: Sort measurements by certainty before fusion
+            epsilon: Small constant for numerical stability
+        """
+        self.sort_by_certainty = sort_by_certainty
+        self.epsilon = epsilon
+
+    def fuse(
+        self,
+        query: str,
+        modules: List[SEF],
+    ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        if not modules:
+            raise ValueError("StructuredKalmanFuser requires at least one module")
+
+        embeddings = []
+        structured_covs = []
+
+        for module in modules:
+            emb = module.embed(query)
+            # Apply alignment if available
+            if module.alignment_matrix is not None:
+                emb = module.alignment_matrix @ emb
+
+            # Try to get structured covariance
+            structured_cov = module.get_structured_covariance(query)
+            if structured_cov is None:
+                # Fall back to diagonal covariance from sigma²
+                sigma2 = module.sigma2_for(query)
+                diagonal = np.full(emb.shape, sigma2, dtype=np.float64)
+                structured_cov = StructuredCovariance.from_diagonal(diagonal)
+
+            embeddings.append(emb)
+            structured_covs.append(structured_cov)
+
+        # Perform structured Kalman fusion
+        fused, fused_cov = kalman_fuse_structured(
+            embeddings,
+            structured_covs,
+            sort_by_certainty=self.sort_by_certainty,
+            epsilon=self.epsilon,
+        )
+
+        # Compute weights from uncertainty scores (total variance)
+        uncertainty_scores = [cov.uncertainty_score() for cov in structured_covs]
+        inv_uncertainties = [1.0 / (u + self.epsilon) for u in uncertainty_scores]
+        total_inv = sum(inv_uncertainties)
+        weights = {
+            module.name: float(inv_uncertainties[i] / total_inv)
+            for i, module in enumerate(modules)
+        }
+
+        meta = {
+            "fused_covariance": fused_cov,
+            "uncertainty_scores": uncertainty_scores,
+            "sort_by_certainty": self.sort_by_certainty,
+            "variance": float(np.mean(fused_cov)),
+            "has_lowrank": any(not cov.is_diagonal for cov in structured_covs),
+        }
+
+        return fused, weights, meta
+
+
 class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
     """
     Sequential diagonal Kalman-style fusion with scalar prior variance.
@@ -365,6 +442,7 @@ __all__ = [
     "MeanFuser",
     "KalmanorixFuser",
     "EnsembleKalmanFuser",
+    "StructuredKalmanFuser",
     "DiagonalKalmanFuser",
     "LearnedGateFuser",
     "Panoramix",

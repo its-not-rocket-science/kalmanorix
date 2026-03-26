@@ -8,6 +8,7 @@ from .panoramix import (
     MeanFuser,
     KalmanorixFuser,
     EnsembleKalmanFuser,
+    StructuredKalmanFuser,
     DiagonalKalmanFuser,
     LearnedGateFuser,
 )
@@ -37,6 +38,7 @@ __all__ = [
     "MeanFuser",
     "KalmanorixFuser",
     "EnsembleKalmanFuser",
+    "StructuredKalmanFuser",
     "DiagonalKalmanFuser",
     "LearnedGateFuser",
     "eval_retrieval",
