@@ -29,9 +29,6 @@ from .kalman_engine.kalman_fuser import (
 )
 from .kalman_engine.structured_covariance import StructuredCovariance
 
-# Re-export LearnedGateFuser from legacy module for now
-# TODO: Integrate properly  # pylint: disable=fixme
-from .panoramix_legacy import LearnedGateFuser  # noqa: F401, E402  # pylint: disable=unused-import
 
 logger = logging.getLogger(__name__)
 
@@ -335,7 +332,7 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
     """
     Sequential diagonal Kalman-style fusion with scalar prior variance.
 
-    This is the legacy implementation from panoramix_legacy.py.
+    Legacy implementation (scalar prior variance).
     Maintains a scalar prior variance P (shared across dimensions).
     """
 
@@ -394,6 +391,137 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
             "order": list(order),
             "sort_by_sigma2": self.sort_by_sigma2,
         }
+        return x, weights, meta
+
+
+class LearnedGateFuser(Fuser):
+    """
+    Learned two-way gating baseline.
+
+    Predicts a scalar α(query) ∈ [0, 1] and returns:
+        α * z_a + (1 - α) * z_b
+
+    This serves as a critical learned baseline against which Kalman-style
+    fusion should be compared.
+    """
+
+    def __init__(
+        self,
+        module_a: str,
+        module_b: str,
+        *,
+        n_features: int = 256,
+        lr: float = 0.3,
+        l2: float = 1e-3,
+        steps: int = 300,
+    ) -> None:
+        self.module_a = module_a
+        self.module_b = module_b
+        self.n_features = int(n_features)
+        self.lr = float(lr)
+        self.l2 = float(l2)
+        self.steps = int(steps)
+
+        # Logistic regression weights (w[0] is bias)
+        self.w = np.zeros(self.n_features + 1, dtype=np.float64)
+
+    @staticmethod
+    def _tokenize(text: str) -> List[str]:
+        """Very simple alphanumeric tokenizer."""
+        text = text.lower()
+        out: List[str] = []
+        buff: List[str] = []
+        for ch in text:
+            if ch.isalnum():
+                buff.append(ch)
+            else:
+                if buff:
+                    out.append("".join(buff))
+                    buff.clear()
+        if buff:
+            out.append("".join(buff))
+        return out
+
+    @staticmethod
+    def _stable_hash(token: str) -> int:
+        """Stable hash (independent of Python's hash randomization)."""
+        import hashlib
+
+        h = hashlib.md5(token.encode("utf-8")).digest()
+        return int.from_bytes(h[:4], byteorder="little", signed=False)
+
+    def _featurize(self, text: str) -> Vec:
+        """Convert text to a normalized hashed bag-of-words feature vector."""
+        x = np.zeros(self.n_features + 1, dtype=np.float64)
+        x[0] = 1.0  # bias
+
+        for tok in self._tokenize(text):
+            idx = 1 + (self._stable_hash(tok) % self.n_features)
+            x[idx] += 1.0
+
+        norm = np.linalg.norm(x[1:]) + 1e-12
+        x[1:] /= norm
+        return x
+
+    @staticmethod
+    def _sigmoid(t: float) -> float:
+        """Numerically stable sigmoid."""
+        if t >= 0:
+            z = np.exp(-t)
+            return float(1.0 / (1.0 + z))
+        z = np.exp(t)
+        return float(z / (1.0 + z))
+
+    def fit(self, texts: List[str], y: List[int]) -> None:
+        """
+        Train the gate using binary labels:
+          1 => prefer module_a
+          0 => prefer module_b
+        """
+        if len(texts) != len(y) or not texts:
+            raise ValueError("texts and y must be the same non-zero length")
+
+        X = np.stack([self._featurize(t) for t in texts], axis=0)
+        Y = np.array(y, dtype=np.float64)
+
+        if not np.all((Y == 0.0) | (Y == 1.0)):
+            raise ValueError("y must be binary labels 0/1")
+
+        for _ in range(self.steps):
+            logits = X @ self.w
+            P = np.array([self._sigmoid(float(z)) for z in logits])
+            grad = (X.T @ (P - Y)) / len(Y)
+            grad[1:] += self.l2 * self.w[1:]
+            self.w -= self.lr * grad
+
+    def predict_alpha(self, text: str) -> float:
+        """Predict α ∈ [0, 1], the probability of choosing module_a."""
+        x = self._featurize(text)
+        return self._sigmoid(float(x @ self.w))
+
+    def fuse(
+        self,
+        query: str,
+        modules: List[SEF],
+    ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        by_name = {m.name: m for m in modules}
+        if self.module_a not in by_name or self.module_b not in by_name:
+            raise ValueError(
+                f"LearnedGateFuser expects modules '{self.module_a}' and "
+                f"'{self.module_b}', got {list(by_name.keys())}"
+            )
+
+        a = by_name[self.module_a]
+        b = by_name[self.module_b]
+
+        z_a = a.embed(query)
+        z_b = b.embed(query)
+
+        alpha = self.predict_alpha(query)
+        x = (alpha * z_a) + ((1.0 - alpha) * z_b)
+
+        weights = {a.name: float(alpha), b.name: float(1.0 - alpha)}
+        meta = {"alpha": float(alpha), "gate": "hashed_logreg"}
         return x, weights, meta
 
 

@@ -52,19 +52,20 @@ Numerical Considerations:
 from typing import List, Tuple, Optional
 import logging
 import numpy as np
+import numpy.typing as npt
 from .structured_covariance import StructuredCovariance
 
 logger = logging.getLogger(__name__)
 
 
 def kalman_fuse_diagonal(  # pylint: disable=too-many-arguments
-    embeddings: List[np.ndarray],
-    covariances: List[np.ndarray],
-    initial_state: Optional[np.ndarray] = None,
-    initial_covariance: Optional[np.ndarray] = None,
+    embeddings: List[npt.NDArray[np.float64]],
+    covariances: List[npt.NDArray[np.float64]],
+    initial_state: Optional[npt.NDArray[np.float64]] = None,
+    initial_covariance: Optional[npt.NDArray[np.float64]] = None,
     sort_by_certainty: bool = True,
     epsilon: float = 1e-8,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Fuse multiple embeddings using Kalman filter with diagonal covariance.
 
     Args:
@@ -152,12 +153,12 @@ def kalman_fuse_diagonal(  # pylint: disable=too-many-arguments
 
 
 def _kalman_update_diagonal(  # pylint: disable=invalid-name
-    x: np.ndarray,
-    P: np.ndarray,
-    z: np.ndarray,
-    R: np.ndarray,
+    x: npt.NDArray[np.float64],
+    P: npt.NDArray[np.float64],
+    z: npt.NDArray[np.float64],
+    R: npt.NDArray[np.float64],
     epsilon: float,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Perform a single Kalman update step with diagonal matrices.
 
     This implements the core equations for one dimension at a time to avoid
@@ -203,8 +204,8 @@ def _kalman_update_diagonal(  # pylint: disable=invalid-name
 
 
 def _validate_inputs(
-    embeddings: List[np.ndarray],
-    covariances: List[np.ndarray],
+    embeddings: List[npt.NDArray[np.float64]],
+    covariances: List[npt.NDArray[np.float64]],
 ) -> None:
     """Validate input shapes and types.
 
@@ -250,12 +251,12 @@ def _validate_inputs(
 
 
 def fuse_with_prior(
-    embeddings: List[np.ndarray],
-    covariances: List[np.ndarray],
-    prior_mean: np.ndarray,
-    prior_covariance: np.ndarray,
+    embeddings: List[npt.NDArray[np.float64]],
+    covariances: List[npt.NDArray[np.float64]],
+    prior_mean: npt.NDArray[np.float64],
+    prior_covariance: npt.NDArray[np.float64],
     **kwargs,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Fuse measurements with a prior belief.
 
     This is useful when we have a global prior model (e.g., a general-purpose
@@ -300,12 +301,12 @@ def fuse_with_prior(
 
 
 def kalman_fuse_diagonal_ensemble(
-    embeddings: List[np.ndarray],
-    covariances: List[np.ndarray],
-    initial_state: Optional[np.ndarray] = None,
-    initial_covariance: Optional[np.ndarray] = None,
+    embeddings: List[npt.NDArray[np.float64]],
+    covariances: List[npt.NDArray[np.float64]],
+    initial_state: Optional[npt.NDArray[np.float64]] = None,
+    initial_covariance: Optional[npt.NDArray[np.float64]] = None,
     epsilon: float = 1e-8,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Fuse multiple embeddings using ensemble Kalman filter with diagonal covariance.
 
     This implementation performs parallel fusion of all measurements simultaneously
@@ -396,13 +397,284 @@ def kalman_fuse_diagonal_ensemble(
     return fused_embedding, fused_covariance
 
 
+def _validate_batch_inputs(
+    embeddings: npt.NDArray[np.float64],
+    covariances: npt.NDArray[np.float64],
+) -> None:
+    """Validate batch input shapes and types.
+
+    Args:
+        embeddings: Array of shape (num_specialists, batch_size, d)
+        covariances: Array of shape (num_specialists, batch_size, d)
+
+    Raises:
+        ValueError: If validation fails
+    """
+    if not isinstance(embeddings, np.ndarray) or not isinstance(
+        covariances, np.ndarray
+    ):
+        raise TypeError("embeddings and covariances must be numpy arrays")
+
+    if embeddings.ndim != 3 or covariances.ndim != 3:
+        raise ValueError(
+            f"embeddings and covariances must be 3D arrays, got shapes "
+            f"{embeddings.shape} and {covariances.shape}"
+        )
+
+    if embeddings.shape != covariances.shape:
+        raise ValueError(
+            f"embeddings shape {embeddings.shape} must match "
+            f"covariances shape {covariances.shape}"
+        )
+
+    num_specialists, batch_size, d = embeddings.shape
+
+    if num_specialists == 0:
+        raise ValueError("At least one specialist required")
+
+    if batch_size == 0:
+        raise ValueError("Batch size must be positive")
+
+    if d == 0:
+        raise ValueError("Embedding dimension must be positive")
+
+    if np.any(covariances < 0):
+        raise ValueError("All covariance values must be non-negative")
+
+    if not np.all(np.isfinite(embeddings)) or not np.all(np.isfinite(covariances)):
+        raise ValueError("embeddings and covariances must be finite")
+
+
+def _kalman_update_diagonal_batch(
+    x: npt.NDArray[np.float64],  # shape (batch_size, d)
+    P: npt.NDArray[np.float64],  # shape (batch_size, d)
+    z: npt.NDArray[np.float64],  # shape (batch_size, d)
+    R: npt.NDArray[np.float64],  # shape (batch_size, d)
+    epsilon: float,
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Perform a single Kalman update step with diagonal matrices for a batch.
+
+    Args:
+        x: Prior state vectors (batch_size, d)
+        P: Prior diagonal covariance (batch_size, d)
+        z: Measurement vectors (batch_size, d)
+        R: Measurement diagonal covariance (batch_size, d)
+        epsilon: Small constant to avoid division by zero
+
+    Returns:
+        x_new: Updated state vectors (batch_size, d)
+        P_new: Updated diagonal covariance (batch_size, d)
+    """
+    # Ensure float64 for numerical stability
+    x = x.astype(np.float64)
+    P = P.astype(np.float64)
+    z = z.astype(np.float64)
+    R = R.astype(np.float64)
+
+    # Kalman gain for each dimension independently, broadcast across batch
+    # K_i = P_i / (P_i + R_i + epsilon)
+    denominator = P + R + epsilon
+    K = np.divide(P, denominator, where=denominator > epsilon)
+
+    # Handle division by zero case (both P and R are zero)
+    # If both uncertainties are zero, we keep the prior (K=0)
+    K = np.where(denominator <= epsilon, 0.0, K)
+
+    # State update: x = x + K * (z - x)
+    innovation = z - x
+    x_new = x + K * innovation
+
+    # Covariance update: P = (1 - K) * P
+    P_new = (1.0 - K) * P
+
+    # Numerical safeguard: ensure covariance stays positive
+    P_new = np.maximum(P_new, epsilon)
+
+    return x_new, P_new
+
+
+def kalman_fuse_diagonal_batch(
+    embeddings: npt.NDArray[np.float64],  # shape (num_specialists, batch_size, d)
+    covariances: npt.NDArray[np.float64],  # shape (num_specialists, batch_size, d)
+    initial_state: Optional[npt.NDArray[np.float64]] = None,  # shape (batch_size, d)
+    initial_covariance: Optional[
+        npt.NDArray[np.float64]
+    ] = None,  # shape (batch_size, d)
+    sort_by_certainty: bool = True,
+    epsilon: float = 1e-8,
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Fuse multiple embeddings for a batch of queries using Kalman filter with diagonal covariance.
+
+    Args:
+        embeddings: Array of embedding vectors, shape (num_specialists, batch_size, d)
+        covariances: Array of diagonal covariance vectors, shape (num_specialists, batch_size, d)
+        initial_state: Starting state vectors (batch_size, d). If None, uses first specialist.
+        initial_covariance: Starting covariance vectors (batch_size, d). If None, uses first covariance.
+        sort_by_certainty: If True, process measurements from lowest to highest
+                          total uncertainty (sum of diagonal) for numerical stability.
+        epsilon: Small constant to avoid division by zero.
+
+    Returns:
+        fused_embedding: Final state estimate after all updates, shape (batch_size, d)
+        fused_covariance: Final covariance after all updates, shape (batch_size, d)
+
+    Raises:
+        ValueError: If inputs have incorrect shapes or values.
+    """
+    # Input validation
+    _validate_batch_inputs(embeddings, covariances)
+    num_specialists, batch_size, d = embeddings.shape
+
+    # Initialize state
+    if initial_state is not None:
+        if initial_state.shape != (batch_size, d):
+            raise ValueError(
+                f"initial_state must be shape ({batch_size}, {d}), got {initial_state.shape}"
+            )
+        x = initial_state.copy().astype(np.float64)
+    else:
+        # Use first specialist as initial state
+        x = embeddings[0].copy().astype(np.float64)
+
+    if initial_covariance is not None:
+        if initial_covariance.shape != (batch_size, d):
+            raise ValueError(
+                f"initial_covariance must be shape ({batch_size}, {d}), got {initial_covariance.shape}"
+            )
+        P = initial_covariance.copy().astype(np.float64)
+    else:
+        P = covariances[0].copy().astype(np.float64)
+
+    # Create list of measurements to process (specialists)
+    measurements = list(zip(embeddings, covariances))
+
+    # Optionally sort by total uncertainty (sum over dimensions) per batch element
+    if sort_by_certainty and len(measurements) > 1:
+        # Compute total uncertainty per specialist (batch_size,)
+        # Sum over embedding dimension
+        total_uncertainties = [np.sum(cov, axis=1) for cov in covariances]
+        # Sort by average total uncertainty across batch (or could sort per batch element separately)
+        # We'll sort by mean total uncertainty across batch (simple heuristic)
+        avg_total = [np.mean(tot) for tot in total_uncertainties]
+        sorted_indices = np.argsort(avg_total)
+        measurements = [measurements[i] for i in sorted_indices]
+        logger.debug(
+            "Sorted measurements by average total uncertainty: %s",
+            [avg_total[i] for i in sorted_indices],
+        )
+
+    # Sequential Kalman updates across specialists
+    for i, (z, R) in enumerate(measurements):
+        # Skip first if we used it as initial state
+        if i == 0 and initial_state is None and initial_covariance is None:
+            continue
+
+        x, P = _kalman_update_diagonal_batch(x, P, z, R, epsilon)
+
+        logger.debug(
+            "After specialist %d: average state norm=%.4f, average total uncertainty=%.4f",
+            i,
+            np.mean(np.linalg.norm(x, axis=1)),
+            np.mean(np.sum(P, axis=1)),
+        )
+
+    return x, P
+
+
+def kalman_fuse_diagonal_ensemble_batch(
+    embeddings: npt.NDArray[np.float64],  # shape (num_specialists, batch_size, d)
+    covariances: npt.NDArray[np.float64],  # shape (num_specialists, batch_size, d)
+    initial_state: Optional[npt.NDArray[np.float64]] = None,  # shape (batch_size, d)
+    initial_covariance: Optional[
+        npt.NDArray[np.float64]
+    ] = None,  # shape (batch_size, d)
+    epsilon: float = 1e-8,
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    """Fuse multiple embeddings for a batch of queries using ensemble Kalman filter.
+
+    Parallel fusion of all measurements simultaneously (batch version).
+
+    Args:
+        embeddings: Array of embedding vectors, shape (num_specialists, batch_size, d)
+        covariances: Array of diagonal covariance vectors, shape (num_specialists, batch_size, d)
+        initial_state: Prior state vectors (batch_size, d). If None, uses non-informative prior.
+        initial_covariance: Prior covariance vectors (batch_size, d). If None, uses non-informative prior.
+        epsilon: Small constant to avoid division by zero.
+
+    Returns:
+        fused_embedding: Final state estimate after all updates, shape (batch_size, d)
+        fused_covariance: Final covariance after all updates, shape (batch_size, d)
+    """
+    # Input validation
+    _validate_batch_inputs(embeddings, covariances)
+    num_specialists, batch_size, d = embeddings.shape
+
+    # Convert to float64 for numerical stability
+    embeddings_f64 = embeddings.astype(np.float64)
+    covariances_f64 = covariances.astype(np.float64)
+
+    # Initialize prior terms
+    if initial_state is not None:
+        if initial_state.shape != (batch_size, d):
+            raise ValueError(
+                f"initial_state must be shape ({batch_size}, {d}), got {initial_state.shape}"
+            )
+        x0 = initial_state.astype(np.float64)
+    else:
+        # Non-informative prior: zero contribution
+        x0 = None
+
+    if initial_covariance is not None:
+        if initial_covariance.shape != (batch_size, d):
+            raise ValueError(
+                f"initial_covariance must be shape ({batch_size}, {d}), got {initial_covariance.shape}"
+            )
+        P0 = initial_covariance.astype(np.float64)
+    else:
+        # Non-informative prior: infinite variance (zero precision)
+        P0 = None
+
+    # Compute sum of precision-weighted measurements: Σ R_i^{-1} ⊙ z_i
+    # and sum of precisions: Σ R_i^{-1}
+    # Shape: (batch_size, d) for each sum
+    sum_precision_weighted = np.zeros((batch_size, d), dtype=np.float64)
+    sum_precision = np.zeros((batch_size, d), dtype=np.float64)
+
+    for i in range(num_specialists):
+        emb = embeddings_f64[i]
+        cov = covariances_f64[i]
+        # Add epsilon to avoid division by zero
+        inv_cov = 1.0 / (cov + epsilon)
+        sum_precision_weighted += inv_cov * emb
+        sum_precision += inv_cov
+
+    # Add prior contribution if provided
+    if x0 is not None and P0 is not None:
+        inv_P0 = 1.0 / (P0 + epsilon)
+        sum_precision_weighted += inv_P0 * x0
+        sum_precision += inv_P0
+    elif x0 is not None or P0 is not None:
+        raise ValueError(
+            "Both initial_state and initial_covariance must be provided together, or neither"
+        )
+
+    # Compute fused covariance: P = (sum_precision)^{-1}
+    # Handle zero precision (should not happen with epsilon > 0)
+    fused_covariance = 1.0 / (sum_precision + epsilon)
+
+    # Compute fused state: x = P ⊙ sum_precision_weighted
+    fused_embedding = fused_covariance * sum_precision_weighted
+
+    return fused_embedding, fused_covariance
+
+
 def _structured_kalman_update_diagonal(
-    x: np.ndarray,
-    P: np.ndarray,
-    z: np.ndarray,
+    x: npt.NDArray[np.float64],
+    P: npt.NDArray[np.float64],
+    z: npt.NDArray[np.float64],
     R: StructuredCovariance,
     epsilon: float = 1e-8,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Perform a single Kalman update step with structured covariance R = D + UUᵀ.
 
     Args:
@@ -449,13 +721,13 @@ def _structured_kalman_update_diagonal(
 
 
 def kalman_fuse_structured(
-    embeddings: List[np.ndarray],
+    embeddings: List[npt.NDArray[np.float64]],
     structured_covariances: List[StructuredCovariance],
-    initial_state: Optional[np.ndarray] = None,
-    initial_covariance: Optional[np.ndarray] = None,
+    initial_state: Optional[npt.NDArray[np.float64]] = None,
+    initial_covariance: Optional[npt.NDArray[np.float64]] = None,
     sort_by_certainty: bool = True,
     epsilon: float = 1e-8,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Fuse multiple embeddings using Kalman filter with structured covariance.
 
     Supports low‑rank covariance R = D + UUᵀ where D is diagonal and U is a
@@ -557,9 +829,9 @@ def kalman_fuse_structured(
 
 
 def weighted_average_baseline(
-    embeddings: List[np.ndarray],
+    embeddings: List[npt.NDArray[np.float64]],
     weights: Optional[List[float]] = None,
-) -> np.ndarray:
+) -> npt.NDArray[np.float64]:
     """Simple weighted average baseline for comparison.
 
     This implements the naive fusion method that Kalman should outperform

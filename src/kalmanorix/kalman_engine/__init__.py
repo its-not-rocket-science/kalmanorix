@@ -15,6 +15,8 @@ from .kalman_fuser import (
     kalman_fuse_diagonal,
     fuse_with_prior,
     weighted_average_baseline,
+    kalman_fuse_diagonal_batch,
+    kalman_fuse_diagonal_ensemble_batch,
 )
 from .fuser import Panoramix
 from .covariance import (
@@ -32,6 +34,8 @@ __all__ = [
     "kalman_fuse_diagonal",
     "fuse_with_prior",
     "weighted_average_baseline",
+    "kalman_fuse_diagonal_batch",
+    "kalman_fuse_diagonal_ensemble_batch",
     "Panoramix",
     "CovarianceEstimator",
     "DiagonalCovariance",

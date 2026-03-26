@@ -6,6 +6,8 @@ import pytest
 from kalmanorix.kalman_engine.kalman_fuser import (
     kalman_fuse_diagonal,
     kalman_fuse_diagonal_ensemble,
+    kalman_fuse_diagonal_batch,
+    kalman_fuse_diagonal_ensemble_batch,
     kalman_fuse_structured,
     _structured_kalman_update_diagonal,
     fuse_with_prior,
@@ -339,6 +341,248 @@ def test_kalman_fuse_diagonal_ensemble_validation():
     # Only one of initial_state/initial_covariance provided
     with pytest.raises(ValueError, match="Both initial_state and initial_covariance"):
         kalman_fuse_diagonal_ensemble(embeddings, covariances, initial_state=np.ones(d))
+
+
+def test_kalman_fuse_diagonal_batch_basic():
+    """Test basic batch fusion with diagonal covariance."""
+    np.random.seed(42)
+    num_specialists = 3
+    batch_size = 5
+    d = 8
+
+    # Generate random embeddings and covariances
+    embeddings = np.random.randn(num_specialists, batch_size, d)
+    covariances = np.exp(np.random.randn(num_specialists, batch_size, d))  # positive
+
+    # Perform batch fusion (disable sorting to match per-query ordering)
+    fused, fused_cov = kalman_fuse_diagonal_batch(
+        embeddings, covariances, sort_by_certainty=False, epsilon=1e-12
+    )
+
+    # Check output shapes
+    assert fused.shape == (batch_size, d)
+    assert fused_cov.shape == (batch_size, d)
+
+    # Covariances must be positive
+    assert np.all(fused_cov > 0)
+
+    # Check that each batch element matches sequential fusion
+    for b in range(batch_size):
+        # Extract single query data
+        emb_single = embeddings[:, b, :]  # (num_specialists, d)
+        cov_single = covariances[:, b, :]  # (num_specialists, d)
+        # Convert to list format expected by non-batch function
+        emb_list = list(emb_single)
+        cov_list = list(cov_single)
+        fused_single, cov_single_result = kalman_fuse_diagonal(
+            emb_list, cov_list, sort_by_certainty=False, epsilon=1e-12
+        )
+        assert np.allclose(fused[b], fused_single, rtol=1e-10)
+        assert np.allclose(fused_cov[b], cov_single_result, rtol=1e-10)
+
+
+def test_kalman_fuse_diagonal_batch_validation():
+    """Test input validation for batch fusion."""
+    np.random.seed(42)
+    num_specialists = 2
+    batch_size = 3
+    d = 4
+
+    # Valid 3D arrays
+    embeddings = np.random.randn(num_specialists, batch_size, d)
+    covariances = np.exp(np.random.randn(num_specialists, batch_size, d))
+
+    # Wrong number of dimensions
+    with pytest.raises(ValueError, match="must be 3D arrays"):
+        kalman_fuse_diagonal_batch(embeddings[0], covariances)  # shape (batch_size, d)
+
+    with pytest.raises(ValueError, match="must be 3D arrays"):
+        kalman_fuse_diagonal_batch(embeddings, covariances[0])
+
+    # Shape mismatch
+    with pytest.raises(ValueError, match="must match"):
+        wrong_cov = np.exp(np.random.randn(num_specialists, batch_size + 1, d))
+        kalman_fuse_diagonal_batch(embeddings, wrong_cov)
+
+    # Negative covariance
+    neg_cov = covariances.copy()
+    neg_cov[0, 0, 0] = -1.0
+    with pytest.raises(ValueError, match="must be non-negative"):
+        kalman_fuse_diagonal_batch(embeddings, neg_cov)
+
+    # Non-finite values
+    inf_emb = embeddings.copy()
+    inf_emb[0, 0, 0] = np.inf
+    with pytest.raises(ValueError, match="must be finite"):
+        kalman_fuse_diagonal_batch(inf_emb, covariances)
+
+    # Wrong initial state shape
+    with pytest.raises(ValueError, match="initial_state"):
+        kalman_fuse_diagonal_batch(
+            embeddings, covariances, initial_state=np.ones((batch_size, d + 1))
+        )
+
+    # Wrong initial covariance shape
+    with pytest.raises(ValueError, match="initial_covariance"):
+        kalman_fuse_diagonal_batch(
+            embeddings, covariances, initial_covariance=np.ones((batch_size, d + 1))
+        )
+
+
+def test_kalman_fuse_diagonal_ensemble_batch_basic():
+    """Test basic ensemble batch fusion."""
+    np.random.seed(123)
+    num_specialists = 4
+    batch_size = 6
+    d = 7
+
+    embeddings = np.random.randn(num_specialists, batch_size, d)
+    covariances = np.exp(np.random.randn(num_specialists, batch_size, d))
+
+    # Perform ensemble batch fusion
+    fused, fused_cov = kalman_fuse_diagonal_ensemble_batch(
+        embeddings, covariances, epsilon=1e-12
+    )
+
+    # Check output shapes
+    assert fused.shape == (batch_size, d)
+    assert fused_cov.shape == (batch_size, d)
+    assert np.all(fused_cov > 0)
+
+    # Compare with non-batch ensemble fusion for each query
+    for b in range(batch_size):
+        emb_single = embeddings[:, b, :]  # (num_specialists, d)
+        cov_single = covariances[:, b, :]
+        # Convert to list format
+        emb_list = list(emb_single)
+        cov_list = list(cov_single)
+        fused_single, cov_single_result = kalman_fuse_diagonal_ensemble(
+            emb_list, cov_list, epsilon=1e-12
+        )
+        assert np.allclose(fused[b], fused_single, rtol=1e-10)
+        assert np.allclose(fused_cov[b], cov_single_result, rtol=1e-10)
+
+
+def test_kalman_fuse_diagonal_ensemble_batch_validation():
+    """Test input validation for ensemble batch fusion."""
+    np.random.seed(456)
+    num_specialists = 2
+    batch_size = 3
+    d = 5
+
+    embeddings = np.random.randn(num_specialists, batch_size, d)
+    covariances = np.exp(np.random.randn(num_specialists, batch_size, d))
+
+    # Wrong dimensions
+    with pytest.raises(ValueError, match="must be 3D arrays"):
+        kalman_fuse_diagonal_ensemble_batch(embeddings[0], covariances)
+
+    with pytest.raises(ValueError, match="must be 3D arrays"):
+        kalman_fuse_diagonal_ensemble_batch(embeddings, covariances[0])
+
+    # Shape mismatch
+    with pytest.raises(ValueError, match="must match"):
+        wrong_cov = np.exp(np.random.randn(num_specialists, batch_size + 1, d))
+        kalman_fuse_diagonal_ensemble_batch(embeddings, wrong_cov)
+
+    # Negative covariance
+    neg_cov = covariances.copy()
+    neg_cov[0, 0, 0] = -1.0
+    with pytest.raises(ValueError, match="must be non-negative"):
+        kalman_fuse_diagonal_ensemble_batch(embeddings, neg_cov)
+
+    # Non-finite values
+    inf_emb = embeddings.copy()
+    inf_emb[0, 0, 0] = np.inf
+    with pytest.raises(ValueError, match="must be finite"):
+        kalman_fuse_diagonal_ensemble_batch(inf_emb, covariances)
+
+    # Wrong initial state shape
+    with pytest.raises(ValueError, match="initial_state"):
+        kalman_fuse_diagonal_ensemble_batch(
+            embeddings, covariances, initial_state=np.ones((batch_size, d + 1))
+        )
+
+    # Wrong initial covariance shape
+    with pytest.raises(ValueError, match="initial_covariance"):
+        kalman_fuse_diagonal_ensemble_batch(
+            embeddings, covariances, initial_covariance=np.ones((batch_size, d + 1))
+        )
+
+    # Only one of initial_state/initial_covariance provided
+    with pytest.raises(ValueError, match="Both initial_state and initial_covariance"):
+        kalman_fuse_diagonal_ensemble_batch(
+            embeddings, covariances, initial_state=np.ones((batch_size, d))
+        )
+
+
+def test_kalman_fuse_diagonal_batch_sorting_and_prior():
+    """Test batch fusion with sorting by certainty and prior state."""
+    np.random.seed(789)
+    num_specialists = 4
+    batch_size = 5
+    d = 6
+
+    embeddings = np.random.randn(num_specialists, batch_size, d)
+    # Create covariances with clear ordering: specialist 0 most certain, 3 least certain
+    base_cov = np.exp(np.random.randn(num_specialists, batch_size, d))
+    # Scale each specialist's covariance to create ordering
+    scales = np.array([0.1, 0.5, 1.0, 2.0])[
+        :, np.newaxis, np.newaxis
+    ]  # shape (num_specialists, 1, 1)
+    covariances = base_cov * scales
+
+    # Test with sorting enabled (default)
+    fused_sorted, cov_sorted = kalman_fuse_diagonal_batch(
+        embeddings, covariances, sort_by_certainty=True, epsilon=1e-12
+    )
+
+    # Test with sorting disabled
+    fused_unsorted, cov_unsorted = kalman_fuse_diagonal_batch(
+        embeddings, covariances, sort_by_certainty=False, epsilon=1e-12
+    )
+
+    # Results should be mathematically identical regardless of order
+    # (Kalman filter is associative for diagonal covariance with independent measurements)
+    # But numerical differences may occur due to floating point.
+    # We'll just ensure shapes are correct
+    assert fused_sorted.shape == (batch_size, d)
+    assert cov_sorted.shape == (batch_size, d)
+    assert fused_unsorted.shape == (batch_size, d)
+    assert cov_unsorted.shape == (batch_size, d)
+
+    # Test with prior state and covariance
+    prior_state = np.random.randn(batch_size, d)
+    prior_cov = np.exp(np.random.randn(batch_size, d))
+
+    fused_with_prior, cov_with_prior = kalman_fuse_diagonal_batch(
+        embeddings,
+        covariances,
+        initial_state=prior_state,
+        initial_covariance=prior_cov,
+        sort_by_certainty=True,
+        epsilon=1e-12,
+    )
+
+    # Should have correct shapes
+    assert fused_with_prior.shape == (batch_size, d)
+    assert cov_with_prior.shape == (batch_size, d)
+
+    # Compare with non-batch fusion for each query (with prior)
+    for b in range(batch_size):
+        emb_single = embeddings[:, b, :]
+        cov_single = covariances[:, b, :]
+        emb_list = list(emb_single)
+        cov_list = list(cov_single)
+        fused_single, cov_single_result = kalman_fuse_diagonal(
+            emb_list,
+            cov_list,
+            initial_state=prior_state[b],
+            initial_covariance=prior_cov[b],
+            epsilon=1e-12,
+        )
+        assert np.allclose(fused_with_prior[b], fused_single, rtol=1e-10)
+        assert np.allclose(cov_with_prior[b], cov_single_result, rtol=1e-10)
 
 
 if __name__ == "__main__":

@@ -134,7 +134,6 @@ pytest
 - **Remaining limitations**:
   - Serialization (`SEFModel.save_pretrained`) is implemented (Milestone 3.1)
   - No production-scale specialist models included
-  - The `LearnedGateFuser` is still imported from legacy module
 
 ## Testing Philosophy
 
