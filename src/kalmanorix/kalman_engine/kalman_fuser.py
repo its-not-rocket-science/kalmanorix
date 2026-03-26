@@ -286,6 +286,10 @@ def fuse_with_prior(
     all_embeddings = [prior_mean] + embeddings
     all_covariances = [prior_covariance] + covariances
 
+    # Disable sorting by default to ensure prior is used as initial state
+    # (prior is first element in the list; sorting would reorder it)
+    kwargs.setdefault("sort_by_certainty", False)
+
     return kalman_fuse_diagonal(
         all_embeddings,
         all_covariances,

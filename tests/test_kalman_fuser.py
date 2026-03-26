@@ -5,8 +5,10 @@ import pytest
 
 from kalmanorix.kalman_engine.kalman_fuser import (
     kalman_fuse_diagonal,
+    kalman_fuse_diagonal_ensemble,
     kalman_fuse_structured,
     _structured_kalman_update_diagonal,
+    fuse_with_prior,
 )
 from kalmanorix.kalman_engine.structured_covariance import StructuredCovariance
 
@@ -249,6 +251,94 @@ def test_kalman_fuse_structured_validation():
         kalman_fuse_structured(
             embeddings, structured_covs, initial_covariance=np.ones(d + 1)
         )
+
+
+def test_kalman_fuse_diagonal_ensemble_basic():
+    """Test ensemble fusion matches exact precision-weighted fusion (no prior)."""
+    np.random.seed(777)
+    d = 8
+    n = 4
+    embeddings = [np.random.randn(d) for _ in range(n)]
+    covariances = [np.exp(np.random.randn(d)) for _ in range(n)]
+
+    # Ensemble fusion (non-informative prior)
+    x_ensemble, P_ensemble = kalman_fuse_diagonal_ensemble(
+        embeddings, covariances, epsilon=1e-12
+    )
+
+    # Exact fusion using precision weighting (no prior)
+    inv_cov_sum = np.zeros(d)
+    inv_cov_weighted = np.zeros(d)
+    for emb, cov in zip(embeddings, covariances):
+        inv = 1.0 / (cov + 1e-12)
+        inv_cov_sum += inv
+        inv_cov_weighted += inv * emb
+    P_exact = 1.0 / (inv_cov_sum + 1e-12)
+    x_exact = P_exact * inv_cov_weighted
+
+    # Should match exactly (same mathematical formulation)
+    assert np.allclose(x_ensemble, x_exact, rtol=1e-10, atol=1e-12)
+    assert np.allclose(P_ensemble, P_exact, rtol=1e-10, atol=1e-12)
+
+
+def test_kalman_fuse_diagonal_ensemble_with_prior():
+    """Test ensemble fusion with explicit prior."""
+    np.random.seed(888)
+    d = 6
+    n = 3
+    embeddings = [np.random.randn(d) for _ in range(n)]
+    covariances = [np.exp(np.random.randn(d)) for _ in range(n)]
+    prior_state = np.random.randn(d)
+    prior_cov = np.exp(np.random.randn(d))
+
+    # Ensemble fusion with prior
+    x_ensemble, P_ensemble = kalman_fuse_diagonal_ensemble(
+        embeddings,
+        covariances,
+        initial_state=prior_state,
+        initial_covariance=prior_cov,
+        epsilon=1e-12,
+    )
+
+    # Sequential fusion with prior (use fuse_with_prior)
+    x_seq, P_seq = fuse_with_prior(
+        embeddings, covariances, prior_state, prior_cov, epsilon=1e-12
+    )
+
+    # Should match
+    assert np.allclose(x_ensemble, x_seq, rtol=1e-10)
+    assert np.allclose(P_ensemble, P_seq, rtol=1e-10)
+
+
+def test_kalman_fuse_diagonal_ensemble_validation():
+    """Test input validation for ensemble fusion."""
+    d = 4
+    embeddings = [np.random.randn(d)]
+    covariances = [np.exp(np.random.randn(d))]
+
+    # Mismatched lengths
+    with pytest.raises(ValueError, match="Number of embeddings"):
+        kalman_fuse_diagonal_ensemble(embeddings * 2, covariances)
+
+    # Empty lists
+    with pytest.raises(ValueError, match="At least one embedding"):
+        kalman_fuse_diagonal_ensemble([], [])
+
+    # Wrong initial state shape
+    with pytest.raises(ValueError, match="initial_state"):
+        kalman_fuse_diagonal_ensemble(
+            embeddings, covariances, initial_state=np.ones(d + 1)
+        )
+
+    # Wrong initial covariance shape
+    with pytest.raises(ValueError, match="initial_covariance"):
+        kalman_fuse_diagonal_ensemble(
+            embeddings, covariances, initial_covariance=np.ones(d + 1)
+        )
+
+    # Only one of initial_state/initial_covariance provided
+    with pytest.raises(ValueError, match="Both initial_state and initial_covariance"):
+        kalman_fuse_diagonal_ensemble(embeddings, covariances, initial_state=np.ones(d))
 
 
 if __name__ == "__main__":
