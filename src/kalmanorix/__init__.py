@@ -22,6 +22,7 @@ from .embedder_adapters import (
     AzureOpenAIEmbedder,
     HuggingFaceEmbedder,
 )
+from .model_registry import ModelRegistry, get_default_registry
 from .threshold_heuristics import (
     threshold_top_k,
     threshold_relative_to_max,
@@ -54,4 +55,6 @@ __all__ = [
     "threshold_relative_to_max",
     "threshold_adaptive_spread",
     "threshold_query_length_adaptive",
+    "ModelRegistry",
+    "get_default_registry",
 ]

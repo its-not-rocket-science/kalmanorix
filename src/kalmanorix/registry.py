@@ -7,7 +7,7 @@ to an actual embed(text)->vector callable at runtime.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Dict
 
 import numpy as np
@@ -19,7 +19,7 @@ EmbedderFn = Callable[[str], np.ndarray]
 class EmbedderRegistry:
     """Simple name -> callable registry used for loading modules/components."""
 
-    embedders: Dict[str, EmbedderFn]
+    embedders: Dict[str, EmbedderFn] = field(default_factory=dict)
 
     def get(self, embedder_id: str) -> EmbedderFn:
         """Retrieve embedder by ID."""
