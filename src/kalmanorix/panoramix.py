@@ -26,6 +26,8 @@ from .kalman_engine.kalman_fuser import (
     kalman_fuse_diagonal,
     kalman_fuse_diagonal_ensemble,
     kalman_fuse_structured,
+    kalman_fuse_diagonal_batch,
+    kalman_fuse_diagonal_ensemble_batch,
 )
 from .kalman_engine.structured_covariance import StructuredCovariance
 
@@ -88,6 +90,46 @@ class Fuser(ABC):  # pylint: disable=too-few-public-methods
         """
         raise NotImplementedError
 
+    def fuse_batch(
+        self,
+        queries: List[str],
+        modules: List[SEF],
+    ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
+        """
+        Fuse embeddings for a batch of queries.
+
+        Default implementation loops over queries and calls `fuse`.
+        Subclasses may override with more efficient batch implementations.
+
+        Parameters
+        ----------
+        queries:
+            List of input text queries.
+        modules:
+            List of selected specialist modules.
+
+        Returns
+        -------
+        vectors:
+            List of fused embeddings.
+        weights:
+            List of per-module contribution weights.
+        meta:
+            Optional list of metadata dicts.
+        """
+        vectors = []
+        weights_list = []
+        meta_list = []
+        for query in queries:
+            vec, w, m = self.fuse(query, modules)
+            vectors.append(vec)
+            weights_list.append(w)
+            meta_list.append(m if m is not None else {})
+        # If all metadata dicts are empty, return None
+        if all(not m for m in meta_list):
+            return vectors, weights_list, None
+        return vectors, weights_list, meta_list
+
 
 class MeanFuser(Fuser):  # pylint: disable=too-few-public-methods
     """
@@ -110,6 +152,40 @@ class MeanFuser(Fuser):  # pylint: disable=too-few-public-methods
         z = np.stack(embeddings, axis=0)
         w = {m.name: 1.0 / len(modules) for m in modules}
         return z.mean(axis=0), w, None
+
+    def fuse_batch(
+        self,
+        queries: List[str],
+        modules: List[SEF],
+    ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
+        """Batch fusion for MeanFuser."""
+        n = len(modules)
+        b = len(queries)
+        if n == 0:
+            raise ValueError("MeanFuser requires at least one module")
+        if b == 0:
+            return [], [], None
+        # Collect embeddings: shape (n, b, d)
+        embeddings = []
+        for module in modules:
+            module_embs = []
+            for query in queries:
+                emb = module.embed(query)
+                if module.alignment_matrix is not None:
+                    emb = module.alignment_matrix @ emb
+                module_embs.append(emb)
+            # Stack across queries: (b, d)
+            module_emb_array = np.stack(module_embs, axis=0)
+            embeddings.append(module_emb_array)
+        # Stack across modules: (n, b, d)
+        embeddings_stack = np.stack(embeddings, axis=0)
+        # Mean across modules: (b, d)
+        fused = np.mean(embeddings_stack, axis=0)
+        # Uniform weights per query
+        weight = 1.0 / n
+        weights_list = [{module.name: weight for module in modules} for _ in range(b)]
+        # No metadata
+        return list(fused), weights_list, None
 
 
 class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
@@ -179,6 +255,76 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         }
 
         return fused, weights, meta
+
+    def fuse_batch(
+        self,
+        queries: List[str],
+        modules: List[SEF],
+    ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
+        """Batch fusion for KalmanorixFuser."""
+        n = len(modules)
+        b = len(queries)
+        if n == 0:
+            raise ValueError("KalmanorixFuser requires at least one module")
+        if b == 0:
+            return [], [], None
+
+        # Build arrays: embeddings (n, b, d), covariances (n, b, d)
+        embeddings_list = []
+        covariances_list = []
+        for module in modules:
+            module_embs = []
+            module_covs = []
+            for query in queries:
+                emb = module.embed(query)
+                if module.alignment_matrix is not None:
+                    emb = module.alignment_matrix @ emb
+                sigma2 = module.sigma2_for(query)
+                cov = np.full(emb.shape, sigma2, dtype=np.float64)
+                module_embs.append(emb)
+                module_covs.append(cov)
+            # Stack across queries: (b, d)
+            embeddings_list.append(np.stack(module_embs, axis=0))
+            covariances_list.append(np.stack(module_covs, axis=0))
+        # Stack across modules: (n, b, d)
+        embeddings = np.stack(embeddings_list, axis=0)
+        covariances = np.stack(covariances_list, axis=0)
+
+        # Perform batch Kalman fusion
+        fused, fused_cov = kalman_fuse_diagonal_batch(
+            embeddings,
+            covariances,
+            sort_by_certainty=self.sort_by_certainty,
+            epsilon=self.epsilon,
+        )
+        # fused shape (b, d), fused_cov shape (b, d)
+
+        # Compute weights per module per query
+        # total uncertainty per module per query: sum over dimensions
+        total_uncertainties = np.sum(covariances, axis=2)  # shape (n, b)
+        inv_uncertainties = 1.0 / (total_uncertainties + self.epsilon)  # shape (n, b)
+        total_inv = np.sum(inv_uncertainties, axis=0)  # shape (b,)
+        # Normalize
+        weights_per_module = inv_uncertainties / total_inv  # shape (n, b)
+
+        # Convert to list of dicts
+        weights_list = []
+        for j in range(b):
+            w = {modules[i].name: float(weights_per_module[i, j]) for i in range(n)}
+            weights_list.append(w)
+
+        # Prepare metadata per query
+        meta_list = []
+        for j in range(b):
+            meta = {
+                "fused_covariance": fused_cov[j],
+                "total_uncertainties": total_uncertainties[:, j].tolist(),
+                "sort_by_certainty": self.sort_by_certainty,
+                "variance": float(np.mean(fused_cov[j])),
+            }
+            meta_list.append(meta)
+
+        return list(fused), weights_list, meta_list
 
 
 class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
@@ -251,6 +397,75 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         }
 
         return fused, weights, meta
+
+    def fuse_batch(
+        self,
+        queries: List[str],
+        modules: List[SEF],
+    ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
+        """Batch fusion for EnsembleKalmanFuser."""
+        n = len(modules)
+        b = len(queries)
+        if n == 0:
+            raise ValueError("EnsembleKalmanFuser requires at least one module")
+        if b == 0:
+            return [], [], None
+
+        # Build arrays: embeddings (n, b, d), covariances (n, b, d)
+        embeddings_list = []
+        covariances_list = []
+        for module in modules:
+            module_embs = []
+            module_covs = []
+            for query in queries:
+                emb = module.embed(query)
+                if module.alignment_matrix is not None:
+                    emb = module.alignment_matrix @ emb
+                sigma2 = module.sigma2_for(query)
+                cov = np.full(emb.shape, sigma2, dtype=np.float64)
+                module_embs.append(emb)
+                module_covs.append(cov)
+            # Stack across queries: (b, d)
+            embeddings_list.append(np.stack(module_embs, axis=0))
+            covariances_list.append(np.stack(module_covs, axis=0))
+        # Stack across modules: (n, b, d)
+        embeddings = np.stack(embeddings_list, axis=0)
+        covariances = np.stack(covariances_list, axis=0)
+
+        # Perform batch ensemble Kalman fusion
+        fused, fused_cov = kalman_fuse_diagonal_ensemble_batch(
+            embeddings,
+            covariances,
+            epsilon=self.epsilon,
+        )
+        # fused shape (b, d), fused_cov shape (b, d)
+
+        # Compute weights per module per query based on total precision
+        # total precision per module per query: sum of 1/covariance over dimensions
+        inv_cov = 1.0 / (covariances + self.epsilon)  # shape (n, b, d)
+        total_precisions = np.sum(inv_cov, axis=2)  # shape (n, b)
+        total_precisions_sum = np.sum(total_precisions, axis=0)  # shape (b,)
+        # Normalize
+        weights_per_module = total_precisions / total_precisions_sum  # shape (n, b)
+
+        # Convert to list of dicts
+        weights_list = []
+        for j in range(b):
+            w = {modules[i].name: float(weights_per_module[i, j]) for i in range(n)}
+            weights_list.append(w)
+
+        # Prepare metadata per query
+        meta_list = []
+        for j in range(b):
+            meta = {
+                "fused_covariance": fused_cov[j],
+                "total_precisions": total_precisions[:, j].tolist(),
+                "epsilon": self.epsilon,
+                "variance": float(np.mean(fused_cov[j])),
+            }
+            meta_list.append(meta)
+
+        return list(fused), weights_list, meta_list
 
 
 class StructuredKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
@@ -562,6 +777,62 @@ class Panoramix:  # pylint: disable=too-few-public-methods
         if fuser_meta is not None:
             meta.update(fuser_meta)
         return Potion(vector=vec, weights=weights, meta=meta)
+
+    def brew_batch(
+        self,
+        queries: List[str],
+        village: Village,
+        scout: ScoutRouter,
+    ) -> List[Potion]:
+        """
+        Produce fused embeddings for a batch of queries.
+
+        Parameters
+        ----------
+        queries:
+            List of input text queries.
+        village:
+            Collection of available specialist modules.
+        scout:
+            Routing strategy.
+
+        Returns
+        -------
+        List[Potion]
+            List of fused embeddings and diagnostics.
+        """
+        # First, determine which modules are selected for each query
+        chosen_list = [scout.select(query, village) for query in queries]
+        # Check if all selections are identical (same modules in same order)
+        first_chosen = chosen_list[0]
+        all_same = all(
+            len(chosen) == len(first_chosen)
+            and all(c.name == fc.name for c, fc in zip(chosen, first_chosen))
+            for chosen in chosen_list[1:]
+        )
+        if all_same:
+            # Use batch fusion for efficiency
+            vectors, weights_list, meta_list = self.fuser.fuse_batch(
+                queries, first_chosen
+            )
+            potions = []
+            for i, query in enumerate(queries):
+                meta: Dict[str, object] = {
+                    "selected_modules": [m.name for m in first_chosen]
+                }
+                if (
+                    meta_list is not None
+                    and i < len(meta_list)
+                    and meta_list[i] is not None
+                ):
+                    meta.update(meta_list[i])
+                potions.append(
+                    Potion(vector=vectors[i], weights=weights_list[i], meta=meta)
+                )
+            return potions
+        else:
+            # Fallback: loop over queries
+            return [self.brew(query, village, scout) for query in queries]
 
 
 __all__ = [

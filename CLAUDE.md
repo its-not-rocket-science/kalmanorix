@@ -109,16 +109,24 @@ pytest
 - **High‑level API (Public)**: The `kalmanorix` module exports `Panoramix` (from `panoramix.py`) which uses the `Fuser` abstraction. Available fusers:
   - `MeanFuser` – uniform averaging
   - `KalmanorixFuser` – True Kalman fusion with diagonal covariance (uses `kalman_fuse_diagonal`)
+  - `EnsembleKalmanFuser` – parallel Kalman updates for diagonal covariance (uses `kalman_fuse_diagonal_ensemble`)
+  - `StructuredKalmanFuser` – Kalman fusion with low‑rank covariance (uses `kalman_fuse_structured`)
   - `DiagonalKalmanFuser` – scalar Kalman update (shared prior variance across dimensions)
   - `LearnedGateFuser` – learned two‑way gating (logistic regression on bag‑of‑words features)
-  The API returns a `Potion` object containing fused embedding, per‑module weights, and optional metadata.
-- **Low‑level Kalman engine (Internal)**: `kalman_engine.kalman_fuser` implements `kalman_fuse_diagonal` for per‑dimension diagonal covariance updates. This is the core algorithm used by `KalmanorixFuser`.
+  The `Fuser` base class provides both single-query (`fuse`) and batch (`fuse_batch`) methods. `Panoramix` provides corresponding `brew` and `brew_batch` methods. The API returns a `Potion` object (or list of `Potion`s for batch) containing fused embedding, per‑module weights, and optional metadata.
+- **Low‑level Kalman engine (Internal)**: `kalman_engine.kalman_fuser` implements core algorithms:
+  - `kalman_fuse_diagonal` – sequential updates with diagonal covariance
+  - `kalman_fuse_diagonal_ensemble` – parallel updates for diagonal covariance
+  - `kalman_fuse_structured` – sequential updates with structured (diagonal + low‑rank) covariance
+  - `kalman_fuse_diagonal_batch`, `kalman_fuse_diagonal_ensemble_batch` – batch versions for multiple queries
+  These are used by the corresponding fusers.
 - **Covariance estimation**: `kalman_engine.covariance` provides `CovarianceEstimator` base class with implementations (`EmpiricalCovariance`, `DistanceBasedCovariance`).
 
 ### Key Design Patterns
 - **Protocol‑based embedders**: Any callable `(str) -> np.ndarray` can be wrapped as an SEF.
 - **Diagonal covariance**: The Kalman filter uses only diagonal covariance matrices, making fusion O(d) instead of O(d³).
 - **Sequential updates**: Measurements are sorted by certainty (lowest variance first) for numerical stability.
+- **Batch fusion**: Both low‑level algorithms and high‑level `Fuser` abstraction support batch processing of multiple queries for efficiency.
 - **Pluggable components**: Uncertainty estimation (`CovarianceEstimator`), alignment methods, and routing strategies are configurable.
 - **Fuser abstraction**: Fusion strategies are decoupled from routing and orchestration via the `Fuser` base class.
 
