@@ -29,6 +29,13 @@ from .threshold_heuristics import (
     threshold_adaptive_spread,
     threshold_query_length_adaptive,
 )
+from .alignment import (
+    compute_alignments,
+    apply_alignment,
+    align_sef_list,
+    validate_alignment_improvement,
+)
+from .models.sef import create_procrustes_alignment
 
 __all__ = [
     "SEF",
@@ -57,4 +64,9 @@ __all__ = [
     "threshold_query_length_adaptive",
     "ModelRegistry",
     "get_default_registry",
+    "compute_alignments",
+    "apply_alignment",
+    "align_sef_list",
+    "validate_alignment_improvement",
+    "create_procrustes_alignment",
 ]
