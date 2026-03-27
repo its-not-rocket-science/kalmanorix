@@ -11,6 +11,7 @@ Requirements (optional dependencies):
 
 import sys
 import importlib.util
+import pickle
 import numpy as np
 
 from kalmanorix import (
@@ -128,6 +129,30 @@ def main():
     print(f"  Selected modules: {potion2.meta.get('selected_modules', [])}")
     print(f"  Weights: {potion2.weights}")
     print(f"  Weight sum: {sum(potion2.weights.values()):.6f}\n")
+
+    # 8. Pickling demonstration
+    print("--- Pickling demonstration ---")
+    # Pickle the embedder
+    pickled = pickle.dumps(embedder)
+    print(f"  Embedder pickled size: {len(pickled)} bytes")
+    # Unpickle
+    embedder_restored = pickle.loads(pickled)
+    # Verify configuration preserved
+    assert embedder_restored.model_name_or_path == embedder.model_name_or_path
+    assert embedder_restored.pooling == embedder.pooling
+    assert embedder_restored.device == embedder.device
+    # Ensure it still works
+    vec_restored = embedder_restored(test_query)
+    np.testing.assert_allclose(vec_restored, vec, rtol=1e-6)
+    print("  Pickling test passed: embedder successfully serialized/deserialized.")
+    # Pickle SEF
+    sef_pickled = pickle.dumps(sef)
+    sef_restored = pickle.loads(sef_pickled)
+    assert sef_restored.name == sef.name
+    assert sef_restored.sigma2 == sef.sigma2
+    vec_sef = sef_restored.embed(test_query)
+    np.testing.assert_allclose(vec_sef, vec, rtol=1e-6)
+    print("  SEF pickling test passed.\n")
 
     print("=== Demo completed successfully ===")
 

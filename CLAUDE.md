@@ -59,6 +59,9 @@ The project uses Python ≥3.11 with dependencies managed via `pyproject.toml`. 
 - Run the Hugging Face embedder demo: `python examples/huggingface_embedder_demo.py`
   - Shows how to wrap a Hugging Face transformer model as a specialist.
   - Requires optional `train` dependencies (`pip install -e ".[train]"`).
+- Run the Hugging Face alignment demo: `python examples/huggingface_alignment_demo.py`
+  - Demonstrates Procrustes alignment between Hugging Face transformer models.
+  - Requires optional `train` dependencies (`pip install -e ".[train]"`).
 
 ### Running Milestone 2.1 Experiment (Specialists vs Monolith)
 - Install training dependencies: `pip install -e ".[train]"`
@@ -143,6 +146,7 @@ pytest
   - ✓ Diagonal covariance estimation framework (Milestone 1.1)
   - ✓ Procrustes alignment for embedding-space unification (Milestone 1.2)
   - ✓ Basic Kalman fusion against averaging baselines (Milestone 1.3)
+  - ✓ HuggingFace embedder adapter with pickling support and utility functions
 - **Phase 2 (Specialists vs Monolith)**: In progress
   - Milestone 2.1: Specialists vs monolith test with compute equivalence
   - Real dataset integration (PubMed, legal case law)

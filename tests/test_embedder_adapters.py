@@ -1,6 +1,7 @@
 """Tests for embedder adapters."""
 
 import importlib.util
+import pickle
 import sys
 import numpy as np
 import pytest
@@ -160,6 +161,29 @@ class TestHuggingFaceEmbedder:
         norm = np.linalg.norm(vec)
         # Not necessarily unit length
         assert norm > 0
+
+    def test_embedder_pickling(self, embedder):
+        """Test that HuggingFaceEmbedder can be pickled and unpickled."""
+        # Pickle the embedder
+        pickled = pickle.dumps(embedder)
+        # Unpickle
+        unpickled = pickle.loads(pickled)
+        # Verify configuration is preserved
+        assert unpickled.model_name_or_path == embedder.model_name_or_path
+        assert unpickled.pooling == embedder.pooling
+        assert unpickled.device == embedder.device
+        assert unpickled.max_length == embedder.max_length
+        assert unpickled.normalize == embedder.normalize
+        # Lazy attributes should be None
+        assert unpickled._model is None  # pylint: disable=protected-access
+        assert unpickled._tokenizer is None  # pylint: disable=protected-access
+        # Should still be able to compute embeddings
+        vec = unpickled("test pickling")
+        assert vec.shape == (128,)
+        assert vec.dtype == np.float64
+        # Compare with original embedder (should be close)
+        vec_original = embedder("test pickling")
+        np.testing.assert_allclose(vec, vec_original, rtol=1e-6)
 
 
 def test_other_adapters_import():
