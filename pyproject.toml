@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0"]
+dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0", "pytest-benchmark>=4.0"]
 viz = ["matplotlib>=3.7"]
 train = [
     "sentence-transformers>=3.0",
@@ -32,6 +32,12 @@ api = [
     "fastapi>=0.104",
     "uvicorn[standard]>=0.24",
     "pydantic>=2.5"
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "benchmark: performance benchmarks (excluded from regular CI)",
+    "e2e: end-to-end tests",
 ]
 
 [tool.setuptools]

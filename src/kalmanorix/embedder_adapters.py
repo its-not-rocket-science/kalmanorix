@@ -262,6 +262,11 @@ class HuggingFaceEmbedder(Embedder):
             object.__setattr__(self, "_tokenizer", tokenizer)
         return self._tokenizer
 
+    @property
+    def dim(self) -> int:
+        """Return the embedding dimension of the model."""
+        return self.model.config.hidden_size
+
     def __getstate__(self) -> dict[str, Any]:
         """Return state for pickling, excluding lazy-loaded model and tokenizer."""
         # Include all dataclass fields (including those with defaults)

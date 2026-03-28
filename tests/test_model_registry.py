@@ -14,6 +14,7 @@ from kalmanorix.model_registry import (
     set_default_registry,
 )
 from kalmanorix.models.sef import SEFModel, SEFMetadata
+from kalmanorix import SEF
 
 
 def dummy_embedder(text: str) -> np.ndarray:
@@ -132,8 +133,10 @@ def test_load_model(tmp_path: Path):
     registry.scan()
 
     loaded_model = registry.load_model("dummy_model")
-    assert isinstance(loaded_model, SEFModel)
-    assert loaded_model.metadata.name == "Dummy Model"
+    assert isinstance(loaded_model, SEF)
+    assert loaded_model.model is not None
+    assert isinstance(loaded_model.model, SEFModel)
+    assert loaded_model.model.metadata.name == "Dummy Model"
 
     # Test embedder retrieval
     embedder = registry.get_embedder("dummy_model")
@@ -276,7 +279,8 @@ def test_scan_with_mock_model(MockSEFModel, tmp_path: Path):
 
     # Load model (should call from_pretrained)
     loaded = registry.load_model("mock_model")
-    assert loaded is mock_model
+    assert isinstance(loaded, SEF)
+    assert loaded.model is mock_model
     MockSEFModel.from_pretrained.assert_called_once_with(model_dir)
 
     # Verify embedder registration

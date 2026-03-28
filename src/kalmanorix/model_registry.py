@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, TypedDict, Any
 
 
 from .registry import EmbedderRegistry, EmbedderFn
+from .village import SEF
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class ModelMetadata(TypedDict):
     version: str
     domain_tags: List[str]
     description: str
+    embedding_dimension: int
     path: str
 
 
@@ -81,6 +83,7 @@ class ModelRegistry:
                     version=metadata.get("version", "unknown"),
                     domain_tags=metadata.get("domain_tags", []),
                     description=metadata.get("description", ""),
+                    embedding_dimension=metadata.get("embedding_dimension", 0),
                     path=str(model_dir),
                 )
                 logger.debug("Found SEF model: %s (%s)", model_id, metadata.get("name"))
@@ -102,13 +105,13 @@ class ModelRegistry:
         return self._metadata.copy()
 
     def load_model(self, model_id: str) -> Any:
-        """Load SEFModel instance for given model ID.
+        """Load SEF instance for given model ID.
 
         Args:
             model_id: Model identifier (directory name)
 
         Returns:
-            SEFModel instance
+            SEF instance
 
         Raises:
             KeyError: If model_id not found
@@ -134,13 +137,23 @@ class ModelRegistry:
 
         # Load with default embedder loader (pickle)
         model = SEFModel.from_pretrained(model_dir)
-        self._loaded_models[model_id] = model
+        # Create a SEF wrapper for compatibility with fusion pipeline
+        sef = SEF(
+            name=model_id,
+            embed=model.embed,
+            sigma2=1.0,  # default constant uncertainty
+            model=model,
+            meta=None,
+            alignment_matrix=model.alignment_matrix,
+            domain_centroid=None,
+        )
+        self._loaded_models[model_id] = sef
 
         # Register embedder in embedder registry
         self.embedder_registry.embedders[model_id] = model.embed
 
         logger.debug("Loaded model: %s", model_id)
-        return model
+        return sef
 
     def get_embedder(self, model_id: str) -> EmbedderFn:
         """Get embedder function for given model ID (cached).
