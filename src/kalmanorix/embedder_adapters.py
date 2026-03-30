@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Iterable
 
 import numpy as np
 
 from kalmanorix.types import Embedder, Vec
 from kalmanorix.village import SEF
 from kalmanorix.models.sef import SEFModel, SEFMetadata
+from .uncertainty import CentroidDistanceSigma2
 
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
@@ -561,6 +562,292 @@ def create_huggingface_sef_model(
     )
 
 
+def create_openai_sef(
+    client: "OpenAIClient",
+    name: str,
+    sigma2: float = 1.0,
+    model: str = "text-embedding-3-small",
+    dimensions: int | None = None,
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from an OpenAI embedder with constant uncertainty.
+
+    Args:
+        client: OpenAI client instance.
+        name: SEF name.
+        sigma2: Constant uncertainty (variance) for this specialist.
+        model: OpenAI model name.
+        dimensions: Optional output dimensions.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF wrapping the OpenAI embedder.
+    """
+    embedder = OpenAIEmbedder(
+        client=client,
+        model=model,
+        dimensions=dimensions,
+        normalize=normalize,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_openai_sef_with_calibration(
+    client: "OpenAIClient",
+    name: str,
+    calibration_texts: Iterable[str],
+    base_sigma2: float = 0.2,
+    scale: float = 2.0,
+    model: str = "text-embedding-3-small",
+    dimensions: int | None = None,
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from an OpenAI embedder with centroid-distance uncertainty.
+
+    Uncertainty is computed based on cosine similarity to domain centroid
+    derived from calibration texts. Higher similarity => lower variance.
+
+    Args:
+        client: OpenAI client instance.
+        name: SEF name.
+        calibration_texts: Sample texts from the specialist's domain.
+        base_sigma2: Minimum variance when similarity is 1.
+        scale: Maximum additional variance when similarity is 0.
+        model: OpenAI model name.
+        dimensions: Optional output dimensions.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF with centroid-distance uncertainty.
+    """
+    embedder = OpenAIEmbedder(
+        client=client,
+        model=model,
+        dimensions=dimensions,
+        normalize=normalize,
+    )
+    sigma2 = CentroidDistanceSigma2.from_calibration(
+        embed=embedder,
+        calibration_texts=calibration_texts,
+        base_sigma2=base_sigma2,
+        scale=scale,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_cohere_sef(
+    client: "CohereClient",
+    name: str,
+    sigma2: float = 1.0,
+    model: str = "embed-english-v3.0",
+    input_type: str = "search_document",
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from a Cohere embedder with constant uncertainty.
+
+    Args:
+        client: Cohere client instance.
+        name: SEF name.
+        sigma2: Constant uncertainty (variance) for this specialist.
+        model: Cohere model name.
+        input_type: One of "search_document", "search_query", etc.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF wrapping the Cohere embedder.
+    """
+    embedder = CohereEmbedder(
+        client=client,
+        model=model,
+        input_type=input_type,
+        normalize=normalize,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_cohere_sef_with_calibration(
+    client: "CohereClient",
+    name: str,
+    calibration_texts: Iterable[str],
+    base_sigma2: float = 0.2,
+    scale: float = 2.0,
+    model: str = "embed-english-v3.0",
+    input_type: str = "search_document",
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from a Cohere embedder with centroid-distance uncertainty.
+
+    Uncertainty is computed based on cosine similarity to domain centroid
+    derived from calibration texts. Higher similarity => lower variance.
+
+    Args:
+        client: Cohere client instance.
+        name: SEF name.
+        calibration_texts: Sample texts from the specialist's domain.
+        base_sigma2: Minimum variance when similarity is 1.
+        scale: Maximum additional variance when similarity is 0.
+        model: Cohere model name.
+        input_type: One of "search_document", "search_query", etc.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF with centroid-distance uncertainty.
+    """
+    embedder = CohereEmbedder(
+        client=client,
+        model=model,
+        input_type=input_type,
+        normalize=normalize,
+    )
+    sigma2 = CentroidDistanceSigma2.from_calibration(
+        embed=embedder,
+        calibration_texts=calibration_texts,
+        base_sigma2=base_sigma2,
+        scale=scale,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_vertexai_sef(
+    model: "VertexAIEmbeddingModel",
+    name: str,
+    sigma2: float = 1.0,
+    task_type: str = "RETRIEVAL_QUERY",
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from a Vertex AI embedder with constant uncertainty.
+
+    Args:
+        model: VertexAIEmbeddingModel instance.
+        name: SEF name.
+        sigma2: Constant uncertainty (variance) for this specialist.
+        task_type: Task type for embeddings.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF wrapping the Vertex AI embedder.
+    """
+    embedder = VertexAIEmbedder(
+        model=model,
+        task_type=task_type,
+        normalize=normalize,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_vertexai_sef_with_calibration(
+    model: "VertexAIEmbeddingModel",
+    name: str,
+    calibration_texts: Iterable[str],
+    base_sigma2: float = 0.2,
+    scale: float = 2.0,
+    task_type: str = "RETRIEVAL_QUERY",
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from a Vertex AI embedder with centroid-distance uncertainty.
+
+    Uncertainty is computed based on cosine similarity to domain centroid
+    derived from calibration texts. Higher similarity => lower variance.
+
+    Args:
+        model: VertexAIEmbeddingModel instance.
+        name: SEF name.
+        calibration_texts: Sample texts from the specialist's domain.
+        base_sigma2: Minimum variance when similarity is 1.
+        scale: Maximum additional variance when similarity is 0.
+        task_type: Task type for embeddings.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF with centroid-distance uncertainty.
+    """
+    embedder = VertexAIEmbedder(
+        model=model,
+        task_type=task_type,
+        normalize=normalize,
+    )
+    sigma2 = CentroidDistanceSigma2.from_calibration(
+        embed=embedder,
+        calibration_texts=calibration_texts,
+        base_sigma2=base_sigma2,
+        scale=scale,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_azure_openai_sef(
+    client: "OpenAIClient",
+    name: str,
+    sigma2: float = 1.0,
+    model: str = "embedding-deployment",
+    dimensions: int | None = None,
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from an Azure OpenAI embedder with constant uncertainty.
+
+    Args:
+        client: Azure OpenAI client instance.
+        name: SEF name.
+        sigma2: Constant uncertainty (variance) for this specialist.
+        model: Deployment name.
+        dimensions: Optional output dimensions.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF wrapping the Azure OpenAI embedder.
+    """
+    embedder = AzureOpenAIEmbedder(
+        client=client,
+        model=model,
+        dimensions=dimensions,
+        normalize=normalize,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_azure_openai_sef_with_calibration(
+    client: "OpenAIClient",
+    name: str,
+    calibration_texts: Iterable[str],
+    base_sigma2: float = 0.2,
+    scale: float = 2.0,
+    model: str = "embedding-deployment",
+    dimensions: int | None = None,
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from an Azure OpenAI embedder with centroid-distance uncertainty.
+
+    Uncertainty is computed based on cosine similarity to domain centroid
+    derived from calibration texts. Higher similarity => lower variance.
+
+    Args:
+        client: Azure OpenAI client instance.
+        name: SEF name.
+        calibration_texts: Sample texts from the specialist's domain.
+        base_sigma2: Minimum variance when similarity is 1.
+        scale: Maximum additional variance when similarity is 0.
+        model: Deployment name.
+        dimensions: Optional output dimensions.
+        normalize: Whether to normalize embeddings.
+
+    Returns:
+        SEF with centroid-distance uncertainty.
+    """
+    embedder = AzureOpenAIEmbedder(
+        client=client,
+        model=model,
+        dimensions=dimensions,
+        normalize=normalize,
+    )
+    sigma2 = CentroidDistanceSigma2.from_calibration(
+        embed=embedder,
+        calibration_texts=calibration_texts,
+        base_sigma2=base_sigma2,
+        scale=scale,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
 __all__ = [
     "STEmbedder",
     "OpenAIEmbedder",
@@ -571,4 +858,12 @@ __all__ = [
     "HuggingFaceEmbedder",
     "create_huggingface_sef",
     "create_huggingface_sef_model",
+    "create_openai_sef",
+    "create_openai_sef_with_calibration",
+    "create_cohere_sef",
+    "create_cohere_sef_with_calibration",
+    "create_vertexai_sef",
+    "create_vertexai_sef_with_calibration",
+    "create_azure_openai_sef",
+    "create_azure_openai_sef_with_calibration",
 ]

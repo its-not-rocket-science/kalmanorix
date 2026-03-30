@@ -15,6 +15,14 @@ from kalmanorix.embedder_adapters import (
     VertexAIEmbedder,
     AzureOpenAIEmbedder,
     HuggingFaceEmbedder,
+    create_openai_sef,
+    create_openai_sef_with_calibration,
+    create_cohere_sef,
+    create_cohere_sef_with_calibration,
+    create_vertexai_sef,
+    create_vertexai_sef_with_calibration,
+    create_azure_openai_sef,
+    create_azure_openai_sef_with_calibration,
 )
 
 
@@ -195,6 +203,142 @@ def test_other_adapters_import():
     assert AnthropicEmbedder is not None
     assert VertexAIEmbedder is not None
     assert AzureOpenAIEmbedder is not None
+
+
+def test_factory_functions_with_mock(mocker):
+    """Test factory functions with mocked clients."""
+    # Mock the SDK imports to avoid requiring actual installations
+    # Mock openai import
+    mock_openai = mocker.MagicMock()
+    mock_openai.OpenAIError = Exception
+    mocker.patch.dict("sys.modules", {"openai": mock_openai})
+
+    # Mock cohere import
+    mock_cohere = mocker.MagicMock()
+    mock_cohere.CohereError = Exception
+    mocker.patch.dict("sys.modules", {"cohere": mock_cohere})
+
+    # Mock google.cloud.aiplatform import
+    mock_aiplatform = mocker.MagicMock()
+    mock_aiplatform.VertexAIEmbeddingModel = mocker.MagicMock
+    mock_google_api_error = Exception
+    mocker.patch.dict(
+        "sys.modules",
+        {
+            "google.cloud.aiplatform": mock_aiplatform,
+            "google.api_core.exceptions": mocker.MagicMock(
+                GoogleAPIError=mock_google_api_error
+            ),
+        },
+    )
+
+    # Mock clients that return a dummy embedding
+    class MockOpenAIClient:
+        class embeddings:
+            @staticmethod
+            def create(*, model, input, dimensions=None):
+                class Response:
+                    class Data:
+                        embedding = [0.1, 0.2, 0.3]
+
+                    data = [Data()]
+
+                return Response()
+
+    class MockCohereClient:
+        def embed(self, *, texts, model, input_type):
+            class Response:
+                embeddings = [[0.1, 0.2, 0.3]]
+
+            return Response()
+
+    # Mock VertexAIEmbeddingModel
+    class MockVertexAIEmbeddingModel:
+        def get_embeddings(self, texts, task_type):
+            class Embedding:
+                values = [0.1, 0.2, 0.3]
+
+            return [Embedding()]
+
+    # Test OpenAI factory functions
+    mock_openai_client = MockOpenAIClient()
+    sef1 = create_openai_sef(
+        client=mock_openai_client,
+        name="test-openai",
+        sigma2=1.0,
+        model="text-embedding-3-small",
+    )
+    assert sef1.name == "test-openai"
+    assert sef1.sigma2 == 1.0
+    # Embed should work (returns normalized vector)
+    vec = sef1.embed("test")
+    assert vec.shape == (3,)
+    assert vec.dtype == np.float64
+
+    # Test with calibration
+    calibration_texts = ["calib1", "calib2"]
+    sef2 = create_openai_sef_with_calibration(
+        client=mock_openai_client,
+        name="test-openai-calib",
+        calibration_texts=calibration_texts,
+        base_sigma2=0.2,
+        scale=2.0,
+    )
+    assert sef2.name == "test-openai-calib"
+    assert callable(sef2.sigma2)  # CentroidDistanceSigma2 instance
+
+    # Test Cohere factory functions
+    mock_cohere_client = MockCohereClient()
+    sef3 = create_cohere_sef(
+        client=mock_cohere_client,
+        name="test-cohere",
+        sigma2=1.5,
+    )
+    assert sef3.name == "test-cohere"
+    assert sef3.sigma2 == 1.5
+
+    sef4 = create_cohere_sef_with_calibration(
+        client=mock_cohere_client,
+        name="test-cohere-calib",
+        calibration_texts=calibration_texts,
+    )
+    assert sef4.name == "test-cohere-calib"
+    assert callable(sef4.sigma2)
+
+    # Test Vertex AI factory functions
+    mock_vertexai_model = MockVertexAIEmbeddingModel()
+    sef5 = create_vertexai_sef(
+        model=mock_vertexai_model,
+        name="test-vertexai",
+        sigma2=0.8,
+    )
+    assert sef5.name == "test-vertexai"
+    assert sef5.sigma2 == 0.8
+
+    sef6 = create_vertexai_sef_with_calibration(
+        model=mock_vertexai_model,
+        name="test-vertexai-calib",
+        calibration_texts=calibration_texts,
+    )
+    assert sef6.name == "test-vertexai-calib"
+    assert callable(sef6.sigma2)
+
+    # Test Azure OpenAI factory functions (same as OpenAI but different default model)
+    sef7 = create_azure_openai_sef(
+        client=mock_openai_client,
+        name="test-azure-openai",
+        sigma2=1.2,
+    )
+    assert sef7.name == "test-azure-openai"
+    assert sef7.sigma2 == 1.2
+
+    sef8 = create_azure_openai_sef_with_calibration(
+        client=mock_openai_client,
+        name="test-azure-openai-calib",
+        calibration_texts=calibration_texts,
+    )
+    assert sef8.name == "test-azure-openai-calib"
+    assert callable(sef8.sigma2)
 
 
 if __name__ == "__main__":

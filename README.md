@@ -219,8 +219,8 @@ We will reconsider the approach if:
 - [ ] Add API usage examples (Python, JavaScript, curl) (Medium priority)
 - [ ] PyPI release
 - [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
-- [ ] Implement API rate limiting, error handling, and caching (High priority)
-- [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback) (High priority)
+- [x] Implement API rate limiting, error handling, and caching (High priority)
+- [x] Add uncertainty estimation strategies for proprietary models (distance-based fallback) (High priority)
 - [x] Create interactive Jupyter notebook for education and debugging
 
 **Deliverable:** v1.0.0 - Production-ready framework

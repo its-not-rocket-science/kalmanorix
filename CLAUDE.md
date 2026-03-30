@@ -103,7 +103,7 @@ pytest
   - `models/sef.py` – SEFModel (Shareable Embedding Format with save/load capabilities)
   - `sef_io.py` – I/O utilities for SEF (future)
   - `uncertainty.py` – Uncertainty helpers (`KeywordSigma2`, `CentroidDistanceSigma2`)
-  - `embedder_adapters.py` – Adapters for third‑party embedders (Sentence‑Transformers, OpenAI, Cohere, Anthropic, Vertex AI, Azure OpenAI, Hugging Face Transformers)
+  - `embedder_adapters.py` – Adapters for third‑party embedders (Sentence‑Transformers, OpenAI, Cohere, Anthropic, Vertex AI, Azure OpenAI, Hugging Face Transformers) with factory functions for creating SEFs with constant or centroid‑distance uncertainty (`create_*_sef`, `create_*_sef_with_calibration`)
   - `arena.py` – Evaluation utilities (retrieval benchmark)
   - `types.py` – Shared type definitions (`Embedder` protocol, `Vec`)
   - `toy_corpus.py` – Synthetic data for testing
