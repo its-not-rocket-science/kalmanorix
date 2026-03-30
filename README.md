@@ -17,7 +17,7 @@ This validates the Kalmanorix hypothesis that modular specialist fusion with int
 ```markdown
 # Kalmanorix Roadmap
 
-**Last updated: March 19, 2026**
+**Last updated: March 30, 2026**
 **Current version: v0.2.0 (Core Kalman)**
 **Next release: v0.3.0 (Experimental validation) - September 2026**
 
@@ -216,10 +216,11 @@ We will reconsider the approach if:
 - [x] Basic model registry (local directory/index)
 - [ ] Documentation site with examples
 - [ ] Tutorials: 3 complete use cases
+- [ ] Add API usage examples (Python, JavaScript, curl) (Medium priority)
 - [ ] PyPI release
 - [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
-- [ ] Implement API rate limiting, error handling, and caching
-- [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback)
+- [ ] Implement API rate limiting, error handling, and caching (High priority)
+- [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback) (High priority)
 - [x] Create interactive Jupyter notebook for education and debugging
 
 **Deliverable:** v1.0.0 - Production-ready framework
@@ -292,6 +293,17 @@ We will reconsider the approach if:
 - Formalise error bounds
 
 **Deliverable:** Journal paper with theoretical guarantees
+
+### Research Track E: Risk-Aware Fusion (Black-Scholes Inspired)
+
+**Challenge:** Current Kalman filter assumes symmetric Gaussian uncertainty; real-world decisions often require risk-aware uncertainty quantification.
+
+- **Implied volatility covariance (Medium priority):** Train a neural network to predict diagonal covariance directly from input text (analogous to implied volatility in options)
+- **Risk-sensitive Kalman gain (Medium priority):** Introduce risk-aversion parameter λ for asymmetric uncertainty weighting (penalize underestimation more than overestimation)
+- **Stochastic embedding dynamics (Low priority):** Model semantic state as geometric Brownian motion with drift term for streaming text
+- **Monte Carlo fusion (Low priority):** Use Monte Carlo simulation to price fused embeddings under risk-neutral measures
+
+**Success metric:** Risk-aware fusion improves performance on safety-critical tasks without sacrificing overall accuracy
 
 ---
 
