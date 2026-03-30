@@ -91,9 +91,9 @@ This roadmap reflects the actual development status and prioritises the critical
 - **Target:** Fusion adds <10ms latency for d=768, 5 specialists
 
 ### Milestone 3.3: Integration & Ecosystem
-- [ ] Hugging Face integration (`AutoModel` wrapper)
+- [x] Hugging Face integration (`AutoModel` wrapper)
 - [ ] ONNX runtime support
-- [ ] Basic model registry (local directory/index)
+- [x] Basic model registry (local directory/index)
 - [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
 - [ ] Implement API rate limiting, error handling, and caching
 - [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback)

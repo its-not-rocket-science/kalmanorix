@@ -178,11 +178,11 @@ We will reconsider the approach if:
 
 **Goal:** Standardised model format for sharing
 
-- [ ] Define Shareable Embedding Format serialisation (JSON + NPY)
-- [ ] Implement `SEFModel.save_pretrained()` and `from_pretrained()`
-- [ ] Add metadata manifest (domain tags, benchmarks, licence)
+- [x] Define Shareable Embedding Format serialisation (JSON + NPY)
+- [x] Implement `SEFModel.save_pretrained()` and `from_pretrained()`
+- [x] Add metadata manifest (domain tags, benchmarks, licence)
 - [ ] Create model card template
-- [ ] Checksum verification for integrity
+- [x] Checksum verification for integrity
 - [ ] Documentation for model contributors
 
 **Success criteria:** Models can be packaged and shared as single directories
@@ -198,9 +198,9 @@ We will reconsider the approach if:
 **Goal:** Production-ready speed
 
 - [ ] Implement low-rank covariance approximations (UUT + D)
-- [ ] Add support for Ensemble Kalman Filter (parallel updates)
+- [x] Add support for Ensemble Kalman Filter (parallel updates)
 - [ ] Optimise router for minimal latency (TF-IDF caching)
-- [ ] Add batch fusion for multiple queries
+- [x] Add batch fusion for multiple queries
 - [ ] ONNX runtime support for embed functions
 - [ ] Profile-guided optimisations
 
@@ -211,16 +211,16 @@ We will reconsider the approach if:
 
 **Goal:** Easy to use in real applications
 
-- [ ] Hugging Face integration (`AutoModel` wrapper)
-- [ ] FastAPI server for remote fusion
-- [ ] Basic model registry (local directory/index)
+- [x] Hugging Face integration (`AutoModel` wrapper)
+- [x] FastAPI server for remote fusion
+- [x] Basic model registry (local directory/index)
 - [ ] Documentation site with examples
 - [ ] Tutorials: 3 complete use cases
 - [ ] PyPI release
-- [ ] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
+- [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
 - [ ] Implement API rate limiting, error handling, and caching
 - [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback)
-- [ ] Create interactive Jupyter notebook for education and debugging
+- [x] Create interactive Jupyter notebook for education and debugging
 
 **Deliverable:** v1.0.0 - Production-ready framework
 **Metrics:**
