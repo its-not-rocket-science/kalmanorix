@@ -17,6 +17,7 @@ repos:
           - torch
           - sentence-transformers
           - transformers
+          - types-cachetools
         pass_filenames: false
         args:
           - --exclude

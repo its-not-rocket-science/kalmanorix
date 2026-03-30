@@ -15,12 +15,19 @@ Run with:
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional
+import logging
+import time
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from cachetools import TTLCache
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from kalmanorix import (
     SEF,
@@ -36,6 +43,31 @@ from kalmanorix import (
 )
 from kalmanorix.types import Vec
 from kalmanorix.uncertainty import KeywordSigma2
+
+# -----------------------------------------------------------------------------
+# Logging configuration
+# -----------------------------------------------------------------------------
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+# -----------------------------------------------------------------------------
+# Rate limiting configuration
+# -----------------------------------------------------------------------------
+
+limiter = Limiter(key_func=get_remote_address)
+
+# -----------------------------------------------------------------------------
+# Response caching configuration
+# -----------------------------------------------------------------------------
+
+# Cache for fusion results: max 1000 entries, 5 minute TTL
+fusion_cache: TTLCache[Tuple[str, str, str], Dict[str, Any]] = TTLCache(
+    maxsize=1000, ttl=300
+)
 
 # -----------------------------------------------------------------------------
 # Toy specialist setup (same as minimal_fusion_demo.py)
@@ -184,6 +216,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add rate limiting state and error handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
+
+
+# Custom exception handler for general errors
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Handle uncaught exceptions with logging and JSON response."""
+    logger.error("Unhandled exception: %s", exc, exc_info=True)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "detail": "Internal server error",
+            "type": type(exc).__name__,
+            "message": str(exc),
+        },
+    )
+
 
 class FusionRequest(BaseModel):
     """Request body for fusion endpoint."""
@@ -229,6 +280,25 @@ class FusionResponse(BaseModel):
 # -----------------------------------------------------------------------------
 
 
+def get_cache_key(query: str, strategy: str, routing: str) -> Tuple[str, str, str]:
+    """Generate cache key for fusion request."""
+    return (query, strategy, routing)
+
+
+def cached_fusion(query: str, strategy: str, routing: str) -> Optional[Dict[str, Any]]:
+    """Check cache for existing fusion result."""
+    key = get_cache_key(query, strategy, routing)
+    return fusion_cache.get(key)
+
+
+def store_fusion_result(
+    query: str, strategy: str, routing: str, result: Dict[str, Any]
+) -> None:
+    """Store fusion result in cache."""
+    key = get_cache_key(query, strategy, routing)
+    fusion_cache[key] = result
+
+
 def numpy_to_list(obj):
     """Recursively convert numpy arrays to Python lists."""
     if isinstance(obj, np.ndarray):
@@ -245,8 +315,9 @@ def numpy_to_list(obj):
 # -----------------------------------------------------------------------------
 
 
+@limiter.limit("200/minute")
 @app.get("/", response_model=Dict[str, Any])
-async def root():
+async def root(request: Request):
     """Server info and available endpoints."""
     return {
         "name": "Kalmanorix Fusion Server",
@@ -260,8 +331,9 @@ async def root():
     }
 
 
+@limiter.limit("200/minute")
 @app.get("/modules", response_model=List[ModuleInfo])
-async def list_modules():
+async def list_modules(request: Request):
     """List available specialist modules in the village."""
     modules = []
     for sef in VILLAGE.modules:
@@ -287,27 +359,48 @@ async def list_modules():
     return modules
 
 
+@limiter.limit("100/minute")
 @app.post("/fuse", response_model=FusionResponse)
-async def fuse(request: FusionRequest):
+async def fuse(request: Request, body: FusionRequest):
     """Fuse embeddings for a query using the specified strategy."""
+    start_time = time.time()
+
+    # Check cache first
+    cached_result = cached_fusion(body.query, body.strategy, body.routing)
+    if cached_result is not None:
+        logger.info(
+            "Cache hit for query='%s', strategy=%s, routing=%s",
+            body.query[:50] + "..." if len(body.query) > 50 else body.query,
+            body.strategy,
+            body.routing,
+        )
+        return FusionResponse(**cached_result)
+
+    logger.info(
+        "Processing fusion request: query='%s', strategy=%s, routing=%s",
+        body.query[:50] + "..." if len(body.query) > 50 else body.query,
+        body.strategy,
+        body.routing,
+    )
+
     # Select routing
-    scout = SCOUT_ALL if request.routing == "all" else SCOUT_HARD
+    scout = SCOUT_ALL if body.routing == "all" else SCOUT_HARD
 
     # Select fuser
-    if request.strategy not in FUSERS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unknown fusion strategy: {request.strategy}. "
-            f"Available: {list(FUSERS.keys())}",
-        )
-    fuser = FUSERS[request.strategy]
+    if body.strategy not in FUSERS:
+        error_msg = f"Unknown fusion strategy: {body.strategy}. Available: {list(FUSERS.keys())}"
+        logger.warning(error_msg)
+        raise HTTPException(status_code=400, detail=error_msg)
+    fuser = FUSERS[body.strategy]
 
     # Perform fusion
     try:
         panoramix = Panoramix(fuser=fuser)
-        potion = panoramix.brew(request.query, village=VILLAGE, scout=scout)
+        potion = panoramix.brew(body.query, village=VILLAGE, scout=scout)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fusion error: {str(e)}") from e
+        error_msg = f"Fusion error: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        raise HTTPException(status_code=500, detail=error_msg) from e
 
     # Convert numpy arrays to lists for JSON serialization
     fused_vector_list = potion.vector.tolist()
@@ -318,15 +411,34 @@ async def fuse(request: FusionRequest):
     if potion.meta:
         meta_dict = numpy_to_list(potion.meta)
 
-    return FusionResponse(
-        query=request.query,
-        strategy=request.strategy,
-        routing=request.routing,
+    # Build response
+    response = FusionResponse(
+        query=body.query,
+        strategy=body.strategy,
+        routing=body.routing,
         selected_modules=potion.meta.get("selected_modules", []) if potion.meta else [],
         fused_vector=fused_vector_list,
         weights=weights_dict,
         meta=meta_dict,
     )
+
+    # Store in cache
+    store_fusion_result(
+        body.query,
+        body.strategy,
+        body.routing,
+        response.model_dump(),
+    )
+
+    elapsed_time = time.time() - start_time
+    logger.info(
+        "Fusion completed in %.3f seconds (strategy=%s, routing=%s)",
+        elapsed_time,
+        body.strategy,
+        body.routing,
+    )
+
+    return response
 
 
 # -----------------------------------------------------------------------------
