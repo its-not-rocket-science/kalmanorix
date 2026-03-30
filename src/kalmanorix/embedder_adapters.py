@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from cohere import Client as CohereClient
     from anthropic import Anthropic as AnthropicClient
     from google.cloud.aiplatform import VertexAIEmbeddingModel
-    from transformers import PreTrainedModel, PreTrainedTokenizerBase
+    from transformers import PreTrainedModel, PreTrainedTokenizerBase, PretrainedConfig
     from kalmanorix.kalman_engine.covariance import CovarianceEstimator
 
 
@@ -228,6 +228,7 @@ class HuggingFaceEmbedder(Embedder):
     normalize: bool = True
     _model: Any = field(init=False, default=None, repr=False)
     _tokenizer: Any = field(init=False, default=None, repr=False)
+    _config: Any = field(init=False, default=None, repr=False)
 
     @property
     def model(self) -> "PreTrainedModel":
@@ -240,7 +241,9 @@ class HuggingFaceEmbedder(Embedder):
                     "Transformers library not installed. Install with: pip install transformers"
                 ) from e
 
-            model = AutoModel.from_pretrained(self.model_name_or_path)
+            model = AutoModel.from_pretrained(
+                self.model_name_or_path, config=self.config
+            )
             model.to(self.device)
             model.eval()
             object.__setattr__(self, "_model", model)
@@ -258,9 +261,53 @@ class HuggingFaceEmbedder(Embedder):
                 ) from e
 
             tokenizer_name = self.tokenizer_name_or_path or self.model_name_or_path
-            tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+            tokenizer = AutoTokenizer.from_pretrained(
+                tokenizer_name, config=self.config
+            )
             object.__setattr__(self, "_tokenizer", tokenizer)
         return self._tokenizer
+
+    @property
+    def config(self) -> "PretrainedConfig":
+        """Lazy load the config with fallback for missing model_type."""
+        if self._config is None:
+            try:
+                from transformers import AutoConfig
+            except ImportError as e:
+                raise ImportError(
+                    "Transformers library not installed. Install with: pip install transformers"
+                ) from e
+
+            try:
+                config = AutoConfig.from_pretrained(self.model_name_or_path)
+            except ValueError as exc:
+                # Config missing model_type, try common config classes
+                from transformers import (
+                    BertConfig,
+                    RobertaConfig,
+                    DistilBertConfig,
+                    AlbertConfig,
+                )
+
+                config_classes = [
+                    BertConfig,
+                    RobertaConfig,
+                    DistilBertConfig,
+                    AlbertConfig,
+                ]
+                for config_cls in config_classes:
+                    try:
+                        config = config_cls.from_pretrained(self.model_name_or_path)  # type: ignore[attr-defined]
+                        break
+                    except Exception:
+                        continue
+                else:
+                    raise ValueError(
+                        f"Could not load config for {self.model_name_or_path}. "
+                        "Model may be unsupported."
+                    ) from exc
+            object.__setattr__(self, "_config", config)
+        return self._config
 
     @property
     def dim(self) -> int:
@@ -288,6 +335,7 @@ class HuggingFaceEmbedder(Embedder):
         # Reset lazy-loaded attributes to None
         object.__setattr__(self, "_model", None)
         object.__setattr__(self, "_tokenizer", None)
+        object.__setattr__(self, "_config", None)
 
     def __call__(self, text: str) -> Vec:
         try:
