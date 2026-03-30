@@ -252,4 +252,4 @@ with open("medical_specialist.pkl", "rb") as f:
 - [Minimal Fusion Example](minimal-fusion.md) – Core Kalmanorix concepts with toy specialists.
 - [API Reference](../api-reference/embedder-adapters.md) – Detailed documentation of `HuggingFaceEmbedder` and other adapters.
 - [Alignment Utilities](../api-reference/alignment.md) – Functions for Procrustes alignment.
-- [Milestone 1.2](../research/milestones/milestone_1_2_alignment.md) – Research report on embedding‑space alignment.
+- [Milestone 1.2](../concepts/alignment.md) – Research report on embedding‑space alignment.

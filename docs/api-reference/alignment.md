@@ -1,8 +1,8 @@
-# Kalman Engine API
+# Alignment API
 
-Core Kalman fusion algorithms and covariance estimation utilities. Includes low‑level functions for sequential and parallel Kalman updates with diagonal covariance.
+Functions for Procrustes alignment of embedding spaces. Includes `compute_alignments`, `apply_alignment`, `align_sef_list`, and `validate_alignment_improvement`.
 
-::: kalmanorix.kalman_engine
+::: kalmanorix.alignment
     options:
       show_root_heading: true
       show_source: true

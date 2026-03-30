@@ -29,7 +29,7 @@ def compute_alignments(
         sef_list: List of SEF objects
         anchor_sentences: List of text sentences used for alignment
         reference_sef_name: Name of the SEF to use as reference space
-        epsilon: Small constant for numerical stability
+        _epsilon (float): Small constant for numerical stability (unused)
 
     Returns:
         Dictionary mapping SEF name to alignment matrix (d×d orthogonal).

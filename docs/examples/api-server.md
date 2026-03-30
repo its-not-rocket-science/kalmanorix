@@ -304,4 +304,4 @@ These can be addressed by extending the server with additional endpoints and con
 - [Minimal Fusion Example](minimal-fusion.md) – Details on the toy specialists used in the server.
 - [HuggingFace Integration](huggingface-integration.md) – How to wrap real transformer models as SEFs.
 - [API Reference](../api-reference/panoramix.md) – Documentation of the `Panoramix` fusion orchestrator.
-- [Milestone 3.3](../research/milestones/milestone_3_3_production_ready.md) – Research report on production‑ready API features.
+- [Milestone 3.3](../contributing/roadmap.md#milestone-33-integration-ecosystem) – Project roadmap section on production‑ready API features.

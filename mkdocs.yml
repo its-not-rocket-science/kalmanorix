@@ -126,6 +126,7 @@ nav:
     - Scout Router: api-reference/scout-router.md
     - Embedder Adapters: api-reference/embedder-adapters.md
     - Kalman Engine: api-reference/kalman-engine.md
+    - Alignment: api-reference/alignment.md
   - Guides:
     - Creating Specialists: guides/creating-specialists.md
     - Fusion Strategies: guides/fusion-strategies.md
