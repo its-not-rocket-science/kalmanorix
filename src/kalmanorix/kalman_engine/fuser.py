@@ -85,7 +85,7 @@ class Panoramix:
         Args:
             query: Input text to embed
             village: Village containing available specialist models
-            context: Optional context dict (e.g., domain hints for routing)
+            _context: Optional context dict (e.g., domain hints for routing)
 
         Returns:
             fused_embedding: Final fused embedding vector (d,)

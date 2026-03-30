@@ -35,6 +35,13 @@ api = [
     "slowapi>=0.1.8",
     "cachetools>=5.3"
 ]
+docs = [
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-literate-nav>=0.6"
+]
 
 [tool.pytest.ini_options]
 markers = [

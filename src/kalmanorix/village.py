@@ -26,6 +26,15 @@ class SEF:
 
     If model is provided, it should be a SEFModel instance that can provide
     structured covariance (low‑rank) via get_structured_covariance().
+
+    Attributes:
+        name: Module identifier.
+        embed: Embedder function mapping text to vector.
+        sigma2: Uncertainty (variance) value or callable.
+        meta: Optional metadata dictionary.
+        alignment_matrix: Optional orthogonal matrix for embedding-space alignment.
+        domain_centroid: Optional normalized centroid vector for semantic routing.
+        model: Optional SEFModel for structured covariance.
     """
 
     name: str
@@ -37,7 +46,14 @@ class SEF:
     model: Optional["SEFModel"] = None
 
     def sigma2_for(self, query: str) -> float:
-        """Return uncertainty (variance) for a given query."""
+        """Return uncertainty (variance) for a given query.
+
+        Args:
+            query: Input text.
+
+        Returns:
+            Variance (sigma²) value, guaranteed positive.
+        """
         if callable(self.sigma2):
             val = float(self.sigma2(query))
         else:
@@ -51,6 +67,12 @@ class SEF:
 
         If the SEF has an attached SEFModel, returns its diagonal covariance.
         Otherwise, returns sigma2_for(query) * ones(d).
+
+        Args:
+            query: Input text.
+
+        Returns:
+            Diagonal covariance vector of shape (d,) where d is embedding dimension.
         """
         if self.model is not None:
             # Use model's diagonal covariance
@@ -68,6 +90,12 @@ class SEF:
 
         If the SEF has an attached SEFModel that supports low‑rank covariance,
         returns a StructuredCovariance object. Otherwise returns None.
+
+        Args:
+            query: Input text.
+
+        Returns:
+            StructuredCovariance object or None if not available.
         """
         if self.model is not None:
             from .models.sef import SEFModel  # lazy import to avoid circular
@@ -111,7 +139,11 @@ def compute_domain_centroid(embed: Embedder, calibration_texts: Iterable[str]) -
 
 @dataclass
 class Village:
-    """A simple container for specialists available at runtime."""
+    """A simple container for specialists available at runtime.
+
+    Attributes:
+        modules: List of SEF instances.
+    """
 
     modules: List[SEF]
 
@@ -120,5 +152,9 @@ class Village:
             raise ValueError("Village must contain at least one SEF")
 
     def list(self) -> List[str]:
-        """List names of available modules."""
+        """List names of available modules.
+
+        Returns:
+            List of module names.
+        """
         return [m.name for m in self.modules]

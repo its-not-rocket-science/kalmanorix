@@ -25,7 +25,19 @@ def eval_retrieval(
     panoramix: Panoramix,
     k: int = 10,
 ) -> float:
-    """Compute mean Recall@k over (query, true_doc_id) pairs against `doc_embs`."""
+    """Compute mean Recall@k over (query, true_doc_id) pairs against `doc_embs`.
+
+    Args:
+        queries: List of (query_text, true_document_id) pairs.
+        doc_embs: Document embedding matrix of shape (n_documents, embedding_dimension).
+        village: Village containing specialist models.
+        scout: ScoutRouter for model selection.
+        panoramix: Panoramix fusion engine.
+        k: Number of top documents to consider for recall.
+
+    Returns:
+        Mean recall@k score across all queries.
+    """
     hits = 0.0
     for q, true_id in queries:
         potion = panoramix.brew(q, village=village, scout=scout)

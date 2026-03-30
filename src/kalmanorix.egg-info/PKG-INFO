@@ -37,6 +37,12 @@ Requires-Dist: uvicorn[standard]>=0.24; extra == "api"
 Requires-Dist: pydantic>=2.5; extra == "api"
 Requires-Dist: slowapi>=0.1.8; extra == "api"
 Requires-Dist: cachetools>=5.3; extra == "api"
+Provides-Extra: docs
+Requires-Dist: mkdocs>=1.5; extra == "docs"
+Requires-Dist: mkdocs-material>=9.5; extra == "docs"
+Requires-Dist: mkdocstrings[python]>=0.24; extra == "docs"
+Requires-Dist: mkdocs-gen-files>=0.5; extra == "docs"
+Requires-Dist: mkdocs-literate-nav>=0.6; extra == "docs"
 Dynamic: license-file
 
 
@@ -260,8 +266,8 @@ We will reconsider the approach if:
 - [ ] Add API usage examples (Python, JavaScript, curl) (Medium priority)
 - [ ] PyPI release
 - [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
-- [ ] Implement API rate limiting, error handling, and caching (High priority)
-- [ ] Add uncertainty estimation strategies for proprietary models (distance-based fallback) (High priority)
+- [x] Implement API rate limiting, error handling, and caching (High priority)
+- [x] Add uncertainty estimation strategies for proprietary models (distance-based fallback) (High priority)
 - [x] Create interactive Jupyter notebook for education and debugging
 
 **Deliverable:** v1.0.0 - Production-ready framework

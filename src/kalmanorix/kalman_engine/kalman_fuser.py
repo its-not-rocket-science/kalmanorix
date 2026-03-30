@@ -49,7 +49,7 @@ Numerical Considerations:
   certain to improve numerical stability.
 """
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Any
 import logging
 import numpy as np
 import numpy.typing as npt
@@ -255,7 +255,7 @@ def fuse_with_prior(
     covariances: List[npt.NDArray[np.float64]],
     prior_mean: npt.NDArray[np.float64],
     prior_covariance: npt.NDArray[np.float64],
-    **kwargs,
+    **kwargs: Any,
 ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Fuse measurements with a prior belief.
 

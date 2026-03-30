@@ -24,6 +24,13 @@ types-PyYAML>=6.0
 types-cachetools>=4.2
 pytest-benchmark>=4.0
 
+[docs]
+mkdocs>=1.5
+mkdocs-material>=9.5
+mkdocstrings[python]>=0.24
+mkdocs-gen-files>=0.5
+mkdocs-literate-nav>=0.6
+
 [train]
 sentence-transformers>=3.0
 torch>=2.0

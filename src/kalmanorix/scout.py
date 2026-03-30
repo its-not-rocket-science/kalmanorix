@@ -20,21 +20,21 @@ ThresholdFunction = Union[float, Callable[[str, np.ndarray, List[float]], float]
 
 @dataclass
 class ScoutRouter:
-    """
-    Select which specialists to consult for a query.
+    """Select which specialists to consult for a query.
 
-    Modes
-    -----
-    all:
-        Return all available modules (enables fusion).
-    hard:
-        Return only the single module with the lowest query-dependent sigma².
-    semantic:
-        Return modules whose domain centroid similarity with the query
-        meets the similarity_threshold. similarity_threshold can be a float
-        or a callable (query, query_vec, similarities) -> float for dynamic
-        thresholding. Requires fast_embedder to be set.
-        If no modules match, fall back to fallback_mode.
+    Attributes:
+        mode: Routing mode: 'all', 'hard', or 'semantic'.
+        fast_embedder: Fast embedder for semantic routing (required for 'semantic' mode).
+        similarity_threshold: Threshold for semantic routing. Can be float or callable
+            (query, query_vec, similarities) -> float for dynamic thresholding.
+        fallback_mode: Fallback mode when semantic routing finds no matches ('all' or 'hard').
+
+    Modes:
+        - 'all': Return all available modules (enables fusion).
+        - 'hard': Return only the single module with the lowest query-dependent sigma².
+        - 'semantic': Return modules whose domain centroid similarity with the query
+          meets the similarity_threshold. Requires fast_embedder to be set.
+          If no modules match, fall back to fallback_mode.
     """
 
     mode: str = "all"
@@ -43,7 +43,18 @@ class ScoutRouter:
     fallback_mode: str = "all"
 
     def select(self, query: str, village: Village) -> List[SEF]:
-        """Return the selected specialist modules for the given query."""
+        """Return the selected specialist modules for the given query.
+
+        Args:
+            query: Input text query.
+            village: Village containing available specialist modules.
+
+        Returns:
+            List of selected SEF instances.
+
+        Raises:
+            ValueError: If mode='semantic' but fast_embedder is not set.
+        """
         if self.mode == "all":
             return village.modules
         if self.mode == "hard":
@@ -113,7 +124,15 @@ class ScoutRouter:
         raise ValueError("mode must be 'all', 'hard', or 'semantic'")
 
     def _fallback_selection(self, query: str, village: Village) -> List[SEF]:
-        """Fallback selection when semantic routing finds no matches."""
+        """Fallback selection when semantic routing finds no matches.
+
+        Args:
+            query: Input text query.
+            village: Village containing available specialist modules.
+
+        Returns:
+            List of selected SEF instances.
+        """
         if self.fallback_mode == "all":
             return village.modules
         if self.fallback_mode == "hard":

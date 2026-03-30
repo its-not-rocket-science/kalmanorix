@@ -32,7 +32,11 @@ def _normalize(vec: Vec) -> Vec:
 
 @dataclass(frozen=True)
 class STEmbedder(Embedder):
-    """SentenceTransformer-backed embedder implementing kalmanorix.types.Embedder."""
+    """SentenceTransformer-backed embedder implementing kalmanorix.types.Embedder.
+
+    Attributes:
+        model: SentenceTransformer instance.
+    """
 
     model: "SentenceTransformer"
 
@@ -45,12 +49,13 @@ class STEmbedder(Embedder):
 
 @dataclass(frozen=True)
 class OpenAIEmbedder(Embedder):
-    """OpenAI embedding API adapter.
+    """OpenAI embedding API adapter implementing kalmanorix.types.Embedder.
 
-    Args:
-        client: OpenAI client instance (from `openai.OpenAI()`)
-        model: Model name, e.g., "text-embedding-3-small"
-        dimensions: Optional output dimensions (if model supports it)
+    Attributes:
+        client: OpenAI client instance (from `openai.OpenAI()`).
+        model: Model name, e.g., "text-embedding-3-small".
+        dimensions: Optional output dimensions (if model supports it).
+        normalize: Whether to L2-normalize embeddings.
     """
 
     client: "OpenAIClient"
@@ -82,12 +87,13 @@ class OpenAIEmbedder(Embedder):
 
 @dataclass(frozen=True)
 class CohereEmbedder(Embedder):
-    """Cohere embedding API adapter.
+    """Cohere embedding API adapter implementing kalmanorix.types.Embedder.
 
-    Args:
-        client: Cohere client instance (from `cohere.Client()`)
-        model: Model name, e.g., "embed-english-v3.0"
-        input_type: One of "search_document", "search_query", "classification", "clustering"
+    Attributes:
+        client: Cohere client instance (from `cohere.Client()`).
+        model: Model name, e.g., "embed-english-v3.0".
+        input_type: One of "search_document", "search_query", "classification", "clustering".
+        normalize: Whether to L2-normalize embeddings.
     """
 
     client: "CohereClient"
@@ -125,6 +131,10 @@ class AnthropicEmbedder(Embedder):
     Note: As of March 2026, Anthropic does not offer a dedicated embedding API.
     This adapter uses the Claude model to generate embeddings via the messages API
     if/when available. Currently raises NotImplementedError.
+
+    Attributes:
+        client: Anthropic client instance.
+        model: Claude model name.
     """
 
     client: "AnthropicClient"
@@ -139,11 +149,12 @@ class AnthropicEmbedder(Embedder):
 
 @dataclass(frozen=True)
 class VertexAIEmbedder(Embedder):
-    """Google Vertex AI embedding adapter.
+    """Google Vertex AI embedding adapter implementing kalmanorix.types.Embedder.
 
-    Args:
-        model: VertexAIEmbeddingModel instance
-        task_type: Task type for embeddings, e.g., "RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT"
+    Attributes:
+        model: VertexAIEmbeddingModel instance.
+        task_type: Task type for embeddings, e.g., "RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT".
+        normalize: Whether to L2-normalize embeddings.
     """
 
     model: "VertexAIEmbeddingModel"
@@ -171,14 +182,15 @@ class VertexAIEmbedder(Embedder):
 
 @dataclass(frozen=True)
 class AzureOpenAIEmbedder(Embedder):
-    """Azure OpenAI embedding adapter.
+    """Azure OpenAI embedding adapter implementing kalmanorix.types.Embedder.
 
     This uses the same OpenAI SDK but with Azure-specific configuration.
 
-    Args:
-        client: OpenAI client configured for Azure (with azure_endpoint, api_version, etc.)
-        model: Deployment name, e.g., "my-embedding-deployment"
-        dimensions: Optional output dimensions
+    Attributes:
+        client: OpenAI client configured for Azure (with azure_endpoint, api_version, etc.).
+        model: Deployment name, e.g., "my-embedding-deployment".
+        dimensions: Optional output dimensions.
+        normalize: Whether to L2-normalize embeddings.
     """
 
     client: "OpenAIClient"
@@ -210,15 +222,15 @@ class AzureOpenAIEmbedder(Embedder):
 
 @dataclass(frozen=True)
 class HuggingFaceEmbedder(Embedder):
-    """Hugging Face transformer model embedder.
+    """Hugging Face transformer model embedder implementing kalmanorix.types.Embedder.
 
-    Args:
-        model_name_or_path: Model identifier or local path
-        tokenizer_name_or_path: Optional tokenizer identifier (defaults to same as model)
-        pooling: Pooling strategy: "mean" (average of token embeddings) or "cls" (use [CLS] token)
-        device: Device to run model on ("cpu" or "cuda")
-        max_length: Maximum token length (default 512)
-        normalize: Whether to normalize output embeddings to unit length
+    Attributes:
+        model_name_or_path: Model identifier or local path.
+        tokenizer_name_or_path: Optional tokenizer identifier (defaults to same as model).
+        pooling: Pooling strategy: "mean" (average of token embeddings) or "cls" (use [CLS] token).
+        device: Device to run model on ("cpu" or "cuda").
+        max_length: Maximum token length (default 512).
+        normalize: Whether to normalize output embeddings to unit length.
     """
 
     model_name_or_path: str

@@ -37,17 +37,12 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class Potion:  # pylint: disable=too-few-public-methods
-    """
-    Result of a fusion operation.
+    """Result of a fusion operation.
 
-    Attributes
-    ----------
-    vector:
-        The fused embedding vector.
-    weights:
-        Per-module fusion weights.
-    meta:
-        Optional diagnostic metadata (e.g. gate values).
+    Attributes:
+        vector: The fused embedding vector.
+        weights: Per-module fusion weights.
+        meta: Optional diagnostic metadata (e.g. gate values).
     """
 
     vector: Vec
@@ -69,24 +64,16 @@ class Fuser(ABC):  # pylint: disable=too-few-public-methods
         query: str,
         modules: List[SEF],
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
-        """
-        Fuse embeddings from the given modules.
+        """Fuse embeddings from the given modules.
 
-        Parameters
-        ----------
-        query:
-            Input text query.
-        modules:
-            List of selected specialist modules.
+        Args:
+            query: Input text query.
+            modules: List of selected specialist modules.
 
-        Returns
-        -------
-        vector:
-            Fused embedding.
-        weights:
-            Per-module contribution weights.
-        meta:
-            Optional metadata.
+        Returns:
+            vector: Fused embedding.
+            weights: Per-module contribution weights.
+            meta: Optional metadata.
         """
         raise NotImplementedError
 
@@ -95,27 +82,19 @@ class Fuser(ABC):  # pylint: disable=too-few-public-methods
         queries: List[str],
         modules: List[SEF],
     ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
-        """
-        Fuse embeddings for a batch of queries.
+        """Fuse embeddings for a batch of queries.
 
         Default implementation loops over queries and calls `fuse`.
         Subclasses may override with more efficient batch implementations.
 
-        Parameters
-        ----------
-        queries:
-            List of input text queries.
-        modules:
-            List of selected specialist modules.
+        Args:
+            queries: List of input text queries.
+            modules: List of selected specialist modules.
 
-        Returns
-        -------
-        vectors:
-            List of fused embeddings.
-        weights:
-            List of per-module contribution weights.
-        meta:
-            Optional list of metadata dicts.
+        Returns:
+            vectors: List of fused embeddings.
+            weights: List of per-module contribution weights.
+            meta: Optional list of metadata dicts.
         """
         vectors = []
         weights_list = []
@@ -554,12 +533,28 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
     def __init__(
         self, *, prior_sigma2: float = 1.0, sort_by_sigma2: bool = True
     ) -> None:
+        """Initialize diagonal Kalman fuser with scalar prior variance.
+
+        Args:
+            prior_sigma2: Prior variance shared across dimensions.
+            sort_by_sigma2: Sort measurements by variance before fusion.
+        """
         self.prior_sigma2 = float(prior_sigma2)
         self.sort_by_sigma2 = bool(sort_by_sigma2)
 
     def _kalman_updates(
         self, order: List[str], z_by_name: Dict[str, Vec], r_by_name: Dict[str, float]
     ) -> Tuple[Vec, Dict[str, float], float]:
+        """Perform sequential Kalman updates for diagonal covariance.
+
+        Args:
+            order: Module names in update order.
+            z_by_name: Mapping from module name to embedding vector.
+            r_by_name: Mapping from module name to scalar variance.
+
+        Returns:
+            Tuple of (fused embedding, Kalman gains per module, posterior variance).
+        """
         x = np.zeros_like(z_by_name[order[0]])
         p = float(self.prior_sigma2)
         k_by_name: Dict[str, float] = {}
@@ -576,6 +571,15 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         query: str,
         modules: List[SEF],
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        """Fuse embeddings using diagonal Kalman filter with scalar prior variance.
+
+        Args:
+            query: Input text query.
+            modules: List of selected specialist modules.
+
+        Returns:
+            Tuple of (fused embedding, per-module weights, metadata).
+        """
         if not modules:
             raise ValueError("DiagonalKalmanFuser requires at least one module")
 
@@ -630,6 +634,16 @@ class LearnedGateFuser(Fuser):
         l2: float = 1e-3,
         steps: int = 300,
     ) -> None:
+        """Initialize learned gate fuser between two modules.
+
+        Args:
+            module_a: Name of first module.
+            module_b: Name of second module.
+            n_features: Dimension of hashed bag-of-words features.
+            lr: Learning rate for logistic regression.
+            l2: L2 regularization strength.
+            steps: Number of training steps.
+        """
         self.module_a = module_a
         self.module_b = module_b
         self.n_features = int(n_features)
@@ -719,6 +733,18 @@ class LearnedGateFuser(Fuser):
         query: str,
         modules: List[SEF],
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        """Fuse two modules using learned gating weight α(query).
+
+        Args:
+            query: Input text query.
+            modules: List of selected specialist modules.
+
+        Returns:
+            Tuple of (fused embedding, per-module weights, metadata).
+
+        Raises:
+            ValueError: If required modules are not in the module list.
+        """
         by_name = {m.name: m for m in modules}
         if self.module_a not in by_name or self.module_b not in by_name:
             raise ValueError(
@@ -742,34 +768,29 @@ class LearnedGateFuser(Fuser):
 
 @dataclass
 class Panoramix:  # pylint: disable=too-few-public-methods
-    """
-    Orchestrator that combines routing and fusion.
+    """Orchestrator that combines routing and fusion.
 
     Panoramix:
       1. asks a ScoutRouter which modules to consult
       2. delegates fusion to a Fuser
       3. packages the result as a Potion
+
+    Attributes:
+        fuser: Fusion strategy implementing the Fuser interface.
     """
 
     fuser: Fuser
 
     def brew(self, query: str, village: Village, scout: ScoutRouter) -> Potion:
-        """
-        Produce a fused embedding for a query.
+        """Produce a fused embedding for a query.
 
-        Parameters
-        ----------
-        query:
-            Input text query.
-        village:
-            Collection of available specialist modules.
-        scout:
-            Routing strategy.
+        Args:
+            query: Input text query.
+            village: Collection of available specialist modules.
+            scout: Routing strategy.
 
-        Returns
-        -------
-        Potion
-            The fused embedding and diagnostics.
+        Returns:
+            Potion: The fused embedding and diagnostics.
         """
         chosen = scout.select(query, village)
         vec, weights, fuser_meta = self.fuser.fuse(query, chosen)
@@ -784,22 +805,15 @@ class Panoramix:  # pylint: disable=too-few-public-methods
         village: Village,
         scout: ScoutRouter,
     ) -> List[Potion]:
-        """
-        Produce fused embeddings for a batch of queries.
+        """Produce fused embeddings for a batch of queries.
 
-        Parameters
-        ----------
-        queries:
-            List of input text queries.
-        village:
-            Collection of available specialist modules.
-        scout:
-            Routing strategy.
+        Args:
+            queries: List of input text queries.
+            village: Collection of available specialist modules.
+            scout: Routing strategy.
 
-        Returns
-        -------
-        List[Potion]
-            List of fused embeddings and diagnostics.
+        Returns:
+            List[Potion]: List of fused embeddings and diagnostics.
         """
         # First, determine which modules are selected for each query
         chosen_list = [scout.select(query, village) for query in queries]

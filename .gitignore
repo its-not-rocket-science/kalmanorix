@@ -17,3 +17,4 @@ experiments/analyze_*.py
 experiments/data/cache/
 .claude/settings.local.json
 .claude/
+site/

@@ -42,6 +42,12 @@ class CentroidDistanceSigma2:
       - Precompute centroid from calibration texts in the module's embedding space.
       - For a query, compute cosine similarity to centroid.
       - Map similarity to sigma2: higher similarity => lower sigma2.
+
+    Attributes:
+        embed: Embedder function mapping text to vector.
+        centroid: Normalized centroid vector of shape (d,).
+        base_sigma2: Minimum variance when similarity is maximum (1.0).
+        scale: Additional variance when similarity is minimum (0.0).
     """
 
     embed: EmbedderFn
@@ -58,7 +64,17 @@ class CentroidDistanceSigma2:
         base_sigma2: float = 0.2,
         scale: float = 2.0,
     ) -> "CentroidDistanceSigma2":
-        """Construct from calibration texts to compute centroid."""
+        """Construct from calibration texts to compute centroid.
+
+        Args:
+            embed: Embedder function mapping text to vector.
+            calibration_texts: Sample texts from the specialist's domain.
+            base_sigma2: Minimum variance when similarity is maximum (1.0).
+            scale: Additional variance when similarity is minimum (0.0).
+
+        Returns:
+            CentroidDistanceSigma2 instance with computed centroid.
+        """
         embs = [embed(t) for t in calibration_texts]
         c = np.mean(np.stack(embs, axis=0), axis=0)
         c = c / (np.linalg.norm(c) + 1e-12)

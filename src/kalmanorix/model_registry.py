@@ -38,10 +38,11 @@ class ModelRegistry:
     Scans a base directory for SEF artefacts (subdirectories containing
     metadata.json) and provides lazy loading of embedders.
 
-    Args:
-        base_dir: Root directory to scan for SEF models
-        embedder_registry: Optional embedder registry for sigma2 resolution
-            (if None, creates a new one)
+    Attributes:
+        base_dir: Root directory to scan for SEF models.
+        embedder_registry: Embedder registry for sigma2 resolution.
+        _metadata: Internal cache of model metadata.
+        _loaded_models: Internal cache of loaded SEF instances.
     """
 
     base_dir: Path
