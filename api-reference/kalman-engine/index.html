@@ -18,7 +18,7 @@
         <link rel="prev" href="../embedder-adapters/">
       
       
-        <link rel="next" href="../../guides/creating-specialists/">
+        <link rel="next" href="../alignment/">
       
       
         
@@ -1026,32 +1026,38 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#core-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Functions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#covariance-estimators" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Covariance Estimators
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alignment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1827,28 +1833,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#core-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Functions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#covariance-estimators" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Covariance Estimators
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1918,8 +1902,7 @@
 
 
 <h1 id="kalman-engine-api">Kalman Engine API<a class="headerlink" href="#kalman-engine-api" title="Permanent link">&para;</a></h1>
-<p><em>TODO: Auto‑generated API documentation for the low‑level Kalman fusion algorithms.</em></p>
-<p>The <code>kalman_engine</code> module contains the core mathematical implementations of Kalman fusion for embeddings. These functions are used internally by the high‑level <code>KalmanorixFuser</code> and its variants.</p>
+<p>Core Kalman fusion algorithms and covariance estimation utilities. Includes low‑level functions for sequential and parallel Kalman updates with diagonal covariance.</p>
 
 
 <div class="doc doc-object doc-module">
@@ -6184,21 +6167,7 @@ when uncertainties vary by query/domain.</p>
 
     </div>
 
-</div><h2 id="core-functions">Core Functions<a class="headerlink" href="#core-functions" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>kalman_fuse_diagonal()</code> – Sequential updates with diagonal covariance.</li>
-<li><code>kalman_fuse_diagonal_ensemble()</code> – Parallel updates for diagonal covariance.</li>
-<li><code>kalman_fuse_structured()</code> – Sequential updates with structured (diagonal + low‑rank) covariance.</li>
-<li>Batch versions (<code>_batch</code> suffix) for processing multiple queries efficiently.</li>
-</ul>
-<h2 id="covariance-estimators">Covariance Estimators<a class="headerlink" href="#covariance-estimators" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>EmpiricalCovariance</code> – Compute per‑dimension variance from validation errors.</li>
-<li><code>DistanceBasedCovariance</code> – Variance based on distance to domain centroid.</li>
-<li><code>ConstantCovariance</code> – Fixed diagonal covariance.</li>
-<li><code>ScalarCovariance</code> – Fixed scalar variance (same for all dimensions).</li>
-</ul>
-<p><em>TODO: Add mathematical derivation, pseudocode, and performance‑characterisation data.</em></p>
+</div><p><em>This page is auto‑generated from the source code.</em></p>
 
 
 

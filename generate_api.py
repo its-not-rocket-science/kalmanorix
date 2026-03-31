@@ -44,6 +44,13 @@ API_MODULES = [
         "Sentence‑Transformers, OpenAI, Cohere, Anthropic, Vertex AI, Azure OpenAI, and Hugging Face Transformers.",
     ),
     (
+        "api-reference/alignment.md",
+        "kalmanorix.alignment",
+        "Alignment API",
+        "Functions for Procrustes alignment of embedding spaces. "
+        "Includes `compute_alignments`, `apply_alignment`, `align_sef_list`, and `validate_alignment_improvement`.",
+    ),
+    (
         "api-reference/kalman-engine.md",
         "kalmanorix.kalman_engine",
         "Kalman Engine API",

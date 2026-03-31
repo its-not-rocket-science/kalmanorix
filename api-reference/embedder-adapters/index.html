@@ -998,56 +998,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#factory-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Factory Functions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Factory Functions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#hugging-face-transformers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Hugging Face Transformers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sentencetransformers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sentence‑Transformers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proprietary-apis" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Proprietary APIs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1072,6 +1022,34 @@
     
   
     Kalman Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alignment
   
 
     
@@ -1855,56 +1833,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#factory-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Factory Functions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Factory Functions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#hugging-face-transformers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Hugging Face Transformers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sentencetransformers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sentence‑Transformers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proprietary-apis" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Proprietary APIs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1974,8 +1902,7 @@
 
 
 <h1 id="embedder-adapters-api">Embedder Adapters API<a class="headerlink" href="#embedder-adapters-api" title="Permanent link">&para;</a></h1>
-<p><em>TODO: Auto‑generated API documentation for third‑party embedder adapters and factory functions.</em></p>
-<p>Kalmanorix provides adapters for popular embedding models, making it easy to wrap them as SEFs with constant or centroid‑distance uncertainty.</p>
+<p>Adapter classes and factory functions for third‑party embedders: Sentence‑Transformers, OpenAI, Cohere, Anthropic, Vertex AI, Azure OpenAI, and Hugging Face Transformers.</p>
 
 
 <div class="doc doc-object doc-module">
@@ -5478,27 +5405,7 @@ derived from calibration texts. Higher similarity =&gt; lower variance.</p>
 
     </div>
 
-</div><h2 id="factory-functions">Factory Functions<a class="headerlink" href="#factory-functions" title="Permanent link">&para;</a></h2>
-<h3 id="hugging-face-transformers">Hugging Face Transformers<a class="headerlink" href="#hugging-face-transformers" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>create_huggingface_sef()</code> – Wrap a Hugging Face transformer model.</li>
-<li><code>create_huggingface_sef_with_calibration()</code> – Add centroid‑distance uncertainty.</li>
-</ul>
-<h3 id="sentencetransformers">Sentence‑Transformers<a class="headerlink" href="#sentencetransformers" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>create_sentence_transformer_sef()</code> – Wrap a Sentence‑Transformers model.</li>
-<li><code>create_sentence_transformer_sef_with_calibration()</code> – Add centroid‑distance uncertainty.</li>
-</ul>
-<h3 id="proprietary-apis">Proprietary APIs<a class="headerlink" href="#proprietary-apis" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>create_openai_sef()</code> – OpenAI text‑embedding models.</li>
-<li><code>create_cohere_sef()</code> – Cohere embed models.</li>
-<li><code>create_anthropic_sef()</code> – Anthropic Claude embeddings (when available).</li>
-<li><code>create_vertex_ai_sef()</code> – Google Vertex AI text‑embedding models.</li>
-<li><code>create_azure_openai_sef()</code> – Azure OpenAI embeddings.</li>
-</ul>
-<p>Each <code>create_*_sef_with_calibration()</code> function computes a domain centroid from a provided corpus and uses <code>CentroidDistanceSigma2</code> for query‑dependent uncertainty.</p>
-<p><em>TODO: Add API‑key configuration examples, error‑handling tips, and cost‑tracking advice.</em></p>
+</div><p><em>This page is auto‑generated from the source code.</em></p>
 
 
 
