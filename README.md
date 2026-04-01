@@ -181,9 +181,9 @@ We will reconsider the approach if:
 - [x] Define Shareable Embedding Format serialisation (JSON + NPY)
 - [x] Implement `SEFModel.save_pretrained()` and `from_pretrained()`
 - [x] Add metadata manifest (domain tags, benchmarks, licence)
-- [ ] Create model card template
+- [x] Create model card template
 - [x] Checksum verification for integrity
-- [ ] Documentation for model contributors
+- [x] Documentation for model contributors
 
 **Success criteria:** Models can be packaged and shared as single directories
 **Format:** Directory with:
