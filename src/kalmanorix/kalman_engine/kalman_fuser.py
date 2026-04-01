@@ -184,11 +184,10 @@ def _kalman_update_diagonal(  # pylint: disable=invalid-name
     # Kalman gain for each dimension independently
     # K_i = P_i / (P_i + R_i + epsilon)
     denominator = P + R + epsilon
-    K = np.divide(P, denominator, where=denominator > epsilon)
-
-    # Handle division by zero case (both P and R are zero)
-    # If both uncertainties are zero, we keep the prior (K=0)
-    K = np.where(denominator <= epsilon, 0.0, K)
+    # Initialize K array with zeros (default for denominator <= epsilon)
+    K = np.zeros_like(P, dtype=np.float64)
+    # Compute division only where denominator > epsilon
+    np.divide(P, denominator, out=K, where=denominator > epsilon)
 
     # State update: x = x + K * (z - x)
     innovation = z - x
@@ -474,11 +473,10 @@ def _kalman_update_diagonal_batch(
     # Kalman gain for each dimension independently, broadcast across batch
     # K_i = P_i / (P_i + R_i + epsilon)
     denominator = P + R + epsilon
-    K = np.divide(P, denominator, where=denominator > epsilon)
-
-    # Handle division by zero case (both P and R are zero)
-    # If both uncertainties are zero, we keep the prior (K=0)
-    K = np.where(denominator <= epsilon, 0.0, K)
+    # Initialize K array with zeros (default for denominator <= epsilon)
+    K = np.zeros_like(P, dtype=np.float64)
+    # Compute division only where denominator > epsilon
+    np.divide(P, denominator, out=K, where=denominator > epsilon)
 
     # State update: x = x + K * (z - x)
     innovation = z - x

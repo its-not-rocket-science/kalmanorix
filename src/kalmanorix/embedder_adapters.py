@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal, Iterable
 
 import numpy as np
+from cachetools import LRUCache
 
 from kalmanorix.types import Embedder, Vec
 from kalmanorix.village import SEF
@@ -407,6 +408,106 @@ class HuggingFaceEmbedder(Embedder):
             vec = _normalize(vec)
 
         return vec
+
+
+@dataclass(frozen=True)
+class TfidfEmbedder(Embedder):
+    """TF‑IDF vectorizer embedder implementing kalmanorix.types.Embedder.
+
+    Fits a scikit‑learn TfidfVectorizer on a corpus of calibration texts,
+    then embeds queries as normalized TF‑IDF vectors.
+
+    Attributes:
+        vectorizer: Fitted TfidfVectorizer instance.
+        max_cache_size: Maximum number of embeddings to cache (default 1000).
+        cache: LRU cache mapping query text to embedding vector.
+    """
+
+    vectorizer: Any  # TfidfVectorizer
+    max_cache_size: int = 1000
+    cache: LRUCache[str, Vec] = field(init=False)
+
+    def __post_init__(self) -> None:
+        """Initialize LRU cache after dataclass construction."""
+        # Frozen dataclass requires object.__setattr__
+        object.__setattr__(self, "cache", LRUCache(maxsize=self.max_cache_size))
+
+    def __call__(self, text: str) -> Vec:
+        """Embed text using TF‑IDF vectorizer with caching."""
+        if text not in self.cache:
+            # Transform text to TF‑IDF vector
+            vec = self.vectorizer.transform([text]).toarray()[0].astype(np.float64)
+            # Normalize to unit length (cosine similarity)
+            norm = np.linalg.norm(vec)
+            if norm > 0:
+                vec = vec / norm
+            self.cache[text] = vec
+        return self.cache[text]
+
+    @classmethod
+    def from_corpus(
+        cls, calibration_texts: Iterable[str], **vectorizer_kwargs
+    ) -> "TfidfEmbedder":
+        """Create a TfidfEmbedder fitted on a corpus of calibration texts.
+
+        Args:
+            calibration_texts: Texts to fit the TF‑IDF vectorizer on.
+            **vectorizer_kwargs: Additional arguments passed to TfidfVectorizer
+                (e.g., max_features, stop_words, ngram_range).
+
+        Returns:
+            Fitted TfidfEmbedder instance.
+        """
+        try:
+            from sklearn.feature_extraction.text import TfidfVectorizer
+        except ImportError as e:
+            raise ImportError(
+                "scikit‑learn is required for TfidfEmbedder. "
+                "Install with `pip install scikit‑learn` or `pip install kalmanorix[train]`."
+            ) from e
+
+        vectorizer = TfidfVectorizer(**vectorizer_kwargs)
+        vectorizer.fit(list(calibration_texts))
+        return cls(vectorizer=vectorizer)
+
+
+def create_tfidf_embedder(
+    calibration_texts: Iterable[str],
+    **vectorizer_kwargs,
+) -> TfidfEmbedder:
+    """Create a TF‑IDF embedder fitted on calibration texts.
+
+    Convenience wrapper around TfidfEmbedder.from_corpus.
+
+    Args:
+        calibration_texts: Texts to fit the TF‑IDF vectorizer on.
+        **vectorizer_kwargs: Passed to TfidfVectorizer.
+
+    Returns:
+        TfidfEmbedder instance.
+    """
+    return TfidfEmbedder.from_corpus(calibration_texts, **vectorizer_kwargs)
+
+
+def create_tfidf_sef(
+    calibration_texts: Iterable[str],
+    name: str = "tfidf",
+    sigma2: float = 1.0,
+    **vectorizer_kwargs,
+) -> SEF:
+    """Create a SEF with a TF‑IDF embedder.
+
+    Args:
+        calibration_texts: Texts to fit the TF‑IDF vectorizer on.
+        name: SEF name.
+        sigma2: Constant uncertainty (variance) for this specialist.
+        **vectorizer_kwargs: Passed to TfidfVectorizer.
+
+    Returns:
+        SEF wrapping the TF‑IDF embedder.
+    """
+    embedder = TfidfEmbedder.from_corpus(calibration_texts, **vectorizer_kwargs)
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
 
 
 def create_huggingface_sef(

@@ -132,11 +132,15 @@ nav:
     - Fusion Strategies: guides/fusion-strategies.md
     - Uncertainty Calibration: guides/uncertainty-calibration.md
     - Deployment: guides/deployment.md
+    - API Usage: guides/api-usage.md
   - Examples:
     - Minimal Fusion: examples/minimal-fusion.md
     - HuggingFace Integration: examples/huggingface-integration.md
     - API Server: examples/api-server.md
     - Interactive Demo: examples/interactive-demo.md
+    - Multi-Domain Search Tutorial: examples/multi-domain-search-tutorial.md
+    - Real-Time Semantic Search: examples/real-time-semantic-search.md
+    - Cross-Lingual Fusion: examples/cross-lingual-fusion.md
   - Research:
     - Experiments: research/experiments.md
     - Results: research/results.md

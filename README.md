@@ -214,9 +214,9 @@ We will reconsider the approach if:
 - [x] Hugging Face integration (`AutoModel` wrapper)
 - [x] FastAPI server for remote fusion
 - [x] Basic model registry (local directory/index)
-- [ ] Documentation site with examples
-- [ ] Tutorials: 3 complete use cases
-- [ ] Add API usage examples (Python, JavaScript, curl) (Medium priority)
+- [x] Documentation site with examples
+- [x] Tutorials: 3 complete use cases
+- [x] Add API usage examples (Python, JavaScript, curl) (Medium priority)
 - [ ] PyPI release
 - [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
 - [x] Implement API rate limiting, error handling, and caching (High priority)
