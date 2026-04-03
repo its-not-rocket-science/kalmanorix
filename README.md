@@ -201,7 +201,7 @@ We will reconsider the approach if:
 - [x] Add support for Ensemble Kalman Filter (parallel updates)
 - [ ] Optimise router for minimal latency (TF-IDF caching)
 - [x] Add batch fusion for multiple queries
-- [ ] ONNX runtime support for embed functions
+- [x] ONNX runtime support for embed functions
 - [ ] Profile-guided optimisations
 
 **Target:** Fusion adds <10ms latency for d=768, 5 specialists

@@ -6,9 +6,15 @@ the expected data structures. They use the TestClient from fastapi.testclient.
 """
 
 import sys
+import importlib.util
 
 import numpy as np
 import pytest
+
+# Skip all tests if fastapi is not installed
+if importlib.util.find_spec("fastapi") is None:
+    pytest.skip("FastAPI not installed", allow_module_level=True)
+
 from fastapi.testclient import TestClient
 
 # Import the FastAPI app from examples

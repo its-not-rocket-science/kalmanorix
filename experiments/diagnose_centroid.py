@@ -10,8 +10,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from src.kalmanorix.uncertainty import CentroidDistanceSigma2
-from src.kalmanorix.toy_corpus import generate_anchor_sentences
+from kalmanorix.uncertainty import CentroidDistanceSigma2
+from kalmanorix.toy_corpus import generate_anchor_sentences
 
 
 def main():

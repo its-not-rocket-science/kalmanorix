@@ -28,13 +28,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import numpy as np
 
 from experiments.config import DomainEnum, load_config
-from src.kalmanorix.village import Village, SEF
-from src.kalmanorix.scout import ScoutRouter
-from src.kalmanorix.panoramix import Panoramix
-from src.kalmanorix.uncertainty import CentroidDistanceSigma2
-from src.kalmanorix.panoramix import KalmanorixFuser
-from src.kalmanorix.alignment import compute_alignments, align_sef_list
-from src.kalmanorix.toy_corpus import generate_anchor_sentences
+from kalmanorix.village import Village, SEF
+from kalmanorix.scout import ScoutRouter
+from kalmanorix.panoramix import Panoramix
+from kalmanorix.uncertainty import CentroidDistanceSigma2
+from kalmanorix.panoramix import KalmanorixFuser
+from kalmanorix.alignment import compute_alignments, align_sef_list
+from kalmanorix.toy_corpus import generate_anchor_sentences
 
 logger = logging.getLogger(__name__)
 

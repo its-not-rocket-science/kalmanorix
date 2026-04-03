@@ -11,19 +11,19 @@ Tests:
 
 import numpy as np
 import pytest
-from src.kalmanorix.ood_datasets import (
+from kalmanorix.ood_datasets import (
     create_ood_test_set,
     create_synthetic_ood_test_set,
 )
-from src.kalmanorix.calibration import (
+from kalmanorix.calibration import (
     compute_embedding_calibration,
     compute_retrieval_calibration,
     CalibrationResult,
 )
-from src.kalmanorix.uncertainty import ConstantSigma2, ScaledSigma2, KeywordSigma2
-from src.kalmanorix.village import Village, SEF
-from src.kalmanorix.scout import ScoutRouter
-from src.kalmanorix.panoramix import Panoramix, KalmanorixFuser, MeanFuser
+from kalmanorix.uncertainty import ConstantSigma2, ScaledSigma2, KeywordSigma2
+from kalmanorix.village import Village, SEF
+from kalmanorix.scout import ScoutRouter
+from kalmanorix.panoramix import Panoramix, KalmanorixFuser, MeanFuser
 
 
 def test_create_synthetic_ood_test_set_basic():
@@ -273,7 +273,7 @@ def test_constant_variance_ablation_equals_averaging():
         )
 
     # 2. Verify fusion matches direct Kalman algorithm call
-    from src.kalmanorix.kalman_engine.kalman_fuser import kalman_fuse_diagonal
+    from kalmanorix.kalman_engine.kalman_fuser import kalman_fuse_diagonal
 
     # Get embeddings and covariances as used by KalmanorixFuser
     kalman_embeddings = []

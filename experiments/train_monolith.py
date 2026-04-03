@@ -24,7 +24,7 @@ from sentence_transformers import InputExample, SentenceTransformer, losses
 from torch.utils.data import DataLoader
 
 from experiments.config import TrainingConfig, DomainEnum
-from src.kalmanorix.compute_tracker import track_compute
+from kalmanorix.compute_tracker import track_compute
 
 logger = logging.getLogger(__name__)
 
@@ -245,7 +245,7 @@ def main() -> None:
     # Load domain data
     # For now, use synthetic data. In full experiment, use datasets.py
     from experiments.train_specialists_st import TECH_SENTENCES, COOK_SENTENCES
-    from src.kalmanorix.toy_corpus import generate_anchor_sentences
+    from kalmanorix.toy_corpus import generate_anchor_sentences
 
     domain_data = {}
     domain_sentences = {

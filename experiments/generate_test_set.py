@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import numpy as np
 
 from experiments.config import TrainingConfig, DomainEnum
-from src.kalmanorix.datasets import load_multiple_domains
+from kalmanorix.datasets import load_multiple_domains
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ def generate_test_set(
         )
 
         # Convert to format expected by create_mixed_test_set
-        from src.kalmanorix.datasets import create_mixed_test_set
+        from kalmanorix.datasets import create_mixed_test_set
 
         docs, queries = create_mixed_test_set(
             domain_datasets=domain_datasets,
@@ -77,7 +77,7 @@ def generate_test_set(
 
     else:
         # Use synthetic data
-        from src.kalmanorix.toy_corpus import generate_anchor_sentences
+        from kalmanorix.toy_corpus import generate_anchor_sentences
 
         # Generate documents according to proportions
         total_docs = 1000  # Manageable size for testing

@@ -15,6 +15,7 @@ from kalmanorix.embedder_adapters import (
     VertexAIEmbedder,
     AzureOpenAIEmbedder,
     HuggingFaceEmbedder,
+    OnnxEmbedder,
     create_openai_sef,
     create_openai_sef_with_calibration,
     create_cohere_sef,
@@ -23,7 +24,21 @@ from kalmanorix.embedder_adapters import (
     create_vertexai_sef_with_calibration,
     create_azure_openai_sef,
     create_azure_openai_sef_with_calibration,
+    create_onnx_sef,
+    create_onnx_sef_model,
 )
+
+
+def _dummy_onnx_preprocessor(text: str):
+    """Simple preprocessor that creates deterministic input array for ONNX tests."""
+    # Use hash of text to generate deterministic but varied inputs
+    h = hash(text) & 0xFFFFFFFF  # Get positive 32-bit hash
+    # Create three floats based on hash
+    return {
+        "input": np.array(
+            [[float((h >> i) & 0xFF) for i in range(3)]], dtype=np.float32
+        )
+    }
 
 
 def test_st_embedder_smoke():
@@ -339,6 +354,179 @@ def test_factory_functions_with_mock(mocker):
     )
     assert sef8.name == "test-azure-openai-calib"
     assert callable(sef8.sigma2)
+
+
+def _has_onnx_deps():
+    return (
+        importlib.util.find_spec("onnxruntime") is not None
+        and importlib.util.find_spec("onnx") is not None
+    )
+
+
+@pytest.mark.skipif(
+    not _has_onnx_deps(),
+    reason="onnxruntime or onnx library not installed",
+)
+class TestOnnxEmbedder:
+    """Tests for OnnxEmbedder with a dummy identity model."""
+
+    @pytest.fixture(scope="class")
+    def dummy_onnx_model_path(self, tmp_path_factory):
+        """Create a dummy ONNX model that performs identity transformation (input -> output)."""
+        try:
+            import onnx
+            from onnx import helper
+            import onnx.checker
+        except ImportError:
+            pytest.skip("ONNX library required for creating test model")
+
+        # Create a simple graph: input -> Identity -> output
+        # Input shape: (1, 3) batch size 1, dimension 3 (small for testing)
+        input_name = "input"
+        output_name = "output"
+
+        # Create tensor type
+        tensor_type = helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, [1, 3])
+
+        # Create input/value info
+        input_value_info = helper.make_value_info(input_name, tensor_type)
+        output_value_info = helper.make_value_info(output_name, tensor_type)
+
+        # Create Identity node
+        identity_node = helper.make_node(
+            "Identity", inputs=[input_name], outputs=[output_name], name="identity_node"
+        )
+
+        # Create graph
+        graph = helper.make_graph(
+            nodes=[identity_node],
+            name="identity_graph",
+            inputs=[input_value_info],
+            outputs=[output_value_info],
+        )
+
+        # Create model
+        model = helper.make_model(
+            graph,
+            producer_name="kalmanorix-test",
+            opset_imports=[helper.make_opsetid("", 18)],
+        )
+        onnx.checker.check_model(model)
+
+        # Save to temporary file
+        tmpdir = tmp_path_factory.mktemp("onnx_models")
+        model_path = tmpdir / "identity.onnx"
+        with open(model_path, "wb") as f:
+            f.write(model.SerializeToString())
+        return str(model_path)
+
+    @pytest.fixture(scope="class")
+    def preprocessor(self):
+        """Simple preprocessor that creates random input array."""
+        return _dummy_onnx_preprocessor
+
+    @pytest.fixture(scope="class")
+    def embedder(self, dummy_onnx_model_path, preprocessor):
+        """Create OnnxEmbedder instance."""
+        return OnnxEmbedder(
+            model_path=dummy_onnx_model_path,
+            preprocessor=preprocessor,
+            normalize=True,
+        )
+
+    def test_embedder_call(self, embedder):
+        """Test that embedder returns a vector."""
+        vec = embedder("Hello world")
+        assert isinstance(vec, np.ndarray)
+        assert vec.dtype == np.float64
+        # Output dimension is 3 (flattened from (1, 3))
+        assert vec.shape == (3,)
+
+    def test_embedder_normalization(self, embedder):
+        """Test that normalized vectors have unit length."""
+        vec = embedder("Test normalization")
+        norm = np.linalg.norm(vec)
+        assert np.isclose(norm, 1.0, rtol=1e-6)
+
+    def test_embedder_no_normalize(self, dummy_onnx_model_path, preprocessor):
+        """Test with normalization disabled."""
+        embedder = OnnxEmbedder(
+            model_path=dummy_onnx_model_path,
+            preprocessor=preprocessor,
+            normalize=False,
+        )
+        vec = embedder("no normalize")
+        norm = np.linalg.norm(vec)
+        # Not necessarily unit length (depends on random input)
+        assert norm > 0
+
+    def test_embedder_input_names(self, embedder):
+        """Test input_names property."""
+        input_names = embedder.input_names
+        assert isinstance(input_names, list)
+        assert len(input_names) == 1
+        assert input_names[0] == "input"
+
+    def test_embedder_output_names(self, embedder):
+        """Test output_names property."""
+        output_names = embedder.output_names
+        assert isinstance(output_names, list)
+        assert len(output_names) == 1
+        assert output_names[0] == "output"
+
+    def test_embedder_pickling(self, embedder):
+        """Test that OnnxEmbedder can be pickled and unpickled."""
+        # Pickle the embedder
+        pickled = pickle.dumps(embedder)
+        # Unpickle
+        unpickled = pickle.loads(pickled)
+        # Verify configuration is preserved
+        assert unpickled.model_path == embedder.model_path
+        assert unpickled.normalize == embedder.normalize
+        assert unpickled.providers == embedder.providers
+        # Lazy session should be None
+        assert unpickled._session is None  # pylint: disable=protected-access
+        # Should still be able to compute embeddings
+        vec = unpickled("test pickling")
+        assert vec.shape == (3,)
+        assert vec.dtype == np.float64
+        # Compare with original embedder (should be close)
+        vec_original = embedder("test pickling")
+        np.testing.assert_allclose(vec, vec_original, rtol=1e-6)
+
+    def test_embedder_with_sef(self, embedder):
+        """Test OnnxEmbedder integrated with SEF."""
+        sef = SEF(name="onnx", embed=embedder, sigma2=1.0)
+        vec = sef.embed("test query")
+        assert vec.shape == (3,)
+        assert vec.dtype == np.float64
+
+    def test_factory_functions(self, dummy_onnx_model_path, preprocessor):
+        """Test factory functions create_onnx_sef and create_onnx_sef_model."""
+        # Test create_onnx_sef
+        sef = create_onnx_sef(
+            model_path=dummy_onnx_model_path,
+            preprocessor=preprocessor,
+            name="onnx-test",
+            sigma2=0.5,
+        )
+        assert sef.name == "onnx-test"
+        assert sef.sigma2 == 0.5
+        vec = sef.embed("factory test")
+        assert vec.shape == (3,)
+
+        # Test create_onnx_sef_model
+        model = create_onnx_sef_model(
+            model_path=dummy_onnx_model_path,
+            preprocessor=preprocessor,
+            name="onnx-model-test",
+            sigma2=0.7,
+        )
+        assert model.metadata.model_id.startswith("onnx:")
+        assert model.metadata.name == "onnx-model-test"
+        assert model.metadata.embedding_dimension == 3
+        vec = model.embed("model test")
+        assert vec.shape == (3,)
 
 
 if __name__ == "__main__":

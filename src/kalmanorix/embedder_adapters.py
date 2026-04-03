@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Literal, Iterable
+from typing import TYPE_CHECKING, Any, Literal, Iterable, Callable, Dict, List
+from pathlib import Path
 
 import numpy as np
 from cachetools import LRUCache
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
     from google.cloud.aiplatform import VertexAIEmbeddingModel
     from transformers import PreTrainedModel, PreTrainedTokenizerBase, PretrainedConfig
     from kalmanorix.kalman_engine.covariance import CovarianceEstimator
+    from onnxruntime import InferenceSession
 
 
 def _normalize(vec: Vec) -> Vec:
@@ -408,6 +410,111 @@ class HuggingFaceEmbedder(Embedder):
             vec = _normalize(vec)
 
         return vec
+
+
+@dataclass(frozen=True)
+class OnnxEmbedder(Embedder):
+    """ONNX Runtime embedder implementing kalmanorix.types.Embedder.
+
+    Runs inference on an ONNX model using ONNX Runtime.
+
+    Attributes:
+        model_path: Path to ONNX model file.
+        preprocessor: Callable that converts text to a dict of numpy arrays
+            matching the model's input names (e.g., {"input_ids": ..., "attention_mask": ...}).
+        session_options: Optional ONNX Runtime SessionOptions.
+        providers: List of execution providers (default ["CPUExecutionProvider"]).
+        normalize: Whether to normalize output embeddings to unit length.
+    """
+
+    model_path: str | Path
+    preprocessor: Callable[[str], Dict[str, np.ndarray]]
+    session_options: Any | None = None
+    providers: List[str] = field(default_factory=lambda: ["CPUExecutionProvider"])
+    normalize: bool = True
+    _session: Any = field(init=False, default=None, repr=False)
+
+    @property
+    def session(self) -> "InferenceSession":
+        """Lazy load the ONNX Runtime InferenceSession."""
+        if self._session is None:
+            try:
+                from onnxruntime import InferenceSession, SessionOptions
+            except ImportError as e:
+                raise ImportError(
+                    "ONNX Runtime not installed. Install with: pip install onnxruntime"
+                ) from e
+
+            opts = self.session_options
+            if opts is None:
+                opts = SessionOptions()
+                # Set reasonable defaults
+                opts.intra_op_num_threads = 1
+                opts.inter_op_num_threads = 1
+
+            session = InferenceSession(
+                str(self.model_path),
+                sess_options=opts,
+                providers=self.providers,
+            )
+            object.__setattr__(self, "_session", session)
+        return self._session
+
+    @property
+    def input_names(self) -> List[str]:
+        """Get the model's input names."""
+        return [inp.name for inp in self.session.get_inputs()]
+
+    @property
+    def output_names(self) -> List[str]:
+        """Get the model's output names."""
+        outputs = self.session.get_outputs()
+        if len(outputs) != 1:
+            raise ValueError(
+                f"Expected exactly one output, got {len(outputs)}. "
+                "Multi‑output ONNX models are not supported."
+            )
+        return [out.name for out in outputs]
+
+    def __call__(self, text: str) -> Vec:
+        """Embed text by running ONNX inference."""
+        # Preprocess text to model inputs
+        inputs = self.preprocessor(text)
+
+        # Validate input names
+        for name in self.input_names:
+            if name not in inputs:
+                raise ValueError(
+                    f"Preprocessor must provide input '{name}'. "
+                    f"Got keys: {list(inputs.keys())}"
+                )
+
+        # Run inference
+        outputs = self.session.run(self.output_names, inputs)
+        vec = outputs[0].astype(np.float64).flatten()
+
+        # Normalize if requested
+        if self.normalize:
+            vec = _normalize(vec)
+
+        return vec
+
+    def __getstate__(self) -> dict[str, Any]:
+        """Return state for pickling, excluding the ONNX Runtime session."""
+        state = {}
+        for field_name in self.__dataclass_fields__:  # pylint: disable=no-member
+            if field_name not in ("_session",):
+                state[field_name] = getattr(self, field_name)
+        for key, value in self.__dict__.items():
+            if key not in state and not key.startswith("_"):
+                state[key] = value
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        """Restore state after unpickling."""
+        for key, value in state.items():
+            object.__setattr__(self, key, value)
+        object.__setattr__(self, "_session", None)
 
 
 @dataclass(frozen=True)
@@ -961,6 +1068,218 @@ def create_azure_openai_sef_with_calibration(
     return SEF(name=name, embed=embedder, sigma2=sigma2)
 
 
+def create_onnx_sef(
+    model_path: str | Path,
+    preprocessor: Callable[[str], Dict[str, np.ndarray]],
+    name: str,
+    sigma2: float = 1.0,
+    session_options: Any | None = None,
+    providers: List[str] | None = None,
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from an ONNX embedder with constant uncertainty.
+
+    Args:
+        model_path: Path to ONNX model file.
+        preprocessor: Callable that converts text to a dict of numpy arrays
+            matching the model's input names.
+        name: SEF name.
+        sigma2: Constant uncertainty (variance) for this specialist.
+        session_options: Optional ONNX Runtime SessionOptions.
+        providers: List of execution providers (default ["CPUExecutionProvider"]).
+        normalize: Whether to normalize output embeddings.
+
+    Returns:
+        SEF wrapping the ONNX embedder.
+    """
+    if providers is None:
+        providers = ["CPUExecutionProvider"]
+    embedder = OnnxEmbedder(
+        model_path=model_path,
+        preprocessor=preprocessor,
+        session_options=session_options,
+        providers=providers,
+        normalize=normalize,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_onnx_sef_with_calibration(
+    model_path: str | Path,
+    preprocessor: Callable[[str], Dict[str, np.ndarray]],
+    name: str,
+    calibration_texts: Iterable[str],
+    base_sigma2: float = 0.2,
+    scale: float = 2.0,
+    session_options: Any | None = None,
+    providers: List[str] | None = None,
+    normalize: bool = True,
+) -> SEF:
+    """Create a SEF from an ONNX embedder with centroid-distance uncertainty.
+
+    Uncertainty is computed based on cosine similarity to domain centroid
+    derived from calibration texts. Higher similarity => lower variance.
+
+    Args:
+        model_path: Path to ONNX model file.
+        preprocessor: Callable that converts text to a dict of numpy arrays
+            matching the model's input names.
+        name: SEF name.
+        calibration_texts: Sample texts from the specialist's domain.
+        base_sigma2: Minimum variance when similarity is 1.
+        scale: Maximum additional variance when similarity is 0.
+        session_options: Optional ONNX Runtime SessionOptions.
+        providers: List of execution providers (default ["CPUExecutionProvider"]).
+        normalize: Whether to normalize output embeddings.
+
+    Returns:
+        SEF with centroid-distance uncertainty.
+    """
+    if providers is None:
+        providers = ["CPUExecutionProvider"]
+    embedder = OnnxEmbedder(
+        model_path=model_path,
+        preprocessor=preprocessor,
+        session_options=session_options,
+        providers=providers,
+        normalize=normalize,
+    )
+    sigma2 = CentroidDistanceSigma2.from_calibration(
+        embed=embedder,
+        calibration_texts=calibration_texts,
+        base_sigma2=base_sigma2,
+        scale=scale,
+    )
+    return SEF(name=name, embed=embedder, sigma2=sigma2)
+
+
+def create_onnx_sef_model(
+    model_path: str | Path,
+    preprocessor: Callable[[str], Dict[str, np.ndarray]],
+    name: str | None = None,
+    sigma2: float = 1.0,
+    session_options: Any | None = None,
+    providers: List[str] | None = None,
+    normalize: bool = True,
+    metadata: dict[str, Any] | None = None,
+    covariance_estimator: "CovarianceEstimator | None" = None,
+) -> SEFModel:
+    """Create a SEFModel from an ONNX model.
+
+    Args:
+        model_path: Path to ONNX model file.
+        preprocessor: Callable that converts text to a dict of numpy arrays
+            matching the model's input names.
+        name: SEF name. If None, derived from model file stem.
+        sigma2: Constant uncertainty (variance) for this specialist.
+        session_options: Optional ONNX Runtime SessionOptions.
+        providers: List of execution providers (default ["CPUExecutionProvider"]).
+        normalize: Whether to normalize output embeddings.
+        metadata: Additional metadata to store in SEFModel.
+        covariance_estimator: Optional covariance estimator. If None, a constant
+            covariance estimator with sigma2 is used.
+
+    Returns:
+        SEFModel ready for saving/loading.
+    """
+    if providers is None:
+        providers = ["CPUExecutionProvider"]
+    embedder = OnnxEmbedder(
+        model_path=model_path,
+        preprocessor=preprocessor,
+        session_options=session_options,
+        providers=providers,
+        normalize=normalize,
+    )
+
+    # Compute embedding dimension
+    test_embedding = embedder("test")
+    dimension = test_embedding.shape[0]
+
+    # Create SEF name
+    if name is None:
+        import os
+
+        name = os.path.splitext(os.path.basename(str(model_path)))[0]
+
+    # Build metadata dict into SEFMetadata
+    model_id_safe = str(model_path).replace("/", "-").replace("\\", "-")
+    default_metadata = {
+        "model_id": f"onnx:{model_id_safe}",
+        "name": name,
+        "version": "1.0.0",
+        "description": f"ONNX model: {model_path}",
+        "domain_tags": ["general"],
+        "task_tags": ["embedding"],
+        "benchmarks": {},
+        "training_data_description": "Unknown",
+        "base_model": str(model_path),
+        "training_date": "unknown",
+        "author": "unknown",
+        "licence": "unknown",
+        "embedding_dimension": dimension,
+        "covariance_format": "diagonal",
+        "alignment_method": "identity",
+        "checksum": "",
+    }
+
+    # Update with user-provided metadata (if any)
+    user_metadata = metadata if metadata is not None else {}
+    for key, value in user_metadata.items():
+        if key in default_metadata:
+            default_metadata[key] = value
+        else:
+            import warnings
+
+            warnings.warn(
+                f"Ignoring metadata key '{key}' not recognized in SEFMetadata",
+                UserWarning,
+                stacklevel=2,
+            )
+
+    # Covariance estimator
+    if covariance_estimator is not None:
+        raise NotImplementedError(
+            "Custom covariance estimators not yet supported for SEFModel. "
+            "Use sigma2 parameter for constant uncertainty."
+        )
+
+    # Create fixed diagonal covariance from sigma2
+    diagonal = np.full(dimension, sigma2, dtype=np.float64)
+    covariance_data = {
+        "method": "fixed",
+        "diagonal": diagonal,
+    }
+
+    # Create SEFMetadata
+    sef_metadata = SEFMetadata(
+        model_id=default_metadata["model_id"],
+        name=default_metadata["name"],
+        version=default_metadata["version"],
+        description=default_metadata["description"],
+        domain_tags=default_metadata["domain_tags"],
+        task_tags=default_metadata["task_tags"],
+        benchmarks=default_metadata["benchmarks"],
+        training_data_description=default_metadata["training_data_description"],
+        base_model=default_metadata["base_model"],
+        training_date=default_metadata["training_date"],
+        author=default_metadata["author"],
+        licence=default_metadata["licence"],
+        embedding_dimension=default_metadata["embedding_dimension"],
+        covariance_format=default_metadata["covariance_format"],
+        alignment_method=default_metadata["alignment_method"],
+        checksum=default_metadata["checksum"],
+    )
+
+    # Create SEFModel
+    return SEFModel(
+        embed_function=embedder,
+        metadata=sef_metadata,
+        alignment_matrix=None,
+        covariance_data=covariance_data,
+    )
+
+
 __all__ = [
     "STEmbedder",
     "OpenAIEmbedder",
@@ -969,8 +1288,12 @@ __all__ = [
     "VertexAIEmbedder",
     "AzureOpenAIEmbedder",
     "HuggingFaceEmbedder",
+    "OnnxEmbedder",
     "create_huggingface_sef",
     "create_huggingface_sef_model",
+    "create_onnx_sef",
+    "create_onnx_sef_with_calibration",
+    "create_onnx_sef_model",
     "create_openai_sef",
     "create_openai_sef_with_calibration",
     "create_cohere_sef",

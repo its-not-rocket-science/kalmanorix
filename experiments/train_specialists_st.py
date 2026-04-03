@@ -87,7 +87,7 @@ from torch import nn
 import torch.nn.functional as F
 
 from experiments.config import TrainingConfig, DomainEnum
-from src.kalmanorix.compute_tracker import track_compute
+from kalmanorix.compute_tracker import track_compute
 
 BASE_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 OUT_DIR = Path("models")
@@ -524,7 +524,7 @@ def main() -> None:
 
         # Load domain data
         # For now, use synthetic data. In full experiment, use datasets.py
-        from src.kalmanorix.toy_corpus import generate_anchor_sentences
+        from kalmanorix.toy_corpus import generate_anchor_sentences
 
         domain_data = {}
         for domain in config.domains:

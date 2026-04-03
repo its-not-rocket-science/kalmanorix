@@ -540,7 +540,7 @@ class NeuralCovariance(CovarianceEstimator):
         # Training flag
         self.is_trained = False
 
-    def _build_network(self) -> nn.Module:
+    def _build_network(self) -> "nn.Module":
         """Construct MLP with given architecture."""
         layers = []
         prev_size = self.dimension

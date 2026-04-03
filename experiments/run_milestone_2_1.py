@@ -34,12 +34,12 @@ from experiments.train_monolith import train_monolith
 from experiments.generate_test_set import generate_test_set
 
 # Import Kalmanorix components for evaluation
-from src.kalmanorix.village import Village, SEF
-from src.kalmanorix.scout import ScoutRouter
-from src.kalmanorix.panoramix import Panoramix
-from src.kalmanorix.uncertainty import CentroidDistanceSigma2
-from src.kalmanorix.panoramix import KalmanorixFuser
-from src.kalmanorix.alignment import compute_alignments, align_sef_list
+from kalmanorix.village import Village, SEF
+from kalmanorix.scout import ScoutRouter
+from kalmanorix.panoramix import Panoramix
+from kalmanorix.uncertainty import CentroidDistanceSigma2
+from kalmanorix.panoramix import KalmanorixFuser
+from kalmanorix.alignment import compute_alignments, align_sef_list
 
 
 logger = logging.getLogger(__name__)
@@ -273,7 +273,7 @@ def run_experiment(
     # Step 1: Load domain data
     logger.info("Step 1: Loading domain data...")
     if use_real_data:
-        from src.kalmanorix.datasets import load_multiple_domains
+        from kalmanorix.datasets import load_multiple_domains
 
         domain_datasets = load_multiple_domains(
             domains=[d.value for d in config.domains],
@@ -287,7 +287,7 @@ def run_experiment(
         }
     else:
         # Use synthetic data
-        from src.kalmanorix.toy_corpus import generate_anchor_sentences
+        from kalmanorix.toy_corpus import generate_anchor_sentences
 
         domain_data = {}
         for domain in config.domains:

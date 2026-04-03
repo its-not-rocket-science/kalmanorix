@@ -12,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import numpy as np
 from experiments.config import DomainEnum, load_config
-from src.kalmanorix.toy_corpus import generate_anchor_sentences
-from src.kalmanorix.uncertainty import CentroidDistanceSigma2
+from kalmanorix.toy_corpus import generate_anchor_sentences
+from kalmanorix.uncertainty import CentroidDistanceSigma2
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 

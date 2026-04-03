@@ -42,19 +42,19 @@ import numpy as np
 import yaml
 
 from experiments.config import TrainingConfig, DomainEnum
-from src.kalmanorix.village import Village, SEF
-from src.kalmanorix.scout import ScoutRouter
-from src.kalmanorix.panoramix import Panoramix, KalmanorixFuser, MeanFuser
-from src.kalmanorix.uncertainty import (
+from kalmanorix.village import Village, SEF
+from kalmanorix.scout import ScoutRouter
+from kalmanorix.panoramix import Panoramix, KalmanorixFuser, MeanFuser
+from kalmanorix.uncertainty import (
     CentroidDistanceSigma2,
     ConstantSigma2,
     ScaledSigma2,
 )
-from src.kalmanorix.ood_datasets import (
+from kalmanorix.ood_datasets import (
     create_ood_test_set,
     create_synthetic_ood_test_set,
 )
-from src.kalmanorix.calibration import (
+from kalmanorix.calibration import (
     compute_embedding_calibration,
     compute_retrieval_calibration,
     plot_reliability_diagram,
@@ -641,7 +641,7 @@ def run_experiment(
     # Step 2: Load domain data for calibration and test set creation
     logger.info("Step 2: Loading domain data...")
     if use_real_data:
-        from src.kalmanorix.datasets import load_multiple_domains
+        from kalmanorix.datasets import load_multiple_domains
 
         # Load all domains (including OOD domain)
         all_domains = [d.value for d in config.domains] + [config.ood_domain.value]
@@ -700,7 +700,7 @@ def run_experiment(
             calibration_texts[domain] = dataset.validation[:100]  # First 100 texts
     else:
         # Generate synthetic calibration texts
-        from src.kalmanorix.toy_corpus import generate_anchor_sentences
+        from kalmanorix.toy_corpus import generate_anchor_sentences
 
         for domain in config.domains:
             tag = {

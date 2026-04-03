@@ -92,7 +92,7 @@ This roadmap reflects the actual development status and prioritises the critical
 
 ### Milestone 3.3: Integration & Ecosystem
 - [x] Hugging Face integration (`AutoModel` wrapper)
-- [ ] ONNX runtime support
+- [x] ONNX runtime support
 - [x] Basic model registry (local directory/index)
 - [x] Create adapters for OpenAI, Cohere, Anthropic, Azure, and Vertex AI embedding models
 - [ ] Implement API rate limiting, error handling, and caching

@@ -11,12 +11,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import json
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from src.kalmanorix.village import Village, SEF
-from src.kalmanorix.scout import ScoutRouter
-from src.kalmanorix.panoramix import Panoramix, KalmanorixFuser
-from src.kalmanorix.uncertainty import CentroidDistanceSigma2
-from src.kalmanorix.alignment import compute_alignments, align_sef_list
-from src.kalmanorix.toy_corpus import generate_anchor_sentences
+from kalmanorix.village import Village, SEF
+from kalmanorix.scout import ScoutRouter
+from kalmanorix.panoramix import Panoramix, KalmanorixFuser
+from kalmanorix.uncertainty import CentroidDistanceSigma2
+from kalmanorix.alignment import compute_alignments, align_sef_list
+from kalmanorix.toy_corpus import generate_anchor_sentences
 
 
 def load_sef_with_params(model_path, domain_tag, base_sigma2, scale):
