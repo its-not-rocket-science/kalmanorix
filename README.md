@@ -1,6 +1,8 @@
 
 # Kalmanorix: Efficient Specialist Fusion with Kalman Filtering
 
+> **⚠️ Research Status**: Core hypothesis unproven. Efficiency demonstrated; accuracy validation pending (target Q3 2026).
+
 Kalmanorix is a research framework for fusing embeddings from multiple domain-specialist models using Kalman filtering. The core hypothesis is that a fused ensemble of specialists can outperform monolithic models while being computationally efficient (KEFF: Kalman Ensemble of Fusion-Frugal specialists).
 
 ## 🚀 Key Result: Semantic Routing Efficiency
@@ -10,7 +12,7 @@ Kalmanorix is a research framework for fusing embeddings from multiple domain-sp
 - **Latency reduction**: Up to 34% when routing overhead < cost of extra specialists
 - **Dynamic thresholding**: Ensures at least one specialist selected even for ambiguous queries
 
-This validates the Kalmanorix hypothesis that modular specialist fusion with intelligent routing can be computationally competitive with monolithic models.
+This demonstrates an efficiency gain from semantic routing. It does **not** yet validate the full Kalmanorix hypothesis on accuracy; that validation is planned for Q3 2026.
 
 ## 📋 Roadmap
 
