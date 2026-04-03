@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Milestone 1.3 Benchmark Summary",
+  "type": "object",
+  "required": [
+    "milestone",
+    "run_timestamp_utc",
+    "commit_sha",
+    "dataset",
+    "methods",
+    "metrics",
+    "statistical_test",
+    "success_criteria_met"
+  ],
+  "properties": {
+    "milestone": {
+      "const": "1.3"
+    },
+    "run_timestamp_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "commit_sha": {
+      "type": "string",
+      "minLength": 7
+    },
+    "dataset": {
+      "type": "object",
+      "required": ["name", "split", "query_count"],
+      "properties": {
+        "name": {"type": "string"},
+        "split": {"type": "string"},
+        "query_count": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": true
+    },
+    "methods": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "enum": ["kalman", "average", "other"]
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["kalman", "average"],
+      "properties": {
+        "kalman": {
+          "type": "object",
+          "required": ["recall_at_10"],
+          "properties": {
+            "recall_at_10": {"type": "number"},
+            "mrr": {"type": "number"},
+            "latency_ms": {"type": "number"}
+          },
+          "additionalProperties": true
+        },
+        "average": {
+          "type": "object",
+          "required": ["recall_at_10"],
+          "properties": {
+            "recall_at_10": {"type": "number"},
+            "mrr": {"type": "number"},
+            "latency_ms": {"type": "number"}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "statistical_test": {
+      "type": "object",
+      "required": ["name", "p_value", "alpha"],
+      "properties": {
+        "name": {"type": "string"},
+        "p_value": {"type": "number", "minimum": 0, "maximum": 1},
+        "alpha": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": true
+    },
+    "success_criteria_met": {
+      "type": "boolean"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

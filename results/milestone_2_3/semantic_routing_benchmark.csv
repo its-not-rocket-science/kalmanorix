@@ -1,0 +1,5 @@
+specialist_count,avg_selected,selection_efficiency,estimated_flops_reduction
+3,1.10,0.367,0.633
+5,1.80,0.360,0.640
+10,3.50,0.350,0.650
+20,7.00,0.350,0.650
