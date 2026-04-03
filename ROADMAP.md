@@ -48,9 +48,10 @@
 ### Milestone 1.3: Basic Kalman Fuser `[~]`
 - [x] Implement Kalman update with diagonal covariance
 - [x] Add batch fusion for multiple measurements
-- [~] Benchmark against simple averaging (**in progress; no publishable benchmark artifact yet**)
+- [x] Benchmark against simple averaging with reproducible artifact generation
 - **Success criteria:** Kalman fusion outperforms averaging on mixed-domain retrieval (p < 0.05)
-- **Expected completion:** July 2026 (moved to Q3 benchmark window)
+- **Evidence:** [experiments/benchmark_fusion_methods.py](experiments/benchmark_fusion_methods.py), [experiments/visualize_fusion_benchmark.py](experiments/visualize_fusion_benchmark.py), [results/milestone_1_3_kalman_vs_mean.csv](results/milestone_1_3_kalman_vs_mean.csv), [results/milestone_1_3_summary.json](results/milestone_1_3_summary.json), [results/kalman_vs_mean_plot.png](results/kalman_vs_mean_plot.png)
+- **Expected completion:** July 2026 (analysis outcome depends on benchmark summary conclusion)
 
 **Deliverable:** v0.2.0 - Working Kalman fusion on toy domains
 
