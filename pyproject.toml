@@ -8,10 +8,10 @@ version = "0.1.0"
 description = "Kalmanorix scaffold"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["numpy>=1.26", "cachetools>=5.3"]
+dependencies = ["numpy>=1.26", "cachetools>=5.3", "scipy>=1.11"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0", "types-cachetools>=4.2", "pytest-benchmark>=4.0"]
+dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0", "types-cachetools>=4.2", "pytest-benchmark>=4.0", "pytest-mock>=3.10"]
 viz = ["matplotlib>=3.7"]
 train = [
     "sentence-transformers>=3.0",
