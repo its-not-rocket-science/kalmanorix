@@ -5,14 +5,35 @@
 
 Kalmanorix is a research framework for fusing embeddings from multiple domain-specialist models using Kalman filtering. The core hypothesis is that a fused ensemble of specialists can outperform monolithic models while being computationally efficient (KEFF: Kalman Ensemble of Fusion-Frugal specialists).
 
-## 🚀 Key Result: Semantic Routing Efficiency
+## 🧠 Core Hypothesis
 
-**Semantic routing achieves 65% average FLOPs reduction** by selecting only relevant domain specialists per query. Benchmark results show:
-- **Selection efficiency**: 35% (specialists selected/loaded) across 3-20 specialists
-- **Latency reduction**: Up to 34% when routing overhead < cost of extra specialists
-- **Dynamic thresholding**: Ensures at least one specialist selected even for ambiguous queries
+Kalmanorix aims to prove three linked claims:
+- Specialist models can retain stronger domain signal than a monolith at equal compute.
+- Kalman fusion can combine specialist embeddings better than naive averaging by using uncertainty weighting.
+- Semantic routing can reduce runtime by invoking only relevant specialists.
 
-This demonstrates an efficiency gain from semantic routing. It does **not** yet validate the full Kalmanorix hypothesis on accuracy; that validation is planned for Q3 2026.
+Only the routing efficiency claim is currently validated. The Kalman-fusion accuracy claim remains an active research question.
+
+## 🚀 Key Result (Status-Separated)
+
+- ✅ **Proven: Semantic routing efficiency (65% average FLOPs reduction)**
+  - Routing selects only relevant specialists per query.
+  - Benchmark details:
+    - **Selection efficiency**: 35% (specialists selected/loaded) across 3-20 specialists
+    - **Latency reduction**: Up to 34% when routing overhead < cost of extra specialists
+    - **Dynamic thresholding**: Ensures at least one specialist selected even for ambiguous queries
+- ❌ **Unproven: Kalman fusion accuracy improvement over averaging**
+  - We have not yet demonstrated statistically significant improvement versus simple averaging.
+- 🔬 **In Progress: Specialist vs monolith comparison**
+  - Hypothesis testing is planned/ongoing in the Q3 2026 validation track.
+
+> **Important:** The 65% FLOPs reduction comes from **semantic routing**, not from the Kalman fusion update itself.
+
+## ⚠️ Current Limitations (April 2026)
+- Kalman fusion has not yet been proven to outperform simple averaging
+- Covariance estimation is currently naive/placeholder
+- Out-of-domain robustness not yet validated
+- See [ROADMAP.md](ROADMAP.md) for validation timeline
 
 ## 📋 Roadmap
 
