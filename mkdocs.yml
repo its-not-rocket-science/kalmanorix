@@ -148,6 +148,7 @@ nav:
       - Overview: milestones/index.md
       - Specialist Drift Breaks Fusion: milestones/0001-specialist-drift-breaks-fusion.md
   - Contributing:
+    - Model Contributors: contributing/model-contributors.md
     - Development: contributing/development.md
     - Testing: contributing/testing.md
     - Roadmap: contributing/roadmap.md

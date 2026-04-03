@@ -553,7 +553,7 @@ class TfidfEmbedder(Embedder):
 
     @classmethod
     def from_corpus(
-        cls, calibration_texts: Iterable[str], **vectorizer_kwargs
+        cls, calibration_texts: Iterable[str], **vectorizer_kwargs: Any
     ) -> "TfidfEmbedder":
         """Create a TfidfEmbedder fitted on a corpus of calibration texts.
 
@@ -580,7 +580,7 @@ class TfidfEmbedder(Embedder):
 
 def create_tfidf_embedder(
     calibration_texts: Iterable[str],
-    **vectorizer_kwargs,
+    **vectorizer_kwargs: Any,
 ) -> TfidfEmbedder:
     """Create a TF‑IDF embedder fitted on calibration texts.
 
@@ -600,7 +600,7 @@ def create_tfidf_sef(
     calibration_texts: Iterable[str],
     name: str = "tfidf",
     sigma2: float = 1.0,
-    **vectorizer_kwargs,
+    **vectorizer_kwargs: Any,
 ) -> SEF:
     """Create a SEF with a TF‑IDF embedder.
 
