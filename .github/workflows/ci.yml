@@ -11,6 +11,8 @@ jobs:
           python -m pip install -U pip
           pip install -e ".[dev]"
           pytest
+          mkdir -p test-results
+          pytest tests/test_numerical_stability.py --junitxml=test-results/numerical_stability.xml
 
   docs:
     runs-on: ubuntu-latest
