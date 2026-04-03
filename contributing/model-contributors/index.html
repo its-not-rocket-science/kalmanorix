@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/contributing/model-contributors/">
       
       
+        <link rel="prev" href="../../milestones/0001-specialist-drift-breaks-fusion/">
+      
+      
+        <link rel="next" href="../development/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Guide for Model Contributors - Kalmanorix</title>
+        <title>Model Contributors - Kalmanorix</title>
       
     
     
@@ -118,7 +122,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Guide for Model Contributors
+              Model Contributors
             
           </span>
         </div>
@@ -368,11 +372,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../development/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -1700,28 +1706,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
-        
-          
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
             
   
   
@@ -1739,7 +1748,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1749,6 +1758,369 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Contributors
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Contributors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-sef-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a SEF Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a SEF Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-start-with-an-embedder-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Start with an embedder function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add-uncertainty-estimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Add uncertainty estimation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-align-to-a-reference-space-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Align to a reference space (optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmarking-your-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmarking Your Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#saving-and-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving and Packaging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-model-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Model Card
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharing-your-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sharing Your Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sharing Your Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-share-a-directory-zip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1: Share a directory (ZIP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-hugging-face-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2: Hugging Face Hub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-3-kalmanorix-model-registry-future" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 3: Kalmanorix Model Registry (future)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-domain-specificity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Domain specificity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-uncertainty-calibration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Uncertainty calibration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-benchmark-transparency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Benchmark transparency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-licensing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Licensing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-full-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Full Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#embedder-cannot-be-pickled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedder cannot be pickled
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#large-covariance-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Large covariance data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alignment-matrix-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alignment matrix issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -2172,6 +2544,46 @@
 
   
 
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
 
               
               <article class="md-content__inner md-typeset">

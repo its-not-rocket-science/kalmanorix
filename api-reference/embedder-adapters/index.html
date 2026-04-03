@@ -378,7 +378,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../contributing/development/" class="md-tabs__link">
+        <a href="../../contributing/model-contributors/" class="md-tabs__link">
           
   
   
@@ -1824,6 +1824,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../contributing/model-contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Contributors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/development/" class="md-nav__link">
         
   
@@ -3093,6 +3121,7 @@ then embeds queries as normalized TF‑IDF vectors.</p>
                 <code>**vectorizer_kwargs</code>
             </td>
             <td>
+                  <code><span title="typing.Any">Any</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3159,7 +3188,7 @@ then embeds queries as normalized TF‑IDF vectors.</p>
 <span class="normal"><a href="#__codelineno-0-577">577</a></span>
 <span class="normal"><a href="#__codelineno-0-578">578</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-554"><a id="__codelineno-0-554" name="__codelineno-0-554"></a><span class="nd">@classmethod</span>
 </span><span id="__span-0-555"><a id="__codelineno-0-555" name="__codelineno-0-555"></a><span class="k">def</span><span class="w"> </span><span class="nf">from_corpus</span><span class="p">(</span>
-</span><span id="__span-0-556"><a id="__codelineno-0-556" name="__codelineno-0-556"></a>    <span class="bp">cls</span><span class="p">,</span> <span class="n">calibration_texts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">vectorizer_kwargs</span>
+</span><span id="__span-0-556"><a id="__codelineno-0-556" name="__codelineno-0-556"></a>    <span class="bp">cls</span><span class="p">,</span> <span class="n">calibration_texts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">vectorizer_kwargs</span><span class="p">:</span> <span class="n">Any</span>
 </span><span id="__span-0-557"><a id="__codelineno-0-557" name="__codelineno-0-557"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TfidfEmbedder&quot;</span><span class="p">:</span>
 </span><span id="__span-0-558"><a id="__codelineno-0-558" name="__codelineno-0-558"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a TfidfEmbedder fitted on a corpus of calibration texts.</span>
 </span><span id="__span-0-559"><a id="__codelineno-0-559" name="__codelineno-0-559"></a>
@@ -6548,6 +6577,7 @@ derived from calibration texts. Higher similarity =&gt; lower variance.</p>
                 <code>**vectorizer_kwargs</code>
             </td>
             <td>
+                  <code><span title="typing.Any">Any</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6608,7 +6638,7 @@ derived from calibration texts. Higher similarity =&gt; lower variance.</p>
 <span class="normal"><a href="#__codelineno-0-595">595</a></span>
 <span class="normal"><a href="#__codelineno-0-596">596</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-581"><a id="__codelineno-0-581" name="__codelineno-0-581"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_tfidf_embedder</span><span class="p">(</span>
 </span><span id="__span-0-582"><a id="__codelineno-0-582" name="__codelineno-0-582"></a>    <span class="n">calibration_texts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-</span><span id="__span-0-583"><a id="__codelineno-0-583" name="__codelineno-0-583"></a>    <span class="o">**</span><span class="n">vectorizer_kwargs</span><span class="p">,</span>
+</span><span id="__span-0-583"><a id="__codelineno-0-583" name="__codelineno-0-583"></a>    <span class="o">**</span><span class="n">vectorizer_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="__span-0-584"><a id="__codelineno-0-584" name="__codelineno-0-584"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TfidfEmbedder</span><span class="p">:</span>
 </span><span id="__span-0-585"><a id="__codelineno-0-585" name="__codelineno-0-585"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a TF‑IDF embedder fitted on calibration texts.</span>
 </span><span id="__span-0-586"><a id="__codelineno-0-586" name="__codelineno-0-586"></a>
@@ -6706,6 +6736,7 @@ derived from calibration texts. Higher similarity =&gt; lower variance.</p>
                 <code>**vectorizer_kwargs</code>
             </td>
             <td>
+                  <code><span title="typing.Any">Any</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6771,7 +6802,7 @@ derived from calibration texts. Higher similarity =&gt; lower variance.</p>
 </span><span id="__span-0-600"><a id="__codelineno-0-600" name="__codelineno-0-600"></a>    <span class="n">calibration_texts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 </span><span id="__span-0-601"><a id="__codelineno-0-601" name="__codelineno-0-601"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tfidf&quot;</span><span class="p">,</span>
 </span><span id="__span-0-602"><a id="__codelineno-0-602" name="__codelineno-0-602"></a>    <span class="n">sigma2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-</span><span id="__span-0-603"><a id="__codelineno-0-603" name="__codelineno-0-603"></a>    <span class="o">**</span><span class="n">vectorizer_kwargs</span><span class="p">,</span>
+</span><span id="__span-0-603"><a id="__codelineno-0-603" name="__codelineno-0-603"></a>    <span class="o">**</span><span class="n">vectorizer_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="__span-0-604"><a id="__codelineno-0-604" name="__codelineno-0-604"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SEF</span><span class="p">:</span>
 </span><span id="__span-0-605"><a id="__codelineno-0-605" name="__codelineno-0-605"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a SEF with a TF‑IDF embedder.</span>
 </span><span id="__span-0-606"><a id="__codelineno-0-606" name="__codelineno-0-606"></a>
