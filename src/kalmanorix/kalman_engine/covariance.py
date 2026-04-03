@@ -38,7 +38,7 @@ Estimation Methods:
    R = Var[{f_dropout(x) for _ in range(n_samples)}]
 """
 
-from typing import List, Optional, Callable, Union, Dict
+from typing import List, Optional, Callable, Union, Dict, Any, Sequence, Tuple
 from abc import ABC, abstractmethod
 import logging
 
@@ -56,6 +56,193 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_embedder(model: Any) -> Callable[[str], np.ndarray]:
+    """Resolve a callable embedder from a model object or callable."""
+    if callable(model):
+        return model
+    if hasattr(model, "embed") and callable(model.embed):
+        return model.embed
+    raise ValueError("Expected callable model or object with an .embed(text) method")
+
+
+def _pearson_corr(x: np.ndarray, y: np.ndarray, epsilon: float = 1e-8) -> float:
+    """Numerically stable Pearson correlation."""
+    x = np.asarray(x, dtype=np.float64).reshape(-1)
+    y = np.asarray(y, dtype=np.float64).reshape(-1)
+    if x.size != y.size or x.size < 2:
+        return 0.0
+    x_std = float(np.std(x))
+    y_std = float(np.std(y))
+    if x_std < epsilon or y_std < epsilon:
+        return 0.0
+    return float(np.corrcoef(x, y)[0, 1])
+
+
+def calibrate_uncertainty(
+    raw_uncertainty: np.ndarray,
+    empirical_error: np.ndarray,
+    epsilon: float = 1e-8,
+) -> Tuple[np.ndarray, float, float]:
+    """Calibrate raw uncertainty to empirical error with affine scaling.
+
+    Returns calibrated uncertainty together with slope and intercept.
+    """
+    raw = np.asarray(raw_uncertainty, dtype=np.float64).reshape(-1)
+    err = np.asarray(empirical_error, dtype=np.float64).reshape(-1)
+    if raw.size != err.size:
+        raise ValueError("raw_uncertainty and empirical_error must have equal length")
+
+    raw_mean = float(np.mean(raw))
+    err_mean = float(np.mean(err))
+    raw_var = float(np.var(raw))
+
+    if raw_var < epsilon:
+        slope = 0.0
+        intercept = max(err_mean, epsilon)
+    else:
+        cov = float(np.mean((raw - raw_mean) * (err - err_mean)))
+        slope = cov / (raw_var + epsilon)
+        intercept = err_mean - slope * raw_mean
+
+    calibrated = np.maximum(slope * raw + intercept, epsilon)
+    return calibrated, float(slope), float(intercept)
+
+
+def estimate_covariance(
+    *,
+    model: Optional[Any] = None,
+    validation_inputs: Optional[Sequence[str]] = None,
+    validation_embeddings: Optional[np.ndarray] = None,
+    ground_truth_embeddings: Optional[np.ndarray] = None,
+    ensemble_mean_embeddings: Optional[np.ndarray] = None,
+    train_embeddings: Optional[np.ndarray] = None,
+    method: str = "validation_residual",
+    mc_dropout_passes: int = 30,
+    n_clusters: int = 8,
+    random_seed: int = 0,
+    epsilon: float = 1e-8,
+) -> Tuple[np.ndarray, float]:
+    """Estimate diagonal covariance and quality correlation score.
+
+    Supports three methods:
+    - validation_residual (primary)
+    - mc_dropout
+    - distance
+    """
+    method = method.lower()
+
+    if validation_embeddings is None:
+        if model is None or validation_inputs is None:
+            raise ValueError(
+                "Provide validation_embeddings or (model + validation_inputs)."
+            )
+        embed = _resolve_embedder(model)
+        validation_embeddings = np.stack([embed(text) for text in validation_inputs])
+
+    val_emb = np.asarray(validation_embeddings, dtype=np.float64)
+    if val_emb.ndim != 2:
+        raise ValueError("validation_embeddings must be shaped (n_samples, d)")
+
+    if ground_truth_embeddings is not None:
+        target = np.asarray(ground_truth_embeddings, dtype=np.float64)
+    elif ensemble_mean_embeddings is not None:
+        target = np.asarray(ensemble_mean_embeddings, dtype=np.float64)
+    else:
+        target = np.repeat(np.mean(val_emb, axis=0, keepdims=True), val_emb.shape[0], axis=0)
+
+    if target.shape != val_emb.shape:
+        raise ValueError("Target embeddings must match validation_embeddings shape")
+
+    errors = val_emb - target
+    actual_error = np.mean(errors * errors, axis=1)
+
+    if method == "validation_residual":
+        covariance_diagonal = np.var(errors, axis=0, ddof=1)
+        covariance_diagonal = np.maximum(covariance_diagonal, epsilon)
+        centroid = np.mean(val_emb, axis=0)
+        raw_uncertainty = np.linalg.norm(val_emb - centroid, axis=1)
+        calibrated_uncertainty, _, _ = calibrate_uncertainty(raw_uncertainty, actual_error, epsilon)
+        correlation = _pearson_corr(calibrated_uncertainty, actual_error, epsilon)
+        return covariance_diagonal, correlation
+
+    if method == "mc_dropout":
+        if model is None or validation_inputs is None:
+            raise ValueError("mc_dropout requires model and validation_inputs")
+        embed = _resolve_embedder(model)
+        passes = []
+        for _ in range(mc_dropout_passes):
+            try:
+                pass_emb = np.stack(
+                    [embed(text, enable_dropout=True) for text in validation_inputs]  # type: ignore[misc]
+                )
+            except TypeError:
+                pass_emb = np.stack([embed(text) for text in validation_inputs])
+            passes.append(pass_emb)
+        mc = np.stack(passes, axis=0)
+        covariance_diagonal = np.mean(np.var(mc, axis=0, ddof=1), axis=0)
+        covariance_diagonal = np.maximum(covariance_diagonal, epsilon)
+        raw_uncertainty = np.mean(np.var(mc, axis=0, ddof=1), axis=1)
+        calibrated_uncertainty, _, _ = calibrate_uncertainty(raw_uncertainty, actual_error, epsilon)
+        correlation = _pearson_corr(calibrated_uncertainty, actual_error, epsilon)
+        return covariance_diagonal, correlation
+
+    if method == "distance":
+        if train_embeddings is None:
+            raise ValueError("distance method requires train_embeddings")
+        train = np.asarray(train_embeddings, dtype=np.float64)
+        if train.ndim != 2 or train.shape[1] != val_emb.shape[1]:
+            raise ValueError("train_embeddings must have shape (n_train, d)")
+
+        rng = np.random.default_rng(random_seed)
+        k = int(max(1, min(n_clusters, len(train))))
+        centroids = train[rng.choice(len(train), size=k, replace=False)].copy()
+        for _ in range(5):
+            distances = np.linalg.norm(train[:, None, :] - centroids[None, :, :], axis=2)
+            labels = np.argmin(distances, axis=1)
+            for idx in range(k):
+                mask = labels == idx
+                if np.any(mask):
+                    centroids[idx] = np.mean(train[mask], axis=0)
+
+        min_dist = np.min(
+            np.linalg.norm(val_emb[:, None, :] - centroids[None, :, :], axis=2), axis=1
+        )
+        calibrated_uncertainty, _, _ = calibrate_uncertainty(min_dist, actual_error, epsilon)
+        base_cov = np.var(errors, axis=0, ddof=1)
+        mean_calibrated = float(np.mean(calibrated_uncertainty))
+        covariance_diagonal = np.maximum(base_cov * max(mean_calibrated, 1.0), epsilon)
+        correlation = _pearson_corr(calibrated_uncertainty, actual_error, epsilon)
+        return covariance_diagonal, correlation
+
+    raise ValueError(f"Unknown covariance estimation method: {method}")
+
+
+def estimate_covariance_for_query(
+    *,
+    embedding: np.ndarray,
+    covariance_profile: Dict[str, Any],
+    epsilon: float = 1e-8,
+) -> np.ndarray:
+    """Estimate query-time covariance from calibrated profile metadata."""
+    base = np.asarray(covariance_profile.get("diagonal"), dtype=np.float64)
+    if base.ndim != 1:
+        raise ValueError("covariance_profile['diagonal'] must be a vector")
+
+    method = covariance_profile.get("method", "fixed")
+    if method != "distance_calibrated":
+        return np.maximum(base, epsilon)
+
+    centroid = np.asarray(covariance_profile.get("centroid"), dtype=np.float64)
+    scale = float(covariance_profile.get("distance_scale", 1.0))
+    bias = float(covariance_profile.get("distance_bias", 0.0))
+    if centroid.shape != embedding.shape:
+        return np.maximum(base, epsilon)
+
+    raw = float(np.linalg.norm(np.asarray(embedding, dtype=np.float64) - centroid))
+    calibrated = max(scale * raw + bias, epsilon)
+    return np.maximum(base * calibrated, epsilon)
 
 
 class CovarianceEstimator(ABC):

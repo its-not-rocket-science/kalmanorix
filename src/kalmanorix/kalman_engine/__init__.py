@@ -28,6 +28,9 @@ from .covariance import (
     DistanceBasedCovariance,
     KNNBasedCovariance,
     DomainBasedCovariance,
+    estimate_covariance,
+    calibrate_uncertainty,
+    estimate_covariance_for_query,
 )
 
 __all__ = [
@@ -45,4 +48,7 @@ __all__ = [
     "DistanceBasedCovariance",
     "KNNBasedCovariance",
     "DomainBasedCovariance",
+    "estimate_covariance",
+    "calibrate_uncertainty",
+    "estimate_covariance_for_query",
 ]

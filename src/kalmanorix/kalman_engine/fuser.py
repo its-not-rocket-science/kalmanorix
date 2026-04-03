@@ -10,7 +10,7 @@ import logging
 import numpy as np
 
 from .kalman_fuser import kalman_fuse_diagonal
-from .covariance import CovarianceEstimator
+from .covariance import CovarianceEstimator, estimate_covariance_for_query
 from ..village import Village
 from ..models.sef import SEFModel
 from ..scout import ScoutRouter
@@ -119,8 +119,18 @@ class Panoramix:
             if self.covariance_estimator is not None:
                 cov = self.covariance_estimator.estimate(model.embed, query)  # type: ignore
             else:
-                # Fall back to model's stored covariance
-                cov = model.get_covariance(query)  # type: ignore
+                # Fall back to calibrated covariance profile when available.
+                if getattr(model, "covariance_data", None):
+                    try:
+                        cov = estimate_covariance_for_query(
+                            embedding=emb,
+                            covariance_profile=model.covariance_data,  # type: ignore[arg-type]
+                            epsilon=self.epsilon,
+                        )
+                    except (ValueError, TypeError):
+                        cov = model.get_covariance(query)  # type: ignore
+                else:
+                    cov = model.get_covariance(query)  # type: ignore
 
             embeddings.append(emb)
             covariances.append(cov)
