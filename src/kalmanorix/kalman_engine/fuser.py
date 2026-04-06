@@ -6,10 +6,15 @@ process: routing, alignment, uncertainty estimation, and Kalman fusion.
 
 from typing import List, Dict, Any, Optional, Tuple
 import logging
+import warnings
 
 import numpy as np
 
-from .kalman_fuser import kalman_fuse_diagonal
+from .kalman_fuser import (
+    kalman_fuse_diagonal,
+    kalman_fuse_diagonal_ensemble,
+    kalman_fuse_diagonal_ensemble_batch,
+)
 from .covariance import CovarianceEstimator, estimate_covariance_for_query
 from ..village import Village
 from ..models.sef import SEFModel
@@ -39,6 +44,7 @@ class Panoramix:
         use_prior: bool = False,
         prior_model: Optional[SEFModel] = None,
         sort_measurements: bool = True,
+        use_ensemble: bool = True,
         epsilon: float = 1e-8,
     ):
         """Initialise the fusion engine.
@@ -52,6 +58,8 @@ class Panoramix:
             use_prior: Whether to use a prior model (e.g., general-purpose embedder)
             prior_model: SEFModel to use as prior (required if use_prior=True)
             sort_measurements: Sort measurements by certainty before fusion
+            use_ensemble: If True, uses precision-weighted ensemble Kalman fusion.
+                         If False, uses deprecated sequential Kalman updates.
             epsilon: Small constant for numerical stability
         """
         self.router = router
@@ -60,16 +68,18 @@ class Panoramix:
         self.use_prior = use_prior
         self.prior_model = prior_model
         self.sort_measurements = sort_measurements
+        self.use_ensemble = use_ensemble
         self.epsilon = epsilon
 
         if use_prior and prior_model is None:
             raise ValueError("prior_model required when use_prior=True")
 
         logger.info(
-            "Panoramix initialised: alignment=%s, use_prior=%s, sort=%s",
+            "Panoramix initialised: alignment=%s, use_prior=%s, sort=%s, ensemble=%s",
             alignment_method,
             use_prior,
             sort_measurements,
+            use_ensemble,
         )
 
     def fuse(
@@ -139,23 +149,56 @@ class Panoramix:
         if self.use_prior and self.prior_model is not None:
             prior_emb = self.prior_model.embed(query)
             prior_cov = self.prior_model.get_covariance(query)
-            # Prior becomes initial state
-            fused, fused_cov = kalman_fuse_diagonal(
-                embeddings,
-                covariances,
-                initial_state=prior_emb,
-                initial_covariance=prior_cov,
-                sort_by_certainty=self.sort_measurements,
-                epsilon=self.epsilon,
-            )
+            if self.use_ensemble:
+                fused, fused_cov = kalman_fuse_diagonal_ensemble(
+                    embeddings,
+                    covariances,
+                    initial_state=prior_emb,
+                    initial_covariance=prior_cov,
+                    epsilon=self.epsilon,
+                )
+            else:
+                warnings.warn(
+                    "Sequential Kalman fusion is deprecated. Use ensemble fusion "
+                    "for better numerical stability. Set use_ensemble=True in "
+                    "Panoramix constructor.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                # Prior becomes initial state
+                fused, fused_cov = kalman_fuse_diagonal(
+                    embeddings,
+                    covariances,
+                    initial_state=prior_emb,
+                    initial_covariance=prior_cov,
+                    sort_by_certainty=self.sort_measurements,
+                    epsilon=self.epsilon,
+                )
         else:
-            # No prior, start from first measurement
-            fused, fused_cov = kalman_fuse_diagonal(
-                embeddings,
-                covariances,
-                sort_by_certainty=self.sort_measurements,
-                epsilon=self.epsilon,
-            )
+            if self.use_ensemble:
+                # No prior: precision-weighted fusion over all specialist measurements.
+                fused, fused_cov = kalman_fuse_diagonal_ensemble(
+                    embeddings,
+                    covariances,
+                    initial_state=None,
+                    initial_covariance=None,
+                    epsilon=self.epsilon,
+                )
+            else:
+                warnings.warn(
+                    "Sequential Kalman fusion is deprecated. Use ensemble fusion "
+                    "for better numerical stability. Set use_ensemble=True in "
+                    "Panoramix constructor.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                # No prior, start from first measurement
+                fused, fused_cov = kalman_fuse_diagonal(
+                    embeddings,
+                    covariances,
+                    sort_by_certainty=self.sort_measurements,
+                    epsilon=self.epsilon,
+                )
 
         logger.debug("Fusion complete: uncertainty=%.4f", np.sum(fused_cov))
 
@@ -178,6 +221,91 @@ class Panoramix:
             List of (embedding, covariance) tuples for each query
         """
         results = []
+        if not queries:
+            return results
+
+        # Try efficient batch fusion path when all queries route to the same models.
+        selected_models_per_query = [self.router.select(query, village) for query in queries]  # type: ignore
+        first_selected = selected_models_per_query[0]
+        shared_selection = all(
+            len(selected) == len(first_selected)
+            and all(m.name == f.name for m, f in zip(selected, first_selected))
+            for selected in selected_models_per_query[1:]
+        )
+
+        if shared_selection and (first_selected or self.use_prior):
+            try:
+                embeddings_by_model = []
+                covariances_by_model = []
+
+                for model in first_selected:
+                    model_embeddings = []
+                    model_covariances = []
+                    for query in queries:
+                        emb = model.embed(query)
+                        if self.alignment_method == "procrustes" and hasattr(
+                            model, "alignment_matrix"
+                        ):
+                            emb = model.alignment_matrix @ emb  # type: ignore
+
+                        if self.covariance_estimator is not None:
+                            cov = self.covariance_estimator.estimate(model.embed, query)  # type: ignore
+                        else:
+                            if getattr(model, "covariance_data", None):
+                                try:
+                                    cov = estimate_covariance_for_query(
+                                        embedding=emb,
+                                        covariance_profile=model.covariance_data,  # type: ignore[arg-type]
+                                        epsilon=self.epsilon,
+                                    )
+                                except (ValueError, TypeError):
+                                    cov = model.get_covariance(query)  # type: ignore
+                            else:
+                                cov = model.get_covariance(query)  # type: ignore
+
+                        model_embeddings.append(emb)
+                        model_covariances.append(cov)
+
+                    embeddings_by_model.append(np.stack(model_embeddings, axis=0))
+                    covariances_by_model.append(np.stack(model_covariances, axis=0))
+
+                embeddings = np.stack(embeddings_by_model, axis=0)
+                covariances = np.stack(covariances_by_model, axis=0)
+
+                initial_state = None
+                initial_covariance = None
+                if self.use_prior and self.prior_model is not None:
+                    prior_embeddings = [self.prior_model.embed(q) for q in queries]
+                    prior_covariances = [self.prior_model.get_covariance(q) for q in queries]
+                    initial_state = np.stack(prior_embeddings, axis=0)
+                    initial_covariance = np.stack(prior_covariances, axis=0)
+
+                if self.use_ensemble:
+                    fused, fused_cov = kalman_fuse_diagonal_ensemble_batch(
+                        embeddings,
+                        covariances,
+                        initial_state=initial_state,
+                        initial_covariance=initial_covariance,
+                        epsilon=self.epsilon,
+                    )
+                else:
+                    warnings.warn(
+                        "Sequential Kalman fusion is deprecated. Use ensemble fusion "
+                        "for better numerical stability. Set use_ensemble=True in "
+                        "Panoramix constructor.",
+                        DeprecationWarning,
+                        stacklevel=2,
+                    )
+                    # Fall back to per-query sequential path below.
+                    raise RuntimeError("Sequential batch fusion path disabled")
+
+                for i in range(len(queries)):
+                    results.append((fused[i], fused_cov[i]))
+                return results
+            except RuntimeError:
+                # Fallback to per-query fusion below.
+                pass
+
         for query in queries:
             try:
                 result = self.fuse(query, village, context)
