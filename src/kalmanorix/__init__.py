@@ -48,6 +48,7 @@ from .alignment import (
     apply_alignment,
     align_sef_list,
     validate_alignment_improvement,
+    validate_alignment_sign,
 )
 from .models.sef import create_procrustes_alignment
 
@@ -96,5 +97,6 @@ __all__ = [
     "apply_alignment",
     "align_sef_list",
     "validate_alignment_improvement",
+    "validate_alignment_sign",
     "create_procrustes_alignment",
 ]
