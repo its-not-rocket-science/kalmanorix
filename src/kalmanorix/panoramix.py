@@ -777,9 +777,24 @@ class Panoramix:  # pylint: disable=too-few-public-methods
 
     Attributes:
         fuser: Fusion strategy implementing the Fuser interface.
+        enable_nonlinear_alignment_fallback: Allow fallback if Procrustes fails.
+        procrustes_failure_similarity_threshold: Failure threshold for mean similarity.
     """
 
     fuser: Fuser
+    enable_nonlinear_alignment_fallback: bool = False
+    procrustes_failure_similarity_threshold: float = 0.5
+
+    def should_use_nonlinear_alignment(self, mean_similarity_after_alignment: float) -> bool:
+        """Return whether nonlinear fallback should be used.
+
+        Procrustes is considered failed when mean similarity after alignment is
+        below `procrustes_failure_similarity_threshold`.
+        """
+        return (
+            self.enable_nonlinear_alignment_fallback
+            and mean_similarity_after_alignment < self.procrustes_failure_similarity_threshold
+        )
 
     def brew(self, query: str, village: Village, scout: ScoutRouter) -> Potion:
         """Produce a fused embedding for a query.
