@@ -12,12 +12,58 @@ from .village import SEF
 from .models.sef import create_procrustes_alignment
 
 
+def validate_alignment_sign(
+    *,
+    sef_name: str,
+    src_embeddings: np.ndarray,
+    ref_embeddings: np.ndarray,
+    align_matrix: np.ndarray,
+    epsilon: float = 1e-8,
+) -> Tuple[float, float, float]:
+    """Validate that alignment preserves cosine-similarity direction.
+
+    Args:
+        sef_name: Name of the specialist being validated.
+        src_embeddings: Source specialist embeddings (n, d).
+        ref_embeddings: Reference embeddings (n, d).
+        align_matrix: Alignment matrix mapping source -> reference (d, d).
+        epsilon: Small constant to avoid division by zero.
+
+    Returns:
+        Tuple of (mean_similarity_before, mean_similarity_after, determinant).
+    """
+
+    src_norm = src_embeddings / (np.linalg.norm(src_embeddings, axis=1, keepdims=True) + epsilon)
+    ref_norm = ref_embeddings / (np.linalg.norm(ref_embeddings, axis=1, keepdims=True) + epsilon)
+    mean_before = float(np.mean(np.einsum("ij,ij->i", src_norm, ref_norm)))
+
+    aligned = src_embeddings @ align_matrix
+    aligned_norm = aligned / (np.linalg.norm(aligned, axis=1, keepdims=True) + epsilon)
+    mean_after = float(np.mean(np.einsum("ij,ij->i", aligned_norm, ref_norm)))
+
+    det = float(np.linalg.det(align_matrix))
+
+    if det < 0:
+        print(
+            f"  Warning: determinant for {sef_name} alignment is negative "
+            f"(det={det:.6f}), indicating a reflection."
+        )
+
+    if mean_after < 0:
+        print(
+            f"  Warning: {sef_name} mean cosine similarity after alignment is "
+            f"negative ({mean_after:.4f}). Potential sign-flip issue detected."
+        )
+
+    return mean_before, mean_after, det
+
+
 def compute_alignments(
     sef_list: List[SEF],
     anchor_sentences: List[str],
     reference_sef_name: str,
     *,
-    _epsilon: float = 1e-8,  # unused, kept for future numerical stability
+    _epsilon: float = 1e-8,
 ) -> Dict[str, np.ndarray]:
     """Compute Procrustes alignment matrices for a list of SEFs.
 
@@ -29,7 +75,7 @@ def compute_alignments(
         sef_list: List of SEF objects
         anchor_sentences: List of text sentences used for alignment
         reference_sef_name: Name of the SEF to use as reference space
-        _epsilon (float): Small constant for numerical stability (unused)
+        _epsilon: Small constant for numerical stability
 
     Returns:
         Dictionary mapping SEF name to alignment matrix (d×d orthogonal).
@@ -64,23 +110,19 @@ def compute_alignments(
             continue
 
         print(f"Computing alignment for {sef.name}...")
-        # Get embeddings for this SEF
         src_embeddings = np.stack([sef.embed(s) for s in anchor_sentences], axis=0)
 
-        # Check dimension match
         if src_embeddings.shape[1] != d:
             raise ValueError(
                 f"Dimension mismatch: {sef.name} has {src_embeddings.shape[1]} "
                 f"dimensions, reference has {d}"
             )
 
-        # Compute Procrustes alignment (Q maps source rows to target rows)
+        # create_procrustes_alignment returns Q such that target ≈ source @ Q
         Q = create_procrustes_alignment(src_embeddings, ref_embeddings)
-        # For column-vector embeddings we need Q.T (maps source columns to target columns)
-        align_matrix = Q.T
+        align_matrix = Q
         alignments[sef.name] = align_matrix
 
-        # Optional: verify orthogonality
         ortho_error = np.linalg.norm(
             align_matrix.T @ align_matrix - np.eye(d), ord="fro"
         )
@@ -88,6 +130,24 @@ def compute_alignments(
             print(
                 f"  Warning: alignment matrix for {sef.name} is not orthogonal "
                 f"(error={ortho_error:.2e})"
+            )
+
+        mean_before, mean_after, det = validate_alignment_sign(
+            sef_name=sef.name,
+            src_embeddings=src_embeddings,
+            ref_embeddings=ref_embeddings,
+            align_matrix=align_matrix,
+            epsilon=_epsilon,
+        )
+        print(
+            f"  Mean cosine similarity ({sef.name}) before={mean_before:.4f}, "
+            f"after={mean_after:.4f}, det={det:.6f}"
+        )
+
+        if mean_after < 0:
+            print(
+                f"  Warning: specialist '{sef.name}' ends with mean similarity < 0 "
+                "after alignment."
             )
 
     return alignments
@@ -110,9 +170,11 @@ def apply_alignment(
         return embeddings
 
     if embeddings.ndim == 1:
+        # Column-vector interpretation: aligned = Q @ x
         return alignment_matrix @ embeddings
-    # else
-    return embeddings @ alignment_matrix.T  # (n, d) @ (d, d).T = (n, d)
+
+    # Row-wise batch mapping from source -> reference: aligned = X @ Q
+    return embeddings @ alignment_matrix
 
 
 def align_sef_list(
@@ -196,7 +258,7 @@ def validate_alignment_improvement(
 
             # After alignment
             if matrix is not None:
-                emb_after = matrix @ sef.embed(sentence)
+                emb_after = apply_alignment(sef.embed(sentence)[None, :], matrix)[0]
             else:
                 emb_after = emb_before
             emb_after = emb_after / (np.linalg.norm(emb_after) + 1e-8)

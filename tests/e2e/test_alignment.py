@@ -21,6 +21,7 @@ from kalmanorix import (
     apply_alignment,
     align_sef_list,
     validate_alignment_improvement,
+    validate_alignment_sign,
 )
 
 
@@ -115,6 +116,18 @@ def test_alignment_in_pipeline():
     )
     # After alignment, similarity should be high (close to 1)
     assert sim_after > 0.99, f"Similarity after alignment too low: {sim_after:.4f}"
+
+    # Explicit sign validation: aligned mean similarity must stay positive.
+    mean_before_sign, mean_after_sign, det = validate_alignment_sign(
+        sef_name="spec2",
+        src_embeddings=embeddings2,
+        ref_embeddings=embeddings1,
+        align_matrix=alignment_matrix,
+    )
+    assert mean_after_sign > 0, (
+        f"Mean similarity after alignment should be positive, got {mean_after_sign:.4f}"
+    )
+    assert det > 0, f"Alignment determinant should be positive, got det={det:.6f}"
 
     # Test align_sef_list
     aligned_sefs = align_sef_list(
