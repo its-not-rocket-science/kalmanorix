@@ -53,6 +53,17 @@
 - **Evidence:** [experiments/benchmark_fusion_methods.py](experiments/benchmark_fusion_methods.py), [experiments/visualize_fusion_benchmark.py](experiments/visualize_fusion_benchmark.py), [results/milestone_1_3_kalman_vs_mean.csv](results/milestone_1_3_kalman_vs_mean.csv), [results/milestone_1_3_summary.json](results/milestone_1_3_summary.json), [results/kalman_vs_mean_plot.png](results/kalman_vs_mean_plot.png)
 - **Expected completion:** July 2026 (analysis outcome depends on benchmark summary conclusion)
 
+
+### Stabilization Fixes (April 2026) `[x]`
+- [x] Fix Procrustes alignment transpose orientation bug (negative centroid similarity)
+  - **Evidence:** [experiments/validate_alignment.py](experiments/validate_alignment.py), [tests/test_validation_suite.py#L21-L67](tests/test_validation_suite.py#L21-L67)
+- [x] Replace linear covariance distance scaling with exponential scaling to avoid specialist suppression
+  - **Evidence:** [experiments/validate_covariance.py](experiments/validate_covariance.py), [tests/test_validation_suite.py#L71-L118](tests/test_validation_suite.py#L71-L118)
+- [x] Switch to ensemble (parallel) Kalman fusion path for order-invariant stability
+  - **Evidence:** [experiments/benchmark_fusion_methods.py](experiments/benchmark_fusion_methods.py), [tests/test_validation_suite.py#L121-L168](tests/test_validation_suite.py#L121-L168)
+- [x] Remove fabricated benchmark outputs; require statistical significance reporting (`p_values`)
+  - **Evidence:** [experiments/benchmark_fusion_methods.py](experiments/benchmark_fusion_methods.py), [tests/test_validation_suite.py#L170-L207](tests/test_validation_suite.py#L170-L207)
+
 **Deliverable:** v0.2.0 - Working Kalman fusion on toy domains
 
 ---

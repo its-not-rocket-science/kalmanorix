@@ -35,6 +35,35 @@ Only the routing efficiency claim is currently validated. The Kalman-fusion accu
 - Out-of-domain robustness not yet validated
 - See [ROADMAP.md](ROADMAP.md) for validation timeline
 
+
+## 🔧 Recent Fixes (April 2026)
+
+The following critical bugs have been fixed:
+
+1. **Procrustes alignment transpose error** - Fixed incorrect matrix orientation that caused negative centroid similarities
+2. **Covariance scaling** - Replaced linear scaling with exponential to prevent specialist suppression
+3. **Sequential fusion** - Switched to ensemble (parallel) fusion for numerical stability
+4. **Result fabrication** - Removed hardcoded benchmark results; added proper statistical testing
+
+## 📊 Current Performance
+
+After fixes, the system achieves:
+- Kalman fusion vs averaging: [Awaiting benchmark - run `experiments/benchmark_fusion_methods.py`]
+- Specialists vs monolith: [Awaiting validation]
+
+## 🧪 Running Validation
+
+```bash
+# Test alignment fix
+python -m pytest tests/test_validation_suite.py -k TestProcrustesFix
+
+# Run proper benchmark
+python experiments/benchmark_fusion_methods.py
+
+# Validate covariance calibration
+python experiments/validate_covariance.py
+```
+
 ## 📋 Roadmap
 
 ```markdown
