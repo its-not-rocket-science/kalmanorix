@@ -7,12 +7,36 @@ They are intentionally lightweight and deterministic for early phases.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Callable, Iterable, List, Set
+from dataclasses import dataclass, replace
+from typing import Callable, Dict, Iterable, List, Mapping, Optional, Protocol, Set
 
 import numpy as np
 
+from .village import SEF
+
 EmbedderFn = Callable[[str], np.ndarray]
+
+
+class UncertaintyMethod(Protocol):
+    """Protocol for pluggable query-dependent uncertainty estimators."""
+
+    def __call__(self, query: str) -> float:
+        """Return sigma² for query."""
+
+
+@dataclass(frozen=True)
+class Sigma2Diagnostics:
+    """Summary diagnostics for an uncertainty method over a query set."""
+
+    n_queries: int
+    min_sigma2: float
+    max_sigma2: float
+    mean_sigma2: float
+    median_sigma2: float
+    std_sigma2: float
+    p10_sigma2: float
+    p90_sigma2: float
+    nonpositive_count: int
 
 
 @dataclass(frozen=True)
@@ -98,9 +122,7 @@ class CentroidDistanceSigma2:
         distance = 1.0 - sim  # sim in [-1, 1] => distance in [0, 2]
         uncertainty_multiplier = np.log1p(np.exp(self.beta * distance)) - np.log(2.0)
         length_norm = min(1.0, len(query.split()) / 20.0)
-        sigma2 = self.base_sigma2 * (
-            1.0 + uncertainty_multiplier + 0.2 * length_norm
-        )
+        sigma2 = self.base_sigma2 * (1.0 + uncertainty_multiplier + 0.2 * length_norm)
         return float(min(sigma2, self.base_sigma2 * 5.0))
 
     def calibrate(
@@ -182,3 +204,181 @@ class ScaledSigma2:
 
     def __call__(self, query: str) -> float:
         return float(self.base_sigma2(query) * self.scale)
+
+
+@dataclass(frozen=True)
+class EmbeddingNormSigma2:
+    """Cheap query-dependent sigma² from embedding norm / entropy-style proxy.
+
+    Heuristic: lower embedding norm implies weaker or diffuse activation and therefore
+    higher uncertainty. This method requires no retraining and one forward pass.
+    """
+
+    embed: EmbedderFn
+    base_sigma2: float = 0.2
+    alpha: float = 1.0
+    norm_floor: float = 1e-6
+    max_multiplier: float = 6.0
+
+    def __call__(self, query: str) -> float:
+        z = self.embed(query)
+        norm = float(np.linalg.norm(z))
+        safe_norm = max(norm, self.norm_floor)
+        growth = np.log1p(self.alpha / safe_norm)
+        sigma2 = self.base_sigma2 * (1.0 + growth)
+        sigma2 = min(sigma2, self.base_sigma2 * self.max_multiplier)
+        return float(max(sigma2, 1e-12))
+
+
+@dataclass(frozen=True)
+class SimilarityToCentroidSigma2:
+    """Sigma² from cosine distance to specialist centroid.
+
+    Similarity near 1.0 -> low uncertainty; farther queries -> higher uncertainty.
+    """
+
+    embed: EmbedderFn
+    centroid: np.ndarray
+    base_sigma2: float = 0.2
+    slope: float = 2.0
+    max_multiplier: float = 8.0
+
+    @classmethod
+    def from_calibration(
+        cls,
+        *,
+        embed: EmbedderFn,
+        calibration_texts: Iterable[str],
+        base_sigma2: float = 0.2,
+        slope: float = 2.0,
+        max_multiplier: float = 8.0,
+    ) -> "SimilarityToCentroidSigma2":
+        embs = [embed(text) for text in calibration_texts]
+        if not embs:
+            raise ValueError("calibration_texts must not be empty")
+        centroid = np.mean(np.stack(embs, axis=0), axis=0)
+        centroid = centroid / (np.linalg.norm(centroid) + 1e-12)
+        return cls(
+            embed=embed,
+            centroid=centroid,
+            base_sigma2=base_sigma2,
+            slope=slope,
+            max_multiplier=max_multiplier,
+        )
+
+    def __call__(self, query: str) -> float:
+        z = self.embed(query)
+        z = z / (np.linalg.norm(z) + 1e-12)
+        sim = float(np.clip(z @ self.centroid, -1.0, 1.0))
+        distance = 1.0 - sim
+        sigma2 = self.base_sigma2 * (1.0 + self.slope * distance)
+        sigma2 = min(sigma2, self.base_sigma2 * self.max_multiplier)
+        return float(max(sigma2, 1e-12))
+
+
+@dataclass(frozen=True)
+class StochasticForwardSigma2:
+    """Sigma² from stochastic forward passes (e.g., dropout-enabled embedder).
+
+    The embed_stochastic callable should produce different vectors across calls when
+    stochasticity is enabled; if deterministic, uncertainty falls back to base_sigma2.
+    """
+
+    embed_stochastic: EmbedderFn
+    base_sigma2: float = 0.2
+    n_passes: int = 4
+    max_multiplier: float = 12.0
+
+    def __call__(self, query: str) -> float:
+        passes = max(int(self.n_passes), 2)
+        samples = [self.embed_stochastic(query) for _ in range(passes)]
+        stack = np.stack(samples, axis=0)
+        per_dim_var = np.var(stack, axis=0, ddof=1)
+        scalar_var = float(np.mean(np.clip(per_dim_var, 0.0, None)))
+        sigma2 = self.base_sigma2 * (1.0 + scalar_var)
+        sigma2 = min(sigma2, self.base_sigma2 * self.max_multiplier)
+        return float(max(sigma2, 1e-12))
+
+
+def apply_uncertainty_baseline_to_specialists(
+    specialists: Iterable[SEF],
+    *,
+    method: str = "embedding_norm",
+    calibration_texts_by_name: Optional[Mapping[str, Iterable[str]]] = None,
+    base_sigma2: float = 0.2,
+) -> List[SEF]:
+    """Attach a query-dependent uncertainty method across specialists.
+
+    This provides a practical baseline without retraining the base models and creates
+    a hook to later swap more advanced methods.
+    """
+    updated: List[SEF] = []
+    for sef in specialists:
+        sigma2 = build_uncertainty_method(
+            method=method,
+            embed=sef.embed,
+            base_sigma2=base_sigma2,
+            calibration_texts=(
+                calibration_texts_by_name.get(sef.name, [])
+                if calibration_texts_by_name is not None
+                else None
+            ),
+        )
+        updated.append(replace(sef, sigma2=sigma2))
+    return updated
+
+
+def build_uncertainty_method(
+    *,
+    method: str,
+    embed: EmbedderFn,
+    base_sigma2: float = 0.2,
+    calibration_texts: Optional[Iterable[str]] = None,
+) -> UncertaintyMethod:
+    """Factory hook for pluggable uncertainty estimators."""
+    normalized = method.strip().lower()
+    if normalized == "embedding_norm":
+        return EmbeddingNormSigma2(embed=embed, base_sigma2=base_sigma2)
+    if normalized == "centroid_similarity":
+        texts = list(calibration_texts or [])
+        if not texts:
+            raise ValueError(
+                "centroid_similarity requires non-empty calibration_texts."
+            )
+        return SimilarityToCentroidSigma2.from_calibration(
+            embed=embed, calibration_texts=texts, base_sigma2=base_sigma2
+        )
+    if normalized == "stochastic_forward":
+        return StochasticForwardSigma2(embed_stochastic=embed, base_sigma2=base_sigma2)
+    raise ValueError(f"Unknown uncertainty method: {method}")
+
+
+def summarize_uncertainty_distribution(
+    sigma2_fn: Callable[[str], float], queries: Iterable[str]
+) -> Sigma2Diagnostics:
+    """Compute simple diagnostics to inspect sigma² distribution."""
+    values = np.asarray([float(sigma2_fn(q)) for q in queries], dtype=np.float64)
+    if values.size == 0:
+        raise ValueError("queries must not be empty")
+    return Sigma2Diagnostics(
+        n_queries=int(values.size),
+        min_sigma2=float(np.min(values)),
+        max_sigma2=float(np.max(values)),
+        mean_sigma2=float(np.mean(values)),
+        median_sigma2=float(np.median(values)),
+        std_sigma2=float(np.std(values)),
+        p10_sigma2=float(np.percentile(values, 10)),
+        p90_sigma2=float(np.percentile(values, 90)),
+        nonpositive_count=int(np.sum(values <= 0.0)),
+    )
+
+
+def uncertainty_histogram(
+    sigma2_fn: Callable[[str], float], queries: Iterable[str], bins: int = 10
+) -> Dict[str, List[float]]:
+    """Histogram diagnostics for sigma² distribution (for quick plotting/logging)."""
+    values = np.asarray([float(sigma2_fn(q)) for q in queries], dtype=np.float64)
+    if values.size == 0:
+        raise ValueError("queries must not be empty")
+    counts, edges = np.histogram(values, bins=max(int(bins), 2))
+    return {"counts": counts.astype(float).tolist(), "bin_edges": edges.tolist()}
