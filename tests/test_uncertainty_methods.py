@@ -1,0 +1,109 @@
+"""Tests for practical query-dependent uncertainty methods and diagnostics."""
+
+from __future__ import annotations
+
+import numpy as np
+
+from kalmanorix import SEF
+from kalmanorix.uncertainty import (
+    EmbeddingNormSigma2,
+    SimilarityToCentroidSigma2,
+    StochasticForwardSigma2,
+    apply_uncertainty_baseline_to_specialists,
+    build_uncertainty_method,
+    summarize_uncertainty_distribution,
+    uncertainty_histogram,
+)
+
+
+def _toy_embed(query: str) -> np.ndarray:
+    t = query.lower()
+    if "strong" in t:
+        return np.array([3.0, 0.0], dtype=np.float64)
+    if "weak" in t:
+        return np.array([0.05, 0.0], dtype=np.float64)
+    if "tech" in t:
+        return np.array([1.0, 0.0], dtype=np.float64)
+    if "cook" in t:
+        return np.array([0.0, 1.0], dtype=np.float64)
+    return np.array([0.5, 0.5], dtype=np.float64)
+
+
+def test_embedding_norm_sigma2_is_query_dependent_and_positive() -> None:
+    sigma2 = EmbeddingNormSigma2(embed=_toy_embed, base_sigma2=0.2)
+
+    strong = sigma2("strong signal")
+    weak = sigma2("weak signal")
+
+    assert strong > 0.0
+    assert weak > 0.0
+    assert weak > strong
+
+
+def test_similarity_to_centroid_sigma2_is_lower_near_centroid() -> None:
+    sigma2 = SimilarityToCentroidSigma2.from_calibration(
+        embed=_toy_embed,
+        calibration_texts=["tech", "tech strong"],
+        base_sigma2=0.2,
+    )
+
+    near = sigma2("tech question")
+    far = sigma2("cook recipe")
+
+    assert near > 0.0
+    assert far > 0.0
+    assert near < far
+
+
+def test_stochastic_forward_sigma2_positive_and_bounded() -> None:
+    rng = np.random.default_rng(42)
+
+    def stochastic_embed(_q: str) -> np.ndarray:
+        return np.array([1.0, 0.0], dtype=np.float64) + rng.normal(0.0, 0.1, size=2)
+
+    sigma2 = StochasticForwardSigma2(
+        embed_stochastic=stochastic_embed,
+        base_sigma2=0.2,
+        n_passes=5,
+    )
+    value = sigma2("query")
+
+    assert value > 0.0
+    assert np.isfinite(value)
+
+
+def test_apply_uncertainty_baseline_to_specialists_sets_query_dependent_sigma2() -> (
+    None
+):
+    sefs = [
+        SEF(name="a", embed=_toy_embed, sigma2=1.0),
+        SEF(name="b", embed=_toy_embed, sigma2=1.0),
+    ]
+    updated = apply_uncertainty_baseline_to_specialists(sefs, method="embedding_norm")
+
+    assert len(updated) == 2
+    assert callable(updated[0].sigma2)
+    assert updated[0].sigma2_for("weak signal") > updated[0].sigma2_for("strong signal")
+
+
+def test_build_method_requires_calibration_for_centroid() -> None:
+    try:
+        build_uncertainty_method(method="centroid_similarity", embed=_toy_embed)
+        assert False, "Expected ValueError"
+    except ValueError as exc:
+        assert "calibration_texts" in str(exc)
+
+
+def test_uncertainty_diagnostics_report_well_behaved_distribution() -> None:
+    sigma2 = EmbeddingNormSigma2(embed=_toy_embed, base_sigma2=0.2)
+    queries = ["weak", "strong", "tech", "cook"]
+
+    stats = summarize_uncertainty_distribution(sigma2, queries)
+    hist = uncertainty_histogram(sigma2, queries, bins=3)
+
+    assert stats.n_queries == 4
+    assert stats.min_sigma2 > 0.0
+    assert stats.nonpositive_count == 0
+    assert stats.max_sigma2 >= stats.min_sigma2
+    assert len(hist["counts"]) == 3
+    assert len(hist["bin_edges"]) == 4
