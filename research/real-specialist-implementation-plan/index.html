@@ -12,13 +12,13 @@
         <meta name="author" content="Kalmanorix Contributors">
       
       
-        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/concepts/alignment/">
+        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/research/real-specialist-implementation-plan/">
       
       
-        <link rel="prev" href="../uncertainty-estimation/">
+        <link rel="prev" href="../results/">
       
       
-        <link rel="next" href="../../api-reference/village/">
+        <link rel="next" href="../../milestones/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Alignment - Kalmanorix</title>
+        <title>Real Specialist Implementation Plan - Kalmanorix</title>
       
     
     
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#alignment" class="md-skip">
+        <a href="#real-specialist-embedding-models-implementation-plan" class="md-skip">
           Skip to content
         </a>
       
@@ -122,7 +122,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Alignment
+              Real Specialist Implementation Plan
             
           </span>
         </div>
@@ -272,13 +272,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../kalman-fusion/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../concepts/kalman-fusion/" class="md-tabs__link">
           
   
   
@@ -354,11 +352,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../research/experiments/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../experiments/" class="md-tabs__link">
           
   
   
@@ -611,31 +611,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -653,7 +650,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -671,7 +668,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kalman-fusion/" class="md-nav__link">
+      <a href="../../concepts/kalman-fusion/" class="md-nav__link">
         
   
   
@@ -699,7 +696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../specialist-embeddings/" class="md-nav__link">
+      <a href="../../concepts/specialist-embeddings/" class="md-nav__link">
         
   
   
@@ -727,7 +724,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../uncertainty-estimation/" class="md-nav__link">
+      <a href="../../concepts/uncertainty-estimation/" class="md-nav__link">
         
   
   
@@ -752,37 +749,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Alignment
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../concepts/alignment/" class="md-nav__link">
         
   
   
@@ -798,103 +768,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-alignment-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Alignment Problem
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#orthogonal-procrustes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Orthogonal Procrustes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#anchor-set" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Anchor Set
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Implementation Steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quality-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quality Validation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-learned-alignment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future: Learned Alignment
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1598,28 +1471,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
-        
-          
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
             
   
   
@@ -1637,7 +1513,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1655,7 +1531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../research/experiments/" class="md-nav__link">
+      <a href="../experiments/" class="md-nav__link">
         
   
   
@@ -1683,7 +1559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../research/results/" class="md-nav__link">
+      <a href="../results/" class="md-nav__link">
         
   
   
@@ -1708,10 +1584,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../research/real-specialist-implementation-plan/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real Specialist Implementation Plan
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1727,6 +1630,220 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#current-codebase-constraints-scan-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current codebase constraints (scan summary)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-exact-model-choices-and-justification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Exact model choices and justification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Exact model choices and justification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-general-semantic-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. General semantic specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-biomedical-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Biomedical specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-legal-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Legal specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-code-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Code specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncertainty-sigma2-method-per-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Uncertainty (sigma²) method per specialist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-code-changes-needed-to-integrate-cleanly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Code changes needed to integrate cleanly
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) Code changes needed to integrate cleanly">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-add-typed-config-schema-for-specialists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Add typed config schema for specialists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-add-config-driven-specialist-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Add config-driven specialist factory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-register-config-loader-in-public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Register config loader in public API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-add-tests-for-config-driven-specialists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Add tests for config-driven specialists
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-config-driven-registration-no-hardcoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Config-driven registration (no hardcoding)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3) Config-driven registration (no hardcoding)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proposed-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-minimal-working-example-wiring-them-into-a-village" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Minimal working example wiring them into a Village
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollout-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollout plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1745,10 +1862,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1757,7 +1877,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_4" >
         
           
-          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="">
             
   
   
@@ -2057,10 +2177,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-alignment-problem" class="md-nav__link">
+  <a href="#current-codebase-constraints-scan-summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Alignment Problem
+        Current codebase constraints (scan summary)
       
     </span>
   </a>
@@ -2068,10 +2188,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#orthogonal-procrustes" class="md-nav__link">
+  <a href="#1-exact-model-choices-and-justification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Orthogonal Procrustes
+        1) Exact model choices and justification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Exact model choices and justification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-general-semantic-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. General semantic specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-biomedical-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Biomedical specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-legal-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Legal specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-code-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Code specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncertainty-sigma2-method-per-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Uncertainty (sigma²) method per specialist
       
     </span>
   </a>
@@ -2079,10 +2260,99 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#anchor-set" class="md-nav__link">
+  <a href="#2-code-changes-needed-to-integrate-cleanly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Anchor Set
+        2) Code changes needed to integrate cleanly
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) Code changes needed to integrate cleanly">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-add-typed-config-schema-for-specialists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Add typed config schema for specialists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-add-config-driven-specialist-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Add config-driven specialist factory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-register-config-loader-in-public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Register config loader in public API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-add-tests-for-config-driven-specialists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Add tests for config-driven specialists
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-config-driven-registration-no-hardcoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Config-driven registration (no hardcoding)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3) Config-driven registration (no hardcoding)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proposed-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-minimal-working-example-wiring-them-into-a-village" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Minimal working example wiring them into a Village
       
     </span>
   </a>
@@ -2090,43 +2360,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#implementation-steps" class="md-nav__link">
+  <a href="#rollout-plan" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Implementation Steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quality-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quality Validation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-learned-alignment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future: Learned Alignment
+        Rollout plan
       
     </span>
   </a>
@@ -2176,10 +2413,10 @@
     
     
       <li class="md-path__item">
-        <a href="../kalman-fusion/" class="md-path__link">
+        <a href="../experiments/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Concepts
+    Research
   </span>
 
         </a>
@@ -2201,41 +2438,179 @@
   
 
 
-<h1 id="alignment">Alignment<a class="headerlink" href="#alignment" title="Permanent link">&para;</a></h1>
-<p><em>TODO: Explain Procrustes alignment for unifying embedding spaces</em></p>
-<h2 id="the-alignment-problem">The Alignment Problem<a class="headerlink" href="#the-alignment-problem" title="Permanent link">&para;</a></h2>
-<p>Different specialists produce embeddings in <strong>different vector spaces</strong>. Even if both are 768‑dimensional, their axes have arbitrary orientation and scale. Directly averaging or fusing such embeddings is meaningless.</p>
-<h2 id="orthogonal-procrustes">Orthogonal Procrustes<a class="headerlink" href="#orthogonal-procrustes" title="Permanent link">&para;</a></h2>
-<p>Kalmanorix uses <strong>orthogonal Procrustes analysis</strong> to align each specialist’s space to a common reference space (usually the space of a chosen reference specialist).</p>
-<p>Given two sets of matched anchor embeddings <code>X</code> (reference) and <code>Y</code> (specialist), Procrustes finds an orthogonal matrix <code>Q</code> that minimizes:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>|| X - Y Q ||_F
-</span></code></pre></div>
-where <code>Q</code> is orthogonal (<code>QᵀQ = I</code>). This preserves distances (rigid rotation/reflection) and ensures the aligned embeddings are comparable.</p>
-<h2 id="anchor-set">Anchor Set<a class="headerlink" href="#anchor-set" title="Permanent link">&para;</a></h2>
-<p>Alignment requires a small set of <strong>anchor sentences</strong> that are embedded by all specialists. These can be:
-- General‑purpose sentences (e.g., from Wikipedia)
-- Domain‑neutral phrases
-- A mix of domain‑specific sentences (if overlapping vocabulary exists)</p>
-<h2 id="implementation-steps">Implementation Steps<a class="headerlink" href="#implementation-steps" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>Choose a reference specialist</strong> (e.g., the one with the largest domain coverage).</li>
-<li><strong>Embed anchor sentences</strong> with all specialists.</li>
-<li><strong>Compute alignment matrices</strong> <code>Q_i</code> for each non‑reference specialist.</li>
-<li><strong>Apply alignment</strong> on‑the‑fly: <code>embedding_aligned = embedding_raw @ Q_i</code>.</li>
-</ol>
-<h2 id="quality-validation">Quality Validation<a class="headerlink" href="#quality-validation" title="Permanent link">&para;</a></h2>
-<p>Alignment success can be measured by:
-- <strong>Cross‑model similarity</strong>: Average cosine similarity between aligned embeddings of the same sentence.
-- <strong>Retrieval accuracy</strong>: Whether nearest‑neighbour retrieval works across aligned spaces.</p>
-<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<h1 id="real-specialist-embedding-models-implementation-plan">Real Specialist Embedding Models: Implementation Plan<a class="headerlink" href="#real-specialist-embedding-models-implementation-plan" title="Permanent link">&para;</a></h1>
+<p>This document proposes a concrete, config-driven integration path for adding real public specialist embedding models to Kalmanorix while preserving the existing <code>SEF</code> + <code>Village</code> API.</p>
+<h2 id="current-codebase-constraints-scan-summary">Current codebase constraints (scan summary)<a class="headerlink" href="#current-codebase-constraints-scan-summary" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Procrustes assumes a <strong>linear</strong> relationship between spaces; non‑linear distortions are not corrected.</li>
-<li>Requires anchor sentences that are meaningful to all specialists (challenging for highly disjoint domains).</li>
-<li>Alignment quality degrades far from the anchor distribution.</li>
+<li><code>SEF</code> currently requires <code>name</code>, <code>embed</code>, and <code>sigma2</code>, where <code>sigma2</code> may be a constant or query-dependent callable. This already supports uncertainty hooks required for specialists.</li>
+<li><code>Village</code> is a thin container over a list of <code>SEF</code> modules and is already suitable for dynamic specialist composition.</li>
+<li><code>create_huggingface_sef(...)</code> exists and can instantiate local/public Hugging Face models, but current registration is mostly code-driven rather than YAML-driven.</li>
+<li><code>ModelRegistry</code> discovers persisted SEF artefacts from disk, but does not yet provide first-class loading from a specialist config that references public model IDs.</li>
 </ul>
-<h2 id="future-learned-alignment">Future: Learned Alignment<a class="headerlink" href="#future-learned-alignment" title="Permanent link">&para;</a></h2>
-<p>Planned research includes replacing Procrustes with contrastive learning or non‑linear alignment networks, especially for massively multilingual or cross‑modal scenarios.</p>
-<p><em>TODO: Add visualisation of before/after alignment, code example, and anchor‑set recommendations.</em></p>
+<h2 id="1-exact-model-choices-and-justification">1) Exact model choices and justification<a class="headerlink" href="#1-exact-model-choices-and-justification" title="Permanent link">&para;</a></h2>
+<p>Use <strong>four genuinely different specialists</strong> with different training data and inductive biases:</p>
+<h3 id="a-general-semantic-specialist">A. General semantic specialist<a class="headerlink" href="#a-general-semantic-specialist" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Model</strong>: <code>sentence-transformers/all-mpnet-base-v2</code></li>
+<li><strong>Domain</strong>: general semantic retrieval / web + mixed corpora</li>
+<li><strong>Why</strong>: strong general STS/retrieval baseline, robust for mixed-domain queries</li>
+<li><strong>Inductive bias</strong>: broad sentence-level semantic similarity</li>
+</ul>
+<h3 id="b-biomedical-specialist">B. Biomedical specialist<a class="headerlink" href="#b-biomedical-specialist" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Model</strong>: <code>cambridgeltl/SapBERT-from-PubMedBERT-fulltext</code></li>
+<li><strong>Domain</strong>: biomedical entities (clinical terms, UMLS-like synonyms, scientific biomedical language)</li>
+<li><strong>Why</strong>: domain-pretrained on biomedical text and medical concept synonymy</li>
+<li><strong>Inductive bias</strong>: biomedical terminology + concept-level alignment</li>
+</ul>
+<h3 id="c-legal-specialist">C. Legal specialist<a class="headerlink" href="#c-legal-specialist" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Model</strong>: <code>nlpaueb/legal-bert-base-uncased</code></li>
+<li><strong>Domain</strong>: legal/contracts/statutory text</li>
+<li><strong>Why</strong>: legal-domain BERT pretrained on legal corpora; better legal phrase semantics than general models</li>
+<li><strong>Inductive bias</strong>: legal vocabulary and long-form formal syntax</li>
+</ul>
+<h3 id="d-code-specialist">D. Code specialist<a class="headerlink" href="#d-code-specialist" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Model</strong>: <code>microsoft/codebert-base</code></li>
+<li><strong>Domain</strong>: source code + code-documentation pairs</li>
+<li><strong>Why</strong>: trained for NL-code alignment and code understanding; suitable for code search/routing</li>
+<li><strong>Inductive bias</strong>: programming-language token structure + NL↔code association</li>
+</ul>
+<blockquote>
+<p>Optional future fifth specialist: multilingual (<code>intfloat/multilingual-e5-base</code>) when cross-lingual routing is needed.</p>
+</blockquote>
+<h2 id="uncertainty-sigma2-method-per-specialist">Uncertainty (<code>sigma²</code>) method per specialist<a class="headerlink" href="#uncertainty-sigma2-method-per-specialist" title="Permanent link">&para;</a></h2>
+<p>All specialists must expose <code>sigma2_for(query)</code> through <code>SEF.sigma2</code> callable. Start with a shared heuristic:</p>
+<ul>
+<li>Compute specialist centroid from domain calibration texts.</li>
+<li>Let <code>sim = cosine(query_emb, centroid)</code>.</li>
+<li>Define <code>sigma2(query) = base_sigma2 + scale * (1 - max(sim, -1)) / 2</code>.</li>
+</ul>
+<p>This maps high in-domain similarity to lower variance and OOD inputs to higher variance.</p>
+<p>Initial defaults:
+- General: <code>base_sigma2=0.06</code>, <code>scale=0.20</code>
+- Biomedical: <code>base_sigma2=0.05</code>, <code>scale=0.30</code>
+- Legal: <code>base_sigma2=0.05</code>, <code>scale=0.28</code>
+- Code: <code>base_sigma2=0.04</code>, <code>scale=0.32</code></p>
+<h2 id="2-code-changes-needed-to-integrate-cleanly">2) Code changes needed to integrate cleanly<a class="headerlink" href="#2-code-changes-needed-to-integrate-cleanly" title="Permanent link">&para;</a></h2>
+<h3 id="21-add-typed-config-schema-for-specialists">2.1 Add typed config schema for specialists<a class="headerlink" href="#21-add-typed-config-schema-for-specialists" title="Permanent link">&para;</a></h3>
+<p><strong>New file</strong>: <code>src/kalmanorix/specialist_config.py</code></p>
+<p>Add dataclasses:
+- <code>UncertaintyConfig(method, base_sigma2, scale, min_sigma2, max_sigma2)</code>
+- <code>SpecialistConfig(name, domain, provider, model_name_or_path, pooling, normalize, device, calibration_texts_path, uncertainty, metadata)</code>
+- <code>SpecialistRegistryConfig(specialists: list[SpecialistConfig])</code></p>
+<p>Include:
+- <code>from_yaml(path)</code> / <code>to_yaml(path)</code>
+- validation for unique names, supported providers, and required domain labels.</p>
+<h3 id="22-add-config-driven-specialist-factory">2.2 Add config-driven specialist factory<a class="headerlink" href="#22-add-config-driven-specialist-factory" title="Permanent link">&para;</a></h3>
+<p><strong>New file</strong>: <code>src/kalmanorix/specialist_factory.py</code></p>
+<p>Core functions:
+- <code>build_sigma2_callable(embedder, uncertainty_cfg, calibration_texts)</code>
+- <code>build_sef_from_config(spec_cfg) -&gt; SEF</code>
+- <code>build_village_from_config(path_or_config) -&gt; Village</code></p>
+<p>Implementation notes:
+- For <code>provider: huggingface</code>, call existing <code>create_huggingface_sef(...)</code>.
+- Replace constant <code>sigma2</code> with a callable generated from calibration centroid.
+- Attach <code>meta</code> fields: <code>{domain, model_id, provider, uncertainty_method}</code>.
+- Optionally call <code>.with_domain_centroid(calibration_texts)</code> for semantic routing.</p>
+<h3 id="23-register-config-loader-in-public-api">2.3 Register config loader in public API<a class="headerlink" href="#23-register-config-loader-in-public-api" title="Permanent link">&para;</a></h3>
+<p><strong>Modify</strong>: <code>src/kalmanorix/__init__.py</code></p>
+<p>Export:
+- <code>SpecialistConfig</code>
+- <code>SpecialistRegistryConfig</code>
+- <code>build_village_from_config</code></p>
+<h3 id="24-add-tests-for-config-driven-specialists">2.4 Add tests for config-driven specialists<a class="headerlink" href="#24-add-tests-for-config-driven-specialists" title="Permanent link">&para;</a></h3>
+<p><strong>New tests</strong>:
+- <code>tests/test_specialist_config.py</code>
+  - YAML parsing/validation
+  - duplicate specialist name rejection
+- <code>tests/e2e/test_real_specialist_registry.py</code>
+  - build 2-4 mocked specialists from config
+  - assert every specialist has callable <code>sigma2</code> and non-empty domain metadata</p>
+<h2 id="3-config-driven-registration-no-hardcoding">3) Config-driven registration (no hardcoding)<a class="headerlink" href="#3-config-driven-registration-no-hardcoding" title="Permanent link">&para;</a></h2>
+<h3 id="proposed-yaml">Proposed YAML<a class="headerlink" href="#proposed-yaml" title="Permanent link">&para;</a></h3>
+<p><strong>New file</strong>: <code>examples/configs/real_specialists.yaml</code></p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">specialists</span><span class="p">:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">general_mpnet</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">general</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">model_name_or_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sentence-transformers/all-mpnet-base-v2</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">pooling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mean</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">normalize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpu</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">calibration_texts_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">examples/data/calibration/general.txt</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">uncertainty</span><span class="p">:</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">centroid_distance</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="nt">base_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.06</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="nt">scale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.20</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="nt">min_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.03</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">      </span><span class="nt">max_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.60</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">biomedical_sapbert</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">biomedical</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nt">model_name_or_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cambridgeltl/SapBERT-from-PubMedBERT-fulltext</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="nt">pooling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mean</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="nt">normalize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpu</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="nt">calibration_texts_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">examples/data/calibration/biomedical.txt</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="nt">uncertainty</span><span class="p">:</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">centroid_distance</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">      </span><span class="nt">base_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">      </span><span class="nt">scale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.30</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">      </span><span class="nt">min_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.03</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">      </span><span class="nt">max_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.70</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">legal_bert</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">legal</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">    </span><span class="nt">model_name_or_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nlpaueb/legal-bert-base-uncased</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="nt">pooling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mean</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nt">normalize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpu</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="nt">calibration_texts_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">examples/data/calibration/legal.txt</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="nt">uncertainty</span><span class="p">:</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">centroid_distance</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">      </span><span class="nt">base_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">      </span><span class="nt">scale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.28</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">      </span><span class="nt">min_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.03</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">      </span><span class="nt">max_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.65</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">code_codebert</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">    </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">code</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">huggingface</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">    </span><span class="nt">model_name_or_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">microsoft/codebert-base</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">    </span><span class="nt">pooling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mean</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">    </span><span class="nt">normalize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="w">    </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpu</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a><span class="w">    </span><span class="nt">calibration_texts_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">examples/data/calibration/code.txt</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="w">    </span><span class="nt">uncertainty</span><span class="p">:</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">centroid_distance</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="w">      </span><span class="nt">base_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.04</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="w">      </span><span class="nt">scale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.32</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a><span class="w">      </span><span class="nt">min_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.02</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="w">      </span><span class="nt">max_sigma2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.75</span>
+</span></code></pre></div>
+<h2 id="4-minimal-working-example-wiring-them-into-a-village">4) Minimal working example wiring them into a Village<a class="headerlink" href="#4-minimal-working-example-wiring-them-into-a-village" title="Permanent link">&para;</a></h2>
+<p><strong>New file</strong>: <code>examples/real_specialists_village_demo.py</code></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kalmanorix</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_village_from_config</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">village</span> <span class="o">=</span> <span class="n">build_village_from_config</span><span class="p">(</span><span class="s2">&quot;examples/configs/real_specialists.yaml&quot;</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nb">print</span><span class="p">(</span><span class="n">village</span><span class="o">.</span><span class="n">list</span><span class="p">())</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">village</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">q</span> <span class="o">=</span> <span class="s2">&quot;Summarize indemnification clause for software license.&quot;</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;domain&quot;</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">sigma2_for</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+</span></code></pre></div>
+<p>This produces a <code>Village</code> with four real public specialists and per-query uncertainty, with zero hardcoded model IDs in Python.</p>
+<h2 id="rollout-plan">Rollout plan<a class="headerlink" href="#rollout-plan" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Land config schema + loader + tests with one HF specialist fixture.</li>
+<li>Add 4-specialist example config and docs.</li>
+<li>Add optional cache/offline notes for model weights.</li>
+<li>Add benchmark script comparing specialist routing vs general-only baseline.</li>
+</ol>
 
 
 
