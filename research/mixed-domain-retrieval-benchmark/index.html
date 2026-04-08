@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/research/mixed-domain-retrieval-benchmark/">
       
       
+        <link rel="prev" href="../results/">
+      
+      
+        <link rel="next" href="../real-specialist-implementation-plan/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Mixed-Domain Retrieval Benchmark (Real-Data, Reproducible) - Kalmanorix</title>
+        <title>Mixed-Domain Retrieval Benchmark - Kalmanorix</title>
       
     
     
@@ -118,7 +122,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Mixed-Domain Retrieval Benchmark (Real-Data, Reproducible)
+              Mixed-Domain Retrieval Benchmark
             
           </span>
         </div>
@@ -348,10 +352,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../experiments/" class="md-tabs__link">
           
   
@@ -1465,28 +1471,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
-        
-          
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
             
   
   
@@ -1504,7 +1513,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1575,6 +1584,270 @@
                 
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mixed-Domain Retrieval Benchmark
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mixed-Domain Retrieval Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-exact-datasets-to-use-links-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Exact datasets to use (links + licenses)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Exact datasets to use (links + licenses)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#version-pinning-required-for-reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version pinning (required for reproducibility)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-how-to-unify-them-into-a-single-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) How to unify them into a single benchmark
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) How to unify them into a single benchmark">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canonical-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluation-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evaluation modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-how-to-label-domain-membership-per-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) How to label domain membership per query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-data-preprocessing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Data preprocessing pipeline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Data preprocessing pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-final-dataset-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Final dataset schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5) Final dataset schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#corpusparquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        corpus.parquet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queriesparquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        queries.parquet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qrelsparquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qrels.parquet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#splitsparquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        splits.parquet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmark_manifestjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark_manifest.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-benchmark-is-suitable-for-kalmanorix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this benchmark is suitable for Kalmanorix
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
@@ -1612,19 +1885,22 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_4" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_5" >
         
           
-          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="">
             
   
   
@@ -1642,8 +1918,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2129,6 +2405,46 @@
 
   
 
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../experiments/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Research
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
 
               
               <article class="md-content__inner md-typeset">
