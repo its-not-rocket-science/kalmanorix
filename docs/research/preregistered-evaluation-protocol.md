@@ -2,6 +2,8 @@
 
 This document is the **pre-experiment contract** for benchmark evaluation. It must be finalized before running experiments and must not be changed during experiment execution.
 
+For pairwise inference rules (paired tests, bootstrap confidence intervals, multiple-comparison correction, and anti-p-hacking clauses for method comparisons), see [Statistical Comparison Framework](statistical-comparison-framework.md).
+
 ## 1) Scope and Locking
 
 - **Protocol ID:** `preregistered_eval_v1`
