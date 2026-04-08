@@ -1,0 +1,60 @@
+specialists:
+  - name: general_mpnet
+    domain: general
+    provider: huggingface
+    model_name_or_path: sentence-transformers/all-mpnet-base-v2
+    pooling: mean
+    normalize: true
+    device: cpu
+    calibration_texts_path: examples/data/calibration/general.txt
+    uncertainty:
+      method: centroid_distance
+      base_sigma2: 0.06
+      scale: 0.20
+      min_sigma2: 0.03
+      max_sigma2: 0.60
+
+  - name: biomedical_sapbert
+    domain: biomedical
+    provider: huggingface
+    model_name_or_path: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
+    pooling: mean
+    normalize: true
+    device: cpu
+    calibration_texts_path: examples/data/calibration/biomedical.txt
+    uncertainty:
+      method: centroid_distance
+      base_sigma2: 0.05
+      scale: 0.30
+      min_sigma2: 0.03
+      max_sigma2: 0.70
+
+  - name: legal_bert
+    domain: legal
+    provider: huggingface
+    model_name_or_path: nlpaueb/legal-bert-base-uncased
+    pooling: mean
+    normalize: true
+    device: cpu
+    calibration_texts_path: examples/data/calibration/legal.txt
+    uncertainty:
+      method: centroid_distance
+      base_sigma2: 0.05
+      scale: 0.28
+      min_sigma2: 0.03
+      max_sigma2: 0.65
+
+  - name: code_codebert
+    domain: code
+    provider: huggingface
+    model_name_or_path: microsoft/codebert-base
+    pooling: mean
+    normalize: true
+    device: cpu
+    calibration_texts_path: examples/data/calibration/code.txt
+    uncertainty:
+      method: centroid_distance
+      base_sigma2: 0.04
+      scale: 0.32
+      min_sigma2: 0.02
+      max_sigma2: 0.75
