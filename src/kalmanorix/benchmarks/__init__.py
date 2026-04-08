@@ -9,6 +9,11 @@ from .fusion_baselines import (
     run_experiment,
 )
 from .mixed_domain import build_mixed_domain_benchmark, main
+from .evaluation_protocol import (
+    EvaluationReport,
+    QueryRanking,
+    evaluate_locked_protocol,
+)
 
 __all__ = [
     "EmbeddingDataset",
@@ -19,4 +24,7 @@ __all__ = [
     "run_experiment",
     "build_mixed_domain_benchmark",
     "main",
+    "QueryRanking",
+    "EvaluationReport",
+    "evaluate_locked_protocol",
 ]
