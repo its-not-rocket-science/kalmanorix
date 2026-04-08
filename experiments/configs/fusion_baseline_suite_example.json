@@ -1,0 +1,14 @@
+{
+  "dataset": {
+    "path": "results/fusion_baseline_dataset.json"
+  },
+  "strategies": [
+    {"type": "oracle_single_best"},
+    {"type": "single_general_purpose", "model_name": "general"},
+    {"type": "mean_pooling"},
+    {"type": "weighted_mean", "weights": {"general": 0.5, "legal": 0.3, "medical": 0.2}},
+    {"type": "router_only"},
+    {"type": "topk_specialist_mean", "top_k": 2},
+    {"type": "learned_linear_combination", "ridge_lambda": 0.001}
+  ]
+}
