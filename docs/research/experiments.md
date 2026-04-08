@@ -4,6 +4,10 @@
 
 This section describes the experimental setup used to test the core Kalmanorix hypotheses (H1, H2) and evaluate fusion efficiency.
 
+## Mixed-domain benchmark specification
+
+For the concrete real-data benchmark design (datasets, preprocessing, schema, versioning), see [Mixed-Domain Retrieval Benchmark](mixed-domain-retrieval-benchmark.md).
+
 ## Hypothesis 1 (H1): Specialists vs Monolith
 
 **Claim**: A fused ensemble of domain specialists outperforms a monolithic model trained on the same total compute budget.
