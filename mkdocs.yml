@@ -145,6 +145,7 @@ nav:
     - Experiments: research/experiments.md
     - Results: research/results.md
     - Preregistered Evaluation Protocol: research/preregistered-evaluation-protocol.md
+    - Statistical Comparison Framework: research/statistical-comparison-framework.md
     - Mixed-Domain Retrieval Benchmark: research/mixed-domain-retrieval-benchmark.md
     - Real Specialist Implementation Plan: research/real-specialist-implementation-plan.md
     - Milestones:
