@@ -12,13 +12,9 @@
         <meta name="author" content="Kalmanorix Contributors">
       
       
-        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/research/experiments/">
+        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/research/mixed-domain-retrieval-benchmark/">
       
       
-        <link rel="prev" href="../../examples/cross-lingual-fusion/">
-      
-      
-        <link rel="next" href="../results/">
       
       
         
@@ -29,7 +25,7 @@
     
     
       
-        <title>Experiments - Kalmanorix</title>
+        <title>Mixed-Domain Retrieval Benchmark (Real-Data, Reproducible) - Kalmanorix</title>
       
     
     
@@ -84,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#experiments" class="md-skip">
+        <a href="#mixed-domain-retrieval-benchmark-real-data-reproducible" class="md-skip">
           Skip to content
         </a>
       
@@ -122,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Experiments
+              Mixed-Domain Retrieval Benchmark (Real-Data, Reproducible)
             
           </span>
         </div>
@@ -352,13 +348,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../experiments/" class="md-tabs__link">
           
   
   
@@ -1471,31 +1465,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
             
   
   
@@ -1513,7 +1504,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1528,37 +1519,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../experiments/" class="md-nav__link">
         
   
   
@@ -1574,253 +1538,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#mixed-domain-benchmark-specification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mixed-domain benchmark specification
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hypothesis-1-h1-specialists-vs-monolith" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Hypothesis 1 (H1): Specialists vs Monolith
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Hypothesis 1 (H1): Specialists vs Monolith">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dataset" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dataset
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#models" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Models
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#training-compute-equivalence" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Training Compute Equivalence
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#evaluation-metric" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Evaluation Metric
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Results
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hypothesis-2-h2-uncertainty-robustness" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Hypothesis 2 (H2): Uncertainty Robustness
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Hypothesis 2 (H2): Uncertainty Robustness">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#outofdomain-queries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Out‑of‑Domain Queries
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#baselines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Baselines
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#metric" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Metric
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#efficiency-benchmarking" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Efficiency Benchmarking
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Efficiency Benchmarking">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#flops-measurement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        FLOPs Measurement
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#memory-footprint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Memory Footprint
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#latency-profiling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Latency Profiling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#semantic-routing-efficiency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Semantic Routing Efficiency
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#experimental-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Experimental Code
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reproducibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reproducibility
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-experiments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future Experiments
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1895,13 +1612,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -1910,7 +1624,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_4" >
         
           
-          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
             
   
   
@@ -2210,77 +1924,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#mixed-domain-benchmark-specification" class="md-nav__link">
+  <a href="#1-exact-datasets-to-use-links-licenses" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mixed-domain benchmark specification
+        1) Exact datasets to use (links + licenses)
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hypothesis-1-h1-specialists-vs-monolith" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Hypothesis 1 (H1): Specialists vs Monolith
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Hypothesis 1 (H1): Specialists vs Monolith">
+    <nav class="md-nav" aria-label="1) Exact datasets to use (links + licenses)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#dataset" class="md-nav__link">
+  <a href="#version-pinning-required-for-reproducibility" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dataset
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#models" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Models
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#training-compute-equivalence" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Training Compute Equivalence
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#evaluation-metric" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Evaluation Metric
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Results
+        Version pinning (required for reproducibility)
       
     </span>
   </a>
@@ -2293,22 +1952,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#hypothesis-2-h2-uncertainty-robustness" class="md-nav__link">
+  <a href="#2-how-to-unify-them-into-a-single-benchmark" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Hypothesis 2 (H2): Uncertainty Robustness
+        2) How to unify them into a single benchmark
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Hypothesis 2 (H2): Uncertainty Robustness">
+    <nav class="md-nav" aria-label="2) How to unify them into a single benchmark">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#outofdomain-queries" class="md-nav__link">
+  <a href="#canonical-approach" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Out‑of‑Domain Queries
+        Canonical approach
       
     </span>
   </a>
@@ -2316,21 +1975,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#baselines" class="md-nav__link">
+  <a href="#evaluation-modes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Baselines
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#metric" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Metric
+        Evaluation modes
       
     </span>
   </a>
@@ -2343,55 +1991,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#efficiency-benchmarking" class="md-nav__link">
+  <a href="#3-how-to-label-domain-membership-per-query" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Efficiency Benchmarking
+        3) How to label domain membership per query
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Efficiency Benchmarking">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-data-preprocessing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Data preprocessing pipeline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Data preprocessing pipeline">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#flops-measurement" class="md-nav__link">
+  <a href="#pipeline-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        FLOPs Measurement
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#memory-footprint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Memory Footprint
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#latency-profiling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Latency Profiling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#semantic-routing-efficiency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Semantic Routing Efficiency
+        Pipeline steps
       
     </span>
   </a>
@@ -2404,32 +2030,82 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#experimental-code" class="md-nav__link">
+  <a href="#5-final-dataset-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Experimental Code
+        5) Final dataset schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5) Final dataset schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#corpusparquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        corpus.parquet
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#reproducibility" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#queriesparquet" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reproducibility
+        queries.parquet
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#future-experiments" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#qrelsparquet" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Future Experiments
+        qrels.parquet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#splitsparquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        splits.parquet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmark_manifestjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark_manifest.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-benchmark-is-suitable-for-kalmanorix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this benchmark is suitable for Kalmanorix
       
     </span>
   </a>
@@ -2454,46 +2130,6 @@
   
 
 
-  <nav class="md-path" aria-label="Navigation" >
-    <ol class="md-path__list">
-      
-        
-  
-  
-    <li class="md-path__item">
-      <a href="../.." class="md-path__link">
-        
-  <span class="md-ellipsis">
-    Home
-  </span>
-
-      </a>
-    </li>
-  
-
-      
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="./" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Research
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-    </ol>
-  </nav>
-
               
               <article class="md-content__inner md-typeset">
                 
@@ -2504,77 +2140,193 @@
   
 
 
-<h1 id="experiments">Experiments<a class="headerlink" href="#experiments" title="Permanent link">&para;</a></h1>
-<p><em>TODO: Document the experimental methodology and benchmarks used to validate Kalmanorix hypotheses.</em></p>
-<p>This section describes the experimental setup used to test the core Kalmanorix hypotheses (H1, H2) and evaluate fusion efficiency.</p>
-<h2 id="mixed-domain-benchmark-specification">Mixed-domain benchmark specification<a class="headerlink" href="#mixed-domain-benchmark-specification" title="Permanent link">&para;</a></h2>
-<p>For the concrete real-data benchmark design (datasets, preprocessing, schema, versioning), see <a href="../mixed-domain-retrieval-benchmark/">Mixed-Domain Retrieval Benchmark</a>.</p>
-<h2 id="hypothesis-1-h1-specialists-vs-monolith">Hypothesis 1 (H1): Specialists vs Monolith<a class="headerlink" href="#hypothesis-1-h1-specialists-vs-monolith" title="Permanent link">&para;</a></h2>
-<p><strong>Claim</strong>: A fused ensemble of domain specialists outperforms a monolithic model trained on the same total compute budget.</p>
-<h3 id="dataset">Dataset<a class="headerlink" href="#dataset" title="Permanent link">&para;</a></h3>
+<h1 id="mixed-domain-retrieval-benchmark-real-data-reproducible">Mixed-Domain Retrieval Benchmark (Real-Data, Reproducible)<a class="headerlink" href="#mixed-domain-retrieval-benchmark-real-data-reproducible" title="Permanent link">&para;</a></h1>
+<p>This benchmark is designed for <strong>Kalmanorix retrieval/fusion evaluation</strong> with real corpora and query→relevance labels.</p>
+<h2 id="1-exact-datasets-to-use-links-licenses">1) Exact datasets to use (links + licenses)<a class="headerlink" href="#1-exact-datasets-to-use-links-licenses" title="Permanent link">&para;</a></h2>
+<p>Use three BEIR tasks that are already structured as <code>(corpus, queries, qrels)</code> and represent distinct domains:</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Dataset</th>
+<th>Why it fits</th>
+<th>Link</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>General QA</td>
+<td><strong>BEIR / NQ</strong> (Natural Questions retrieval split)</td>
+<td>Open-domain QA over Wikipedia-scale corpus.</td>
+<td>https://huggingface.co/datasets/BeIR/nq</td>
+<td><code>cc-by-sa-4.0</code> (as published on the dataset card)</td>
+</tr>
+<tr>
+<td>Biomedical / Scientific</td>
+<td><strong>BEIR / SciFact</strong></td>
+<td>Scientific claim verification retrieval (biomed-heavy literature).</td>
+<td>https://huggingface.co/datasets/BeIR/scifact</td>
+<td><code>cc-by-4.0</code> (as published on the dataset card)</td>
+</tr>
+<tr>
+<td>Finance</td>
+<td><strong>BEIR / FiQA</strong></td>
+<td>Financial question answering / retrieval over financial text.</td>
+<td>https://huggingface.co/datasets/BeIR/fiqa</td>
+<td><code>cc-by-nc-4.0</code> (as published on the dataset card)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="version-pinning-required-for-reproducibility">Version pinning (required for reproducibility)<a class="headerlink" href="#version-pinning-required-for-reproducibility" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Medical domain</strong>: PubMed abstracts (10 000 sentences)</li>
-<li><strong>Legal domain</strong>: Court opinions from Caselaw Access Project (10 000 sentences)</li>
-<li><strong>Mixed test set</strong>: 2 000 sentences with equal mix of medical, legal, and hybrid topics.</li>
+<li>Pin Python dependencies in <code>requirements-benchmark.txt</code> (or equivalent):</li>
+<li><code>datasets==2.19.0</code></li>
+<li><code>ir-datasets==0.5.9</code></li>
+<li><code>pyarrow==15.0.2</code></li>
+<li>Create <code>benchmark_manifest.json</code> with:</li>
+<li>dataset name (<code>BeIR/nq</code>, <code>BeIR/scifact</code>, <code>BeIR/fiqa</code>)</li>
+<li>download timestamp (UTC)</li>
+<li>source URL</li>
+<li>file checksums (<code>sha256</code>) for every downloaded shard/file</li>
+<li>row counts for corpus/queries/qrels</li>
+<li>Treat that manifest as the benchmark version record (e.g., <code>v1.0.0</code>).</li>
 </ul>
-<h3 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h3>
+<p>This gives deterministic replay even if upstream hosting moves.</p>
+<hr />
+<h2 id="2-how-to-unify-them-into-a-single-benchmark">2) How to unify them into a single benchmark<a class="headerlink" href="#2-how-to-unify-them-into-a-single-benchmark" title="Permanent link">&para;</a></h2>
+<h3 id="canonical-approach">Canonical approach<a class="headerlink" href="#canonical-approach" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Load each BEIR subset into a canonical schema:</li>
+<li><code>corpus(doc_id, title, text)</code></li>
+<li><code>queries(query_id, text)</code></li>
+<li><code>qrels(query_id, doc_id, relevance)</code></li>
+<li>Namespace all IDs to avoid collisions:</li>
+<li><code>nq:doc123</code>, <code>scifact:doc55</code>, <code>fiqa:doc901</code></li>
+<li><code>nq:q12</code>, <code>scifact:q7</code>, <code>fiqa:q3</code></li>
+<li>Concatenate corpora into one <strong>global corpus</strong>.</li>
+<li>Concatenate queries into one <strong>global query table</strong>.</li>
+<li>Concatenate qrels unchanged except for namespaced IDs.</li>
+<li>Keep one split file per domain (e.g., BEIR test split), then publish a global split map:</li>
+<li><code>split=eval_mixed_v1</code></li>
+<li>optionally domain-balanced micro-splits (e.g., 1k queries/domain).</li>
+</ol>
+<h3 id="evaluation-modes">Evaluation modes<a class="headerlink" href="#evaluation-modes" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Specialists</strong>: Two Sentence‑Transformer models fine‑tuned on medical and legal data separately.</li>
-<li><strong>Monolith</strong>: One Sentence‑Transformer model fine‑tuned on the combined medical+legal dataset (same total training steps).</li>
+<li><strong>Mixed retrieval</strong>: retrieve over the full combined corpus.</li>
+<li><strong>Domain-aware slice metrics</strong>: compute nDCG@10/Recall@k by domain label.</li>
+<li><strong>Calibration slice</strong>: compare in-domain vs cross-domain confusion for routed specialists.</li>
 </ul>
-<h3 id="training-compute-equivalence">Training Compute Equivalence<a class="headerlink" href="#training-compute-equivalence" title="Permanent link">&para;</a></h3>
-<p>Total training FLOPs for specialists = FLOPs for monolith. This ensures fair comparison.</p>
-<h3 id="evaluation-metric">Evaluation Metric<a class="headerlink" href="#evaluation-metric" title="Permanent link">&para;</a></h3>
-<p><strong>Recall@k</strong> on a mixed‑domain retrieval task: given a query, find the most semantically similar sentences in a corpus containing both medical and legal texts.</p>
-<h3 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h3>
-<p><em>See <a href="../results/">Results</a> for detailed numbers.</em></p>
-<h2 id="hypothesis-2-h2-uncertainty-robustness">Hypothesis 2 (H2): Uncertainty Robustness<a class="headerlink" href="#hypothesis-2-h2-uncertainty-robustness" title="Permanent link">&para;</a></h2>
-<p><strong>Claim</strong>: Kalman fusion (uncertainty‑weighted) shows smaller performance drop on out‑of‑domain queries compared to naive averaging.</p>
-<h3 id="outofdomain-queries">Out‑of‑Domain Queries<a class="headerlink" href="#outofdomain-queries" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="3-how-to-label-domain-membership-per-query">3) How to label domain membership per query<a class="headerlink" href="#3-how-to-label-domain-membership-per-query" title="Permanent link">&para;</a></h2>
+<p>Add explicit domain metadata at query level:</p>
 <ul>
-<li><strong>Financial queries</strong>: Sentences from SEC filings and earnings reports (domain unseen during training).</li>
-<li><strong>Scientific queries</strong>: Abstracts from arXiv CS papers.</li>
+<li><code>domain</code>: one of <code>{general_qa, biomedical, finance}</code></li>
+<li><code>source_dataset</code>: one of <code>{beir_nq, beir_scifact, beir_fiqa}</code></li>
+<li><code>domain_id</code>: integer mapping for model input convenience (e.g., <code>0,1,2</code>)</li>
 </ul>
-<h3 id="baselines">Baselines<a class="headerlink" href="#baselines" title="Permanent link">&para;</a></h3>
+<p>Rule is deterministic:
+- all queries from <code>BeIR/nq</code> → <code>general_qa</code>
+- all queries from <code>BeIR/scifact</code> → <code>biomedical</code>
+- all queries from <code>BeIR/fiqa</code> → <code>finance</code></p>
+<p>No classifier needed; labels are inherited from source dataset identity.</p>
+<hr />
+<h2 id="4-data-preprocessing-pipeline">4) Data preprocessing pipeline<a class="headerlink" href="#4-data-preprocessing-pipeline" title="Permanent link">&para;</a></h2>
+<p>Use a single reproducible pipeline script (e.g., <code>scripts/build_mixed_benchmark.py</code>).</p>
+<h3 id="pipeline-steps">Pipeline steps<a class="headerlink" href="#pipeline-steps" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Fetch</strong></li>
+<li>Download each dataset split via Hugging Face <code>datasets</code>.</li>
+<li><strong>Normalize text</strong></li>
+<li>Unicode NFKC normalization</li>
+<li>collapse repeated whitespace</li>
+<li>strip null bytes/control chars</li>
+<li><strong>Canonicalize fields</strong></li>
+<li>missing titles → empty string</li>
+<li>document body from <code>text</code></li>
+<li><strong>Namespace IDs</strong></li>
+<li>prefix all query/doc IDs by dataset key</li>
+<li><strong>Filter invalid rows</strong></li>
+<li>drop empty queries</li>
+<li>drop qrels pointing to missing docs/queries</li>
+<li><strong>Deduplicate exact duplicates</strong></li>
+<li>dedup docs by <code>(title, text)</code> hash <em>within each source</em></li>
+<li>maintain <code>duplicate_of</code> mapping for auditability</li>
+<li><strong>Assemble global artifacts</strong></li>
+<li>write <code>corpus.parquet</code>, <code>queries.parquet</code>, <code>qrels.parquet</code></li>
+<li>write <code>benchmark_manifest.json</code></li>
+<li><strong>Validate constraints</strong></li>
+<li>every query has ≥1 relevant document</li>
+<li>every qrel doc exists in corpus</li>
+<li>no ID collisions</li>
+<li><strong>Freeze version</strong></li>
+<li>compute final artifact checksums</li>
+<li>tag benchmark release (e.g., <code>mixed_beir_v1.0.0</code>)</li>
+</ol>
+<hr />
+<h2 id="5-final-dataset-schema">5) Final dataset schema<a class="headerlink" href="#5-final-dataset-schema" title="Permanent link">&para;</a></h2>
+<p>Recommended folder structure:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>benchmarks/mixed_beir_v1/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  corpus.parquet
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  queries.parquet
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  qrels.parquet
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  splits.parquet
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  benchmark_manifest.json
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  LICENSES/
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    beir_nq_LICENSE.txt
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    beir_scifact_LICENSE.txt
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    beir_fiqa_LICENSE.txt
+</span></code></pre></div>
+<h3 id="corpusparquet"><code>corpus.parquet</code><a class="headerlink" href="#corpusparquet" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>MeanFuser</code> (uniform averaging)</li>
-<li><code>KalmanorixFuser</code> (diagonal covariance)</li>
-<li><code>DiagonalKalmanFuser</code> (scalar variance)</li>
-<li><code>LearnedGateFuser</code> (learned gating)</li>
+<li><code>doc_id: string</code> (namespaced, unique)</li>
+<li><code>source_doc_id: string</code></li>
+<li><code>source_dataset: string</code></li>
+<li><code>domain: string</code></li>
+<li><code>title: string</code></li>
+<li><code>text: string</code></li>
+<li><code>text_hash: string</code> (sha256 of normalized title+text)</li>
 </ul>
-<h3 id="metric">Metric<a class="headerlink" href="#metric" title="Permanent link">&para;</a></h3>
-<p><strong>Relative performance drop</strong>: <code>(accuracy_on_indomain - accuracy_on_ood) / accuracy_on_indomain</code>. Lower drop is better.</p>
-<h2 id="efficiency-benchmarking">Efficiency Benchmarking<a class="headerlink" href="#efficiency-benchmarking" title="Permanent link">&para;</a></h2>
-<h3 id="flops-measurement">FLOPs Measurement<a class="headerlink" href="#flops-measurement" title="Permanent link">&para;</a></h3>
-<p>Count floating‑point operations for:
-- Embedding a query with each specialist.
-- Fusion computation (Kalman update).
-- Routing overhead (centroid similarity computation).</p>
-<h3 id="memory-footprint">Memory Footprint<a class="headerlink" href="#memory-footprint" title="Permanent link">&para;</a></h3>
-<p>Measure peak GPU/CPU memory when loading 1–20 specialists.</p>
-<h3 id="latency-profiling">Latency Profiling<a class="headerlink" href="#latency-profiling" title="Permanent link">&para;</a></h3>
-<p>End‑to‑end latency (query → fused embedding) across specialist counts, with and without semantic routing.</p>
-<h3 id="semantic-routing-efficiency">Semantic Routing Efficiency<a class="headerlink" href="#semantic-routing-efficiency" title="Permanent link">&para;</a></h3>
-<p><strong>Selection ratio</strong>: <code>(specialists selected) / (specialists loaded)</code>. Lower is better (more efficient).</p>
-<p><strong>FLOPs reduction</strong>: <code>1 - (FLOPs_with_routing / FLOPs_without_routing)</code>.</p>
-<h2 id="experimental-code">Experimental Code<a class="headerlink" href="#experimental-code" title="Permanent link">&para;</a></h2>
-<p>The experiments are implemented in the <code>experiments/</code> directory:</p>
+<h3 id="queriesparquet"><code>queries.parquet</code><a class="headerlink" href="#queriesparquet" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>run_milestone_2_1.py</code> – H1 test (specialists vs monolith).</li>
-<li><code>train_specialists_st.py</code> – Fine‑tune specialist Sentence‑Transformers.</li>
-<li><code>train_monolith.py</code> – Fine‑tune monolithic model.</li>
-<li><code>generate_test_set.py</code> – Create mixed‑domain test sets.</li>
-<li><code>efficiency_benchmark.py</code> – FLOPs, memory, latency measurements.</li>
+<li><code>query_id: string</code> (namespaced, unique)</li>
+<li><code>source_query_id: string</code></li>
+<li><code>source_dataset: string</code></li>
+<li><code>domain: string</code></li>
+<li><code>domain_id: int8</code></li>
+<li><code>query_text: string</code></li>
+<li><code>split: string</code> (e.g., <code>eval_mixed_v1</code>)</li>
 </ul>
-<h2 id="reproducibility">Reproducibility<a class="headerlink" href="#reproducibility" title="Permanent link">&para;</a></h2>
-<p>All experiments use fixed random seeds (42). Dataset splits are provided as CSV files in <code>experiments/data/</code>. Training logs and model checkpoints are saved to <code>experiments/runs/</code>.</p>
-<h2 id="future-experiments">Future Experiments<a class="headerlink" href="#future-experiments" title="Permanent link">&para;</a></h2>
+<h3 id="qrelsparquet"><code>qrels.parquet</code><a class="headerlink" href="#qrelsparquet" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Low‑rank covariance approximation</strong> vs full diagonal covariance.</li>
-<li><strong>Cross‑lingual specialists</strong> (multilingual BERT) with alignment.</li>
-<li><strong>Query‑dependent uncertainty</strong> using HUN (Heteroscedastic Uncertainty Network).</li>
+<li><code>query_id: string</code></li>
+<li><code>doc_id: string</code></li>
+<li><code>relevance: int8</code> (keep source relevance scale)</li>
+<li><code>source_dataset: string</code></li>
 </ul>
-<p><em>TODO: Add exact command lines to reproduce each experiment, sample‑size justifications, and statistical‑test details.</em></p>
+<h3 id="splitsparquet"><code>splits.parquet</code><a class="headerlink" href="#splitsparquet" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>query_id: string</code></li>
+<li><code>split: string</code></li>
+<li><code>domain: string</code></li>
+</ul>
+<h3 id="benchmark_manifestjson"><code>benchmark_manifest.json</code><a class="headerlink" href="#benchmark_manifestjson" title="Permanent link">&para;</a></h3>
+<ul>
+<li>benchmark version</li>
+<li>build timestamp</li>
+<li>tool/package versions</li>
+<li>dataset URLs and declared licenses</li>
+<li>per-file checksums and row counts</li>
+<li>validation summary</li>
+</ul>
+<hr />
+<h2 id="why-this-benchmark-is-suitable-for-kalmanorix">Why this benchmark is suitable for Kalmanorix<a class="headerlink" href="#why-this-benchmark-is-suitable-for-kalmanorix" title="Permanent link">&para;</a></h2>
+<ul>
+<li>It is <strong>truly mixed-domain</strong> (general + biomedical + finance).</li>
+<li>It is built from <strong>real retrieval datasets</strong> with official qrels.</li>
+<li>It supports <strong>global retrieval</strong> and <strong>per-domain diagnostics</strong>, which is exactly what specialist routing + fusion needs.</li>
+<li>It is <strong>versioned and reproducible</strong> via manifest + checksums + pinned dependencies.</li>
+</ul>
 
 
 
