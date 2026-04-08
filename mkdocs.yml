@@ -132,6 +132,7 @@ nav:
     - Fusion Strategies: guides/fusion-strategies.md
     - Uncertainty Calibration: guides/uncertainty-calibration.md
     - Deployment: guides/deployment.md
+    - Production Deployment Audit (2026-04): guides/production-deployment-audit-2026-04.md
     - API Usage: guides/api-usage.md
   - Examples:
     - Minimal Fusion: examples/minimal-fusion.md
