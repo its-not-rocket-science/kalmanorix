@@ -146,6 +146,7 @@ nav:
   - Research:
     - Experiments: research/experiments.md
     - Results: research/results.md
+    - Failure Modes Analysis: research/failure-modes-analysis.md
     - Preregistered Evaluation Protocol: research/preregistered-evaluation-protocol.md
     - Statistical Comparison Framework: research/statistical-comparison-framework.md
     - Mixed-Domain Retrieval Benchmark: research/mixed-domain-retrieval-benchmark.md
@@ -161,7 +162,7 @@ nav:
 
 # Validation
 validation:
-  omitted_files: warn
+  omitted_files: ignore
   absolute_links: warn
   unrecognized_links: warn
 
