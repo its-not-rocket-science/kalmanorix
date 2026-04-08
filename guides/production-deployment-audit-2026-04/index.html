@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/guides/production-deployment-audit-2026-04/">
       
       
+        <link rel="prev" href="../deployment/">
+      
+      
+        <link rel="next" href="../api-usage/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Kalmanorix Production Deployment Audit (April 2026) - Kalmanorix</title>
+        <title>Production Deployment Audit (2026-04) - Kalmanorix</title>
       
     
     
@@ -118,7 +122,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kalmanorix Production Deployment Audit (April 2026)
+              Production Deployment Audit (2026-04)
             
           </span>
         </div>
@@ -308,10 +312,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../creating-specialists/" class="md-tabs__link">
           
   
@@ -1007,28 +1013,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1046,7 +1055,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1164,6 +1173,429 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Production Deployment Audit (2026-04)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Production Deployment Audit (2026-04)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-architecture-inference-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Architecture (inference path)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bottleneck-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bottleneck Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-latency-bottlenecks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Latency bottlenecks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Latency bottlenecks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-sequential-specialist-inference-is-dominant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Sequential specialist inference is dominant
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-double-work-from-uncertainty-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Double work from uncertainty functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-router-overhead-can-erase-gains-when-thresholding-is-poor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Router overhead can erase gains when thresholding is poor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-python-object-churn-and-repeated-tiny-allocations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Python object churn and repeated tiny allocations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Memory usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) Memory usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-baseline-memory-is-stable-in-benchmark-setup-but-not-representative-of-true-multi-model-serving" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Baseline memory is stable in benchmark setup, but not representative of true multi-model serving
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-routerquery-caches-are-in-process-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Router/query caches are in-process only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-no-explicit-memory-budgeting-eviction-by-model-weight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. No explicit memory budgeting / eviction by model weight
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-scalability-with-number-of-specialists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Scalability with number of specialists
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3) Scalability with number of specialists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-core-scaling-behavior-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Core scaling behavior today
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-duplicate-centroid-behavior-in-scaled-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Duplicate-centroid behavior in scaled experiments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-must-be-parallelized-required-for-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What must be parallelized (required for production)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#must-parallelize-1-specialist-embedding-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Must-parallelize #1: specialist embedding calls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#must-parallelize-2-batched-multi-query-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Must-parallelize #2: batched multi-query execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#must-parallelize-3-routing-similarity-over-centroids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Must-parallelize #3: routing similarity over centroids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#should-parallelize-4-sigma2-computation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Should-parallelize #4: sigma2 computation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-strategy-query-embedding-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching strategy (query + embedding + routing)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-query-result-cache-final-fused-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Query-result cache (final fused output)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-embedding-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Embedding cache
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-routing-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Routing cache
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concrete-optimization-plan-prioritized" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concrete optimization plan (prioritized)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p0-do-first-1-2-sprints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 (do first: 1-2 sprints)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p1-next-2-4-sprints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1 (next: 2-4 sprints)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p2-medium-term" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2 (medium term)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-guardrails-minimum-production-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment guardrails (minimum production checklist)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-highest-leverage-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary: highest-leverage improvements
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2372,6 +2804,46 @@
 
   
 
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../creating-specialists/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Guides
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
 
               
               <article class="md-content__inner md-typeset">
