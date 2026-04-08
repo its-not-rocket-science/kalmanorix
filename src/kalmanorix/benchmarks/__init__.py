@@ -14,6 +14,16 @@ from .evaluation_protocol import (
     QueryRanking,
     evaluate_locked_protocol,
 )
+from .statistical_testing import (
+    BootstrapConfidenceInterval,
+    MetricComparisonReport,
+    PairedSignificanceResult,
+    StatisticalComparisonReport,
+    bootstrap_confidence_interval,
+    generate_statistical_report,
+    paired_effect_size,
+    paired_significance_test,
+)
 
 __all__ = [
     "EmbeddingDataset",
@@ -27,4 +37,12 @@ __all__ = [
     "QueryRanking",
     "EvaluationReport",
     "evaluate_locked_protocol",
+    "BootstrapConfidenceInterval",
+    "PairedSignificanceResult",
+    "MetricComparisonReport",
+    "StatisticalComparisonReport",
+    "bootstrap_confidence_interval",
+    "paired_significance_test",
+    "paired_effect_size",
+    "generate_statistical_report",
 ]
