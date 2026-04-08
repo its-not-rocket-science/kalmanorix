@@ -134,6 +134,7 @@ nav:
     - Deployment: guides/deployment.md
     - Production Deployment Audit (2026-04): guides/production-deployment-audit-2026-04.md
     - API Usage: guides/api-usage.md
+    - Production API Design: guides/production-api-design.md
   - Examples:
     - Minimal Fusion: examples/minimal-fusion.md
     - HuggingFace Integration: examples/huggingface-integration.md
