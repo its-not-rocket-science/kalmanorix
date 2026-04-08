@@ -144,6 +144,7 @@ nav:
   - Research:
     - Experiments: research/experiments.md
     - Results: research/results.md
+    - Real Specialist Implementation Plan: research/real-specialist-implementation-plan.md
     - Milestones:
       - Overview: milestones/index.md
       - Specialist Drift Breaks Fusion: milestones/0001-specialist-drift-breaks-fusion.md
