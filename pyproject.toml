@@ -11,6 +11,11 @@ requires-python = ">=3.11"
 dependencies = ["numpy>=1.26", "cachetools>=5.3", "scipy>=1.11"]
 
 [project.optional-dependencies]
+benchmark = [
+    "datasets==2.19.0",
+    "ir-datasets==0.5.9",
+    "pyarrow==15.0.2",
+]
 dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0", "types-cachetools>=4.2", "pytest-benchmark>=4.0", "pytest-mock>=3.10"]
 viz = ["matplotlib>=3.7"]
 train = [
@@ -59,3 +64,6 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.scripts]
+kalmanorix-build-mixed-benchmark = "kalmanorix.benchmarks.mixed_domain:main"
