@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from scipy.stats import wilcoxon
 
 from kalmanorix.benchmarks.statistical_testing import (
     bootstrap_confidence_interval,
     generate_statistical_report,
     paired_effect_size,
     paired_significance_test,
+    render_appendix_table,
 )
 
 
@@ -26,21 +28,23 @@ def test_bootstrap_confidence_interval_is_reproducible() -> None:
     assert ci_1.lower <= observed <= ci_1.upper
 
 
-def test_paired_significance_detects_shift_and_handles_degenerate_case() -> None:
+def test_paired_significance_matches_scipy_and_handles_degenerate_case() -> None:
     rng = np.random.default_rng(7)
     baseline = rng.normal(loc=0.0, scale=1.0, size=50)
     improved = baseline + 0.4
 
     significant = paired_significance_test(improved, baseline)
+    expected = wilcoxon(improved, baseline, alternative="two-sided", zero_method="wilcox", method="auto")
     assert significant.estimable is True
-    assert significant.p_value < 0.05
+    assert significant.statistic == pytest.approx(float(expected.statistic))
+    assert significant.p_value == pytest.approx(float(expected.pvalue))
 
     degenerate = paired_significance_test(baseline, baseline)
     assert degenerate.estimable is False
     assert degenerate.p_value == pytest.approx(1.0)
 
 
-def test_report_generator_outputs_required_statistics() -> None:
+def test_report_generator_outputs_per_domain_overall_and_holm_correction() -> None:
     reference_metrics = {
         "ndcg@10": [0.42, 0.35, 0.51, 0.49],
         "mrr": [0.56, 0.44, 0.67, 0.62],
@@ -49,24 +53,61 @@ def test_report_generator_outputs_required_statistics() -> None:
         "ndcg@10": [0.38, 0.30, 0.47, 0.45],
         "mrr": [0.51, 0.40, 0.63, 0.59],
     }
-
     report = generate_statistical_report(
         reference_method="kalman",
         candidate_method="mean_fuser",
         reference_metrics=reference_metrics,
         candidate_metrics=candidate_metrics,
+        reference_metrics_by_domain={
+            "finance": {"ndcg@10": [0.5, 0.45], "mrr": [0.62, 0.59]},
+            "biomed": {"ndcg@10": [0.34, 0.28], "mrr": [0.50, 0.44]},
+        },
+        candidate_metrics_by_domain={
+            "finance": {"ndcg@10": [0.46, 0.40], "mrr": [0.56, 0.55]},
+            "biomed": {"ndcg@10": [0.29, 0.25], "mrr": [0.45, 0.40]},
+        },
         num_resamples=2_000,
         seed=11,
+        config={"benchmark": "mixed-domain-v1"},
     )
 
-    ndcg = report.comparisons["ndcg@10"]
-    assert ndcg.mean_difference == pytest.approx(np.mean(np.array(reference_metrics["ndcg@10"]) - np.array(candidate_metrics["ndcg@10"])))
-    assert 0.0 <= ndcg.p_value <= 1.0
-    expected_seed = 11 + sorted(set(reference_metrics).intersection(candidate_metrics)).index("ndcg@10")
-    assert ndcg.confidence_interval.seed == expected_seed
-    assert ndcg.effect_size == pytest.approx(
-        paired_effect_size(reference_metrics["ndcg@10"], candidate_metrics["ndcg@10"])
+    ndcg_overall = report.comparisons["ndcg@10"]
+    assert ndcg_overall.mean_difference == pytest.approx(
+        np.mean(np.array(reference_metrics["ndcg@10"]) - np.array(candidate_metrics["ndcg@10"]))
     )
+    assert 0.0 <= ndcg_overall.p_value <= 1.0
+    assert 0.0 <= ndcg_overall.adjusted_p_value <= 1.0
+
+    assert "overall" in report.domains
+    assert "finance" in report.domains
+    assert "biomed" in report.domains
+    # 3 domains x 2 metrics = 6 hypotheses in one Holm family.
+    assert len(report.experiment_log) == 6
+    assert len({entry.bootstrap_seed for entry in report.experiment_log}) == 6
+    assert all(entry.configuration_hash == report.configuration_hash for entry in report.experiment_log)
+
+
+def test_effect_size_has_expected_sign() -> None:
+    reference = [0.6, 0.7, 0.55, 0.61]
+    candidate = [0.4, 0.5, 0.45, 0.5]
+    effect = paired_effect_size(reference, candidate)
+    assert effect.cohen_dz > 0.0
+    assert effect.rank_biserial > 0.0
+
+
+def test_appendix_table_contains_required_columns() -> None:
+    report = generate_statistical_report(
+        reference_method="kalman",
+        candidate_method="mean_fuser",
+        reference_metrics={"mrr": [0.6, 0.5, 0.7]},
+        candidate_metrics={"mrr": [0.4, 0.45, 0.5]},
+        num_resamples=500,
+        seed=3,
+    )
+    table = render_appendix_table(report)
+    assert "| Domain | Metric | Δ Mean |" in table
+    assert "p_adj (Holm)" in table
+    assert "Configuration hash" in table
 
 
 def test_input_validation_errors() -> None:
