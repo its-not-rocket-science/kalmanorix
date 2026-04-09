@@ -1,0 +1,79 @@
+{
+  "experiment": "matched_compute_specialists_vs_monolith",
+  "domains": [
+    "finance",
+    "legal",
+    "medical",
+    "science"
+  ],
+  "samples_per_domain": 1200,
+  "test_size": 600,
+  "assumptions": {
+    "n_specialists": 4,
+    "specialist_params_proxy": 12288,
+    "monolith_params_proxy": 12288,
+    "specialist_epochs": 1,
+    "monolith_epochs": 1,
+    "avg_tokens_per_sample": 12,
+    "training_flop_multiplier": 6,
+    "specialist_inference_flops_proxy": 442368,
+    "monolith_inference_flops_proxy": 442368,
+    "routing_overhead_all_proxy": 53084,
+    "routing_overhead_semantic_proxy": 88473,
+    "kalman_fusion_overhead_proxy": 44236,
+    "semantic_top_k": 2,
+    "parity_tolerance": 0.01
+  },
+  "results": [
+    {
+      "strategy": "monolith_baseline",
+      "accuracy_at_1": 1.0,
+      "mrr": 1.0,
+      "training_budget_proxy": 4246732800,
+      "inference_flops_proxy_mean": 442368.0,
+      "active_specialists_mean": 1.0,
+      "routing_overhead_proxy": 0
+    },
+    {
+      "strategy": "specialists_all_routing",
+      "accuracy_at_1": 1.0,
+      "mrr": 1.0,
+      "training_budget_proxy": 4246732800,
+      "inference_flops_proxy_mean": 1822556.0,
+      "active_specialists_mean": 4.0,
+      "routing_overhead_proxy": 53084
+    },
+    {
+      "strategy": "specialists_semantic_routing",
+      "accuracy_at_1": 1.0,
+      "mrr": 1.0,
+      "training_budget_proxy": 4246732800,
+      "inference_flops_proxy_mean": 973209.0,
+      "active_specialists_mean": 2.0,
+      "routing_overhead_proxy": 88473
+    },
+    {
+      "strategy": "specialists_kalman_fusion",
+      "accuracy_at_1": 1.0,
+      "mrr": 1.0,
+      "training_budget_proxy": 4246732800,
+      "inference_flops_proxy_mean": 1017445.0,
+      "active_specialists_mean": 2.0,
+      "routing_overhead_proxy": 88473
+    }
+  ],
+  "fairness_checks": {
+    "training_compute_parity_achieved": true,
+    "training_compute_ratio_specialists_over_monolith": 1.0,
+    "parity_tolerance": 0.01,
+    "assumption_validation_passed": true,
+    "inference_ratio_vs_monolith": {
+      "monolith_baseline": 1.0,
+      "specialists_all_routing": 4.119999638310185,
+      "specialists_semantic_routing": 2.1999986436631946,
+      "specialists_kalman_fusion": 2.2999968352141202
+    }
+  },
+  "supports_strong_conclusion": false,
+  "conclusion_note": "Training parity was enforced, but inference-cost asymmetry remains material; this run does not support a strong conclusion about overall efficiency superiority."
+}
