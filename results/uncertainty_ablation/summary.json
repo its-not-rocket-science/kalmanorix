@@ -1,0 +1,532 @@
+{
+  "methods": [
+    "constant_sigma2",
+    "keyword_based_sigma2",
+    "centroid_distance_sigma2",
+    "embedding_norm_sigma2",
+    "stochastic_forward_sigma2"
+  ],
+  "datasets": [
+    {
+      "name": "toy_mixed",
+      "synthetic": false
+    },
+    {
+      "name": "synthetic_shifted_queries",
+      "synthetic": true
+    }
+  ],
+  "results": [
+    {
+      "dataset": "toy_mixed",
+      "synthetic": false,
+      "method": "constant_sigma2",
+      "metrics": {
+        "recall_at_1": 0.7333333333333333,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.8555555555555556,
+        "ece": 0.3333333344444446,
+        "brier_score": 0.11111111185185195,
+        "mean_variance": 0.5000000025000001
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8444444444444444,
+            "ece": 0.20000000159999987,
+            "brier_score": 0.04000000064000005,
+            "mean_variance": 0.25000000250000015
+          },
+          "1.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.3333333344444446,
+            "brier_score": 0.11111111185185195,
+            "mean_variance": 0.5000000025000001
+          },
+          "2.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.5000000006250003,
+            "brier_score": 0.25000000062500005,
+            "mean_variance": 1.0000000025
+          },
+          "4.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.6666666669444447,
+            "brier_score": 0.444444444814815,
+            "mean_variance": 2.0000000025000015
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.4666666653444448
+      }
+    },
+    {
+      "dataset": "toy_mixed",
+      "synthetic": false,
+      "method": "keyword_based_sigma2",
+      "metrics": {
+        "recall_at_1": 0.7333333333333333,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.8555555555555556,
+        "ece": 0.20419580574382604,
+        "brier_score": 0.07375421822848059,
+        "mean_variance": 0.34545454779338836
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.12619047800311767,
+            "brier_score": 0.0316043087322981,
+            "mean_variance": 0.1727272750661157
+          },
+          "1.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.20419580574382604,
+            "brier_score": 0.07375421822848059,
+            "mean_variance": 0.34545454779338836
+          },
+          "2.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.30666666790111113,
+            "brier_score": 0.14177777826392596,
+            "mean_variance": 0.690909093247934
+          },
+          "4.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.4318797001269738,
+            "brier_score": 0.23690745714158384,
+            "mean_variance": 1.3818181841570254
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.30568922212385613
+      }
+    },
+    {
+      "dataset": "toy_mixed",
+      "synthetic": false,
+      "method": "centroid_distance_sigma2",
+      "metrics": {
+        "recall_at_1": 0.7333333333333333,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.8555555555555556,
+        "ece": 0.12995145094339455,
+        "brier_score": 0.01695388213768847,
+        "mean_variance": 0.1494618116396055
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.06951125959049063,
+            "brier_score": 0.004853502994328066,
+            "mean_variance": 0.07473090696217272
+          },
+          "1.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.12995145094339455,
+            "brier_score": 0.01695388213768847,
+            "mean_variance": 0.1494618116396055
+          },
+          "2.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.22992002144331958,
+            "brier_score": 0.053027235427821576,
+            "mean_variance": 0.29892362099447095
+          },
+          "4.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.37370100438050724,
+            "brier_score": 0.13994139150352528,
+            "mean_variance": 0.5978472397042017
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.3041897447900166
+      }
+    },
+    {
+      "dataset": "toy_mixed",
+      "synthetic": false,
+      "method": "embedding_norm_sigma2",
+      "metrics": {
+        "recall_at_1": 0.7333333333333333,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.8555555555555556,
+        "ece": 0.14479824599786728,
+        "brier_score": 0.02096653204405895,
+        "mean_variance": 0.1693147205559945
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.07804986582005724,
+            "brier_score": 0.006091781554528901,
+            "mean_variance": 0.08465736152799722
+          },
+          "1.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.14479824599786728,
+            "brier_score": 0.02096653204405895,
+            "mean_variance": 0.1693147205559945
+          },
+          "2.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.25296727297668775,
+            "brier_score": 0.06399244119726191,
+            "mean_variance": 0.33862943861198885
+          },
+          "4.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.4037891138512729,
+            "brier_score": 0.16304564846479627,
+            "mean_variance": 0.6772588747239785
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.3257392480312157
+      }
+    },
+    {
+      "dataset": "toy_mixed",
+      "synthetic": false,
+      "method": "stochastic_forward_sigma2",
+      "metrics": {
+        "recall_at_1": 0.7333333333333333,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.8555555555555556,
+        "ece": 0.09090909297520633,
+        "brier_score": 0.008264463185574725,
+        "mean_variance": 0.1000000024999999
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.04761904988662069,
+            "brier_score": 0.0022675739121045123,
+            "mean_variance": 0.0500000024999999
+          },
+          "1.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.09090909297520633,
+            "brier_score": 0.008264463185574725,
+            "mean_variance": 0.1000000024999999
+          },
+          "2.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.16666666840277777,
+            "brier_score": 0.027777778356481483,
+            "mean_variance": 0.20000000249999997
+          },
+          "4.0": {
+            "recall_at_1": 0.7333333333333333,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.8555555555555556,
+            "ece": 0.28571428698979584,
+            "brier_score": 0.08163265379008741,
+            "mean_variance": 0.40000000249999984
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.23809523710317515
+      }
+    },
+    {
+      "dataset": "synthetic_shifted_queries",
+      "synthetic": true,
+      "method": "constant_sigma2",
+      "metrics": {
+        "recall_at_1": 0.25,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.5208333333333333,
+        "ece": 0.3333333344444446,
+        "brier_score": 0.11111111185185193,
+        "mean_variance": 0.5000000025000001
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.2000000016000001,
+            "brier_score": 0.04000000064000004,
+            "mean_variance": 0.2500000025000001
+          },
+          "1.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.3333333344444446,
+            "brier_score": 0.11111111185185193,
+            "mean_variance": 0.5000000025000001
+          },
+          "2.0": {
+            "recall_at_1": 0.5,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.6458333333333333,
+            "ece": 0.500000000625,
+            "brier_score": 0.25000000062500005,
+            "mean_variance": 1.0000000025
+          },
+          "4.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.6666666669444445,
+            "brier_score": 0.44444444481481493,
+            "mean_variance": 2.000000002500001
+          }
+        },
+        "recall1_range": 0.25,
+        "ece_range": 0.46666666534444445
+      }
+    },
+    {
+      "dataset": "synthetic_shifted_queries",
+      "synthetic": true,
+      "method": "keyword_based_sigma2",
+      "metrics": {
+        "recall_at_1": 0.25,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.5208333333333333,
+        "ece": 0.09090909297520644,
+        "brier_score": 0.008264463185574729,
+        "mean_variance": 0.10000000249999992
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.047619049886621134,
+            "brier_score": 0.0022675739121045123,
+            "mean_variance": 0.050000002499999883
+          },
+          "1.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.09090909297520644,
+            "brier_score": 0.008264463185574729,
+            "mean_variance": 0.10000000249999992
+          },
+          "2.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.16666666840277777,
+            "brier_score": 0.027777778356481483,
+            "mean_variance": 0.20000000249999997
+          },
+          "4.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.28571428698979584,
+            "brier_score": 0.08163265379008743,
+            "mean_variance": 0.40000000249999995
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.2380952371031747
+      }
+    },
+    {
+      "dataset": "synthetic_shifted_queries",
+      "synthetic": true,
+      "method": "centroid_distance_sigma2",
+      "metrics": {
+        "recall_at_1": 0.25,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.5208333333333333,
+        "ece": 0.12141938171329825,
+        "brier_score": 0.014787232746695292,
+        "mean_variance": 0.13826562688336633
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.06464706215206628,
+            "brier_score": 0.004193644269362224,
+            "mean_variance": 0.06913281463792674
+          },
+          "1.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.12141938171329825,
+            "brier_score": 0.014787232746695292,
+            "mean_variance": 0.13826562688336633
+          },
+          "2.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.21648300826068634,
+            "brier_score": 0.04697648342373552,
+            "mean_variance": 0.2765312513742453
+          },
+          "4.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.3557931243027852,
+            "brier_score": 0.1267896440744841,
+            "mean_variance": 0.5530625003560035
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.2911460621507189
+      }
+    },
+    {
+      "dataset": "synthetic_shifted_queries",
+      "synthetic": true,
+      "method": "embedding_norm_sigma2",
+      "metrics": {
+        "recall_at_1": 0.25,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.5208333333333333,
+        "ece": 0.1447982459978675,
+        "brier_score": 0.020966532044058954,
+        "mean_variance": 0.16931472055599453
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.07804986582005702,
+            "brier_score": 0.006091781554528905,
+            "mean_variance": 0.0846573615279972
+          },
+          "1.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.1447982459978675,
+            "brier_score": 0.020966532044058954,
+            "mean_variance": 0.16931472055599453
+          },
+          "2.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.25296727297668753,
+            "brier_score": 0.06399244119726194,
+            "mean_variance": 0.33862943861198896
+          },
+          "4.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.4037891138512729,
+            "brier_score": 0.16304564846479624,
+            "mean_variance": 0.6772588747239785
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.3257392480312159
+      }
+    },
+    {
+      "dataset": "synthetic_shifted_queries",
+      "synthetic": true,
+      "method": "stochastic_forward_sigma2",
+      "metrics": {
+        "recall_at_1": 0.25,
+        "recall_at_5": 1.0,
+        "mrr_at_10": 0.5208333333333333,
+        "ece": 0.09090909297520644,
+        "brier_score": 0.008264463185574729,
+        "mean_variance": 0.10000000249999992
+      },
+      "scale_sensitivity": {
+        "scales": {
+          "0.5": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.047619049886621134,
+            "brier_score": 0.0022675739121045123,
+            "mean_variance": 0.050000002499999883
+          },
+          "1.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.09090909297520644,
+            "brier_score": 0.008264463185574729,
+            "mean_variance": 0.10000000249999992
+          },
+          "2.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.16666666840277777,
+            "brier_score": 0.027777778356481483,
+            "mean_variance": 0.20000000249999997
+          },
+          "4.0": {
+            "recall_at_1": 0.25,
+            "recall_at_5": 1.0,
+            "mrr_at_10": 0.5208333333333333,
+            "ece": 0.28571428698979584,
+            "brier_score": 0.08163265379008743,
+            "mean_variance": 0.40000000249999995
+          }
+        },
+        "recall1_range": 0.0,
+        "ece_range": 0.2380952371031747
+      }
+    }
+  ],
+  "answer": "Partially: calibration differences are visible, but retrieval gains from better uncertainty estimation are limited in this setup; constant uncertainty remains competitive."
+}

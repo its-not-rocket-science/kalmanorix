@@ -6,11 +6,16 @@ import numpy as np
 
 from kalmanorix import SEF
 from kalmanorix.uncertainty import (
+    CentroidDistanceSigma2,
+    ConstantSigma2,
     EmbeddingNormSigma2,
+    KeywordSigma2,
     SimilarityToCentroidSigma2,
     StochasticForwardSigma2,
+    UncertaintyMethodConfig,
     apply_uncertainty_baseline_to_specialists,
     build_uncertainty_method,
+    create_uncertainty_method,
     summarize_uncertainty_distribution,
     uncertainty_histogram,
 )
@@ -107,3 +112,39 @@ def test_uncertainty_diagnostics_report_well_behaved_distribution() -> None:
     assert stats.max_sigma2 >= stats.min_sigma2
     assert len(hist["counts"]) == 3
     assert len(hist["bin_edges"]) == 4
+
+
+def test_common_uncertainty_factory_builds_expected_method_types() -> None:
+    calibration_texts = ["battery charging", "gpu thermal", "simmer sauce"]
+
+    constant = create_uncertainty_method(
+        config=UncertaintyMethodConfig(method="constant_sigma2", constant_value=0.33),
+        embed=_toy_embed,
+        calibration_texts=calibration_texts,
+    )
+    keyword = create_uncertainty_method(
+        config=UncertaintyMethodConfig(method="keyword_based_sigma2"),
+        embed=_toy_embed,
+        calibration_texts=calibration_texts,
+    )
+    centroid = create_uncertainty_method(
+        config=UncertaintyMethodConfig(method="centroid_distance_sigma2"),
+        embed=_toy_embed,
+        calibration_texts=calibration_texts,
+    )
+
+    assert isinstance(constant, ConstantSigma2)
+    assert isinstance(keyword, KeywordSigma2)
+    assert isinstance(centroid, CentroidDistanceSigma2)
+
+
+def test_common_uncertainty_factory_requires_inputs_for_keyword_method() -> None:
+    try:
+        create_uncertainty_method(
+            config=UncertaintyMethodConfig(method="keyword_based_sigma2"),
+            embed=_toy_embed,
+            calibration_texts=[],
+        )
+        assert False, "Expected ValueError"
+    except ValueError as exc:
+        assert "keywords" in str(exc) or "calibration_texts" in str(exc)
