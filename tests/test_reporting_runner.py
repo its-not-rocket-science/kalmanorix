@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 import subprocess
 import sys
 
@@ -59,3 +60,10 @@ def test_reporting_runner_generates_artifacts(tmp_path) -> None:
     assert (out_dir / "statistical_significance.csv").exists()
     assert (out_dir / "summary.md").exists()
     assert (out_dir / "results_bundle.json").exists()
+
+    rendered = (out_dir / "summary.md").read_text(encoding="utf-8")
+    normalized = rendered.replace(str(out_dir), "<OUT_DIR>")
+    expected = (
+        Path(__file__).parent / "snapshots" / "reporting_runner_summary_expected.md"
+    ).read_text(encoding="utf-8")
+    assert normalized.strip() == expected.strip()

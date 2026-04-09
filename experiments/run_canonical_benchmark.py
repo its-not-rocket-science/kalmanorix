@@ -13,6 +13,7 @@ from typing import Any
 from experiments.registry.config_schema import load_experiment_config
 from experiments.registry.runner import DEFAULT_REAL_SPECIALISTS, run_experiment
 from kalmanorix.benchmarks.canonical_benchmark import aggregate_strategy_metrics
+from kalmanorix.benchmarks.report_generator import generate_guarded_findings_markdown
 from kalmanorix.benchmarks.statistical_testing import generate_statistical_report
 
 
@@ -134,6 +135,28 @@ def _render_report(summary: dict[str, Any]) -> str:
         )
     lines.append(
         "- This report is descriptive for the configured setup and should not be generalized beyond it."
+    )
+    significance_rows = [
+        {
+            "reference": "kalman",
+            "candidate": "mean",
+            "metric": metric,
+            "mean_diff": stats["overall"][metric]["mean_difference"],
+            "adjusted_p_value": stats["overall"][metric]["adjusted_p_value"],
+        }
+        for metric in ["ndcg@10", "recall@10", "mrr@10"]
+    ]
+    lines.extend(
+        [
+            "",
+            generate_guarded_findings_markdown(
+                significance_rows=significance_rows,
+                benchmark_limitations=[
+                    "Evaluation is restricted to the selected benchmark split and may not cover broader deployment distributions.",
+                    "Latency and FLOPs values are proxy measurements and should not be treated as universal throughput guarantees.",
+                ],
+            ),
+        ]
     )
     return "\n".join(lines) + "\n"
 
