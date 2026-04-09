@@ -15,7 +15,7 @@ Key concepts:
 - **Fuser**: Strategy for combining embeddings (e.g., `MeanFuser`, `KalmanorixFuser`, `DiagonalKalmanFuser`, `LearnedGateFuser`).
 - **Kalman Fuser**: Core algorithm (`kalman_fuse_diagonal`) that performs sequential updates with diagonal covariance approximation (O(d) complexity).
 
-Phase 1 (Core Algorithm Validation) is complete. Phase 2: validating the core hypothesis that fused specialists outperform monolithic models with compute equivalence. Milestone 2.1 (Specialists vs Monolith) and Milestone 2.2 (Uncertainty Robustness) are completed.
+Phase 1 (Core Algorithm Validation) is complete. Phase 2 is still in progress: validating whether fused specialists outperform monolithic models at matched compute and whether uncertainty weighting improves robustness. Milestone 2.1 and Milestone 2.2 are not yet marked as demonstrated in repository-level evidence summaries.
 
 ## Development Setup
 
@@ -147,8 +147,9 @@ pytest
   - ✓ Procrustes alignment for embedding-space unification (Milestone 1.2)
   - ✓ Basic Kalman fusion against averaging baselines (Milestone 1.3)
   - ✓ HuggingFace embedder adapter with pickling support and utility functions
-- **Phase 2 (Specialists vs Monolith)**: In progress
-  - Milestone 2.1: Specialists vs monolith test with compute equivalence
+- **Phase 2 (Specialists vs Monolith + robustness validation)**: In progress
+  - Milestone 2.1: specialists vs monolith test with compute equivalence (evidence unresolved)
+  - Milestone 2.2: uncertainty robustness validation (evidence unresolved)
   - Real dataset integration (PubMed, legal case law)
   - Compute tracking (FLOPs, energy)
 - **Remaining limitations**:

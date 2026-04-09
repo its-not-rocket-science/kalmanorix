@@ -1,7 +1,7 @@
 # Kalmanorix Roadmap
 
 **Last updated:** April 9, 2026  
-**Current version:** v0.2.0 (research prototype)
+**Current version:** v0.2.0 (research prototype; API tiering update)
 
 This roadmap separates what has been **demonstrated** from what is still **planned**.
 
@@ -67,3 +67,12 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 **Status:** Unresolved  
 **Evidence:** no completed OOD report committed yet.  
 **Threats to validity:** OOD definition choice, calibration drift, and sensitivity to query distribution shifts.
+
+
+## API Surface Policy
+
+- **Stable public API:** `kalmanorix` top-level namespace.
+- **Experimental API:** `kalmanorix.experimental`.
+- **Internal utilities:** `kalmanorix.internal` and other non-documented internals.
+
+Compatibility policy: existing top-level experimental imports are preserved through deprecation shims to avoid abrupt breakage.

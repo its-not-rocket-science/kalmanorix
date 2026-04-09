@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kalmanorix"
-version = "0.1.0"
-description = "Kalmanorix scaffold"
+version = "0.2.0"
+description = "Experimental specialist-embedding fusion and routing toolkit"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26", "cachetools>=5.3", "scipy>=1.11"]
