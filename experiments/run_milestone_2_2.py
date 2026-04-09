@@ -60,6 +60,7 @@ from kalmanorix.calibration import (
     plot_reliability_diagram,
     CalibrationResult,
 )
+from kalmanorix.experiment_reporting import write_calibration_report
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,7 @@ class OODExperimentConfig(TrainingConfig):
     # Calibration parameters
     calibration_n_bins: int = 10
     calibration_distance_metric: Literal["cosine", "l2"] = "cosine"  # "cosine" or "l2"
+    calibration_error_tolerance: float = 0.25
 
     # Reference for calibration (ground truth embeddings)
     calibration_reference: Literal["monolith", "ensemble"] = (
@@ -163,6 +165,8 @@ class OODExperimentResults:
                 "ece": result.ece,
                 "brier_score": result.brier_score,
                 "n_samples": result.n_samples,
+                "mean_confidence": result.mean_confidence,
+                "mean_accuracy": result.mean_accuracy,
                 "bin_edges": result.bin_edges.tolist(),
                 "bin_centers": result.bin_centers.tolist(),
                 "bin_accuracies": result.bin_accuracies.tolist(),
@@ -520,6 +524,7 @@ def compute_calibration_for_model(
             predicted_variances=query_variances,
             n_bins=config.calibration_n_bins,
             norm=config.calibration_distance_metric,
+            error_tolerance=config.calibration_error_tolerance,
         )
     else:
         # Retrieval calibration (requires document embeddings)
@@ -955,6 +960,11 @@ def run_experiment(
             save_path=str(experiment_dir / "reliability_mean.png"),
             title="Reliability Diagram - Mean Fusion",
         )
+        plot_reliability_diagram(
+            ablation_calibration,
+            save_path=str(experiment_dir / "reliability_ablation_constant.png"),
+            title="Reliability Diagram - Constant-Variance Ablation",
+        )
 
         # Performance vs mis-specification factor
         scales = list(mis_spec_results.keys())
@@ -998,6 +1008,15 @@ def run_experiment(
     results_path = experiment_dir / "results.json"
     results.save(results_path)
     logger.info(f"Results saved to {results_path}")
+
+    write_calibration_report(
+        experiment_dir=experiment_dir,
+        specialist_calibration={d.value: c for d, c in specialist_calibration.items()},
+        monolith_calibration=monolith_calibration,
+        kalman_calibration=kalman_calibration,
+        mean_calibration=mean_calibration,
+        ablation_calibration=ablation_calibration,
+    )
 
     # Print summary
     logger.info("\n=== EXPERIMENT SUMMARY ===")
