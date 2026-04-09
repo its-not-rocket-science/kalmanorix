@@ -1,12 +1,9 @@
-"""
-Calibration metrics for uncertainty quantification in Kalmanorix.
+"""Calibration utilities for uncertainty quantification in Kalmanorix.
 
-Measures how well predicted uncertainties match actual errors:
-- Embedding calibration: Compare predicted variance vs L2 distance to reference.
-- Retrieval calibration: Compare predicted uncertainty vs retrieval success.
-
-Calibration is crucial for trustworthiness: a well-calibrated model's
-uncertainty estimates can be used to decide when to defer to human judgment.
+The core design goal is *cross-run comparability*:
+- Avoid per-batch target normalization.
+- Evaluate a consistent event with an absolute tolerance.
+- Map predicted sigma² to confidence via a probabilistic error model.
 """
 
 from __future__ import annotations
@@ -27,51 +24,96 @@ class CalibrationResult:
     n_samples: int  # Number of samples used
     bin_edges: np.ndarray  # Bin edges for reliability diagram
     bin_centers: np.ndarray  # Bin centers
-    bin_accuracies: np.ndarray  # Actual accuracy/recall in each bin
-    bin_confidences: np.ndarray  # Average predicted confidence in each bin
+    bin_accuracies: np.ndarray  # Actual accuracy/recall in each bin (NaN for empty bins)
+    bin_confidences: np.ndarray  # Average predicted confidence in each bin (NaN for empty bins)
     bin_counts: np.ndarray  # Number of samples in each bin
+    mean_confidence: float  # Mean predicted confidence
+    mean_accuracy: float  # Mean empirical accuracy/event rate
+
+
+def _compute_errors(
+    specialist_embeddings: np.ndarray,
+    reference_embeddings: np.ndarray,
+    norm: Literal["l2", "cosine"],
+) -> np.ndarray:
+    """Compute per-sample embedding error distances."""
+    if norm == "l2":
+        return np.linalg.norm(specialist_embeddings - reference_embeddings, axis=1)
+
+    if norm == "cosine":
+        # Cosine distance in [0, 2] for normalized vectors.
+        from scipy.spatial.distance import cdist
+
+        return cdist(
+            specialist_embeddings,
+            reference_embeddings,
+            metric="cosine",
+        ).diagonal()
+
+    raise ValueError(f"Unsupported norm: {norm}")
+
+
+def _variance_to_confidence(
+    predicted_variances: np.ndarray,
+    *,
+    embedding_dim: int,
+    error_tolerance: float,
+    norm: Literal["l2", "cosine"],
+) -> np.ndarray:
+    """Map sigma² to confidence P(error <= tolerance).
+
+    Assumes isotropic Gaussian embedding noise:
+      (||e||² / sigma²) ~ ChiSquare(df=embedding_dim)
+
+    so confidence is CDF_chi2(tolerance² / sigma²).
+
+    For cosine distance tolerance τ_cos, we approximate via chord distance
+    in normalized space: ||u - v||² = 2 * d_cos.
+    """
+    if embedding_dim <= 0:
+        raise ValueError("embedding_dim must be positive")
+    if error_tolerance <= 0:
+        raise ValueError("error_tolerance must be positive")
+
+    from scipy.stats import chi2
+
+    safe_sigma2 = np.maximum(predicted_variances, 1e-12)
+
+    if norm == "l2":
+        tol_sq = float(error_tolerance) ** 2
+    elif norm == "cosine":
+        tol_sq = 2.0 * float(error_tolerance)
+    else:
+        raise ValueError(f"Unsupported norm: {norm}")
+
+    scaled = tol_sq / safe_sigma2
+    confidences = chi2.cdf(scaled, df=embedding_dim)
+    return np.clip(confidences, 0.0, 1.0)
 
 
 def compute_embedding_calibration(
-    specialist_embeddings: np.ndarray,  # (n_samples, d)
-    reference_embeddings: np.ndarray,  # (n_samples, d) "ground truth"
-    predicted_variances: np.ndarray,  # (n_samples,) scalar variance per sample
+    specialist_embeddings: np.ndarray,
+    reference_embeddings: np.ndarray,
+    predicted_variances: np.ndarray,
     n_bins: int = 10,
     norm: Literal["l2", "cosine"] = "l2",
+    error_tolerance: Optional[float] = None,
 ) -> CalibrationResult:
-    """
-    Compute calibration for embedding errors vs predicted variance.
+    """Compute calibration for embedding errors vs predicted variance.
 
-    For each sample, we compute:
-    - Actual error: distance between specialist embedding and reference
-    - Predicted uncertainty: scalar variance (transformed to confidence)
+    Calibration event:
+      accuracy_i := 1[error_i <= error_tolerance]
 
-    We then bin samples by predicted confidence and compare average confidence
-    vs average accuracy (where accuracy = 1 - normalized error).
+    Predicted confidence:
+      confidence_i := P(error_i <= error_tolerance | sigma²_i)
 
-    Parameters
-    ----------
-    specialist_embeddings : np.ndarray, shape (n_samples, d)
-        Embeddings from a specialist model (or fused model).
-    reference_embeddings : np.ndarray, shape (n_samples, d)
-        Reference "ground truth" embeddings (e.g., from monolith or ensemble).
-    predicted_variances : np.ndarray, shape (n_samples,)
-        Predicted scalar variance for each embedding.
-    n_bins : int, optional
-        Number of bins for calibration curve. Default: 10.
-    norm : {"l2", "cosine"}, optional
-        Distance metric between embeddings. Default: "l2".
-
-    Returns
-    -------
-    CalibrationResult
-        Calibration metrics and reliability diagram data.
+    This avoids per-batch min/max normalization and produces comparable
+    calibration metrics across runs and datasets when error_tolerance is fixed.
     """
     n_samples = specialist_embeddings.shape[0]
     if n_samples == 0:
         raise ValueError("No samples provided")
 
-    # Validate shapes
     if reference_embeddings.shape != specialist_embeddings.shape:
         raise ValueError(
             f"Shapes mismatch: specialist {specialist_embeddings.shape}, "
@@ -83,32 +125,25 @@ def compute_embedding_calibration(
             f"does not match n_samples {n_samples}"
         )
 
-    # Compute actual errors
-    if norm == "l2":
-        errors = np.linalg.norm(specialist_embeddings - reference_embeddings, axis=1)
-    elif norm == "cosine":
-        # Cosine distance = 1 - cosine similarity
-        from scipy.spatial.distance import cdist
+    errors = _compute_errors(
+        specialist_embeddings=specialist_embeddings,
+        reference_embeddings=reference_embeddings,
+        norm=norm,
+    )
 
-        errors = cdist(
-            specialist_embeddings, reference_embeddings, metric="cosine"
-        ).diagonal()
-    else:
-        raise ValueError(f"Unsupported norm: {norm}")
+    if error_tolerance is None:
+        # Fixed defaults for run-to-run comparability.
+        error_tolerance = 1.0 if norm == "l2" else 0.25
 
-    # Normalize errors to [0, 1] range for accuracy calculation
-    # We use min-max normalization across the batch
-    if errors.max() > errors.min():
-        normalized_errors = (errors - errors.min()) / (errors.max() - errors.min())
-    else:
-        normalized_errors = np.zeros_like(errors)  # all errors equal
+    accuracies = (errors <= error_tolerance).astype(float)
 
-    accuracies = 1.0 - normalized_errors  # Higher accuracy = smaller error
-
-    # Convert variances to confidences
-    # For Gaussian assumption: confidence = 1 / (1 + variance)
-    # This maps variance=0 -> confidence=1, variance→∞ -> confidence→0
-    confidences = 1.0 / (1.0 + predicted_variances)
+    embedding_dim = specialist_embeddings.shape[1]
+    confidences = _variance_to_confidence(
+        predicted_variances,
+        embedding_dim=embedding_dim,
+        error_tolerance=error_tolerance,
+        norm=norm,
+    )
 
     return _compute_calibration_metrics(
         accuracies=accuracies,
@@ -118,46 +153,15 @@ def compute_embedding_calibration(
 
 
 def compute_retrieval_calibration(
-    query_embeddings: np.ndarray,  # (n_queries, d)
-    doc_embeddings: np.ndarray,  # (n_docs, d)
-    query_variances: np.ndarray,  # (n_queries,) per-query uncertainty
-    true_indices: list[int],  # true document index for each query
+    query_embeddings: np.ndarray,
+    doc_embeddings: np.ndarray,
+    query_variances: np.ndarray,
+    true_indices: list[int],
     k: int = 10,
     n_bins: int = 10,
     distance_metric: Literal["cosine", "l2"] = "cosine",
 ) -> CalibrationResult:
-    """
-    Compute calibration for retrieval success vs predicted uncertainty.
-
-    For each query, we compute:
-    - Actual success: whether true document is in top-k retrieved results
-    - Predicted confidence: derived from query variance
-
-    We then bin queries by predicted confidence and compare average confidence
-    vs average recall (success rate).
-
-    Parameters
-    ----------
-    query_embeddings : np.ndarray, shape (n_queries, d)
-        Query embeddings.
-    doc_embeddings : np.ndarray, shape (n_docs, d)
-        Document embeddings.
-    query_variances : np.ndarray, shape (n_queries,)
-        Predicted variance for each query.
-    true_indices : list[int]
-        Index of true document for each query (-1 indicates no true document).
-    k : int, optional
-        Recall@k threshold. Default: 10.
-    n_bins : int, optional
-        Number of bins for calibration curve. Default: 10.
-    distance_metric : {"cosine", "l2"}, optional
-        Distance metric for retrieval. Default: "cosine".
-
-    Returns
-    -------
-    CalibrationResult
-        Calibration metrics and reliability diagram data.
-    """
+    """Compute calibration for retrieval success vs predicted uncertainty."""
     n_queries = query_embeddings.shape[0]
     if n_queries == 0:
         raise ValueError("No queries provided")
@@ -173,39 +177,37 @@ def compute_retrieval_calibration(
             f"does not match n_queries {n_queries}"
         )
 
-    # Compute retrieval success for each query
     successes_list: list[float] = []
     for i in range(n_queries):
         true_idx = true_indices[i]
         if true_idx < 0 or true_idx >= doc_embeddings.shape[0]:
-            # No true document or invalid index
             successes_list.append(0.0)
             continue
 
-        # Compute distances between query i and all documents
         if distance_metric == "cosine":
             from scipy.spatial.distance import cdist
 
             distances = cdist(
-                query_embeddings[i : i + 1], doc_embeddings, metric="cosine"
+                query_embeddings[i : i + 1],
+                doc_embeddings,
+                metric="cosine",
             )[0]
         elif distance_metric == "l2":
             distances = np.linalg.norm(doc_embeddings - query_embeddings[i], axis=1)
         else:
             raise ValueError(f"Unsupported distance metric: {distance_metric}")
 
-        # Get indices of top-k nearest documents (lowest distance)
         top_k_indices = np.argsort(distances)[:k]
         success = 1.0 if true_idx in top_k_indices else 0.0
         successes_list.append(success)
 
     successes = np.array(successes_list, dtype=float)
 
-    # Convert variances to confidences
-    confidences = 1.0 / (1.0 + query_variances)
+    # Retrieval confidence mapping is less model-specific; keep bounded monotone map.
+    confidences = 1.0 / (1.0 + np.maximum(query_variances, 1e-12))
 
     return _compute_calibration_metrics(
-        accuracies=successes,  # binary success/failure
+        accuracies=successes,
         confidences=confidences,
         n_bins=n_bins,
     )
@@ -216,46 +218,27 @@ def _compute_calibration_metrics(
     confidences: np.ndarray,
     n_bins: int = 10,
 ) -> CalibrationResult:
-    """
-    Compute calibration metrics given accuracies and confidences.
-
-    Parameters
-    ----------
-    accuracies : np.ndarray, shape (n_samples,)
-        Actual accuracy/success for each sample (0-1).
-    confidences : np.ndarray, shape (n_samples,)
-        Predicted confidence for each sample (0-1).
-    n_bins : int, optional
-        Number of bins. Default: 10.
-
-    Returns
-    -------
-    CalibrationResult
-        Calibration metrics.
-    """
+    """Compute ECE/Brier and reliability-bin summaries."""
     n_samples = len(accuracies)
     if n_samples == 0:
         raise ValueError("No samples provided")
 
-    # Bin samples by confidence
     bin_edges = np.linspace(0, 1, n_bins + 1)
     bin_indices = np.digitize(confidences, bin_edges, right=True) - 1
-    # digitize returns 1..n_bins, shift to 0..n_bins-1
-    # Handle edge case where confidence == 1.0
     bin_indices = np.clip(bin_indices, 0, n_bins - 1)
 
-    bin_accuracies = np.zeros(n_bins)
-    bin_confidences = np.zeros(n_bins)
+    bin_accuracies = np.full(n_bins, np.nan, dtype=float)
+    bin_confidences = np.full(n_bins, np.nan, dtype=float)
     bin_counts = np.zeros(n_bins, dtype=int)
 
     for b in range(n_bins):
         mask = bin_indices == b
-        if np.any(mask):
-            bin_accuracies[b] = np.mean(accuracies[mask])
-            bin_confidences[b] = np.mean(confidences[mask])
-            bin_counts[b] = np.sum(mask)
+        count = int(np.sum(mask))
+        bin_counts[b] = count
+        if count > 0:
+            bin_accuracies[b] = float(np.mean(accuracies[mask]))
+            bin_confidences[b] = float(np.mean(confidences[mask]))
 
-    # Remove empty bins
     non_empty = bin_counts > 0
     if not np.any(non_empty):
         warnings.warn("All bins are empty", RuntimeWarning)
@@ -268,20 +251,18 @@ def _compute_calibration_metrics(
             bin_accuracies=bin_accuracies,
             bin_confidences=bin_confidences,
             bin_counts=bin_counts,
+            mean_confidence=float(np.mean(confidences)),
+            mean_accuracy=float(np.mean(accuracies)),
         )
 
-    bin_accuracies = bin_accuracies[non_empty]
-    bin_confidences = bin_confidences[non_empty]
-    bin_counts = bin_counts[non_empty]
-    # bin_edges kept original for plotting
-
-    # Expected Calibration Error (ECE)
-    ece = np.sum(bin_counts * np.abs(bin_accuracies - bin_confidences)) / np.sum(
-        bin_counts
+    ece = float(
+        np.sum(
+            bin_counts[non_empty]
+            * np.abs(bin_accuracies[non_empty] - bin_confidences[non_empty])
+        )
+        / np.sum(bin_counts[non_empty])
     )
-
-    # Brier score (mean squared error)
-    brier_score = np.mean((accuracies - confidences) ** 2)
+    brier_score = float(np.mean((accuracies - confidences) ** 2))
 
     return CalibrationResult(
         ece=ece,
@@ -292,7 +273,21 @@ def _compute_calibration_metrics(
         bin_accuracies=bin_accuracies,
         bin_confidences=bin_confidences,
         bin_counts=bin_counts,
+        mean_confidence=float(np.mean(confidences)),
+        mean_accuracy=float(np.mean(accuracies)),
     )
+
+
+def calibration_summary(result: CalibrationResult) -> dict[str, float]:
+    """Compact calibration summary used in experiment reports."""
+    return {
+        "n_samples": float(result.n_samples),
+        "ece": float(result.ece),
+        "brier_score": float(result.brier_score),
+        "mean_confidence": float(result.mean_confidence),
+        "mean_accuracy": float(result.mean_accuracy),
+        "overconfidence_gap": float(result.mean_confidence - result.mean_accuracy),
+    }
 
 
 def plot_reliability_diagram(
@@ -300,20 +295,7 @@ def plot_reliability_diagram(
     save_path: Optional[str] = None,
     title: str = "Reliability Diagram",
 ) -> None:
-    """
-    Plot reliability diagram for calibration visualization.
-
-    Requires matplotlib (optional dependency).
-
-    Parameters
-    ----------
-    result : CalibrationResult
-        Calibration results to plot.
-    save_path : Optional[str], optional
-        If provided, save figure to this path.
-    title : str, optional
-        Plot title. Default: "Reliability Diagram".
-    """
+    """Plot reliability diagram for calibration visualization."""
     try:
         import matplotlib.pyplot as plt
     except ImportError:
@@ -324,25 +306,19 @@ def plot_reliability_diagram(
         return
 
     fig, ax = plt.subplots(figsize=(8, 6))
-
-    # Plot perfect calibration line
     ax.plot([0, 1], [0, 1], "k--", label="Perfect calibration", alpha=0.5)
 
-    # Plot reliability curve
     non_empty = result.bin_counts > 0
     if np.any(non_empty):
-        bin_centers = result.bin_centers[non_empty]
         bin_accuracies = result.bin_accuracies[non_empty]
         bin_confidences = result.bin_confidences[non_empty]
         bin_counts = result.bin_counts[non_empty]
 
-        # Bar width proportional to bin count
         total = np.sum(bin_counts)
-        widths = bin_counts / total * 0.8  # normalized width
+        widths = bin_counts / max(total, 1) * 0.8
 
-        # Plot bars
-        for i, (center, acc, conf, width) in enumerate(
-            zip(bin_centers, bin_accuracies, bin_confidences, widths)
+        for center, acc, conf, width in zip(
+            result.bin_centers[non_empty], bin_accuracies, bin_confidences, widths
         ):
             ax.bar(
                 center,
@@ -355,7 +331,6 @@ def plot_reliability_diagram(
                 color="red" if acc < conf else "blue",
             )
 
-        # Scatter points for bin averages
         ax.scatter(
             bin_confidences,
             bin_accuracies,
@@ -373,12 +348,15 @@ def plot_reliability_diagram(
     ax.set_ylim(0, 1)
     ax.legend()
     ax.grid(True, alpha=0.3)
-
-    # Add Brier score annotation
     ax.text(
         0.05,
         0.95,
-        f"ECE = {result.ece:.3f}\nBrier = {result.brier_score:.3f}",
+        (
+            f"ECE = {result.ece:.3f}\n"
+            f"Brier = {result.brier_score:.3f}\n"
+            f"Mean conf = {result.mean_confidence:.3f}\n"
+            f"Mean acc = {result.mean_accuracy:.3f}"
+        ),
         transform=ax.transAxes,
         verticalalignment="top",
         bbox={"boxstyle": "round", "facecolor": "wheat", "alpha": 0.5},
