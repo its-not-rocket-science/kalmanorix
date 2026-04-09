@@ -1,0 +1,41 @@
+{
+  "name": "paper_grade_real_mixed",
+  "experiment_type": "real_mixed",
+  "seed": {
+    "python": 42,
+    "numpy": 42,
+    "torch": 42
+  },
+  "artifacts": {
+    "summary_json": "results/paper_grade/benchmark_summary.json",
+    "details_json": "results/paper_grade/benchmark_details.json"
+  },
+  "dataset": {
+    "kind": "real_mixed_jsonl",
+    "path": "data/mixed_domain/mixed_domain_test.jsonl",
+    "split": "test",
+    "max_queries": 300
+  },
+  "models": {
+    "kind": "real_sentence_transformers",
+    "device": "cpu",
+    "specialists": []
+  },
+  "fusion": {
+    "strategies": [
+      "mean",
+      "kalman"
+    ],
+    "routing_mode": "all",
+    "options": {
+      "train_fraction": 0.5,
+      "router_top_k": 2
+    }
+  },
+  "evaluation": {
+    "kind": "locked_retrieval"
+  },
+  "reporting": {
+    "print_stdout": true
+  }
+}
