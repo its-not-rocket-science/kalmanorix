@@ -1,0 +1,33 @@
+{
+  "name": "synthetic-smoke",
+  "experiment_type": "synthetic_smoke",
+  "seed": {
+    "python": 123,
+    "numpy": 123,
+    "torch": 123
+  },
+  "artifacts": {
+    "summary_json": "results/registry/synthetic_smoke_summary.json"
+  },
+  "dataset": {
+    "kind": "synthetic_toy",
+    "split": "test"
+  },
+  "models": {
+    "kind": "debug_keyword",
+    "device": "cpu"
+  },
+  "fusion": {
+    "strategies": [
+      "mean",
+      "kalman"
+    ],
+    "routing_mode": "all"
+  },
+  "evaluation": {
+    "kind": "synthetic_recall"
+  },
+  "reporting": {
+    "print_stdout": true
+  }
+}
