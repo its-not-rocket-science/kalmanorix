@@ -151,6 +151,7 @@ nav:
     - Statistical Comparison Framework: research/statistical-comparison-framework.md
     - Mixed-Domain Retrieval Benchmark: research/mixed-domain-retrieval-benchmark.md
     - Real Specialist Implementation Plan: research/real-specialist-implementation-plan.md
+    - Falsification Experiment Design: research/falsification-experiment-design.md
     - Milestones:
       - Overview: milestones/index.md
       - Specialist Drift Breaks Fusion: milestones/0001-specialist-drift-breaks-fusion.md
