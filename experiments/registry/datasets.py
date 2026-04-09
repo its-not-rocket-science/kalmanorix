@@ -8,7 +8,9 @@ from typing import Any
 from kalmanorix.toy_corpus import build_toy_corpus
 
 
-def load_dataset(kind: str, path: Path | None, split: str, max_queries: int | None) -> Any:
+def load_dataset(
+    kind: str, path: Path | None, split: str, max_queries: int | None
+) -> Any:
     """Load dataset payload by kind."""
     if kind == "synthetic_toy":
         return build_toy_corpus(british_spelling=True)

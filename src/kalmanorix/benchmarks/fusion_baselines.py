@@ -42,8 +42,12 @@ class EmbeddingDataset:
     def __post_init__(self) -> None:
         if not self.model_names:
             raise ValueError("model_names must not be empty")
-        missing_q = [name for name in self.model_names if name not in self.query_embeddings]
-        missing_d = [name for name in self.model_names if name not in self.doc_embeddings]
+        missing_q = [
+            name for name in self.model_names if name not in self.query_embeddings
+        ]
+        missing_d = [
+            name for name in self.model_names if name not in self.doc_embeddings
+        ]
         if missing_q or missing_d:
             raise ValueError(
                 f"Missing embeddings for models: queries={missing_q}, docs={missing_d}"
@@ -53,7 +57,10 @@ class EmbeddingDataset:
         for name in self.model_names:
             if self.query_embeddings[name].shape[0] != n_queries:
                 raise ValueError(f"query_embeddings[{name}] query count mismatch")
-            if self.doc_embeddings[name].shape[1] != self.query_embeddings[name].shape[1]:
+            if (
+                self.doc_embeddings[name].shape[1]
+                != self.query_embeddings[name].shape[1]
+            ):
                 raise ValueError(f"embedding dimension mismatch for model {name}")
 
         if self.split_labels is not None and len(self.split_labels) != n_queries:
@@ -88,7 +95,9 @@ class MeanPoolingStrategy(FusionStrategy):
 
     def select_weights(self, dataset: EmbeddingDataset, query_idx: int) -> Array:
         _ = query_idx
-        return np.full(len(dataset.model_names), 1.0 / len(dataset.model_names), dtype=np.float64)
+        return np.full(
+            len(dataset.model_names), 1.0 / len(dataset.model_names), dtype=np.float64
+        )
 
 
 class FixedWeightedMeanStrategy(FusionStrategy):
@@ -100,7 +109,10 @@ class FixedWeightedMeanStrategy(FusionStrategy):
 
     def select_weights(self, dataset: EmbeddingDataset, query_idx: int) -> Array:
         _ = query_idx
-        values = np.array([self._weights.get(name, 0.0) for name in dataset.model_names], dtype=np.float64)
+        values = np.array(
+            [self._weights.get(name, 0.0) for name in dataset.model_names],
+            dtype=np.float64,
+        )
         denom = np.sum(values)
         if denom <= 0:
             raise ValueError("Fixed weights must sum to a positive value")
@@ -198,7 +210,9 @@ class LearnedLinearCombinationStrategy(FusionStrategy):
 
         train_idx = [i for i, s in enumerate(dataset.split_labels) if s == "train"]
         if not train_idx:
-            raise ValueError("No train queries available for learned linear combination")
+            raise ValueError(
+                "No train queries available for learned linear combination"
+            )
 
         x_rows = []
         y_rows = []
@@ -241,7 +255,9 @@ class EvaluationResult:
     mrr: float
 
 
-def _fused_embeddings(dataset: EmbeddingDataset, weights: Array, query_idx: int) -> tuple[Array, Array]:
+def _fused_embeddings(
+    dataset: EmbeddingDataset, weights: Array, query_idx: int
+) -> tuple[Array, Array]:
     query_parts = []
     doc_parts = []
     for weight, model_name in zip(weights, dataset.model_names):
@@ -250,7 +266,9 @@ def _fused_embeddings(dataset: EmbeddingDataset, weights: Array, query_idx: int)
     return np.sum(query_parts, axis=0), np.sum(doc_parts, axis=0)
 
 
-def _evaluate_ranking(query_emb: Array, doc_embs: Array, target_id: int) -> tuple[float, float, float]:
+def _evaluate_ranking(
+    query_emb: Array, doc_embs: Array, target_id: int
+) -> tuple[float, float, float]:
     scores = _l2_normalize(doc_embs) @ (query_emb / (np.linalg.norm(query_emb) + 1e-12))
     ranked = np.argsort(-scores)
 
@@ -262,7 +280,9 @@ def _evaluate_ranking(query_emb: Array, doc_embs: Array, target_id: int) -> tupl
     return hit1, hit5, mrr
 
 
-def evaluate_strategy(dataset: EmbeddingDataset, strategy: FusionStrategy) -> EvaluationResult:
+def evaluate_strategy(
+    dataset: EmbeddingDataset, strategy: FusionStrategy
+) -> EvaluationResult:
     """Evaluate one strategy with the shared retrieval pipeline."""
     strategy.fit(dataset)
     hit1_list = []
@@ -272,7 +292,9 @@ def evaluate_strategy(dataset: EmbeddingDataset, strategy: FusionStrategy) -> Ev
     for query_idx in range(dataset.relevant_doc_ids.shape[0]):
         weights = strategy.select_weights(dataset, query_idx)
         query_emb, doc_embs = _fused_embeddings(dataset, weights, query_idx)
-        hit1, hit5, mrr = _evaluate_ranking(query_emb, doc_embs, int(dataset.relevant_doc_ids[query_idx]))
+        hit1, hit5, mrr = _evaluate_ranking(
+            query_emb, doc_embs, int(dataset.relevant_doc_ids[query_idx])
+        )
         hit1_list.append(hit1)
         hit5_list.append(hit5)
         mrr_list.append(mrr)
@@ -314,7 +336,11 @@ def load_dataset_from_config(config: dict[str, Any]) -> EmbeddingDataset:
         doc_embeddings=doc_embeddings,
         relevant_doc_ids=np.asarray(payload["relevant_doc_ids"], dtype=int),
         split_labels=payload.get("split_labels"),
-        router_scores=(None if router_scores is None else np.asarray(router_scores, dtype=np.float64)),
+        router_scores=(
+            None
+            if router_scores is None
+            else np.asarray(router_scores, dtype=np.float64)
+        ),
     )
 
 
@@ -325,7 +351,9 @@ def build_strategies(config: dict[str, Any]) -> list[FusionStrategy]:
         if strategy_type == "oracle_single_best":
             strategies.append(OracleSingleBestStrategy())
         elif strategy_type == "single_general_purpose":
-            strategies.append(SingleGeneralPurposeStrategy(model_name=entry["model_name"]))
+            strategies.append(
+                SingleGeneralPurposeStrategy(model_name=entry["model_name"])
+            )
         elif strategy_type == "mean_pooling":
             strategies.append(MeanPoolingStrategy())
         elif strategy_type == "weighted_mean":

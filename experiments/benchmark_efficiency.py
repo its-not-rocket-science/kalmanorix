@@ -81,7 +81,9 @@ class LazyEmbedderPool:
         model = SentenceTransformer(str(self.embedder_paths[embedder_id]))
 
         def embed(text: str) -> np.ndarray:
-            vec = model.encode([text], normalize_embeddings=True, convert_to_numpy=True)[0]
+            vec = model.encode(
+                [text], normalize_embeddings=True, convert_to_numpy=True
+            )[0]
             return vec.astype(np.float64)
 
         self._models[embedder_id] = model
@@ -283,7 +285,9 @@ def run_all_loaded(
     selected_sizes = []
     for q in queries:
         t0 = time.perf_counter()
-        selected_defs, ems, rms, _ = semantic_route(q, definitions, fast_embedder, threshold)
+        selected_defs, ems, rms, _ = semantic_route(
+            q, definitions, fast_embedder, threshold
+        )
         selected_modules = [loaded[d.name] for d in selected_defs]
         fms = run_single_inference(q, selected_modules, strategy)
         total = (time.perf_counter() - t0) * 1000.0
@@ -332,7 +336,9 @@ def run_lazy_loading(
 
     for q in queries:
         t0 = time.perf_counter()
-        selected_defs, ems, rms, _ = semantic_route(q, definitions, fast_embedder, threshold)
+        selected_defs, ems, rms, _ = semantic_route(
+            q, definitions, fast_embedder, threshold
+        )
 
         selected_modules: List[SEF] = []
         per_query_load_ms = 0.0
@@ -467,7 +473,9 @@ def run_batched(
 
         t0 = time.perf_counter()
         for q in batch:
-            selected_defs, ems, rms, _ = semantic_route(q, definitions, fast_embedder, threshold)
+            selected_defs, ems, rms, _ = semantic_route(
+                q, definitions, fast_embedder, threshold
+            )
             selected_for_batch.append([loaded[d.name] for d in selected_defs])
             selected_sizes.append(len(selected_defs))
             batch_embed_ms += ems
@@ -528,9 +536,15 @@ def run_benchmark(config: BenchmarkConfig) -> Dict[str, Any]:
     queries = build_queries(config.repeats)
 
     scenarios = [
-        run_all_loaded(definitions, pool, queries, "kalman", config.similarity_threshold),
-        run_lazy_loading(definitions, pool, queries, "kalman", config.similarity_threshold),
-        run_cached_routing(definitions, pool, queries, "kalman", config.similarity_threshold),
+        run_all_loaded(
+            definitions, pool, queries, "kalman", config.similarity_threshold
+        ),
+        run_lazy_loading(
+            definitions, pool, queries, "kalman", config.similarity_threshold
+        ),
+        run_cached_routing(
+            definitions, pool, queries, "kalman", config.similarity_threshold
+        ),
         run_batched(
             definitions,
             pool,
@@ -557,7 +571,9 @@ def run_benchmark(config: BenchmarkConfig) -> Dict[str, Any]:
 
 
 def parse_args() -> BenchmarkConfig:
-    parser = argparse.ArgumentParser(description="Deployment-oriented efficiency benchmark")
+    parser = argparse.ArgumentParser(
+        description="Deployment-oriented efficiency benchmark"
+    )
     parser.add_argument("--sefs-dir", type=Path, default=Path("artefacts/sefs"))
     parser.add_argument("--models-dir", type=Path, default=Path("models"))
     parser.add_argument(

@@ -128,7 +128,9 @@ class TestEnsembleFusion:
         embeddings = [rng.normal(size=d) for _ in range(4)]
         covariances = [rng.uniform(0.05, 0.5, size=d) for _ in range(4)]
 
-        fused_a, cov_a = kalman_fuse_diagonal_ensemble(embeddings, covariances, epsilon=1e-12)
+        fused_a, cov_a = kalman_fuse_diagonal_ensemble(
+            embeddings, covariances, epsilon=1e-12
+        )
 
         order = [2, 0, 3, 1]
         perm_embeddings = [embeddings[i] for i in order]
@@ -180,7 +182,10 @@ class TestNoResultFabrication:
 
         # Minimal schema sanity: if results are emitted, we require p_values in the payload.
         payload = {
-            "overall_accuracy_comparison": {"kalman": {"recall@1": 0.5}, "mean": {"recall@1": 0.4}},
+            "overall_accuracy_comparison": {
+                "kalman": {"recall@1": 0.5},
+                "mean": {"recall@1": 0.4},
+            },
             "p_values": {"recall@1": 0.03},
         }
         json_blob = json.dumps(payload)
@@ -204,4 +209,6 @@ class TestNoResultFabrication:
             if suspicious.search(text):
                 flagged.append(str(file_path))
 
-        assert not flagged, f"Potential hardcoded perfect-score patterns found in: {flagged}"
+        assert not flagged, (
+            f"Potential hardcoded perfect-score patterns found in: {flagged}"
+        )

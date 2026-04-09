@@ -45,7 +45,11 @@ def main() -> None:
             "options": {
                 "generalist_model_name": args.generalist_model_name,
                 "router_top_k": args.router_top_k,
-                "fixed_weights": {"general_qa": 0.5, "biomedical": 0.25, "finance": 0.25},
+                "fixed_weights": {
+                    "general_qa": 0.5,
+                    "biomedical": 0.25,
+                    "finance": 0.25,
+                },
             },
         },
         "evaluation": {"kind": "locked_protocol"},

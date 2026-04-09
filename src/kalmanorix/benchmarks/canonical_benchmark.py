@@ -63,8 +63,12 @@ def aggregate_strategy_metrics(
 ) -> dict[str, Any]:
     """Aggregate query-level metrics and bootstrap CIs for one strategy."""
     ordered = sorted(rankings)
-    ndcg10 = [evaluate_query(rankings[qid], ground_truth[qid]).ndcg10 for qid in ordered]
-    recall10 = [evaluate_query(rankings[qid], ground_truth[qid]).recall10 for qid in ordered]
+    ndcg10 = [
+        evaluate_query(rankings[qid], ground_truth[qid]).ndcg10 for qid in ordered
+    ]
+    recall10 = [
+        evaluate_query(rankings[qid], ground_truth[qid]).recall10 for qid in ordered
+    ]
     mrr10 = [evaluate_query(rankings[qid], ground_truth[qid]).mrr10 for qid in ordered]
     latency = [float(latency_ms[qid]) for qid in ordered]
     flops = [float(flops_proxy[qid]) for qid in ordered]

@@ -33,8 +33,12 @@ def validate_alignment_sign(
         Tuple of (mean_similarity_before, mean_similarity_after, determinant).
     """
 
-    src_norm = src_embeddings / (np.linalg.norm(src_embeddings, axis=1, keepdims=True) + epsilon)
-    ref_norm = ref_embeddings / (np.linalg.norm(ref_embeddings, axis=1, keepdims=True) + epsilon)
+    src_norm = src_embeddings / (
+        np.linalg.norm(src_embeddings, axis=1, keepdims=True) + epsilon
+    )
+    ref_norm = ref_embeddings / (
+        np.linalg.norm(ref_embeddings, axis=1, keepdims=True) + epsilon
+    )
     mean_before = float(np.mean(np.einsum("ij,ij->i", src_norm, ref_norm)))
 
     aligned = src_embeddings @ align_matrix

@@ -64,7 +64,9 @@ def _evaluate_query(ranked: list[str], relevant: set[str]) -> QueryEval:
     )
 
 
-def _compute_calibration(accuracies: np.ndarray, confidences: np.ndarray) -> dict[str, float]:
+def _compute_calibration(
+    accuracies: np.ndarray, confidences: np.ndarray
+) -> dict[str, float]:
     bins = np.linspace(0.0, 1.0, 11)
     bin_ids = np.clip(np.digitize(confidences, bins, right=True) - 1, 0, 9)
     ece = 0.0
@@ -128,7 +130,9 @@ def _render_markdown(
     )
 
 
-def _plot_latency_memory(overall_rows: list[dict[str, Any]], output_dir: Path) -> dict[str, str]:
+def _plot_latency_memory(
+    overall_rows: list[dict[str, Any]], output_dir: Path
+) -> dict[str, str]:
     figure_dir = output_dir / "figures"
     figure_dir.mkdir(parents=True, exist_ok=True)
     latency_png = figure_dir / "latency_memory_tradeoff.png"
@@ -139,7 +143,10 @@ def _plot_latency_memory(overall_rows: list[dict[str, Any]], output_dir: Path) -
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        return {"latency_memory_png": str(latency_png), "quality_latency_png": str(metric_png)}
+        return {
+            "latency_memory_png": str(latency_png),
+            "quality_latency_png": str(metric_png),
+        }
 
     plt.style.use("seaborn-v0_8-whitegrid")
     x = [float(row["latency_ms_mean"]) for row in overall_rows]
@@ -148,7 +155,9 @@ def _plot_latency_memory(overall_rows: list[dict[str, Any]], output_dir: Path) -
     plt.figure(figsize=(8, 5), dpi=200)
     plt.scatter(x, y, s=60)
     for xi, yi, label in zip(x, y, labels, strict=True):
-        plt.annotate(label, (xi, yi), fontsize=8, xytext=(4, 4), textcoords="offset points")
+        plt.annotate(
+            label, (xi, yi), fontsize=8, xytext=(4, 4), textcoords="offset points"
+        )
     plt.xlabel("Latency (ms, mean)")
     plt.ylabel("Memory proxy (mean selected specialists)")
     plt.title("Latency/Memory Tradeoff")
@@ -162,7 +171,9 @@ def _plot_latency_memory(overall_rows: list[dict[str, Any]], output_dir: Path) -
     plt.figure(figsize=(8, 5), dpi=200)
     plt.scatter(qx, qy, s=60)
     for xi, yi, label in zip(qx, qy, labels, strict=True):
-        plt.annotate(label, (xi, yi), fontsize=8, xytext=(4, 4), textcoords="offset points")
+        plt.annotate(
+            label, (xi, yi), fontsize=8, xytext=(4, 4), textcoords="offset points"
+        )
     plt.xlabel("Latency (ms, mean)")
     plt.ylabel("MRR (mean)")
     plt.title("Quality/Latency Frontier")
@@ -170,7 +181,10 @@ def _plot_latency_memory(overall_rows: list[dict[str, Any]], output_dir: Path) -
     plt.savefig(metric_png)
     plt.savefig(metric_pdf)
     plt.close()
-    return {"latency_memory_png": str(latency_png), "quality_latency_png": str(metric_png)}
+    return {
+        "latency_memory_png": str(latency_png),
+        "quality_latency_png": str(metric_png),
+    }
 
 
 def main() -> None:
@@ -188,7 +202,9 @@ def main() -> None:
         if details_ref:
             details_path = Path(details_ref)
     if details_path is None or not details_path.exists():
-        raise FileNotFoundError("details json is required; provide --details-json or artifacts.details_json")
+        raise FileNotFoundError(
+            "details json is required; provide --details-json or artifacts.details_json"
+        )
     details = json.loads(details_path.read_text(encoding="utf-8"))
 
     query_level = details["query_level"]
@@ -236,8 +252,12 @@ def main() -> None:
                 "recall@1_mean": round(float(np.mean(metric_map["recall@1"])), 6),
                 "recall@5_mean": round(float(np.mean(metric_map["recall@5"])), 6),
                 "ndcg@10_mean": round(float(np.mean(metric_map["ndcg@10"])), 6),
-                "latency_ms_mean": round(float(np.mean(list(latencies[strategy].values()))), 6),
-                "memory_proxy_mean": round(float(np.mean(list(specialist_counts[strategy].values()))), 6),
+                "latency_ms_mean": round(
+                    float(np.mean(list(latencies[strategy].values()))), 6
+                ),
+                "memory_proxy_mean": round(
+                    float(np.mean(list(specialist_counts[strategy].values()))), 6
+                ),
             }
         )
         for domain, values in metric_by_domain.items():
@@ -253,11 +273,23 @@ def main() -> None:
             )
 
         accuracy = np.asarray(metric_map["recall@1"], dtype=float)
-        conf = np.asarray([float(confidences[strategy][qid]) for qid in sorted(confidences[strategy])], dtype=float)
+        conf = np.asarray(
+            [
+                float(confidences[strategy][qid])
+                for qid in sorted(confidences[strategy])
+            ],
+            dtype=float,
+        )
         calibration = _compute_calibration(accuracy, conf)
-        calibration_rows.append({"strategy": strategy, **{k: round(v, 6) for k, v in calibration.items()}})
+        calibration_rows.append(
+            {"strategy": strategy, **{k: round(v, 6) for k, v in calibration.items()}}
+        )
 
-    ref = args.reference_strategy if args.reference_strategy in metrics_by_strategy else sorted(metrics_by_strategy)[0]
+    ref = (
+        args.reference_strategy
+        if args.reference_strategy in metrics_by_strategy
+        else sorted(metrics_by_strategy)[0]
+    )
     significance_rows: list[dict[str, Any]] = []
     for strategy in sorted(metrics_by_strategy):
         if strategy == ref:
@@ -310,7 +342,9 @@ def main() -> None:
         "statistical_significance": significance_rows,
         "figures": figures,
     }
-    (args.output_dir / "results_bundle.json").write_text(json.dumps(bundle, indent=2), encoding="utf-8")
+    (args.output_dir / "results_bundle.json").write_text(
+        json.dumps(bundle, indent=2), encoding="utf-8"
+    )
 
 
 if __name__ == "__main__":

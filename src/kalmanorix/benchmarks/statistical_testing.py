@@ -178,7 +178,9 @@ def paired_significance_test(
             adjusted_p_value=1.0,
         )
 
-    result = wilcoxon(a, b, alternative="two-sided", zero_method="wilcox", method="auto")
+    result = wilcoxon(
+        a, b, alternative="two-sided", zero_method="wilcox", method="auto"
+    )
     return PairedSignificanceResult(
         statistic=float(result.statistic),
         p_value=float(result.pvalue),
@@ -187,7 +189,9 @@ def paired_significance_test(
     )
 
 
-def paired_effect_size(sample_a: Sequence[float], sample_b: Sequence[float]) -> EffectSizeResult:
+def paired_effect_size(
+    sample_a: Sequence[float], sample_b: Sequence[float]
+) -> EffectSizeResult:
     """Compute paired effect sizes (Cohen's dz and rank-biserial correlation)."""
 
     a = _to_1d_float_array(sample_a, name="sample_a")
@@ -237,8 +241,10 @@ def generate_statistical_report(
     candidate_method: str,
     reference_metrics: Mapping[str, Sequence[float]],
     candidate_metrics: Mapping[str, Sequence[float]],
-    reference_metrics_by_domain: Mapping[str, Mapping[str, Sequence[float]]] | None = None,
-    candidate_metrics_by_domain: Mapping[str, Mapping[str, Sequence[float]]] | None = None,
+    reference_metrics_by_domain: Mapping[str, Mapping[str, Sequence[float]]]
+    | None = None,
+    candidate_metrics_by_domain: Mapping[str, Mapping[str, Sequence[float]]]
+    | None = None,
     confidence_level: float = 0.95,
     num_resamples: int = 10_000,
     seed: int = 0,
@@ -256,7 +262,9 @@ def generate_statistical_report(
 
     metrics = sorted(set(reference_metrics).intersection(candidate_metrics))
     if not metrics:
-        raise ValueError("reference_metrics and candidate_metrics must share at least one metric")
+        raise ValueError(
+            "reference_metrics and candidate_metrics must share at least one metric"
+        )
 
     effective_config: dict[str, Any] = {
         "confidence_level": confidence_level,
@@ -269,10 +277,17 @@ def generate_statistical_report(
         effective_config["user_config"] = dict(config)
     cfg_hash = configuration_hash(effective_config)
 
-    domain_payloads: dict[str, tuple[Mapping[str, Sequence[float]], Mapping[str, Sequence[float]]]] = {}
-    if reference_metrics_by_domain is not None or candidate_metrics_by_domain is not None:
+    domain_payloads: dict[
+        str, tuple[Mapping[str, Sequence[float]], Mapping[str, Sequence[float]]]
+    ] = {}
+    if (
+        reference_metrics_by_domain is not None
+        or candidate_metrics_by_domain is not None
+    ):
         if reference_metrics_by_domain is None or candidate_metrics_by_domain is None:
-            raise ValueError("both reference_metrics_by_domain and candidate_metrics_by_domain must be provided")
+            raise ValueError(
+                "both reference_metrics_by_domain and candidate_metrics_by_domain must be provided"
+            )
         shared_domains = sorted(
             set(reference_metrics_by_domain).intersection(candidate_metrics_by_domain)
         )
@@ -297,10 +312,16 @@ def generate_statistical_report(
         else:
             ref_metrics, cand_metrics = domain_payloads[domain]
 
-        shared = sorted(set(ref_metrics).intersection(cand_metrics).intersection(metrics))
+        shared = sorted(
+            set(ref_metrics).intersection(cand_metrics).intersection(metrics)
+        )
         for metric in shared:
-            ref_array = _to_1d_float_array(ref_metrics[metric], name=f"reference[{domain}][{metric}]")
-            cand_array = _to_1d_float_array(cand_metrics[metric], name=f"candidate[{domain}][{metric}]")
+            ref_array = _to_1d_float_array(
+                ref_metrics[metric], name=f"reference[{domain}][{metric}]"
+            )
+            cand_array = _to_1d_float_array(
+                cand_metrics[metric], name=f"candidate[{domain}][{metric}]"
+            )
             if len(ref_array) != len(cand_array):
                 raise ValueError(
                     f"domain '{domain}' metric '{metric}' has mismatched paired sample lengths"

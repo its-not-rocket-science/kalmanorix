@@ -99,7 +99,13 @@ def _load_beir_triplet(dataset_name: str) -> tuple[Any, Any, Any]:
 
 def _build_domain_tables(
     spec: dict[str, Any],
-) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]], list[dict[str, Any]], dict[str, str], dict[str, int]]:
+) -> tuple[
+    dict[str, dict[str, Any]],
+    dict[str, dict[str, Any]],
+    list[dict[str, Any]],
+    dict[str, str],
+    dict[str, int],
+]:
     corpus_ds, queries_ds, qrels_ds = _load_beir_triplet(spec["hf_name"])
 
     doc_map: dict[str, dict[str, Any]] = {}
@@ -180,9 +186,7 @@ def _build_domain_tables(
 
     # remove queries without positives
     query_map = {
-        qid: qrow
-        for qid, qrow in query_map.items()
-        if relevance_counts.get(qid, 0) > 0
+        qid: qrow for qid, qrow in query_map.items() if relevance_counts.get(qid, 0) > 0
     }
 
     qrels = [row for row in qrels if row["query_id"] in query_map]
@@ -190,7 +194,9 @@ def _build_domain_tables(
     return doc_map, query_map, qrels, duplicate_of, relevance_counts
 
 
-def _deterministic_split(query_rows: list[dict[str, Any]], seed: int, ratios: SplitRatios) -> dict[str, str]:
+def _deterministic_split(
+    query_rows: list[dict[str, Any]], seed: int, ratios: SplitRatios
+) -> dict[str, str]:
     if not query_rows:
         return {}
 
@@ -259,7 +265,9 @@ def _build_query_records(
         domain_docs = sorted(docs_by_domain.get(row["domain"], []))
         negatives = [doc_id for doc_id in domain_docs if doc_id not in positive_ids]
         needed_negatives = max(0, max_candidates - len(positive_ids))
-        sampled_negatives = rng.sample(negatives, k=min(needed_negatives, len(negatives)))
+        sampled_negatives = rng.sample(
+            negatives, k=min(needed_negatives, len(negatives))
+        )
 
         candidate_ids = positive_ids + sampled_negatives
         candidate_docs = [
@@ -335,7 +343,9 @@ def build_mixed_domain_benchmark(
         source_row_counts[spec["source_dataset"]] = {
             "corpus": len(docs),
             "queries": len(queries),
-            "qrels": len([r for r in qrels if r["source_dataset"] == spec["source_dataset"]]),
+            "qrels": len(
+                [r for r in qrels if r["source_dataset"] == spec["source_dataset"]]
+            ),
         }
 
     query_rows = list(all_queries.values())
@@ -365,9 +375,20 @@ def build_mixed_domain_benchmark(
     splits_path = output_dir / "splits.parquet"
     benchmark_path = output_dir / "mixed_benchmark.parquet"
 
-    pq.write_table(pa.Table.from_pylist(sorted(all_docs.values(), key=lambda r: r["doc_id"])), corpus_path)
-    pq.write_table(pa.Table.from_pylist(sorted(query_rows, key=lambda r: r["query_id"])), queries_path)
-    pq.write_table(pa.Table.from_pylist(sorted(all_qrels, key=lambda r: (r["query_id"], r["doc_id"]))), qrels_path)
+    pq.write_table(
+        pa.Table.from_pylist(sorted(all_docs.values(), key=lambda r: r["doc_id"])),
+        corpus_path,
+    )
+    pq.write_table(
+        pa.Table.from_pylist(sorted(query_rows, key=lambda r: r["query_id"])),
+        queries_path,
+    )
+    pq.write_table(
+        pa.Table.from_pylist(
+            sorted(all_qrels, key=lambda r: (r["query_id"], r["doc_id"]))
+        ),
+        qrels_path,
+    )
     pq.write_table(pa.Table.from_pylist(split_rows), splits_path)
     pq.write_table(pa.Table.from_pylist(benchmark_records), benchmark_path)
 

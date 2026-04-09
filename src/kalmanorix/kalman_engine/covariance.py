@@ -150,7 +150,9 @@ def estimate_covariance(
     elif ensemble_mean_embeddings is not None:
         target = np.asarray(ensemble_mean_embeddings, dtype=np.float64)
     else:
-        target = np.repeat(np.mean(val_emb, axis=0, keepdims=True), val_emb.shape[0], axis=0)
+        target = np.repeat(
+            np.mean(val_emb, axis=0, keepdims=True), val_emb.shape[0], axis=0
+        )
 
     if target.shape != val_emb.shape:
         raise ValueError("Target embeddings must match validation_embeddings shape")
@@ -163,7 +165,9 @@ def estimate_covariance(
         covariance_diagonal = np.maximum(covariance_diagonal, epsilon)
         centroid = np.mean(val_emb, axis=0)
         raw_uncertainty = np.linalg.norm(val_emb - centroid, axis=1)
-        calibrated_uncertainty, _, _ = calibrate_uncertainty(raw_uncertainty, actual_error, epsilon)
+        calibrated_uncertainty, _, _ = calibrate_uncertainty(
+            raw_uncertainty, actual_error, epsilon
+        )
         correlation = _pearson_corr(calibrated_uncertainty, actual_error, epsilon)
         return covariance_diagonal, correlation
 
@@ -184,7 +188,9 @@ def estimate_covariance(
         covariance_diagonal = np.mean(np.var(mc, axis=0, ddof=1), axis=0)
         covariance_diagonal = np.maximum(covariance_diagonal, epsilon)
         raw_uncertainty = np.mean(np.var(mc, axis=0, ddof=1), axis=1)
-        calibrated_uncertainty, _, _ = calibrate_uncertainty(raw_uncertainty, actual_error, epsilon)
+        calibrated_uncertainty, _, _ = calibrate_uncertainty(
+            raw_uncertainty, actual_error, epsilon
+        )
         correlation = _pearson_corr(calibrated_uncertainty, actual_error, epsilon)
         return covariance_diagonal, correlation
 
@@ -199,7 +205,9 @@ def estimate_covariance(
         k = int(max(1, min(n_clusters, len(train))))
         centroids = train[rng.choice(len(train), size=k, replace=False)].copy()
         for _ in range(5):
-            distances = np.linalg.norm(train[:, None, :] - centroids[None, :, :], axis=2)
+            distances = np.linalg.norm(
+                train[:, None, :] - centroids[None, :, :], axis=2
+            )
             labels = np.argmin(distances, axis=1)
             for idx in range(k):
                 mask = labels == idx
@@ -209,7 +217,9 @@ def estimate_covariance(
         min_dist = np.min(
             np.linalg.norm(val_emb[:, None, :] - centroids[None, :, :], axis=2), axis=1
         )
-        calibrated_uncertainty, _, _ = calibrate_uncertainty(min_dist, actual_error, epsilon)
+        calibrated_uncertainty, _, _ = calibrate_uncertainty(
+            min_dist, actual_error, epsilon
+        )
         base_cov = np.var(errors, axis=0, ddof=1)
         mean_calibrated = float(np.mean(calibrated_uncertainty))
         covariance_diagonal = np.maximum(base_cov * max(mean_calibrated, 1.0), epsilon)

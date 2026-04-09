@@ -32,7 +32,13 @@ def test_aggregate_strategy_metrics_returns_ci_and_query_level() -> None:
     )
 
     assert summary["num_queries"] == 3
-    assert set(summary["metrics"]) == {"ndcg@10", "recall@10", "mrr@10", "latency_ms", "flops_proxy"}
+    assert set(summary["metrics"]) == {
+        "ndcg@10",
+        "recall@10",
+        "mrr@10",
+        "latency_ms",
+        "flops_proxy",
+    }
     assert len(summary["query_level"]["ndcg@10"]) == 3
     assert summary["metrics"]["latency_ms"]["mean"] == np.mean([1.0, 2.0, 3.0])
 

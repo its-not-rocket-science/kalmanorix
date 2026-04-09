@@ -73,7 +73,9 @@ def _rows() -> list[dict]:
 
 
 def test_build_retrieval_baselines_contains_required_suite() -> None:
-    baselines = build_retrieval_baselines({"generalist_model_name": "general_qa", "router_top_k": 2})
+    baselines = build_retrieval_baselines(
+        {"generalist_model_name": "general_qa", "router_top_k": 2}
+    )
     names = [baseline.name for baseline in baselines]
 
     assert names == [

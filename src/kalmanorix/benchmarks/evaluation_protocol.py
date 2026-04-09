@@ -174,14 +174,18 @@ def _mrr(ranked_doc_ids: Sequence[str], relevant: set[str]) -> float:
     return 0.0
 
 
-def _ndcg_at_k(ranked_doc_ids: Sequence[str], gains: Mapping[str, float], k: int) -> float:
+def _ndcg_at_k(
+    ranked_doc_ids: Sequence[str], gains: Mapping[str, float], k: int
+) -> float:
     dcg = 0.0
     for idx, doc_id in enumerate(ranked_doc_ids[:k], start=1):
         rel = float(gains.get(doc_id, 0.0))
         if rel > 0:
             dcg += (2.0**rel - 1.0) / np.log2(idx + 1.0)
 
-    ideal_rels = sorted((float(v) for v in gains.values() if float(v) > 0), reverse=True)
+    ideal_rels = sorted(
+        (float(v) for v in gains.values() if float(v) > 0), reverse=True
+    )
     idcg = 0.0
     for idx, rel in enumerate(ideal_rels[:k], start=1):
         idcg += (2.0**rel - 1.0) / np.log2(idx + 1.0)
@@ -225,10 +229,16 @@ def evaluate_locked_protocol(
     per_domain_secondary_raw: dict[str, dict[str, list[float]]] = {}
 
     for query_id in sorted(qrels):
-        gains = {doc_id: float(rel) for doc_id, rel in qrels[query_id].items() if float(rel) > 0.0}
+        gains = {
+            doc_id: float(rel)
+            for doc_id, rel in qrels[query_id].items()
+            if float(rel) > 0.0
+        }
         relevant = set(gains)
 
-        resolved = _resolve_ranking(rankings.get(query_id, QueryRanking(doc_ids=tuple())))
+        resolved = _resolve_ranking(
+            rankings.get(query_id, QueryRanking(doc_ids=tuple()))
+        )
 
         r1 = _recall_at_k(resolved, relevant, 1)
         r5 = _recall_at_k(resolved, relevant, 5)
@@ -254,7 +264,9 @@ def evaluate_locked_protocol(
         per_domain_primary_raw[domain]["mrr"].append(mrr)
         per_domain_primary_raw[domain]["ndcg@10"].append(ndcg)
 
-        per_domain_secondary_raw.setdefault(domain, {name: [] for name in SECONDARY_METRICS})
+        per_domain_secondary_raw.setdefault(
+            domain, {name: [] for name in SECONDARY_METRICS}
+        )
         if latency_ms is not None and query_id in latency_ms:
             value = float(latency_ms[query_id])
             secondary["latency_ms"].append(value)
@@ -267,23 +279,34 @@ def evaluate_locked_protocol(
             value = float(peak_memory_mb[query_id])
             secondary["peak_memory_mb"].append(value)
             per_domain_secondary_raw[domain]["peak_memory_mb"].append(value)
-        if specialist_count_selected is not None and query_id in specialist_count_selected:
+        if (
+            specialist_count_selected is not None
+            and query_id in specialist_count_selected
+        ):
             value = float(specialist_count_selected[query_id])
             secondary["specialist_count_selected"].append(value)
             per_domain_secondary_raw[domain]["specialist_count_selected"].append(value)
 
-    global_primary = MappingProxyType({name: _aggregate(vals) for name, vals in primary.items()})
-    global_secondary = MappingProxyType({name: _aggregate(vals) for name, vals in secondary.items()})
+    global_primary = MappingProxyType(
+        {name: _aggregate(vals) for name, vals in primary.items()}
+    )
+    global_secondary = MappingProxyType(
+        {name: _aggregate(vals) for name, vals in secondary.items()}
+    )
 
     per_domain_primary = MappingProxyType(
         {
-            domain: MappingProxyType({name: _aggregate(vals) for name, vals in metrics.items()})
+            domain: MappingProxyType(
+                {name: _aggregate(vals) for name, vals in metrics.items()}
+            )
             for domain, metrics in per_domain_primary_raw.items()
         }
     )
     per_domain_secondary = MappingProxyType(
         {
-            domain: MappingProxyType({name: _aggregate(vals) for name, vals in metrics.items()})
+            domain: MappingProxyType(
+                {name: _aggregate(vals) for name, vals in metrics.items()}
+            )
             for domain, metrics in per_domain_secondary_raw.items()
         }
     )

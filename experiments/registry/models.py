@@ -46,7 +46,9 @@ class HFMeanPoolEmbedder:
     def __call__(self, text: str) -> np.ndarray:
         torch = self._torch
         with torch.inference_mode():
-            encoded = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+            encoded = self.tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=512
+            )
             encoded = {k: v.to(self.device) for k, v in encoded.items()}
             outputs = self.model(**encoded)
             hidden = outputs.last_hidden_state
@@ -64,18 +66,24 @@ class SpecialistSpec:
     model_name: str
 
 
-def build_village(kind: str, payload: Any, specialists: list[dict[str, Any]], device: str) -> Village:
+def build_village(
+    kind: str, payload: Any, specialists: list[dict[str, Any]], device: str
+) -> Village:
     """Build village from config/model kind."""
     if kind == "debug_keyword":
         modules = [
             SEF(
                 name="tech",
-                embed=DebugKeywordEmbedder(96, ["battery", "cpu", "gpu", "camera"], seed=7),
+                embed=DebugKeywordEmbedder(
+                    96, ["battery", "cpu", "gpu", "camera"], seed=7
+                ),
                 sigma2=KeywordSigma2({"battery", "cpu", "gpu", "camera"}, 0.1, 0.5),
             ),
             SEF(
                 name="cook",
-                embed=DebugKeywordEmbedder(96, ["braise", "simmer", "sauce", "oven"], seed=11),
+                embed=DebugKeywordEmbedder(
+                    96, ["braise", "simmer", "sauce", "oven"], seed=11
+                ),
                 sigma2=KeywordSigma2({"braise", "simmer", "sauce", "oven"}, 0.1, 0.5),
             ),
         ]
@@ -89,9 +97,14 @@ def build_village(kind: str, payload: Any, specialists: list[dict[str, Any]], de
         for raw in specialists:
             spec = SpecialistSpec(**raw)
             embedder = HFMeanPoolEmbedder(spec.model_name, device=device)
-            texts = [r["query_text"] for r in rows if r.get("domain_label") == spec.domain]
+            texts = [
+                r["query_text"] for r in rows if r.get("domain_label") == spec.domain
+            ]
             if not texts:
-                texts = [f"{spec.domain} calibration", f"{spec.domain} retrieval terminology"]
+                texts = [
+                    f"{spec.domain} calibration",
+                    f"{spec.domain} retrieval terminology",
+                ]
             calibration = (texts * ((128 // len(texts)) + 1))[:128]
             sigma2 = CentroidDistanceSigma2.from_calibration(
                 embed=embedder,

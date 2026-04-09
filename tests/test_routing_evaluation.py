@@ -47,7 +47,9 @@ def _samples() -> list[RoutingSample]:
 def test_semantic_routing_report_categories() -> None:
     report = evaluate_routing(
         _samples(),
-        RoutingRunConfig(mode="semantic", semantic_threshold=0.75, quality_tolerance=0.01),
+        RoutingRunConfig(
+            mode="semantic", semantic_threshold=0.75, quality_tolerance=0.01
+        ),
     )
 
     assert report["summary"]["routing_precision"] > 0
@@ -86,6 +88,10 @@ def test_threshold_robustness_contains_ranges() -> None:
     )
 
     assert len(robustness["threshold_runs"]) == 3
-    assert robustness["robustness"]["best_semantic_threshold_by_f1"] in {0.6, 0.75, 0.85}
+    assert robustness["robustness"]["best_semantic_threshold_by_f1"] in {
+        0.6,
+        0.75,
+        0.85,
+    }
     assert robustness["robustness"]["f1_range"] >= 0
     assert robustness["robustness"]["flops_savings_range"] >= 0

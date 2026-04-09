@@ -67,6 +67,7 @@ def log_event(level: int, event: str, **kwargs: object) -> None:
     payload = {"event": event, **kwargs}
     logger.log(level, json.dumps(payload, default=str))
 
+
 # -----------------------------------------------------------------------------
 # Rate limiting configuration
 # -----------------------------------------------------------------------------
@@ -174,6 +175,7 @@ def create_toy_village() -> Village:
 # -----------------------------------------------------------------------------
 # Global server state
 # -----------------------------------------------------------------------------
+
 
 @dataclass
 class SpecialistRuntime:
@@ -489,7 +491,9 @@ async def request_id_middleware(request: Request, call_next):
 @app.get("/healthz", response_model=HealthResponse)
 async def healthz():
     """Liveness probe endpoint."""
-    return HealthResponse(status="ok", service="kalmanorix-fusion-server", version="0.2.0")
+    return HealthResponse(
+        status="ok", service="kalmanorix-fusion-server", version="0.2.0"
+    )
 
 
 @app.get("/readyz", response_model=ReadinessResponse)

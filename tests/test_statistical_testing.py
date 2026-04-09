@@ -34,7 +34,9 @@ def test_paired_significance_matches_scipy_and_handles_degenerate_case() -> None
     improved = baseline + 0.4
 
     significant = paired_significance_test(improved, baseline)
-    expected = wilcoxon(improved, baseline, alternative="two-sided", zero_method="wilcox", method="auto")
+    expected = wilcoxon(
+        improved, baseline, alternative="two-sided", zero_method="wilcox", method="auto"
+    )
     assert significant.estimable is True
     assert significant.statistic == pytest.approx(float(expected.statistic))
     assert significant.p_value == pytest.approx(float(expected.pvalue))
@@ -73,7 +75,10 @@ def test_report_generator_outputs_per_domain_overall_and_holm_correction() -> No
 
     ndcg_overall = report.comparisons["ndcg@10"]
     assert ndcg_overall.mean_difference == pytest.approx(
-        np.mean(np.array(reference_metrics["ndcg@10"]) - np.array(candidate_metrics["ndcg@10"]))
+        np.mean(
+            np.array(reference_metrics["ndcg@10"])
+            - np.array(candidate_metrics["ndcg@10"])
+        )
     )
     assert 0.0 <= ndcg_overall.p_value <= 1.0
     assert 0.0 <= ndcg_overall.adjusted_p_value <= 1.0
@@ -84,7 +89,10 @@ def test_report_generator_outputs_per_domain_overall_and_holm_correction() -> No
     # 3 domains x 2 metrics = 6 hypotheses in one Holm family.
     assert len(report.experiment_log) == 6
     assert len({entry.bootstrap_seed for entry in report.experiment_log}) == 6
-    assert all(entry.configuration_hash == report.configuration_hash for entry in report.experiment_log)
+    assert all(
+        entry.configuration_hash == report.configuration_hash
+        for entry in report.experiment_log
+    )
 
 
 def test_effect_size_has_expected_sign() -> None:
@@ -128,7 +136,10 @@ def test_holm_adjusted_p_values_are_not_smaller_than_raw_p_values() -> None:
         seed=19,
     )
     for metric in ["ndcg@10", "recall@10", "mrr@10"]:
-        assert report.comparisons[metric].adjusted_p_value >= report.comparisons[metric].p_value
+        assert (
+            report.comparisons[metric].adjusted_p_value
+            >= report.comparisons[metric].p_value
+        )
 
 
 def test_input_validation_errors() -> None:

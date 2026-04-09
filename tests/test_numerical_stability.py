@@ -42,10 +42,7 @@ def test_extreme_covariance_scales_small_large_mixed() -> None:
     covariance_sets = [
         [np.full(d, 1e-6, dtype=np.float64) for _ in range(n_models)],
         [np.full(d, 1e6, dtype=np.float64) for _ in range(n_models)],
-        [
-            np.full(d, scale, dtype=np.float64)
-            for scale in (1e-6, 1e-3, 1.0, 1e3, 1e6)
-        ],
+        [np.full(d, scale, dtype=np.float64) for scale in (1e-6, 1e-3, 1.0, 1e3, 1e6)],
     ]
 
     for covariances in covariance_sets:
@@ -83,8 +80,8 @@ def test_ill_conditioned_updates_dominant_and_ignored_model() -> None:
 
     embeddings = [dominant, uncertain, neutral]
     covariances = [
-        np.full(d, 1e-9, dtype=np.float64),   # dominant certainty
-        np.full(d, 1e9, dtype=np.float64),    # effectively ignored
+        np.full(d, 1e-9, dtype=np.float64),  # dominant certainty
+        np.full(d, 1e9, dtype=np.float64),  # effectively ignored
         np.full(d, 1.0, dtype=np.float64),
     ]
 
@@ -117,7 +114,9 @@ def test_edge_case_identical_embeddings() -> None:
     d = 72
     embedding = np.linspace(-1.0, 1.0, d, dtype=np.float64)
     embeddings = [embedding.copy() for _ in range(5)]
-    covariances = [np.full(d, val, dtype=np.float64) for val in (1e-4, 1e-2, 1, 10, 100)]
+    covariances = [
+        np.full(d, val, dtype=np.float64) for val in (1e-4, 1e-2, 1, 10, 100)
+    ]
 
     fused_embedding, fused_covariance = kalman_fuse_diagonal(
         embeddings, covariances, sort_by_certainty=True
@@ -134,9 +133,9 @@ def test_edge_case_conflicting_embeddings() -> None:
     e2 = np.zeros(d, dtype=np.float64)
     e3 = np.zeros(d, dtype=np.float64)
 
-    e1[0] = 1.0      # +x
-    e2[0] = -1.0     # -x (opposite)
-    e3[1] = 1.0      # +y (orthogonal)
+    e1[0] = 1.0  # +x
+    e2[0] = -1.0  # -x (opposite)
+    e3[1] = 1.0  # +y (orthogonal)
 
     embeddings = [e1, e2, e3]
     covariances = [

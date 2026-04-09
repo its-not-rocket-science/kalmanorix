@@ -37,8 +37,12 @@ def main() -> None:
         stacklevel=2,
     )
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", required=True, type=Path, help="Path to config file")
-    parser.add_argument("--output", required=True, type=Path, help="Path to output JSON")
+    parser.add_argument(
+        "--config", required=True, type=Path, help="Path to config file"
+    )
+    parser.add_argument(
+        "--output", required=True, type=Path, help="Path to output JSON"
+    )
     args = parser.parse_args()
 
     config = _load_config(args.config)

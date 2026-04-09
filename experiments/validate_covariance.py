@@ -60,8 +60,8 @@ def _reliability_diagram(
     x1, y1 = width - margin, margin
 
     # Axes
-    canvas[y1:y0 + 1, x0 - 1 : x0 + 1] = 0
-    canvas[y0 - 1 : y0 + 1, x0:x1 + 1] = 0
+    canvas[y1 : y0 + 1, x0 - 1 : x0 + 1] = 0
+    canvas[y0 - 1 : y0 + 1, x0 : x1 + 1] = 0
 
     if x_vals:
         max_val = max(max(x_vals), max(y_vals), 1e-8)
@@ -71,7 +71,10 @@ def _reliability_diagram(
         for t in np.linspace(0, 1, 200):
             px = int(x0 + t * (x1 - x0))
             py = int(y0 - t * (y0 - y1))
-            canvas[max(py - 1, 0) : min(py + 2, height), max(px - 1, 0) : min(px + 2, width)] = [180, 180, 180]
+            canvas[
+                max(py - 1, 0) : min(py + 2, height),
+                max(px - 1, 0) : min(px + 2, width),
+            ] = [180, 180, 180]
 
         # Empirical curve points (blue)
         pts = []
@@ -79,7 +82,10 @@ def _reliability_diagram(
             px = int(x0 + norm(xv) * (x1 - x0))
             py = int(y0 - norm(yv) * (y0 - y1))
             pts.append((px, py))
-            canvas[max(py - 3, 0) : min(py + 4, height), max(px - 3, 0) : min(px + 4, width)] = [46, 117, 182]
+            canvas[
+                max(py - 3, 0) : min(py + 4, height),
+                max(px - 3, 0) : min(px + 4, width),
+            ] = [46, 117, 182]
 
         # Connect points
         for (ax, ay), (bx, by) in zip(pts[:-1], pts[1:]):
@@ -87,7 +93,10 @@ def _reliability_diagram(
             for t in np.linspace(0, 1, steps):
                 px = int(ax + t * (bx - ax))
                 py = int(ay + t * (by - ay))
-                canvas[max(py - 1, 0) : min(py + 2, height), max(px - 1, 0) : min(px + 2, width)] = [46, 117, 182]
+                canvas[
+                    max(py - 1, 0) : min(py + 2, height),
+                    max(px - 1, 0) : min(px + 2, width),
+                ] = [46, 117, 182]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     _save_png(canvas, output_path)
@@ -146,7 +155,8 @@ def run_validation(
     # Simulated MC dropout samples around validation embeddings.
     rng = np.random.default_rng(seed + 2)
     dropout_passes = np.stack(
-        [val_pred + rng.normal(0.0, 0.03, size=val_pred.shape) for _ in range(30)], axis=0
+        [val_pred + rng.normal(0.0, 0.03, size=val_pred.shape) for _ in range(30)],
+        axis=0,
     )
     mc_cov = np.mean(np.var(dropout_passes, axis=0, ddof=1), axis=0)
     mc_uncertainty = np.mean(np.var(dropout_passes, axis=0, ddof=1), axis=1)

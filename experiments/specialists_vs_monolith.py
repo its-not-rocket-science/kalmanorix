@@ -214,8 +214,12 @@ def generate_mixed_test_set(
     n_mixed = n_total - n_legal - n_medical
 
     test: List[Sample] = []
-    test += generate_domain_samples("legal", n_legal, rng, [d for d in domains if d != "legal"])
-    test += generate_domain_samples("medical", n_medical, rng, [d for d in domains if d != "medical"])
+    test += generate_domain_samples(
+        "legal", n_legal, rng, [d for d in domains if d != "legal"]
+    )
+    test += generate_domain_samples(
+        "medical", n_medical, rng, [d for d in domains if d != "medical"]
+    )
 
     # Ambiguous: blend two random domains and set label from first picked domain.
     for _ in range(n_mixed):
@@ -271,7 +275,9 @@ def kalman_fuse_probabilities(
     return fused / (float(np.sum(fused)) + 1e-12)
 
 
-def accuracy_at_1_and_mrr(probs: Sequence[np.ndarray], labels: Sequence[str], classes: Sequence[str]) -> Tuple[float, float]:
+def accuracy_at_1_and_mrr(
+    probs: Sequence[np.ndarray], labels: Sequence[str], classes: Sequence[str]
+) -> Tuple[float, float]:
     class_to_idx = {c: i for i, c in enumerate(classes)}
     correct = 0
     rr_sum = 0.0
@@ -314,7 +320,9 @@ def corrupt_for_monolith(
     return corrupted
 
 
-def run_condition(domains: Sequence[str], seed: int, samples_per_domain: int, test_size: int) -> List[dict]:
+def run_condition(
+    domains: Sequence[str], seed: int, samples_per_domain: int, test_size: int
+) -> List[dict]:
     rng = random.Random(seed)
 
     # 1) Data generation and save
@@ -357,7 +365,9 @@ def run_condition(domains: Sequence[str], seed: int, samples_per_domain: int, te
     avg_tokens = 12
     n_params_proxy = len(all_classes) * 1024
     specialist_flops = sum(
-        estimate_training_flops(n_params_proxy, samples_per_domain * avg_tokens, epochs=1)
+        estimate_training_flops(
+            n_params_proxy, samples_per_domain * avg_tokens, epochs=1
+        )
         for _ in domains
     )
     monolith_flops_raw = estimate_training_flops(
@@ -468,7 +478,14 @@ def maybe_plot(results_csv: Path) -> None:
             xs = []
             ys = []
             for n in [2, 3, 4, 5]:
-                hit = next((r for r in rows if int(r["num_domains"]) == n and r["method"] == method), None)
+                hit = next(
+                    (
+                        r
+                        for r in rows
+                        if int(r["num_domains"]) == n and r["method"] == method
+                    ),
+                    None,
+                )
                 if hit:
                     xs.append(n)
                     ys.append(float(hit[metric]))
