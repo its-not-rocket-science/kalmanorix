@@ -37,6 +37,25 @@ def test_aggregate_strategy_metrics_returns_ci_and_query_level() -> None:
     assert summary["metrics"]["latency_ms"]["mean"] == np.mean([1.0, 2.0, 3.0])
 
 
+def test_aggregate_strategy_metrics_sorts_query_ids_for_alignment() -> None:
+    rankings = {"q2": ["d2"], "q1": ["d1"]}
+    ground_truth = {"q1": {"d1"}, "q2": {"d2"}}
+    latency = {"q1": 3.0, "q2": 1.0}
+    flops = {"q1": 2.0, "q2": 1.0}
+
+    summary = aggregate_strategy_metrics(
+        rankings=rankings,
+        ground_truth=ground_truth,
+        latency_ms=latency,
+        flops_proxy=flops,
+        seed=1,
+        num_resamples=200,
+    )
+
+    assert summary["query_level"]["ndcg@10"] == [1.0, 1.0]
+    assert summary["metrics"]["latency_ms"]["mean"] == 2.0
+
+
 def test_paired_statistical_report_for_kalman_vs_mean_metrics() -> None:
     kalman = {
         "ndcg@10": [0.9, 0.8, 0.7, 0.6],

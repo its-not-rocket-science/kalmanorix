@@ -196,6 +196,14 @@ def run_canonical_benchmark(
             num_resamples=num_resamples,
         )
 
+    required_methods = {"mean", "kalman", "router_only_top1", "uniform_mean_fusion"}
+    missing_required = sorted(required_methods.difference(methods))
+    if missing_required:
+        raise ValueError(
+            "Canonical benchmark requires MeanFuser, KalmanorixFuser, hard-routing, "
+            f"and all-routing+mean baselines. Missing strategies: {missing_required}"
+        )
+
     ordered_qids = sorted(rankings["kalman"])
     kalman_metrics = methods["kalman"]["query_level"]
     mean_metrics = methods["mean"]["query_level"]
@@ -272,7 +280,12 @@ def run_canonical_benchmark(
                 "reason": (
                     "present"
                     if key in methods
-                    else "LearnedGateFuser requires a two-specialist setup; current run uses three specialists"
+                    else (
+                        "LearnedGateFuser requires a two-specialist setup; current run uses "
+                        f"{len(DEFAULT_REAL_SPECIALISTS)} specialists"
+                        if name == "LearnedGateFuser"
+                        else "strategy not emitted by benchmark runner"
+                    )
                 ),
             }
             for name, key in CANONICAL_METHOD_ALIASES.items()
