@@ -6,10 +6,10 @@ The ScoutRouter decides which specialists to consult for a given query.
 
 from __future__ import annotations
 
-import re
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional, Union, Dict, Tuple
+import logging
+from typing import Callable, List, Optional, Union, Dict, Tuple, Literal
 
 import numpy as np
 
@@ -17,6 +17,11 @@ from .village import SEF, Village
 from .types import Embedder
 
 ThresholdFunction = Union[float, Callable[[str, np.ndarray, List[float]], float]]
+RoutingMode = Literal["all", "hard", "semantic", "confidence"]
+FallbackMode = Literal["all", "hard"]
+ConfidenceMetric = Literal["similarity_gap", "top_similarity"]
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -44,13 +49,14 @@ class ScoutRouter:
           Requires fast_embedder.
     """
 
-    mode: str = "all"
+    mode: RoutingMode = "all"
     fast_embedder: Optional[Embedder] = None
     similarity_threshold: ThresholdFunction = 0.7
-    fallback_mode: str = "all"
+    fallback_mode: FallbackMode = "all"
     max_cache_size: int = 1000
     confidence_threshold: float = 0.8
-    confidence_metric: str = "similarity_gap"
+    confidence_metric: ConfidenceMetric = "similarity_gap"
+    hard_routing_heuristic: Optional[Callable[[str, Village], Optional[SEF]]] = None
     # Internal caches
     _centroid_cache: Dict[str, Optional[np.ndarray]] = field(
         default_factory=dict, init=False
@@ -58,6 +64,21 @@ class ScoutRouter:
     _embedding_cache: OrderedDict[str, Tuple[np.ndarray, np.ndarray]] = field(
         default_factory=OrderedDict, init=False
     )
+
+    def __post_init__(self) -> None:
+        valid_modes = {"all", "hard", "semantic", "confidence"}
+        if self.mode not in valid_modes:
+            raise ValueError(f"mode must be one of {sorted(valid_modes)}")
+        valid_fallback_modes = {"all", "hard"}
+        if self.fallback_mode not in valid_fallback_modes:
+            raise ValueError(
+                f"fallback_mode must be one of {sorted(valid_fallback_modes)}"
+            )
+        valid_confidence_metrics = {"similarity_gap", "top_similarity"}
+        if self.confidence_metric not in valid_confidence_metrics:
+            raise ValueError(
+                f"confidence_metric must be one of {sorted(valid_confidence_metrics)}"
+            )
 
     def _get_query_embedding(self, query: str) -> np.ndarray:
         """Get normalized query embedding from fast_embedder with LRU caching."""
@@ -122,19 +143,9 @@ class ScoutRouter:
         if self.mode == "all":
             return village.modules
         if self.mode == "hard":
-            q = query.lower()
-
-            charge_like = bool(
-                re.search(
-                    r"\b(usb-?c|pd\b|power delivery|pps|pdo|rdo|watt|wattage|e-?marker|qc\b)\b",
-                    q,
-                )
-            )
-
-            if charge_like:
-                for m in village.modules:
-                    if m.name == "charge":
-                        return [m]
+            heuristic_selection = self._select_with_hard_heuristic(query, village)
+            if heuristic_selection is not None:
+                return [heuristic_selection]
 
             return [min(village.modules, key=lambda m: m.sigma2_for(query))]
         if self.mode == "semantic":
@@ -194,20 +205,24 @@ class ScoutRouter:
         else:
             raise ValueError(f"Unknown confidence_metric: {self.confidence_metric}")
 
-        print(
-            f"[ScoutRouter] confidence={confidence:.6f} (metric={self.confidence_metric}, threshold={self.confidence_threshold})"
+        logger.debug(
+            "ScoutRouter confidence=%0.6f (metric=%s, threshold=%0.6f)",
+            confidence,
+            self.confidence_metric,
+            self.confidence_threshold,
         )
 
         if confidence >= self.confidence_threshold:
             # Return only the top specialist
             top_module = max(module_similarities, key=lambda x: x[1])[0]
-            print(
-                f"[ScoutRouter] confidence high, returning single specialist: {top_module.name}"
+            logger.debug(
+                "ScoutRouter confidence high; returning single specialist: %s",
+                top_module.name,
             )
             return [top_module]
         else:
             # Confidence insufficient, proceed with semantic routing
-            print("[ScoutRouter] confidence low, falling back to semantic routing")
+            logger.debug("ScoutRouter confidence low; falling back to semantic routing")
             return self._semantic_selection(query, village)
 
     def warm_cache(self, queries: list[str]) -> None:
@@ -287,14 +302,27 @@ class ScoutRouter:
         # Determine threshold
         if callable(self.similarity_threshold):
             threshold = self.similarity_threshold(query, query_vec, similarities)
-            print(f"[ScoutRouter] threshold={threshold:.6f} (dynamic)")
+            logger.debug("ScoutRouter threshold=%0.6f (dynamic)", threshold)
         else:
             threshold = self.similarity_threshold
-            print(f"[ScoutRouter] threshold={threshold:.6f}")
+            logger.debug("ScoutRouter threshold=%0.6f", threshold)
 
         # Select modules meeting threshold
         selected = [module for module, sim in module_similarities if sim >= threshold]
-        print(f"[ScoutRouter] selected modules: {[m.name for m in selected]}")
+        logger.debug("ScoutRouter selected modules: %s", [m.name for m in selected])
 
         # Return selected modules or fallback if none
         return selected if selected else self._fallback_selection(query, village)
+
+    def _select_with_hard_heuristic(
+        self,
+        query: str,
+        village: Village,
+    ) -> Optional[SEF]:
+        """Apply optional hard-routing heuristic.
+
+        Core routing remains sigma²-minimisation; heuristics are opt-in and isolated.
+        """
+        if self.hard_routing_heuristic is not None:
+            return self.hard_routing_heuristic(query, village)
+        return None
