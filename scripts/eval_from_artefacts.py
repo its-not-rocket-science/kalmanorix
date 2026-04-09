@@ -2,6 +2,10 @@
 """
 Evaluate Kalmanorix strategies from SEF JSON artefacts + an embedder registry.
 
+Legacy notice:
+This script uses ad-hoc reporting and variable metric sets. New experiments
+must use `kalmanorix.benchmarks.evaluation_protocol` for preregistered metrics.
+
 This script demonstrates "Option B" (registry-driven runtime construction):
 
 - SEF artefacts are small JSON files committed to the repo.
@@ -48,6 +52,7 @@ from typing import cast, Dict, Iterable, List, Optional, Tuple
 
 import argparse
 import json
+import warnings
 
 import numpy as np
 
@@ -260,6 +265,12 @@ def cos(u: np.ndarray, v: np.ndarray) -> float:
 
 # pylint: disable=too-many-locals,too-many-statements
 def main() -> None:
+    warnings.warn(
+        "scripts/eval_from_artefacts.py is legacy; use preregistered "
+        "evaluation_protocol metrics for new experiments.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     """Run mixed-domain retrieval evaluation with various routing+fusion strategies."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--sefs-dir", type=str, default="artefacts/sefs")

@@ -11,7 +11,10 @@ from .fusion_baselines import (
 from .mixed_domain import build_mixed_domain_benchmark, main
 from .evaluation_protocol import (
     EvaluationReport,
+    MetricDefinition,
+    PRIMARY_METRICS,
     QueryRanking,
+    SECONDARY_METRICS,
     evaluate_locked_protocol,
 )
 from .statistical_testing import (
@@ -35,6 +38,9 @@ __all__ = [
     "build_mixed_domain_benchmark",
     "main",
     "QueryRanking",
+    "MetricDefinition",
+    "PRIMARY_METRICS",
+    "SECONDARY_METRICS",
     "EvaluationReport",
     "evaluate_locked_protocol",
     "BootstrapConfidenceInterval",

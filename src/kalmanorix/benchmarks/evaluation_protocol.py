@@ -20,10 +20,76 @@ PROTOCOL_VERSION = "preregistered_eval_v1"
 PRIMARY_K_VALUES: tuple[int, ...] = (1, 5, 10)
 NDCG_K = 10
 
+
+@dataclass(frozen=True)
+class MetricDefinition:
+    """Immutable definition for one preregistered metric."""
+
+    name: str
+    kind: str
+    description: str
+    aggregation: str = "mean_and_median_over_queries"
+
+
+PRIMARY_METRICS: Mapping[str, MetricDefinition] = MappingProxyType(
+    {
+        "recall@1": MetricDefinition(
+            name="recall@1",
+            kind="primary",
+            description="Per-query Recall@1 over binary relevance derived from qrels gains > 0.",
+        ),
+        "recall@5": MetricDefinition(
+            name="recall@5",
+            kind="primary",
+            description="Per-query Recall@5 over binary relevance derived from qrels gains > 0.",
+        ),
+        "recall@10": MetricDefinition(
+            name="recall@10",
+            kind="primary",
+            description="Per-query Recall@10 over binary relevance derived from qrels gains > 0.",
+        ),
+        "mrr": MetricDefinition(
+            name="mrr",
+            kind="primary",
+            description="Per-query reciprocal rank of first relevant result.",
+        ),
+        "ndcg@10": MetricDefinition(
+            name="ndcg@10",
+            kind="primary",
+            description="Per-query nDCG@10 with graded gains from qrels.",
+        ),
+    }
+)
+
+SECONDARY_METRICS: Mapping[str, MetricDefinition] = MappingProxyType(
+    {
+        "latency_ms": MetricDefinition(
+            name="latency_ms",
+            kind="secondary",
+            description="End-to-end per-query latency in milliseconds.",
+        ),
+        "flops_proxy": MetricDefinition(
+            name="flops_proxy",
+            kind="secondary",
+            description="Per-query floating-point operations proxy reported by the caller.",
+        ),
+        "peak_memory_mb": MetricDefinition(
+            name="peak_memory_mb",
+            kind="secondary",
+            description="Peak memory in MB attributed to each query evaluation.",
+        ),
+        "specialist_count_selected": MetricDefinition(
+            name="specialist_count_selected",
+            kind="secondary",
+            description="Number of specialists selected for each query.",
+        ),
+    }
+)
+
 # This text is part of the contractual protocol and should be logged.
 PROTOCOL_SPEC_TEXT = (
     "Primary metrics: Recall@1, Recall@5, Recall@10, MRR, nDCG@10. "
-    "Secondary metrics: latency_ms, flops, memory_mb. "
+    "Secondary metrics: latency_ms, flops_proxy, peak_memory_mb, specialist_count_selected. "
     "Per-query Recall@k = |R_q intersect TopK_q| / |R_q| with Recall@k=0 when |R_q|=0. "
     "Per-query MRR = 1/rank_q where rank_q is first rank of any relevant result, else 0. "
     "Per-query DCG@10 = sum_{i=1..10} ((2^{rel_i}-1)/log2(i+1)); "
@@ -137,8 +203,9 @@ def evaluate_locked_protocol(
     qrels: Mapping[str, Mapping[str, float]],
     query_domains: Mapping[str, str],
     latency_ms: Mapping[str, float] | None = None,
-    flops: Mapping[str, float] | None = None,
-    memory_mb: Mapping[str, float] | None = None,
+    flops_proxy: Mapping[str, float] | None = None,
+    peak_memory_mb: Mapping[str, float] | None = None,
+    specialist_count_selected: Mapping[str, float] | None = None,
 ) -> EvaluationReport:
     """Evaluate predictions with a pre-registered immutable protocol.
 
@@ -151,18 +218,8 @@ def evaluate_locked_protocol(
     if set(qrels) != set(query_domains):
         raise ValueError("query_domains keys must match qrels keys exactly")
 
-    primary: dict[str, list[float]] = {
-        "recall@1": [],
-        "recall@5": [],
-        "recall@10": [],
-        "mrr": [],
-        "ndcg@10": [],
-    }
-    secondary: dict[str, list[float]] = {
-        "latency_ms": [],
-        "flops": [],
-        "memory_mb": [],
-    }
+    primary: dict[str, list[float]] = {name: [] for name in PRIMARY_METRICS}
+    secondary: dict[str, list[float]] = {name: [] for name in SECONDARY_METRICS}
 
     per_domain_primary_raw: dict[str, dict[str, list[float]]] = {}
     per_domain_secondary_raw: dict[str, dict[str, list[float]]] = {}
@@ -182,7 +239,7 @@ def evaluate_locked_protocol(
         domain = query_domains[query_id]
         per_domain_primary_raw.setdefault(
             domain,
-            {"recall@1": [], "recall@5": [], "recall@10": [], "mrr": [], "ndcg@10": []},
+            {name: [] for name in PRIMARY_METRICS},
         )
 
         primary["recall@1"].append(r1)
@@ -197,19 +254,23 @@ def evaluate_locked_protocol(
         per_domain_primary_raw[domain]["mrr"].append(mrr)
         per_domain_primary_raw[domain]["ndcg@10"].append(ndcg)
 
-        per_domain_secondary_raw.setdefault(domain, {"latency_ms": [], "flops": [], "memory_mb": []})
+        per_domain_secondary_raw.setdefault(domain, {name: [] for name in SECONDARY_METRICS})
         if latency_ms is not None and query_id in latency_ms:
             value = float(latency_ms[query_id])
             secondary["latency_ms"].append(value)
             per_domain_secondary_raw[domain]["latency_ms"].append(value)
-        if flops is not None and query_id in flops:
-            value = float(flops[query_id])
-            secondary["flops"].append(value)
-            per_domain_secondary_raw[domain]["flops"].append(value)
-        if memory_mb is not None and query_id in memory_mb:
-            value = float(memory_mb[query_id])
-            secondary["memory_mb"].append(value)
-            per_domain_secondary_raw[domain]["memory_mb"].append(value)
+        if flops_proxy is not None and query_id in flops_proxy:
+            value = float(flops_proxy[query_id])
+            secondary["flops_proxy"].append(value)
+            per_domain_secondary_raw[domain]["flops_proxy"].append(value)
+        if peak_memory_mb is not None and query_id in peak_memory_mb:
+            value = float(peak_memory_mb[query_id])
+            secondary["peak_memory_mb"].append(value)
+            per_domain_secondary_raw[domain]["peak_memory_mb"].append(value)
+        if specialist_count_selected is not None and query_id in specialist_count_selected:
+            value = float(specialist_count_selected[query_id])
+            secondary["specialist_count_selected"].append(value)
+            per_domain_secondary_raw[domain]["specialist_count_selected"].append(value)
 
     global_primary = MappingProxyType({name: _aggregate(vals) for name, vals in primary.items()})
     global_secondary = MappingProxyType({name: _aggregate(vals) for name, vals in secondary.items()})
