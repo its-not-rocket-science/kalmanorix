@@ -35,6 +35,19 @@ def test_root_endpoint():
     assert "endpoints" in data
 
 
+def test_health_and_readiness_endpoints():
+    """Health and readiness endpoints should be available."""
+    health = client.get("/healthz")
+    assert health.status_code == 200
+    assert health.json()["status"] == "ok"
+
+    ready = client.get("/readyz")
+    assert ready.status_code == 200
+    ready_data = ready.json()
+    assert ready_data["status"] in {"ready", "not_ready"}
+    assert "modules_loaded" in ready_data
+
+
 def test_modules_endpoint():
     """GET /modules lists available specialist modules."""
     response = client.get("/modules")
@@ -119,8 +132,8 @@ def test_fuse_endpoint_invalid_strategy():
     response = client.post("/fuse", json=payload)
     assert response.status_code == 422
     data = response.json()
-    assert "detail" in data
-    # Pydantic validation error details should mention the invalid value
+    assert "error" in data
+    assert data["error"]["code"] == "validation_error"
 
 
 def test_fuse_endpoint_missing_field():
@@ -133,7 +146,8 @@ def test_fuse_endpoint_missing_field():
     response = client.post("/fuse", json=payload)
     assert response.status_code == 422
     data = response.json()
-    assert "detail" in data
+    assert "error" in data
+    assert data["error"]["code"] == "validation_error"
 
 
 def test_fuse_metadata_structure():
@@ -172,6 +186,22 @@ def test_numpy_serialization():
     lst = [arr, arr]
     result = numpy_to_list(lst)
     assert result == [[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]
+
+
+def test_batch_embedding_endpoint():
+    """POST /embed/batch returns per-item embeddings."""
+    payload = {
+        "texts": ["smartphone battery", "slow cooker recipe"],
+        "modules": ["tech", "cook"],
+    }
+    response = client.post("/embed/batch", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "items" in data
+    assert len(data["items"]) == 2
+    for item in data["items"]:
+        assert "embeddings" in item
+        assert len(item["embeddings"]) >= 1
 
 
 if __name__ == "__main__":

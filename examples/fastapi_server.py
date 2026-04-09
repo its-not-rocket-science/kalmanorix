@@ -15,13 +15,20 @@ Run with:
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
+import os
+import threading
 import time
+import uuid
+from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional, Tuple
 
 import numpy as np
 from cachetools import TTLCache
 from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -53,6 +60,12 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+def log_event(level: int, event: str, **kwargs: object) -> None:
+    """Emit structured JSON log events."""
+    payload = {"event": event, **kwargs}
+    logger.log(level, json.dumps(payload, default=str))
 
 # -----------------------------------------------------------------------------
 # Rate limiting configuration
@@ -162,41 +175,16 @@ def create_toy_village() -> Village:
 # Global server state
 # -----------------------------------------------------------------------------
 
-VILLAGE = create_toy_village()
-SCOUT_ALL = ScoutRouter(mode="all")
-SCOUT_HARD = ScoutRouter(mode="hard")
+@dataclass
+class SpecialistRuntime:
+    village: Village
+    scout_all: ScoutRouter
+    scout_hard: ScoutRouter
+    fusers: Dict[str, Any]
 
-# Available fusion strategies
-FUSERS = {
-    "mean": MeanFuser(),
-    "kalmanorix": KalmanorixFuser(),
-    "ensemble_kalman": EnsembleKalmanFuser(),
-    "structured_kalman": StructuredKalmanFuser(),
-    "diagonal_kalman": DiagonalKalmanFuser(),
-}
 
-# Learned gate fuser needs training data - create and train it
-GATE_FUSER = LearnedGateFuser(
-    module_a="tech",
-    module_b="cook",
-    n_features=128,
-    lr=0.6,
-    l2=1e-3,
-    steps=400,
-)
-train_texts = [
-    "Battery life is excellent on this smartphone",
-    "The laptop CPU throttles under load",
-    "Camera quality and charger compatibility",
-    "Android update improved performance",
-    "Braise the beef and simmer for hours",
-    "Slow cooker recipe with garlic and onion",
-    "Saute the vegetables then bake in the oven",
-    "Stew tastes better after simmering",
-]
-train_y = [1, 1, 1, 1, 0, 0, 0, 0]
-GATE_FUSER.fit(train_texts, train_y)
-FUSERS["learned_gate"] = GATE_FUSER
+_runtime: Optional[SpecialistRuntime] = None
+_runtime_lock = threading.RLock()
 
 # -----------------------------------------------------------------------------
 # FastAPI app and models
@@ -221,18 +209,73 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 
+class ErrorResponse(BaseModel):
+    """Consistent error envelope."""
+
+    error: Dict[str, object]
+    request_id: Optional[str] = None
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    """Handle expected HTTP errors with a consistent schema."""
+    request_id = getattr(request.state, "request_id", None)
+    message = exc.detail if isinstance(exc.detail, str) else "Request failed"
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=ErrorResponse(
+            error={
+                "code": "http_error",
+                "message": message,
+                "details": {"status_code": exc.status_code},
+            },
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    """Normalize validation errors."""
+    request_id = getattr(request.state, "request_id", None)
+    return JSONResponse(
+        status_code=422,
+        content=ErrorResponse(
+            error={
+                "code": "validation_error",
+                "message": "Invalid request",
+                "details": exc.errors(),
+            },
+            request_id=request_id,
+        ).model_dump(),
+    )
+
+
 # Custom exception handler for general errors
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle uncaught exceptions with logging and JSON response."""
-    logger.error("Unhandled exception: %s", exc, exc_info=True)
+    request_id = getattr(request.state, "request_id", None)
+    log_event(
+        logging.ERROR,
+        "request.unhandled_exception",
+        request_id=request_id,
+        path=request.url.path,
+        error_type=type(exc).__name__,
+        error_message=str(exc),
+    )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "detail": "Internal server error",
-            "type": type(exc).__name__,
-            "message": str(exc),
-        },
+        content=ErrorResponse(
+            error={
+                "code": "internal_error",
+                "message": "Internal server error",
+                "details": {"type": type(exc).__name__},
+            },
+            request_id=request_id,
+        ).model_dump(),
     )
 
 
@@ -275,6 +318,46 @@ class FusionResponse(BaseModel):
     meta: Optional[Dict[str, object]] = None
 
 
+class HealthResponse(BaseModel):
+    """Liveness endpoint schema."""
+
+    status: Literal["ok"]
+    service: str
+    version: str
+
+
+class ReadinessResponse(BaseModel):
+    """Readiness endpoint schema."""
+
+    status: Literal["ready", "not_ready"]
+    modules_loaded: int
+    cache_backend: str
+
+
+class BatchEmbedRequest(BaseModel):
+    """Request schema for optional batch embeddings."""
+
+    texts: List[str] = Field(..., min_length=1, max_length=256)
+    modules: Optional[List[str]] = None
+    timeout_ms: int = Field(1500, ge=100, le=20000)
+
+
+class ModuleEmbedding(BaseModel):
+    module: str
+    vector: List[float]
+
+
+class BatchEmbedItem(BaseModel):
+    text: str
+    embeddings: List[ModuleEmbedding]
+    errors: List[str] = Field(default_factory=list)
+
+
+class BatchEmbedResponse(BaseModel):
+    items: List[BatchEmbedItem]
+    duration_ms: float
+
+
 # -----------------------------------------------------------------------------
 # Helper functions
 # -----------------------------------------------------------------------------
@@ -297,6 +380,55 @@ def store_fusion_result(
     """Store fusion result in cache."""
     key = get_cache_key(query, strategy, routing)
     fusion_cache[key] = result
+
+
+def get_runtime() -> SpecialistRuntime:
+    """Concurrency-safe lazy initialization for specialists and fusers."""
+    global _runtime
+    if _runtime is not None:
+        return _runtime
+    with _runtime_lock:
+        if _runtime is not None:
+            return _runtime
+        village = create_toy_village()
+        scout_all = ScoutRouter(mode="all")
+        scout_hard = ScoutRouter(mode="hard")
+        fusers = {
+            "mean": MeanFuser(),
+            "kalmanorix": KalmanorixFuser(),
+            "ensemble_kalman": EnsembleKalmanFuser(),
+            "structured_kalman": StructuredKalmanFuser(),
+            "diagonal_kalman": DiagonalKalmanFuser(),
+        }
+        gate_fuser = LearnedGateFuser(
+            module_a="tech",
+            module_b="cook",
+            n_features=128,
+            lr=0.6,
+            l2=1e-3,
+            steps=400,
+        )
+        train_texts = [
+            "Battery life is excellent on this smartphone",
+            "The laptop CPU throttles under load",
+            "Camera quality and charger compatibility",
+            "Android update improved performance",
+            "Braise the beef and simmer for hours",
+            "Slow cooker recipe with garlic and onion",
+            "Saute the vegetables then bake in the oven",
+            "Stew tastes better after simmering",
+        ]
+        train_y = [1, 1, 1, 1, 0, 0, 0, 0]
+        gate_fuser.fit(train_texts, train_y)
+        fusers["learned_gate"] = gate_fuser
+        _runtime = SpecialistRuntime(
+            village=village,
+            scout_all=scout_all,
+            scout_hard=scout_hard,
+            fusers=fusers,
+        )
+        log_event(logging.INFO, "runtime.initialized", modules=len(village.modules))
+        return _runtime
 
 
 def numpy_to_list(obj):
@@ -331,12 +463,60 @@ async def root(request: Request):
     }
 
 
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    """Attach request-id and structured request logs."""
+    request.state.request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    start_time = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        raise
+    duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
+    response.headers["x-request-id"] = request.state.request_id
+    log_event(
+        logging.INFO,
+        "request.completed",
+        request_id=request.state.request_id,
+        method=request.method,
+        path=request.url.path,
+        status_code=response.status_code,
+        duration_ms=duration_ms,
+    )
+    return response
+
+
+@app.get("/healthz", response_model=HealthResponse)
+async def healthz():
+    """Liveness probe endpoint."""
+    return HealthResponse(status="ok", service="kalmanorix-fusion-server", version="0.2.0")
+
+
+@app.get("/readyz", response_model=ReadinessResponse)
+async def readyz():
+    """Readiness probe endpoint."""
+    try:
+        runtime = get_runtime()
+        return ReadinessResponse(
+            status="ready",
+            modules_loaded=len(runtime.village.modules),
+            cache_backend="in_memory_ttl",
+        )
+    except Exception:
+        return ReadinessResponse(
+            status="not_ready",
+            modules_loaded=0,
+            cache_backend="in_memory_ttl",
+        )
+
+
 @limiter.limit("200/minute")
 @app.get("/modules", response_model=List[ModuleInfo])
 async def list_modules(request: Request):
     """List available specialist modules in the village."""
+    runtime = get_runtime()
     modules = []
-    for sef in VILLAGE.modules:
+    for sef in runtime.village.modules:
         sigma2 = sef.sigma2
         sigma2_type = type(sigma2).__name__
         sigma2_in_domain = None
@@ -363,44 +543,76 @@ async def list_modules(request: Request):
 @app.post("/fuse", response_model=FusionResponse)
 async def fuse(request: Request, body: FusionRequest):
     """Fuse embeddings for a query using the specified strategy."""
-    start_time = time.time()
+    request_id = getattr(request.state, "request_id", None)
+    start_time = time.perf_counter()
+    runtime = get_runtime()
+    timeout_s = float(os.getenv("KALMANORIX_FUSE_TIMEOUT_SEC", "2.5"))
 
     # Check cache first
     cached_result = cached_fusion(body.query, body.strategy, body.routing)
     if cached_result is not None:
-        logger.info(
-            "Cache hit for query='%s', strategy=%s, routing=%s",
-            body.query[:50] + "..." if len(body.query) > 50 else body.query,
-            body.strategy,
-            body.routing,
+        log_event(
+            logging.INFO,
+            "fusion.cache_hit",
+            request_id=request_id,
+            query=body.query[:80],
+            strategy=body.strategy,
+            routing=body.routing,
         )
         return FusionResponse(**cached_result)
 
-    logger.info(
-        "Processing fusion request: query='%s', strategy=%s, routing=%s",
-        body.query[:50] + "..." if len(body.query) > 50 else body.query,
-        body.strategy,
-        body.routing,
+    log_event(
+        logging.INFO,
+        "fusion.request",
+        request_id=request_id,
+        query=body.query[:80],
+        strategy=body.strategy,
+        routing=body.routing,
     )
 
     # Select routing
-    scout = SCOUT_ALL if body.routing == "all" else SCOUT_HARD
+    scout = runtime.scout_all if body.routing == "all" else runtime.scout_hard
 
     # Select fuser
-    if body.strategy not in FUSERS:
-        error_msg = f"Unknown fusion strategy: {body.strategy}. Available: {list(FUSERS.keys())}"
-        logger.warning(error_msg)
+    if body.strategy not in runtime.fusers:
+        error_msg = f"Unknown fusion strategy: {body.strategy}. Available: {list(runtime.fusers.keys())}"
         raise HTTPException(status_code=400, detail=error_msg)
-    fuser = FUSERS[body.strategy]
+    fuser = runtime.fusers[body.strategy]
 
     # Perform fusion
     try:
         panoramix = Panoramix(fuser=fuser)
-        potion = panoramix.brew(body.query, village=VILLAGE, scout=scout)
-    except Exception as e:
-        error_msg = f"Fusion error: {str(e)}"
-        logger.error(error_msg, exc_info=True)
-        raise HTTPException(status_code=500, detail=error_msg) from e
+        potion = await asyncio.wait_for(
+            asyncio.to_thread(
+                panoramix.brew,
+                body.query,
+                runtime.village,
+                scout,
+            ),
+            timeout=timeout_s,
+        )
+    except TimeoutError as exc:
+        log_event(
+            logging.WARNING,
+            "fusion.timeout",
+            request_id=request_id,
+            timeout_sec=timeout_s,
+            strategy=body.strategy,
+            routing=body.routing,
+        )
+        raise HTTPException(
+            status_code=504,
+            detail="Fusion request timed out",
+        ) from exc
+    except Exception as exc:
+        log_event(
+            logging.ERROR,
+            "fusion.failed",
+            request_id=request_id,
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+        )
+        raise HTTPException(status_code=500, detail="Fusion failed") from exc
 
     # Convert numpy arrays to lists for JSON serialization
     fused_vector_list = potion.vector.tolist()
@@ -430,15 +642,60 @@ async def fuse(request: Request, body: FusionRequest):
         response.model_dump(),
     )
 
-    elapsed_time = time.time() - start_time
-    logger.info(
-        "Fusion completed in %.3f seconds (strategy=%s, routing=%s)",
-        elapsed_time,
-        body.strategy,
-        body.routing,
+    elapsed_time = round((time.perf_counter() - start_time) * 1000, 2)
+    log_event(
+        logging.INFO,
+        "fusion.completed",
+        request_id=request_id,
+        duration_ms=elapsed_time,
+        strategy=body.strategy,
+        routing=body.routing,
     )
 
     return response
+
+
+@app.post("/embed/batch", response_model=BatchEmbedResponse)
+async def embed_batch(request: Request, body: BatchEmbedRequest):
+    """Optional endpoint for batch specialist embeddings."""
+    runtime = get_runtime()
+    request_id = getattr(request.state, "request_id", None)
+    start_time = time.perf_counter()
+    target_modules = body.modules or [sef.name for sef in runtime.village.modules]
+    module_map = {sef.name: sef for sef in runtime.village.modules}
+
+    items: List[BatchEmbedItem] = []
+    for text in body.texts:
+        entry = BatchEmbedItem(text=text, embeddings=[], errors=[])
+        for module_name in target_modules:
+            sef = module_map.get(module_name)
+            if sef is None:
+                entry.errors.append(f"unknown_module:{module_name}")
+                continue
+            try:
+                vector = await asyncio.wait_for(
+                    asyncio.to_thread(sef.embed, text),
+                    timeout=body.timeout_ms / 1000.0,
+                )
+                entry.embeddings.append(
+                    ModuleEmbedding(module=module_name, vector=vector.tolist())
+                )
+            except TimeoutError:
+                entry.errors.append(f"timeout:{module_name}")
+            except Exception as exc:
+                entry.errors.append(f"error:{module_name}:{type(exc).__name__}")
+        items.append(entry)
+
+    duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
+    log_event(
+        logging.INFO,
+        "embed.batch.completed",
+        request_id=request_id,
+        texts=len(body.texts),
+        modules=len(target_modules),
+        duration_ms=duration_ms,
+    )
+    return BatchEmbedResponse(items=items, duration_ms=duration_ms)
 
 
 # -----------------------------------------------------------------------------
