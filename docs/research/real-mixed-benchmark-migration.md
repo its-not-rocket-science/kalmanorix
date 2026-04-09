@@ -47,16 +47,18 @@ python experiments/run_real_mixed_benchmark.py \
   --output results/real_mixed_benchmark/real_benchmark_summary.json
 ```
 
-Compatibility entrypoint (now real by default):
+Compatibility entrypoints (now real by default):
 
 ```bash
 python experiments/validate_fusion.py
+python experiments/mixed_domain_eval.py
 ```
 
 Debug/smoke only:
 
 ```bash
 python experiments/validate_fusion.py --debug-synthetic
+python experiments/mixed_domain_eval.py --debug-synthetic
 python experiments/benchmark_fusion_methods.py
 ```
 
@@ -64,9 +66,11 @@ python experiments/benchmark_fusion_methods.py
 
 - `experiments/benchmark_fusion_methods.py`: **debug only** (synthetic smoke)
 - `experiments/validate_fusion.py --debug-synthetic`: **debug only** (toy corpus + keyword embedder)
+- `experiments/mixed_domain_eval.py --debug-synthetic`: **debug only** (toy corpus smoke)
 - Primary headline validation moved to:
   - `experiments/run_real_mixed_benchmark.py`
   - `experiments/validate_fusion.py` (default mode)
+  - `experiments/mixed_domain_eval.py` (default mode)
 
 ## Operational note
 
