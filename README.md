@@ -48,7 +48,7 @@ The following critical bugs have been fixed:
 ## 📊 Current Performance
 
 After fixes, the system achieves:
-- Kalman fusion vs averaging: [Awaiting benchmark - run `experiments/benchmark_fusion_methods.py`]
+- Kalman fusion vs averaging: [Run `experiments/run_real_mixed_benchmark.py` for primary real-data results; `experiments/benchmark_fusion_methods.py` is debug-only]
 - Specialists vs monolith: [Awaiting validation]
 
 ## 🧪 Running Validation
@@ -58,7 +58,7 @@ After fixes, the system achieves:
 python -m pytest tests/test_validation_suite.py -k TestProcrustesFix
 
 # Run proper benchmark
-python experiments/benchmark_fusion_methods.py
+python experiments/run_real_mixed_benchmark.py
 
 # Validate covariance calibration
 python experiments/validate_covariance.py
