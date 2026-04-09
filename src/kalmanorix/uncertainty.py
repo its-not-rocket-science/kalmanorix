@@ -8,6 +8,7 @@ They are intentionally lightweight and deterministic for early phases.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+import re
 from typing import Callable, Dict, Iterable, List, Mapping, Optional, Protocol, Set
 
 import numpy as np
@@ -22,6 +23,19 @@ class UncertaintyMethod(Protocol):
 
     def __call__(self, query: str) -> float:
         """Return sigma² for query."""
+
+
+@dataclass(frozen=True)
+class UncertaintyMethodConfig:
+    """Configuration for constructing uncertainty estimators via a common interface."""
+
+    method: str
+    base_sigma2: float = 0.2
+    constant_value: float = 1.0
+    keywords: Optional[Set[str]] = None
+    keyword_in_domain_sigma2: float = 0.2
+    keyword_out_domain_sigma2: float = 2.0
+    stochastic_passes: int = 4
 
 
 @dataclass(frozen=True)
@@ -337,7 +351,29 @@ def build_uncertainty_method(
 ) -> UncertaintyMethod:
     """Factory hook for pluggable uncertainty estimators."""
     normalized = method.strip().lower()
+    if normalized in ("constant", "constant_sigma2"):
+        return ConstantSigma2(value=base_sigma2)
+    if normalized in ("keyword", "keyword_based", "keyword_based_sigma2"):
+        provided_keywords = set(calibration_texts or [])
+        if len(provided_keywords) == 0:
+            raise ValueError("keyword_based_sigma2 requires non-empty calibration_texts.")
+        return KeywordSigma2(
+            keywords=provided_keywords,
+            in_domain_sigma2=base_sigma2,
+            out_domain_sigma2=max(base_sigma2 * 8.0, base_sigma2 + 1e-6),
+        )
+    if normalized in ("centroid_distance", "centroid_distance_sigma2"):
+        texts = list(calibration_texts or [])
+        if not texts:
+            raise ValueError("centroid_distance_sigma2 requires non-empty calibration_texts.")
+        return CentroidDistanceSigma2.from_calibration(
+            embed=embed,
+            calibration_texts=texts,
+            base_sigma2=base_sigma2,
+        )
     if normalized == "embedding_norm":
+        return EmbeddingNormSigma2(embed=embed, base_sigma2=base_sigma2)
+    if normalized == "embedding_norm_sigma2":
         return EmbeddingNormSigma2(embed=embed, base_sigma2=base_sigma2)
     if normalized == "centroid_similarity":
         texts = list(calibration_texts or [])
@@ -350,7 +386,59 @@ def build_uncertainty_method(
         )
     if normalized == "stochastic_forward":
         return StochasticForwardSigma2(embed_stochastic=embed, base_sigma2=base_sigma2)
+    if normalized == "stochastic_forward_sigma2":
+        return StochasticForwardSigma2(embed_stochastic=embed, base_sigma2=base_sigma2)
     raise ValueError(f"Unknown uncertainty method: {method}")
+
+
+def create_uncertainty_method(
+    *,
+    config: UncertaintyMethodConfig,
+    embed: EmbedderFn,
+    calibration_texts: Optional[Iterable[str]] = None,
+) -> UncertaintyMethod:
+    """Common evaluation interface to build all uncertainty methods uniformly."""
+    normalized = config.method.strip().lower()
+    if normalized in ("constant", "constant_sigma2"):
+        return ConstantSigma2(value=config.constant_value)
+    if normalized in ("keyword", "keyword_based", "keyword_based_sigma2"):
+        keywords = set(config.keywords or _extract_keywords(calibration_texts or []))
+        if not keywords:
+            raise ValueError(
+                "keyword_based_sigma2 requires keywords or calibration_texts."
+            )
+        return KeywordSigma2(
+            keywords=keywords,
+            in_domain_sigma2=config.keyword_in_domain_sigma2,
+            out_domain_sigma2=config.keyword_out_domain_sigma2,
+        )
+    if normalized in ("centroid_distance", "centroid_distance_sigma2"):
+        texts = list(calibration_texts or [])
+        if not texts:
+            raise ValueError("centroid_distance_sigma2 requires calibration_texts.")
+        return CentroidDistanceSigma2.from_calibration(
+            embed=embed,
+            calibration_texts=texts,
+            base_sigma2=config.base_sigma2,
+        )
+    if normalized in ("embedding_norm", "embedding_norm_sigma2"):
+        return EmbeddingNormSigma2(embed=embed, base_sigma2=config.base_sigma2)
+    if normalized in ("stochastic_forward", "stochastic_forward_sigma2"):
+        return StochasticForwardSigma2(
+            embed_stochastic=embed,
+            base_sigma2=config.base_sigma2,
+            n_passes=config.stochastic_passes,
+        )
+    raise ValueError(f"Unknown uncertainty method: {config.method}")
+
+
+def _extract_keywords(texts: Iterable[str], max_keywords: int = 24) -> List[str]:
+    tokens: Dict[str, int] = {}
+    for text in texts:
+        for token in re.findall(r"[a-zA-Z]{3,}", text.lower()):
+            tokens[token] = tokens.get(token, 0) + 1
+    ranked = sorted(tokens.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [token for token, _ in ranked[:max_keywords]]
 
 
 def summarize_uncertainty_distribution(
