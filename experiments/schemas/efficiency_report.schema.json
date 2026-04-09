@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kalmanorix.dev/schemas/efficiency_report.v2.json",
+  "title": "Deployment Efficiency Report",
+  "type": "object",
+  "required": ["schema_version", "benchmark", "scenarios"],
+  "properties": {
+    "schema_version": {"const": "efficiency_report.v2"},
+    "benchmark": {
+      "type": "object",
+      "required": [
+        "name",
+        "timestamp_utc",
+        "routing_mode",
+        "similarity_threshold",
+        "query_count",
+        "distinct_specialists",
+        "distinct_specialist_count"
+      ],
+      "properties": {
+        "name": {"type": "string"},
+        "timestamp_utc": {"type": "string"},
+        "routing_mode": {"type": "string"},
+        "similarity_threshold": {"type": "number"},
+        "query_count": {"type": "integer", "minimum": 1},
+        "distinct_specialists": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "distinct_specialist_count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": [
+          "scenario",
+          "routing_cache",
+          "batch_size",
+          "specialists_loaded",
+          "specialists_available",
+          "selected_specialists",
+          "load_cost_ms",
+          "memory",
+          "cost_ms"
+        ],
+        "properties": {
+          "scenario": {
+            "enum": [
+              "all_specialists_loaded",
+              "lazy_loading",
+              "cached_routing",
+              "batched_inference"
+            ]
+          },
+          "routing_cache": {"type": "string"},
+          "cache_hit_rate": {"type": "number", "minimum": 0, "maximum": 1},
+          "batch_size": {"type": "integer", "minimum": 1},
+          "specialists_loaded": {"type": "integer", "minimum": 0},
+          "specialists_available": {"type": "integer", "minimum": 1},
+          "selected_specialists": {"$ref": "#/$defs/summaryStats"},
+          "load_cost_ms": {"$ref": "#/$defs/summaryStats"},
+          "memory": {"type": "object"},
+          "cost_ms": {
+            "type": "object",
+            "required": ["embedding", "routing", "fusion", "end_to_end"],
+            "properties": {
+              "embedding": {"$ref": "#/$defs/summaryStats"},
+              "routing": {"$ref": "#/$defs/summaryStats"},
+              "fusion": {"$ref": "#/$defs/summaryStats"},
+              "end_to_end": {"$ref": "#/$defs/summaryStats"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "summaryStats": {
+      "type": "object",
+      "required": ["mean", "p50", "p95"],
+      "properties": {
+        "mean": {"type": "number", "minimum": 0},
+        "p50": {"type": "number", "minimum": 0},
+        "p95": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}
