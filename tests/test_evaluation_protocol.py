@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from kalmanorix.benchmarks.evaluation_protocol import QueryRanking, evaluate_locked_protocol
+from kalmanorix.benchmarks.evaluation_protocol import (
+    PRIMARY_METRICS,
+    SECONDARY_METRICS,
+    QueryRanking,
+    evaluate_locked_protocol,
+)
 
 
 def test_locked_protocol_metrics_and_aggregation() -> None:
@@ -18,16 +23,18 @@ def test_locked_protocol_metrics_and_aggregation() -> None:
     }
     query_domains = {"q1": "finance", "q2": "biomedical"}
     latency_ms = {"q1": 10.0, "q2": 20.0}
-    flops = {"q1": 1000.0}
-    memory_mb = {"q2": 50.0}
+    flops_proxy = {"q1": 1000.0}
+    peak_memory_mb = {"q2": 50.0}
+    specialist_count_selected = {"q1": 2.0, "q2": 1.0}
 
     report = evaluate_locked_protocol(
         rankings=rankings,
         qrels=qrels,
         query_domains=query_domains,
         latency_ms=latency_ms,
-        flops=flops,
-        memory_mb=memory_mb,
+        flops_proxy=flops_proxy,
+        peak_memory_mb=peak_memory_mb,
+        specialist_count_selected=specialist_count_selected,
     )
 
     # q1 ties on score => lexical doc_id order: d1 before d2.
@@ -39,8 +46,32 @@ def test_locked_protocol_metrics_and_aggregation() -> None:
     assert report.global_primary["recall@10"].mean == pytest.approx(0.5)
     assert report.global_primary["mrr"].mean == pytest.approx(0.5)
     assert report.global_secondary["latency_ms"].mean == pytest.approx(15.0)
-    assert report.global_secondary["flops"].mean == pytest.approx(1000.0)
-    assert report.global_secondary["memory_mb"].mean == pytest.approx(50.0)
+    assert report.global_secondary["flops_proxy"].mean == pytest.approx(1000.0)
+    assert report.global_secondary["peak_memory_mb"].mean == pytest.approx(50.0)
+    assert report.global_secondary["specialist_count_selected"].mean == pytest.approx(1.5)
+    assert set(report.global_primary) == set(PRIMARY_METRICS)
+    assert set(report.global_secondary) == set(SECONDARY_METRICS)
+
+
+def test_ndcg_known_toy_case() -> None:
+    rankings = {"q1": QueryRanking(doc_ids=("d1", "d2", "d3"))}
+    qrels = {"q1": {"d1": 3.0, "d2": 2.0}}
+    query_domains = {"q1": "toy"}
+
+    report = evaluate_locked_protocol(
+        rankings=rankings,
+        qrels=qrels,
+        query_domains=query_domains,
+    )
+    assert report.global_primary["ndcg@10"].mean == pytest.approx(1.0)
+
+    degraded = evaluate_locked_protocol(
+        rankings={"q1": QueryRanking(doc_ids=("d3", "d2", "d1"))},
+        qrels=qrels,
+        query_domains=query_domains,
+    )
+    # Expected nDCG from DCG = 2/log2(3) + 7/log2(4) and ideal DCG = 7/log2(2) + 3/log2(3).
+    assert degraded.global_primary["ndcg@10"].mean == pytest.approx(0.6064227, abs=1e-6)
 
 
 def test_invalid_inputs_raise() -> None:

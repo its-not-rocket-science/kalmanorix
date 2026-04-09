@@ -23,7 +23,14 @@ def evaluate_synthetic_recall(corpus: Any, village: Any, strategies: dict[str, t
     return metrics
 
 
-def evaluate_locked(rows: list[dict[str, Any]], rankings_by_strategy: dict[str, dict[str, QueryRanking]], latencies_by_strategy: dict[str, dict[str, float]]) -> dict[str, Any]:
+def evaluate_locked(
+    rows: list[dict[str, Any]],
+    rankings_by_strategy: dict[str, dict[str, QueryRanking]],
+    latencies_by_strategy: dict[str, dict[str, float]],
+    flops_proxy_by_strategy: dict[str, dict[str, float]] | None = None,
+    peak_memory_mb_by_strategy: dict[str, dict[str, float]] | None = None,
+    specialist_count_by_strategy: dict[str, dict[str, float]] | None = None,
+) -> dict[str, Any]:
     """Evaluate ranking outputs with locked protocol."""
     qrels = {r["query_id"]: {doc_id: 1.0 for doc_id in r["ground_truth_relevant_ids"]} for r in rows}
     query_domains = {r["query_id"]: r["domain_label"] for r in rows}
@@ -34,6 +41,13 @@ def evaluate_locked(rows: list[dict[str, Any]], rankings_by_strategy: dict[str, 
             qrels=qrels,
             query_domains=query_domains,
             latency_ms=latencies_by_strategy[strategy],
+            flops_proxy=None if flops_proxy_by_strategy is None else flops_proxy_by_strategy.get(strategy),
+            peak_memory_mb=(
+                None if peak_memory_mb_by_strategy is None else peak_memory_mb_by_strategy.get(strategy)
+            ),
+            specialist_count_selected=(
+                None if specialist_count_by_strategy is None else specialist_count_by_strategy.get(strategy)
+            ),
         )
         reports[strategy] = {
             "protocol_version": report.protocol_version,
