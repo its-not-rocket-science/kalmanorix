@@ -4,6 +4,9 @@
 This script is retained only for smoke/debug checks.
 For primary validation, use:
     python experiments/run_real_mixed_benchmark.py
+
+If emitting JSON in downstream wrappers, preserve the real benchmark schema,
+including a top-level "p_values" object.
 """
 
 from __future__ import annotations
