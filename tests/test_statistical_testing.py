@@ -110,6 +110,27 @@ def test_appendix_table_contains_required_columns() -> None:
     assert "Configuration hash" in table
 
 
+def test_holm_adjusted_p_values_are_not_smaller_than_raw_p_values() -> None:
+    report = generate_statistical_report(
+        reference_method="kalman",
+        candidate_method="mean",
+        reference_metrics={
+            "ndcg@10": [0.6, 0.6, 0.7, 0.55, 0.52],
+            "recall@10": [1.0, 1.0, 0.8, 0.8, 0.6],
+            "mrr@10": [0.7, 0.8, 0.6, 0.5, 0.5],
+        },
+        candidate_metrics={
+            "ndcg@10": [0.5, 0.55, 0.6, 0.5, 0.5],
+            "recall@10": [0.8, 0.8, 0.8, 0.6, 0.6],
+            "mrr@10": [0.65, 0.7, 0.55, 0.5, 0.45],
+        },
+        num_resamples=600,
+        seed=19,
+    )
+    for metric in ["ndcg@10", "recall@10", "mrr@10"]:
+        assert report.comparisons[metric].adjusted_p_value >= report.comparisons[metric].p_value
+
+
 def test_input_validation_errors() -> None:
     with pytest.raises(ValueError, match="same length"):
         bootstrap_confidence_interval([1.0], [1.0, 2.0])

@@ -1,0 +1,5 @@
+{
+  "status": "not_run_in_repo",
+  "how_to_generate": "kalmanorix-run-canonical-benchmark --benchmark-path benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet --split test --output-dir results/canonical_benchmark",
+  "note": "This placeholder exists so the canonical artifact path is stable in version control. Run the command above on the mixed-domain benchmark to produce the publishable summary with metrics, confidence intervals, and paired statistics."
+}

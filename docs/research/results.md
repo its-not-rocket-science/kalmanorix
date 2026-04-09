@@ -18,7 +18,16 @@ This page reports only what is currently supported by committed artifacts.
 - `results/canonical_benchmark/summary.json`
 - `results/canonical_benchmark/report.md`
 
-These files are produced by `kalmanorix-run-canonical-benchmark` and include paired Kalman-vs-mean statistics, confidence intervals, and method-level quality/latency/FLOPs proxy summaries.
+These files are produced by the single-command pipeline:
+
+```bash
+kalmanorix-run-canonical-benchmark \
+  --benchmark-path benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet \
+  --split test \
+  --output-dir results/canonical_benchmark
+```
+
+The artifact includes MeanFuser, KalmanorixFuser, hard-routing, and all-routing+mean baselines (plus LearnedGateFuser only when a two-specialist setup is used), with paired Kalman-vs-mean testing and confidence intervals for quality/latency/FLOPs proxy metrics.
 
 ## Core Claim Evidence Status
 
@@ -36,7 +45,7 @@ Interpretation:
 ### 2) Kalman fusion improves retrieval quality over mean fusion
 **Evidence status:** **Unresolved.**
 
-- No final statistical artifact in the repository currently establishes a robust improvement claim.
+- Use `results/canonical_benchmark/report.md` to determine this claim for a specific run; do not generalize beyond that benchmark configuration.
 
 ### 3) Fused specialists outperform monolith at equal compute
 **Evidence status:** **Unresolved.**
