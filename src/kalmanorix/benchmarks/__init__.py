@@ -33,6 +33,13 @@ from .statistical_testing import (
     paired_significance_test,
     render_appendix_table,
 )
+from .routing_evaluation import (
+    RoutingRunConfig,
+    RoutingSample,
+    ThresholdSweepConfig,
+    evaluate_routing,
+    evaluate_threshold_robustness,
+)
 
 __all__ = [
     "EmbeddingDataset",
@@ -63,4 +70,9 @@ __all__ = [
     "generate_statistical_report",
     "render_appendix_table",
     "generate_appendix_markdown",
+    "RoutingSample",
+    "RoutingRunConfig",
+    "ThresholdSweepConfig",
+    "evaluate_routing",
+    "evaluate_threshold_robustness",
 ]

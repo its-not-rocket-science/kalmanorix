@@ -5,18 +5,20 @@
 > - ⚠️ Not yet demonstrated: statistically significant quality gains of Kalman fusion over simple mean fusion.
 > - ⚠️ Not yet demonstrated: specialists-vs-monolith quality advantage under matched compute.
 
-Kalmanorix is an experimental framework for combining specialist embedding models with uncertainty-aware fusion and semantic routing.
+Kalmanorix is an experimental framework for combining specialist embedding models with uncertainty-aware fusion and semantic routing. The project can also be used as a standalone **routing-and-efficiency toolkit** even if fusion-quality hypotheses remain unresolved.
 
 ## Demonstrated Results vs Planned Work
 
 ### Demonstrated (with committed artifacts)
 - **Routing efficiency:** semantic routing can reduce FLOPs by selecting fewer specialists in benchmark runs (reported around 65% average reduction in current efficiency artifacts). See `results/efficiency_semantic_routing.json` and `results/semantic_routing_efficiency_report.md`.
+- **Routing evaluation toolkit:** a stable routing evaluator is available for semantic and confidence modes, including precision/recall against labeled domain relevance, FLOPs savings, latency trade-offs, and threshold robustness sweeps (`kalmanorix-eval-routing` CLI).
 - **Engineering stabilization:** alignment, covariance scaling, and fusion-path bug fixes are implemented and tested.
 
 ### Planned / In Progress
 - **Kalman vs mean fusion quality:** pending reproducible statistical result showing improvement.
 - **Specialists vs monolith (matched compute):** pending full benchmark artifact and analysis.
 - **OOD robustness of uncertainty weighting:** pending completed benchmark report.
+- **Broader routing realism:** extend routing benchmarks with larger domain sets and production-like latency traces.
 
 ---
 
@@ -77,6 +79,14 @@ python -m pytest
 
 # Efficiency benchmark pipeline (current demonstrated claim)
 python experiments/benchmark_efficiency.py
+
+# Routing evaluation toolkit (semantic + confidence)
+kalmanorix-eval-routing \
+  --dataset path/to/routing_eval_dataset.json \
+  --output results/routing_eval/report.json \
+  --mode semantic \
+  --semantic-threshold 0.7 \
+  --semantic-thresholds 0.5,0.6,0.7,0.8
 
 # Primary mixed-domain benchmark (quality validation path)
 python experiments/run_real_mixed_benchmark.py

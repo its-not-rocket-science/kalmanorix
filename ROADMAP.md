@@ -19,6 +19,12 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 - Framework architecture, APIs, and test scaffolding are implemented.
 - Stabilization fixes landed for alignment orientation, covariance scaling, and fusion-path consistency.
 - Efficiency benchmark artifacts support the routing-compute claim in current benchmark conditions.
+- Stable routing evaluation module now covers semantic + confidence routing with:
+  - labeled-domain precision/recall,
+  - FLOPs savings,
+  - latency trade-off tracking,
+  - threshold robustness sweeps,
+  - report sections split into quality-preserving wins, compute-only wins, and failure modes.
 
 ## Planned Work (not yet demonstrated)
 
@@ -34,6 +40,11 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 ### Phase 3 — Productionization (conditional)
 - Proceed only if at least one core quality hypothesis is positively supported.
 - Otherwise, re-scope project as a routing/efficiency toolkit rather than a quality-improvement method.
+
+### Phase 4 — Routing Toolkit Track (can proceed independently)
+- Package and maintain routing evaluation as a first-class toolkit surface (`kalmanorix-eval-routing`).
+- Publish reproducible routing datasets with labeled domain relevance and realistic latency/FLOPs metadata.
+- Document negative/failure cases where routing hurts recall or quality despite compute savings.
 
 ## Evidence Status Sections (Core Claims)
 
