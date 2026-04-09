@@ -1,0 +1,33 @@
+name: real-mixed-domain-benchmark
+experiment_type: real_mixed
+seed:
+  python: 42
+  numpy: 42
+  torch: 42
+artifacts:
+  summary_json: results/registry/real_mixed_domain_summary.json
+dataset:
+  kind: mixed_parquet
+  path: benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet
+  split: test
+  max_queries: 150
+models:
+  kind: hf_specialists
+  device: cpu
+  specialists:
+    - name: general_qa
+      domain: general_qa
+      model_name: sentence-transformers/all-mpnet-base-v2
+    - name: biomedical
+      domain: biomedical
+      model_name: emilyalsentzer/Bio_ClinicalBERT
+    - name: finance
+      domain: finance
+      model_name: ProsusAI/finbert
+fusion:
+  strategies: [mean, kalman]
+  routing_mode: all
+evaluation:
+  kind: locked_protocol
+reporting:
+  print_stdout: true

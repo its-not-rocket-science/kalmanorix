@@ -1,81 +1,40 @@
-"""Fusion validation entrypoint.
-
-Primary validation path uses real mixed-domain retrieval data and real specialist
-models (see ``experiments/run_real_mixed_benchmark.py``).
-
-Synthetic/toy validation remains available strictly as a smoke/debug path via
-``--debug-synthetic``.
-"""
+"""Fusion validation entrypoint backed by benchmark registry configs."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
-import numpy as np
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from kalmanorix import KalmanorixFuser, MeanFuser, Panoramix, ScoutRouter, SEF, Village
-from kalmanorix.toy_corpus import build_toy_corpus
-from kalmanorix.uncertainty import KeywordSigma2
-
-
-
-class DebugKeywordEmbedder:
-    """Deterministic toy embedder for smoke tests only."""
-
-    def __init__(self, dim: int, keywords: list[str], seed: int) -> None:
-        self.dim = dim
-        self.keywords = keywords
-        rng = np.random.default_rng(seed)
-        self.base = rng.normal(size=(dim,))
-        self.base /= np.linalg.norm(self.base) + 1e-12
-        self.dir = rng.normal(size=(dim,))
-        self.dir /= np.linalg.norm(self.dir) + 1e-12
-
-    def __call__(self, text: str) -> np.ndarray:
-        vec = self.base.copy()
-        t = text.lower()
-        if any(kw in t for kw in self.keywords):
-            vec += 2.0 * self.dir
-        vec /= np.linalg.norm(vec) + 1e-12
-        return vec.astype(np.float64)
+from experiments.registry.config_schema import load_experiment_config
+from experiments.registry.runner import DEFAULT_REAL_SPECIALISTS, run_experiment
 
 
 def run_debug_synthetic_smoke(seed: int = 42) -> dict[str, float]:
     """Quick synthetic sanity check (debug only, non-headline)."""
-    np.random.seed(seed)
-    corpus = build_toy_corpus(british_spelling=True)
-
-    tech = SEF(
-        name="tech",
-        embed=DebugKeywordEmbedder(96, ["battery", "cpu", "gpu", "camera"], seed=7),
-        sigma2=KeywordSigma2({"battery", "cpu", "gpu", "camera"}, 0.1, 0.5),
-    )
-    cook = SEF(
-        name="cook",
-        embed=DebugKeywordEmbedder(96, ["braise", "simmer", "sauce", "oven"], seed=11),
-        sigma2=KeywordSigma2({"braise", "simmer", "sauce", "oven"}, 0.1, 0.5),
-    )
-    village = Village([tech, cook])
-    scout = ScoutRouter(mode="all")
-
-    def recall_at_1(fuser) -> float:
-        pan = Panoramix(fuser=fuser)
-        doc_mat = np.stack([pan.brew(d, village=village, scout=scout).vector for d in corpus.docs])
-        hits = []
-        for q, true_id in corpus.queries:
-            qv = pan.brew(q, village=village, scout=scout).vector
-            pred = int(np.argmax(doc_mat @ qv))
-            hits.append(float(pred == true_id))
-        return float(np.mean(hits))
-
-    return {
-        "kalman_recall@1": recall_at_1(KalmanorixFuser()),
-        "mean_recall@1": recall_at_1(MeanFuser()),
+    config_payload = {
+        "name": "synthetic-debug-smoke",
+        "experiment_type": "synthetic_smoke",
+        "seed": {"python": seed, "numpy": seed, "torch": seed},
+        "artifacts": {"summary_json": "results/tmp/synthetic_smoke.json"},
+        "dataset": {"kind": "synthetic_toy", "split": "test"},
+        "models": {"kind": "debug_keyword", "device": "cpu"},
+        "fusion": {"strategies": ["kalman", "mean"], "routing_mode": "all"},
+        "evaluation": {"kind": "synthetic_recall"},
+        "reporting": {"print_stdout": False},
     }
+    with TemporaryDirectory() as tmpdir:
+        cfg_path = Path(tmpdir) / "synthetic.json"
+        cfg_path.write_text(json.dumps(config_payload, indent=2), encoding="utf-8")
+        cfg = load_experiment_config(cfg_path)
+        summary = run_experiment(cfg)
+    return summary["metrics"]
 
 
 def main() -> None:
@@ -103,17 +62,36 @@ def main() -> None:
         print(metrics)
         return
 
-    from experiments.run_real_mixed_benchmark import run_real_benchmark
+    config_payload = {
+        "name": "validate-fusion-real-mixed",
+        "experiment_type": "real_mixed",
+        "seed": {"python": 42, "numpy": 42, "torch": 42},
+        "artifacts": {"summary_json": str(args.output)},
+        "dataset": {
+            "kind": "mixed_parquet",
+            "path": str(args.benchmark_path),
+            "split": args.split,
+            "max_queries": args.max_queries,
+        },
+        "models": {
+            "kind": "hf_specialists",
+            "device": args.device,
+            "specialists": DEFAULT_REAL_SPECIALISTS,
+        },
+        "fusion": {"strategies": ["mean", "kalman"], "routing_mode": "all"},
+        "evaluation": {"kind": "locked_protocol"},
+    }
 
-    summary = run_real_benchmark(
-        benchmark_path=args.benchmark_path,
-        split=args.split,
-        max_queries=args.max_queries,
-        output_path=args.output,
-        device=args.device,
-    )
+    with TemporaryDirectory() as tmpdir:
+        cfg_path = Path(tmpdir) / "real_mixed.json"
+        cfg_path.write_text(json.dumps(config_payload, indent=2), encoding="utf-8")
+        cfg = load_experiment_config(cfg_path)
+        summary = run_experiment(cfg)
+
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print("Primary (real-data) benchmark complete.")
-    print(summary["delta_kalman_minus_mean"])
+    print(summary["delta_last_minus_first"])
 
 
 if __name__ == "__main__":

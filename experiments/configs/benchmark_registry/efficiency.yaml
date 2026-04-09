@@ -1,0 +1,32 @@
+name: efficiency-benchmark
+experiment_type: efficiency
+seed:
+  python: 7
+  numpy: 7
+  torch: 7
+artifacts:
+  summary_json: results/registry/efficiency_summary.json
+dataset:
+  kind: efficiency_query
+  split: test
+models:
+  kind: hf_specialists
+  device: cpu
+fusion:
+  strategies: [mean, kalman]
+  routing_mode: semantic
+evaluation:
+  kind: efficiency_suite
+  options:
+    sefs_dir: artefacts/sefs
+    models_dir: models
+    repo_root: .
+    num_repeats: 5
+    specialist_counts: [1, 2, 3, 5]
+    routing_modes: [all, semantic]
+    query_text: Test query about battery life and cooking stew
+    similarity_threshold: 0.7
+    threshold_kwargs: {}
+    fallback_mode: all
+reporting:
+  print_stdout: true
