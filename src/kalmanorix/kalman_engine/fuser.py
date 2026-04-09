@@ -313,11 +313,24 @@ class Panoramix:
             except RuntimeError as e:
                 logger.error("Failed to fuse query '%s...': %s", query[:50], e)
                 # Return zeros with high uncertainty on failure
-                d = (
-                    village.modules[0].embed("dummy").shape[0]
-                    if village.modules
-                    else 768
-                )
+                d = self._infer_village_dimension(village)
                 results.append((np.zeros(d), np.ones(d) * 1e6))
 
         return results
+
+    @staticmethod
+    def _infer_village_dimension(village: Village) -> int:
+        """Infer embedding dimension without synthetic embed() probes."""
+        if not village.modules:
+            return 768
+        module = village.modules[0]
+        if hasattr(module, "infer_embedding_dimension"):
+            try:
+                return int(module.infer_embedding_dimension())
+            except ValueError:
+                pass
+        if getattr(module, "domain_centroid", None) is not None:
+            return int(module.domain_centroid.shape[0])
+        if getattr(module, "alignment_matrix", None) is not None:
+            return int(module.alignment_matrix.shape[0])
+        return 768

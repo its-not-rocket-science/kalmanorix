@@ -44,6 +44,49 @@ class SEF:
     alignment_matrix: Optional[np.ndarray] = None
     domain_centroid: Optional[Vec] = None
     model: Optional["SEFModel"] = None
+    embedding_dimension: Optional[int] = None
+
+    def infer_embedding_dimension(self) -> int:
+        """Infer embedding dimension without probing embed() with dummy text.
+
+        Resolution order:
+        1) explicit ``embedding_dimension`` on this SEF
+        2) attached model dimension metadata
+        3) domain centroid dimensionality
+        4) alignment matrix shape
+
+        Returns:
+            Embedding dimension (d).
+
+        Raises:
+            ValueError: If no reliable source of dimensionality is available.
+        """
+        if self.embedding_dimension is not None:
+            if self.embedding_dimension <= 0:
+                raise ValueError("embedding_dimension must be positive")
+            return int(self.embedding_dimension)
+
+        if self.model is not None and hasattr(self.model, "dimension"):
+            model_dim = int(self.model.dimension)
+            if model_dim <= 0:
+                raise ValueError("model.dimension must be positive")
+            return model_dim
+
+        if self.domain_centroid is not None:
+            return int(self.domain_centroid.shape[0])
+
+        if self.alignment_matrix is not None:
+            if self.alignment_matrix.ndim != 2:
+                raise ValueError("alignment_matrix must be a 2D array")
+            rows, cols = self.alignment_matrix.shape
+            if rows != cols:
+                raise ValueError("alignment_matrix must be square")
+            return int(rows)
+
+        raise ValueError(
+            f"Cannot infer embedding dimension for SEF '{self.name}'. "
+            "Set embedding_dimension explicitly or provide model/domain_centroid."
+        )
 
     def sigma2_for(self, query: str) -> float:
         """Return uncertainty (variance) for a given query.
@@ -81,7 +124,7 @@ class SEF:
             assert isinstance(self.model, SEFModel)
             return self.model.get_covariance(query)
         # Fallback: scalar sigma2 converted to diagonal
-        d = self.embed("dummy").shape[0]  # dimension
+        d = self.infer_embedding_dimension()
         sigma2 = self.sigma2_for(query)
         return np.full(d, sigma2, dtype=np.float64)
 
