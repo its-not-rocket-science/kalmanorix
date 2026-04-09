@@ -122,7 +122,5 @@ def __getattr__(name: str):
             stacklevel=2,
         )
         module = import_module(module_name)
-        value = getattr(module, symbol_name)
-        globals()[name] = value
-        return value
+        return getattr(module, symbol_name)
     raise AttributeError(f"module 'kalmanorix' has no attribute '{name}'")
