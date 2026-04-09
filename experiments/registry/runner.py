@@ -17,7 +17,12 @@ from kalmanorix.benchmarks import QueryRanking
 from experiments.registry.config_schema import BenchmarkExperimentConfig, load_experiment_config
 from experiments.registry.datasets import load_dataset
 from experiments.registry.evaluation import evaluate_locked, evaluate_synthetic_recall
-from experiments.registry.fusion import build_strategy, rank_query
+from experiments.registry.fusion import (
+    build_retrieval_baselines,
+    build_strategy,
+    rank_query,
+    rank_query_with_baseline,
+)
 from experiments.registry.models import build_village
 from experiments.registry.reporting import write_json
 
@@ -98,6 +103,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
 
     rankings_by_strategy: dict[str, dict[str, QueryRanking]] = {}
     latencies_by_strategy: dict[str, dict[str, float]] = {}
+
     for strategy_name in config.fusion.strategies:
         scout, pan = build_strategy(name=strategy_name, routing_mode=config.fusion.routing_mode)
         rankings: dict[str, QueryRanking] = {}
@@ -115,11 +121,46 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         rankings_by_strategy[strategy_name] = rankings
         latencies_by_strategy[strategy_name] = latencies
 
+    baseline_strategies = build_retrieval_baselines(config.fusion.options)
+    for strategy in baseline_strategies:
+        strategy.fit(rows=rows, village=village, options=config.fusion.options)
+        rankings = {}
+        latencies = {}
+        for row in rows:
+            ranked_ids, latency = rank_query_with_baseline(
+                query_text=row["query_text"],
+                candidates=row["candidate_documents"],
+                village=village,
+                strategy=strategy,
+            )
+            rankings[row["query_id"]] = QueryRanking(doc_ids=tuple(ranked_ids))
+            latencies[row["query_id"]] = latency
+        rankings_by_strategy[strategy.name] = rankings
+        latencies_by_strategy[strategy.name] = latencies
+
     reports = evaluate_locked(
         rows=rows,
         rankings_by_strategy=rankings_by_strategy,
         latencies_by_strategy=latencies_by_strategy,
     )
+
+    primary_metric = "mrr"
+    kalman_key = "kalman"
+    ranked_methods = sorted(
+        reports.items(),
+        key=lambda item: item[1]["global_primary"][primary_metric]["mean"],
+        reverse=True,
+    )
+
+    kalman_score = reports[kalman_key]["global_primary"][primary_metric]["mean"] if kalman_key in reports else None
+    best_baseline = None
+    best_baseline_score = None
+    for name, rep in ranked_methods:
+        if name == kalman_key:
+            continue
+        best_baseline = name
+        best_baseline_score = rep["global_primary"][primary_metric]["mean"]
+        break
 
     baseline = config.fusion.strategies[0]
     target = config.fusion.strategies[-1]
@@ -128,6 +169,21 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         - reports[baseline]["global_primary"][metric]["mean"]
         for metric in reports[baseline]["global_primary"]
     }
+
+    comparison_table = [
+        {
+            "strategy": name,
+            "mrr_mean": rep["global_primary"]["mrr"]["mean"],
+            "recall@1_mean": rep["global_primary"]["recall@1"]["mean"],
+            "recall@5_mean": rep["global_primary"]["recall@5"]["mean"],
+            "delta_vs_kalman_mrr": (
+                None
+                if kalman_score is None
+                else rep["global_primary"]["mrr"]["mean"] - kalman_score
+            ),
+        }
+        for name, rep in ranked_methods
+    ]
 
     return {
         "name": config.name,
@@ -140,6 +196,18 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         },
         "specialists": specialists,
         "results": reports,
+        "comparison_table": comparison_table,
+        "kalman_guardrail": {
+            "primary_metric": primary_metric,
+            "kalman_score": kalman_score,
+            "best_non_kalman_strategy": best_baseline,
+            "best_non_kalman_score": best_baseline_score,
+            "kalman_minus_best_non_kalman": (
+                None
+                if kalman_score is None or best_baseline_score is None
+                else kalman_score - best_baseline_score
+            ),
+        },
         "delta_last_minus_first": delta,
     }
 
