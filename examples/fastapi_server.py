@@ -22,8 +22,8 @@ import os
 import threading
 import time
 import uuid
-from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
 import numpy as np
 from cachetools import TTLCache
@@ -185,8 +185,50 @@ class SpecialistRuntime:
     fusers: Dict[str, Any]
 
 
+@dataclass
+class UserKnowledge:
+    """In-memory user knowledge profile for adaptive text recommendation."""
+
+    user_id: str
+    known_vocabulary: Set[str] = field(default_factory=set)
+    sessions_completed: int = 0
+    recommended_history: List[str] = field(default_factory=list)
+
+
 _runtime: Optional[SpecialistRuntime] = None
 _runtime_lock = threading.RLock()
+_user_knowledge_store: Dict[str, UserKnowledge] = {}
+_user_knowledge_lock = threading.RLock()
+
+LEARNING_SENTENCE_POOL = [
+    "The battery lasts all day on this phone.",
+    "You should charge the laptop before the meeting.",
+    "The recipe needs garlic and onion.",
+    "Simmer the stew for twenty minutes.",
+    "Although the processor is efficient, sustained workloads can trigger thermal throttling in compact devices.",
+    "If you preheat the oven, the vegetables will caramelize more evenly.",
+    "The software update improved camera quality and reduced background power consumption.",
+    "After marinating overnight, braise the meat slowly so connective tissue can break down into gelatin.",
+    "When the app crashes intermittently, inspect memory pressure and concurrency boundaries before retrying.",
+    "While the soup is simmering, saute aromatics separately to layer flavor without overcooking delicate herbs.",
+]
+
+GRAMMAR_COMPLEXITY_MARKERS = {
+    "although",
+    "while",
+    "because",
+    "unless",
+    "despite",
+    "however",
+    "which",
+    "that",
+    "who",
+    "whom",
+    "whose",
+    "whereas",
+    "therefore",
+    "moreover",
+}
 
 # -----------------------------------------------------------------------------
 # FastAPI app and models
@@ -360,6 +402,20 @@ class BatchEmbedResponse(BaseModel):
     duration_ms: float
 
 
+class RecommendedSentence(BaseModel):
+    sentence: str
+    score: float
+    components: Dict[str, float]
+    unknown_tokens: List[str]
+
+
+class RecommendTextResponse(BaseModel):
+    user_id: str
+    sessions_completed: int
+    target_difficulty: float
+    recommendations: List[RecommendedSentence]
+
+
 # -----------------------------------------------------------------------------
 # Helper functions
 # -----------------------------------------------------------------------------
@@ -444,6 +500,148 @@ def numpy_to_list(obj):
     return obj
 
 
+def tokenize(text: str) -> List[str]:
+    """Tokenize sentence into lowercase alphabetic tokens."""
+    normalized = "".join(ch.lower() if ch.isalpha() else " " for ch in text)
+    return [tok for tok in normalized.split() if tok]
+
+
+def estimate_grammar_complexity(sentence: str) -> float:
+    """Heuristic grammar complexity in [0, 1] from punctuation and clause markers."""
+    lower = sentence.lower()
+    marker_hits = sum(1 for marker in GRAMMAR_COMPLEXITY_MARKERS if marker in lower)
+    punctuation_bonus = sentence.count(",") + sentence.count(";")
+    raw_score = marker_hits * 0.12 + punctuation_bonus * 0.1
+    return float(min(raw_score, 1.0))
+
+
+def sentence_difficulty_score(
+    sentence: str, user_knowledge: UserKnowledge
+) -> Tuple[float, Dict[str, float], List[str]]:
+    """
+    Score sentence difficulty in [0, 1] using:
+      - unknown vocabulary ratio
+      - grammar complexity
+      - normalized sentence length
+    """
+    tokens = tokenize(sentence)
+    if not tokens:
+        components = {
+            "unknown_vocabulary_ratio": 0.0,
+            "grammar_complexity": 0.0,
+            "sentence_length": 0.0,
+        }
+        return 0.0, components, []
+
+    unknown_tokens = sorted(
+        {tok for tok in tokens if tok not in user_knowledge.known_vocabulary}
+    )
+    unknown_ratio = len(unknown_tokens) / len(tokens)
+    grammar_complexity = estimate_grammar_complexity(sentence)
+    length_complexity = min(len(tokens) / 25.0, 1.0)
+
+    score = 0.55 * unknown_ratio + 0.25 * grammar_complexity + 0.20 * length_complexity
+    components = {
+        "unknown_vocabulary_ratio": round(unknown_ratio, 4),
+        "grammar_complexity": round(grammar_complexity, 4),
+        "sentence_length": round(length_complexity, 4),
+    }
+    return float(min(score, 1.0)), components, unknown_tokens
+
+
+def target_difficulty_for_user(user_knowledge: UserKnowledge) -> float:
+    """
+    Curriculum progression target.
+    Starts easier and increases gradually with completed sessions.
+    """
+    base = 0.28
+    increment = min(user_knowledge.sessions_completed, 15) * 0.03
+    return float(min(base + increment, 0.75))
+
+
+def get_or_create_user_knowledge(user_id: str) -> UserKnowledge:
+    """Fetch or initialize user knowledge profile."""
+    with _user_knowledge_lock:
+        if user_id in _user_knowledge_store:
+            return _user_knowledge_store[user_id]
+        profile = UserKnowledge(
+            user_id=user_id,
+            known_vocabulary={
+                "the",
+                "a",
+                "an",
+                "is",
+                "are",
+                "this",
+                "that",
+                "and",
+                "you",
+                "it",
+                "for",
+                "to",
+                "on",
+                "with",
+                "before",
+                "after",
+                "will",
+                "all",
+                "day",
+            },
+        )
+        _user_knowledge_store[user_id] = profile
+        return profile
+
+
+def recommend_sentences_for_user(
+    user_knowledge: UserKnowledge, limit: int
+) -> Tuple[float, List[RecommendedSentence]]:
+    """
+    Recommend sentences around a target difficulty.
+
+    Preference rules:
+      - prioritize 80% known / 20% new vocabulary (unknown ratio ≈ 0.2)
+      - then minimize distance to curriculum target difficulty
+    """
+    target = target_difficulty_for_user(user_knowledge)
+    candidates: List[Tuple[float, RecommendedSentence]] = []
+    for sentence in LEARNING_SENTENCE_POOL:
+        score, components, unknown_tokens = sentence_difficulty_score(
+            sentence, user_knowledge
+        )
+        unknown_ratio = components["unknown_vocabulary_ratio"]
+        ratio_distance = abs(unknown_ratio - 0.2)
+        target_distance = abs(score - target)
+        rank_key = ratio_distance * 0.7 + target_distance * 0.3
+        candidates.append(
+            (
+                rank_key,
+                RecommendedSentence(
+                    sentence=sentence,
+                    score=round(score, 4),
+                    components=components,
+                    unknown_tokens=unknown_tokens,
+                ),
+            )
+        )
+
+    candidates.sort(key=lambda item: item[0])
+    selected = [entry for _, entry in candidates[:limit]]
+    return target, selected
+
+
+def update_progression(user_knowledge: UserKnowledge, selected: List[RecommendedSentence]) -> None:
+    """Update user model based on shown recommendations."""
+    observed_tokens = set()
+    for item in selected:
+        observed_tokens.update(tokenize(item.sentence))
+        user_knowledge.recommended_history.append(item.sentence)
+
+    # Assume user consolidates a small subset of exposed words each session.
+    newly_learned = sorted(observed_tokens - user_knowledge.known_vocabulary)[:5]
+    user_knowledge.known_vocabulary.update(newly_learned)
+    user_knowledge.sessions_completed += 1
+
+
 # -----------------------------------------------------------------------------
 # API endpoints
 # -----------------------------------------------------------------------------
@@ -461,6 +659,7 @@ async def root(request: Request):
             "GET /": "This info",
             "GET /modules": "List available specialist modules",
             "POST /fuse": "Fuse embeddings for a query",
+            "GET /recommend-text": "Recommend adaptive learning sentences",
         },
     }
 
@@ -700,6 +899,41 @@ async def embed_batch(request: Request, body: BatchEmbedRequest):
         duration_ms=duration_ms,
     )
     return BatchEmbedResponse(items=items, duration_ms=duration_ms)
+
+
+@app.get("/recommend-text", response_model=RecommendTextResponse)
+async def recommend_text(
+    request: Request,
+    user_id: str = "default",
+    limit: int = 5,
+):
+    """Recommend text snippets using adaptive difficulty and curriculum progression."""
+    if limit < 1 or limit > 20:
+        raise HTTPException(status_code=400, detail="limit must be between 1 and 20")
+
+    with _user_knowledge_lock:
+        user_knowledge = get_or_create_user_knowledge(user_id)
+        target, selected = recommend_sentences_for_user(user_knowledge, limit)
+        update_progression(user_knowledge, selected)
+
+        sessions_completed = user_knowledge.sessions_completed
+
+    request_id = getattr(request.state, "request_id", None)
+    log_event(
+        logging.INFO,
+        "recommend_text.completed",
+        request_id=request_id,
+        user_id=user_id,
+        sessions_completed=sessions_completed,
+        target_difficulty=round(target, 4),
+        recommendations=len(selected),
+    )
+    return RecommendTextResponse(
+        user_id=user_id,
+        sessions_completed=sessions_completed,
+        target_difficulty=round(target, 4),
+        recommendations=selected,
+    )
 
 
 # -----------------------------------------------------------------------------
