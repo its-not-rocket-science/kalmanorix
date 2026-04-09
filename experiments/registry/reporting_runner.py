@@ -15,6 +15,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from kalmanorix.benchmarks.statistical_testing import generate_statistical_report
+from kalmanorix.benchmarks.report_generator import generate_guarded_findings_markdown
 
 
 PRIMARY_METRICS = ("recall@1", "recall@5", "recall@10", "mrr", "ndcg@10")
@@ -120,12 +121,21 @@ def _render_markdown(
         body = ["| " + " | ".join(str(v) for v in row.values()) + " |" for row in rows]
         return "\n".join([header, sep, *body])
 
+    safeguarded_findings = generate_guarded_findings_markdown(
+        significance_rows=significance_rows,
+        benchmark_limitations=[
+            "The benchmark evaluates retrieval behavior only; downstream task performance is not measured here.",
+            "Calibration metrics use confidence proxies rather than calibrated probabilities from a dedicated model.",
+        ],
+    )
+
     return "\n\n".join(
         [
             overall_tpl.format(table=_as_table(overall_rows)),
             sig_tpl.format(table=_as_table(significance_rows)),
             "## Calibration Summary\n\n" + _as_table(calibration_rows),
             fig_tpl.format(**figure_paths),
+            safeguarded_findings,
         ]
     )
 

@@ -17,7 +17,14 @@ from .evaluation_protocol import (
     SECONDARY_METRICS,
     evaluate_locked_protocol,
 )
-from .report_generator import generate_appendix_markdown
+from .report_generator import (
+    generate_appendix_markdown,
+    generate_guarded_findings_markdown,
+    template_inconclusive_result,
+    template_null_result,
+    template_positive_result,
+    template_regression,
+)
 from .statistical_testing import (
     BootstrapConfidenceInterval,
     DomainComparisonReport,
@@ -70,6 +77,11 @@ __all__ = [
     "generate_statistical_report",
     "render_appendix_table",
     "generate_appendix_markdown",
+    "generate_guarded_findings_markdown",
+    "template_positive_result",
+    "template_null_result",
+    "template_inconclusive_result",
+    "template_regression",
     "RoutingSample",
     "RoutingRunConfig",
     "ThresholdSweepConfig",
