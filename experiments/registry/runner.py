@@ -18,6 +18,7 @@ from experiments.registry.config_schema import BenchmarkExperimentConfig, load_e
 from experiments.registry.datasets import load_dataset
 from experiments.registry.evaluation import evaluate_locked, evaluate_synthetic_recall
 from experiments.registry.fusion import (
+    RetrievalFusionStrategy,
     build_retrieval_baselines,
     build_strategy,
     rank_query,
@@ -103,12 +104,48 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
 
     rankings_by_strategy: dict[str, dict[str, QueryRanking]] = {}
     latencies_by_strategy: dict[str, dict[str, float]] = {}
+    confidence_by_strategy: dict[str, dict[str, float]] = {}
+    specialist_count_by_strategy: dict[str, dict[str, float]] = {}
+
+    def _confidence_from_selected(query_text: str, selected_modules: list[Any]) -> float:
+        if not selected_modules:
+            return 0.0
+        inv_variances = np.asarray(
+            [1.0 / (1.0 + float(module.sigma2_for(query_text))) for module in selected_modules],
+            dtype=float,
+        )
+        return float(np.mean(inv_variances))
+
+    def _confidence_from_baseline(
+        *,
+        query_text: str,
+        strategy: RetrievalFusionStrategy,
+        village_obj: Any,
+    ) -> tuple[float, float]:
+        modules = village_obj.modules
+        weights = strategy.weights_for_query(query_text=query_text, modules=modules)
+        if len(weights) != len(modules):
+            weights = np.full(len(modules), 1.0 / len(modules), dtype=float)
+        weights = np.clip(weights, 0.0, None)
+        total = float(np.sum(weights))
+        if total <= 0.0:
+            weights = np.full(len(modules), 1.0 / len(modules), dtype=float)
+        else:
+            weights = weights / total
+        inv_var = np.asarray(
+            [1.0 / (1.0 + float(module.sigma2_for(query_text))) for module in modules],
+            dtype=float,
+        )
+        return float(np.sum(weights * inv_var)), float(np.count_nonzero(weights > 0.0))
 
     for strategy_name in config.fusion.strategies:
         scout, pan = build_strategy(name=strategy_name, routing_mode=config.fusion.routing_mode)
         rankings: dict[str, QueryRanking] = {}
         latencies: dict[str, float] = {}
+        confidences: dict[str, float] = {}
+        specialist_counts: dict[str, float] = {}
         for row in rows:
+            selected_modules = scout.select(query=row["query_text"], village=village)
             ranked_ids, latency = rank_query(
                 query_text=row["query_text"],
                 candidates=row["candidate_documents"],
@@ -118,14 +155,23 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             )
             rankings[row["query_id"]] = QueryRanking(doc_ids=tuple(ranked_ids))
             latencies[row["query_id"]] = latency
+            confidences[row["query_id"]] = _confidence_from_selected(
+                query_text=row["query_text"],
+                selected_modules=selected_modules,
+            )
+            specialist_counts[row["query_id"]] = float(len(selected_modules))
         rankings_by_strategy[strategy_name] = rankings
         latencies_by_strategy[strategy_name] = latencies
+        confidence_by_strategy[strategy_name] = confidences
+        specialist_count_by_strategy[strategy_name] = specialist_counts
 
     baseline_strategies = build_retrieval_baselines(config.fusion.options)
     for strategy in baseline_strategies:
         strategy.fit(rows=rows, village=village, options=config.fusion.options)
         rankings = {}
         latencies = {}
+        confidences = {}
+        specialist_counts = {}
         for row in rows:
             ranked_ids, latency = rank_query_with_baseline(
                 query_text=row["query_text"],
@@ -135,13 +181,23 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             )
             rankings[row["query_id"]] = QueryRanking(doc_ids=tuple(ranked_ids))
             latencies[row["query_id"]] = latency
+            confidence, count = _confidence_from_baseline(
+                query_text=row["query_text"],
+                strategy=strategy,
+                village_obj=village,
+            )
+            confidences[row["query_id"]] = confidence
+            specialist_counts[row["query_id"]] = count
         rankings_by_strategy[strategy.name] = rankings
         latencies_by_strategy[strategy.name] = latencies
+        confidence_by_strategy[strategy.name] = confidences
+        specialist_count_by_strategy[strategy.name] = specialist_counts
 
     reports = evaluate_locked(
         rows=rows,
         rankings_by_strategy=rankings_by_strategy,
         latencies_by_strategy=latencies_by_strategy,
+        specialist_count_by_strategy=specialist_count_by_strategy,
     )
 
     primary_metric = "mrr"
@@ -196,6 +252,21 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         },
         "specialists": specialists,
         "results": reports,
+        "query_level": {
+            "domains": {row["query_id"]: row["domain_label"] for row in rows},
+            "ground_truth": {
+                row["query_id"]: list(row["ground_truth_relevant_ids"]) for row in rows
+            },
+            "rankings": {
+                strategy_name: {
+                    query_id: list(ranking.doc_ids) for query_id, ranking in rankings.items()
+                }
+                for strategy_name, rankings in rankings_by_strategy.items()
+            },
+            "latency_ms": latencies_by_strategy,
+            "confidence_proxy": confidence_by_strategy,
+            "specialist_count_selected": specialist_count_by_strategy,
+        },
         "comparison_table": comparison_table,
         "kalman_guardrail": {
             "primary_metric": primary_metric,
@@ -261,7 +332,18 @@ def main() -> None:
 
     config = load_experiment_config(args.config)
     summary = run_experiment(config)
-    write_json(config.artifacts.summary_json, summary)
+    details = summary
+    if config.artifacts.details_json is not None:
+        write_json(config.artifacts.details_json, details)
+
+    lightweight_summary = dict(summary)
+    if "query_level" in lightweight_summary:
+        lightweight_summary["query_level"] = {
+            "details_json": str(config.artifacts.details_json)
+            if config.artifacts.details_json is not None
+            else None
+        }
+    write_json(config.artifacts.summary_json, lightweight_summary)
 
     if config.reporting.print_stdout:
         print(summary)

@@ -64,6 +64,36 @@ python experiments/run_real_mixed_benchmark.py
 python experiments/validate_covariance.py
 ```
 
+## 📄 Paper-grade Results Pipeline
+
+Use the benchmark registry for reproducible paper artifacts.
+
+### 1) Run one benchmark config (experiment runner)
+
+```bash
+python -m experiments.registry.runner \
+  --config experiments/configs/benchmark_registry/paper_grade_real_mixed.json
+```
+
+This writes:
+- `results/paper_grade/benchmark_summary.json`
+- `results/paper_grade/benchmark_details.json`
+
+### 2) Generate tables and figures (reporting runner)
+
+```bash
+python -m experiments.registry.reporting_runner \
+  --summary-json results/paper_grade/benchmark_summary.json \
+  --details-json results/paper_grade/benchmark_details.json \
+  --output-dir results/paper_grade/report
+```
+
+Generated outputs:
+- CSV: overall, per-domain, calibration, and statistical-significance tables
+- JSON: `results_bundle.json`
+- Markdown summary: `summary.md`
+- Publication-ready plots (PNG + PDF): latency/memory tradeoff and quality/latency frontier
+
 ## 📋 Roadmap
 
 ```markdown
