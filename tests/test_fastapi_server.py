@@ -204,5 +204,72 @@ def test_batch_embedding_endpoint():
         assert len(item["embeddings"]) >= 1
 
 
+def test_sentence_difficulty_scoring_components():
+    """Difficulty score should include unknown ratio, grammar, and length."""
+    from fastapi_server import (  # pylint: disable=import-error
+        UserKnowledge,
+        sentence_difficulty_score,
+    )
+
+    user = UserKnowledge(user_id="u1", known_vocabulary={"the", "battery", "is", "good"})
+    sentence = "Although the battery is good, the processor throttles unexpectedly."
+    score, components, unknown = sentence_difficulty_score(sentence, user)
+
+    assert 0.0 <= score <= 1.0
+    assert set(components.keys()) == {
+        "unknown_vocabulary_ratio",
+        "grammar_complexity",
+        "sentence_length",
+    }
+    assert components["grammar_complexity"] > 0.0
+    assert components["unknown_vocabulary_ratio"] > 0.0
+    assert "processor" in unknown
+
+
+def test_recommend_text_endpoint_progression_and_shape():
+    """GET /recommend-text returns scored recommendations and progresses sessions."""
+    user_id = "curriculum-test-user"
+
+    first = client.get("/recommend-text", params={"user_id": user_id, "limit": 4})
+    assert first.status_code == 200
+    first_data = first.json()
+    assert first_data["user_id"] == user_id
+    assert first_data["sessions_completed"] == 1
+    assert 0.0 <= first_data["target_difficulty"] <= 1.0
+    assert len(first_data["recommendations"]) == 4
+
+    for rec in first_data["recommendations"]:
+        assert "sentence" in rec
+        assert "score" in rec
+        assert "components" in rec
+        assert "unknown_tokens" in rec
+        assert 0.0 <= rec["score"] <= 1.0
+        assert set(rec["components"].keys()) == {
+            "unknown_vocabulary_ratio",
+            "grammar_complexity",
+            "sentence_length",
+        }
+
+    second = client.get("/recommend-text", params={"user_id": user_id, "limit": 4})
+    assert second.status_code == 200
+    second_data = second.json()
+    assert second_data["sessions_completed"] == 2
+    assert second_data["target_difficulty"] > first_data["target_difficulty"]
+
+
+def test_recommend_text_prioritizes_approximately_80_20_known_new():
+    """Top recommendations should be near 20% unknown vocabulary when possible."""
+    response = client.get(
+        "/recommend-text", params={"user_id": "ratio-check-user", "limit": 3}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    unknown_ratios = [
+        rec["components"]["unknown_vocabulary_ratio"] for rec in data["recommendations"]
+    ]
+    # Heuristic ranking should keep recommendations reasonably close to 0.2.
+    assert all(abs(ratio - 0.2) <= 0.5 for ratio in unknown_ratios)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
