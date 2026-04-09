@@ -8,7 +8,9 @@ from kalmanorix.calibration import (
 )
 
 
-def test_embedding_calibration_uses_absolute_tolerance_not_batch_normalization() -> None:
+def test_embedding_calibration_uses_absolute_tolerance_not_batch_normalization() -> (
+    None
+):
     specialist = np.array(
         [
             [0.0, 0.0],

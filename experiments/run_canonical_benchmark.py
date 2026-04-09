@@ -36,11 +36,15 @@ def _load_split_counts(benchmark_path: Path) -> dict[str, int]:
     required = {"train", "validation", "test"}
     missing = sorted(required.difference(counts))
     if missing:
-        raise ValueError(f"Benchmark must contain train/validation/test splits; missing={missing}")
+        raise ValueError(
+            f"Benchmark must contain train/validation/test splits; missing={missing}"
+        )
     return counts
 
 
-def _by_domain(query_ids: list[str], values: list[float], domains: dict[str, str]) -> dict[str, list[float]]:
+def _by_domain(
+    query_ids: list[str], values: list[float], domains: dict[str, str]
+) -> dict[str, list[float]]:
     out: dict[str, list[float]] = {}
     for qid, value in zip(query_ids, values, strict=True):
         out.setdefault(domains[qid], []).append(float(value))
@@ -128,7 +132,9 @@ def _render_report(summary: dict[str, Any]) -> str:
         lines.append(
             f"- LearnedGateFuser omitted: {summary['comparisons']['LearnedGateFuser']['reason']}"
         )
-    lines.append("- This report is descriptive for the configured setup and should not be generalized beyond it.")
+    lines.append(
+        "- This report is descriptive for the configured setup and should not be generalized beyond it."
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -294,13 +300,17 @@ def run_canonical_benchmark(
         "paired_statistics": {"kalman_vs_mean": paired_summary},
     }
 
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     (output_dir / "report.md").write_text(_render_report(summary), encoding="utf-8")
     return summary
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run canonical benchmark and generate report artifacts")
+    parser = argparse.ArgumentParser(
+        description="Run canonical benchmark and generate report artifacts"
+    )
     parser.add_argument(
         "--benchmark-path",
         type=Path,
@@ -311,7 +321,9 @@ def main() -> None:
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-resamples", type=int, default=5000)
-    parser.add_argument("--output-dir", type=Path, default=Path("results/canonical_benchmark"))
+    parser.add_argument(
+        "--output-dir", type=Path, default=Path("results/canonical_benchmark")
+    )
     args = parser.parse_args()
 
     summary = run_canonical_benchmark(
@@ -323,7 +335,9 @@ def main() -> None:
         seed=args.seed,
         num_resamples=args.num_resamples,
     )
-    print(json.dumps(summary["paired_statistics"]["kalman_vs_mean"]["overall"], indent=2))
+    print(
+        json.dumps(summary["paired_statistics"]["kalman_vs_mean"]["overall"], indent=2)
+    )
 
 
 if __name__ == "__main__":

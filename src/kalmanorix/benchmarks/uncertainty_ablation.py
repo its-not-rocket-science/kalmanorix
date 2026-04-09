@@ -19,7 +19,11 @@ from kalmanorix.calibration import compute_retrieval_calibration
 from kalmanorix.panoramix import KalmanorixFuser, Panoramix
 from kalmanorix.scout import ScoutRouter
 from kalmanorix.toy_corpus import build_toy_corpus
-from kalmanorix.uncertainty import ScaledSigma2, UncertaintyMethodConfig, create_uncertainty_method
+from kalmanorix.uncertainty import (
+    ScaledSigma2,
+    UncertaintyMethodConfig,
+    create_uncertainty_method,
+)
 from kalmanorix.village import SEF, Village
 
 
@@ -50,7 +54,9 @@ class ScaleSensitivity:
     ece_range: float
 
 
-def _token_embedder(vocabulary: Sequence[str], domain_boost: tuple[str, str]) -> Callable[[str], np.ndarray]:
+def _token_embedder(
+    vocabulary: Sequence[str], domain_boost: tuple[str, str]
+) -> Callable[[str], np.ndarray]:
     vocab_to_idx = {w: i for i, w in enumerate(vocabulary)}
     domain_tokens = set(domain_boost)
 
@@ -105,14 +111,34 @@ def build_ablation_datasets() -> list[AblationDataset]:
 
 def _build_specialists(docs: Sequence[str], method: str) -> Village:
     vocab = [
-        "battery", "charging", "cpu", "gpu", "camera", "usb", "thermal",
-        "braise", "simmer", "sauce", "oven", "stew", "cook", "recipe",
+        "battery",
+        "charging",
+        "cpu",
+        "gpu",
+        "camera",
+        "usb",
+        "thermal",
+        "braise",
+        "simmer",
+        "sauce",
+        "oven",
+        "stew",
+        "cook",
+        "recipe",
     ]
     tech_embed = _token_embedder(vocab, ("battery", "gpu"))
     cook_embed = _token_embedder(vocab, ("braise", "simmer"))
 
-    tech_cal = [d for d in docs if any(k in d.lower() for k in ("battery", "gpu", "cpu", "camera", "usb"))]
-    cook_cal = [d for d in docs if any(k in d.lower() for k in ("braise", "simmer", "oven", "sauce", "stew"))]
+    tech_cal = [
+        d
+        for d in docs
+        if any(k in d.lower() for k in ("battery", "gpu", "cpu", "camera", "usb"))
+    ]
+    cook_cal = [
+        d
+        for d in docs
+        if any(k in d.lower() for k in ("braise", "simmer", "oven", "sauce", "stew"))
+    ]
 
     tech_sigma = create_uncertainty_method(
         config=UncertaintyMethodConfig(method=method),
@@ -126,8 +152,18 @@ def _build_specialists(docs: Sequence[str], method: str) -> Village:
     )
 
     modules = [
-        SEF(name="tech", embed=tech_embed, sigma2=tech_sigma, embedding_dimension=len(vocab)),
-        SEF(name="cook", embed=cook_embed, sigma2=cook_sigma, embedding_dimension=len(vocab)),
+        SEF(
+            name="tech",
+            embed=tech_embed,
+            sigma2=tech_sigma,
+            embedding_dimension=len(vocab),
+        ),
+        SEF(
+            name="cook",
+            embed=cook_embed,
+            sigma2=cook_sigma,
+            embedding_dimension=len(vocab),
+        ),
     ]
     return Village(modules)
 
@@ -137,10 +173,14 @@ def _rank_docs(vec: np.ndarray, doc_embeddings: np.ndarray) -> list[int]:
     return list(np.argsort(-sims))
 
 
-def _compute_metrics(dataset: AblationDataset, village: Village) -> tuple[MethodMetrics, list[float]]:
+def _compute_metrics(
+    dataset: AblationDataset, village: Village
+) -> tuple[MethodMetrics, list[float]]:
     pan = Panoramix(fuser=KalmanorixFuser())
     scout = ScoutRouter(mode="all")
-    doc_embeddings = np.stack([village.modules[0].embed(d) for d in dataset.docs], axis=0)
+    doc_embeddings = np.stack(
+        [village.modules[0].embed(d) for d in dataset.docs], axis=0
+    )
 
     rankings: list[list[int]] = []
     fused_variances: list[float] = []
@@ -191,7 +231,9 @@ def _compute_metrics(dataset: AblationDataset, village: Village) -> tuple[Method
     )
 
 
-def evaluate_uncertainty_method_on_dataset(method: str, dataset: AblationDataset) -> dict[str, Any]:
+def evaluate_uncertainty_method_on_dataset(
+    method: str, dataset: AblationDataset
+) -> dict[str, Any]:
     village = _build_specialists(dataset.docs, method)
     base_metrics, _ = _compute_metrics(dataset, village)
 
@@ -228,7 +270,9 @@ def evaluate_uncertainty_method_on_dataset(method: str, dataset: AblationDataset
     }
 
 
-def summarize_scale_sensitivity(metrics_by_scale: dict[str, MethodMetrics]) -> ScaleSensitivity:
+def summarize_scale_sensitivity(
+    metrics_by_scale: dict[str, MethodMetrics],
+) -> ScaleSensitivity:
     recalls = [m.recall_at_1 for m in metrics_by_scale.values()]
     eces = [m.ece for m in metrics_by_scale.values()]
     return ScaleSensitivity(

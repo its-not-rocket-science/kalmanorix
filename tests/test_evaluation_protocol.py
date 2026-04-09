@@ -48,7 +48,9 @@ def test_locked_protocol_metrics_and_aggregation() -> None:
     assert report.global_secondary["latency_ms"].mean == pytest.approx(15.0)
     assert report.global_secondary["flops_proxy"].mean == pytest.approx(1000.0)
     assert report.global_secondary["peak_memory_mb"].mean == pytest.approx(50.0)
-    assert report.global_secondary["specialist_count_selected"].mean == pytest.approx(1.5)
+    assert report.global_secondary["specialist_count_selected"].mean == pytest.approx(
+        1.5
+    )
     assert set(report.global_primary) == set(PRIMARY_METRICS)
     assert set(report.global_secondary) == set(SECONDARY_METRICS)
 

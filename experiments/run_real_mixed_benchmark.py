@@ -55,7 +55,9 @@ def run_real_benchmark(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run real mixed-domain retrieval benchmark")
+    parser = argparse.ArgumentParser(
+        description="Run real mixed-domain retrieval benchmark"
+    )
     parser.add_argument(
         "--benchmark-path",
         type=Path,

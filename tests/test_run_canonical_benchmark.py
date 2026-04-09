@@ -51,9 +51,19 @@ def _fake_details() -> dict[str, object]:
     }
 
 
-def test_canonical_benchmark_writes_artifacts(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setattr(canonical, "_load_split_counts", lambda _: {"train": 8, "validation": 4, "test": 3})
-    monkeypatch.setattr(canonical, "load_experiment_config", lambda cfg_path: {"cfg_path": str(cfg_path)})
+def test_canonical_benchmark_writes_artifacts(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(
+        canonical,
+        "_load_split_counts",
+        lambda _: {"train": 8, "validation": 4, "test": 3},
+    )
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
+    )
     monkeypatch.setattr(canonical, "run_experiment", lambda cfg: _fake_details())
 
     output_dir = tmp_path / "results"
@@ -73,19 +83,38 @@ def test_canonical_benchmark_writes_artifacts(monkeypatch: pytest.MonkeyPatch, t
     assert report_path.exists()
 
     on_disk = json.loads(summary_path.read_text(encoding="utf-8"))
-    assert on_disk["benchmark"]["split_counts"] == {"train": 8, "validation": 4, "test": 3}
-    assert set(on_disk["methods"]) >= {"mean", "kalman", "router_only_top1", "uniform_mean_fusion"}
+    assert on_disk["benchmark"]["split_counts"] == {
+        "train": 8,
+        "validation": 4,
+        "test": 3,
+    }
+    assert set(on_disk["methods"]) >= {
+        "mean",
+        "kalman",
+        "router_only_top1",
+        "uniform_mean_fusion",
+    }
     assert "ndcg@10" in on_disk["paired_statistics"]["kalman_vs_mean"]["overall"]
     assert summary["comparisons"]["LearnedGateFuser"]["included"] is False
     assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
 
 
-def test_canonical_benchmark_requires_core_baselines(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_canonical_benchmark_requires_core_baselines(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     payload = _fake_details()
     del payload["query_level"]["rankings"]["router_only_top1"]  # type: ignore[index]
 
-    monkeypatch.setattr(canonical, "_load_split_counts", lambda _: {"train": 8, "validation": 4, "test": 3})
-    monkeypatch.setattr(canonical, "load_experiment_config", lambda cfg_path: {"cfg_path": str(cfg_path)})
+    monkeypatch.setattr(
+        canonical,
+        "_load_split_counts",
+        lambda _: {"train": 8, "validation": 4, "test": 3},
+    )
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
+    )
     monkeypatch.setattr(canonical, "run_experiment", lambda cfg: payload)
 
     with pytest.raises(ValueError, match="Missing strategies"):

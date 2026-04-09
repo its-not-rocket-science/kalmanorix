@@ -50,10 +50,8 @@ class ThresholdSweepConfig:
     quality_tolerance: float = 0.0
 
 
-
 def _safe_div(num: float, den: float) -> float:
     return 0.0 if den == 0 else num / den
-
 
 
 def _top1(score_map: dict[str, float]) -> list[str]:
@@ -62,13 +60,14 @@ def _top1(score_map: dict[str, float]) -> list[str]:
     return [max(score_map, key=score_map.get)]
 
 
-
 def _select_domains(sample: RoutingSample, config: RoutingRunConfig) -> list[str]:
     if not sample.semantic_scores:
         return []
 
     semantic_selected = [
-        d for d, score in sample.semantic_scores.items() if score >= config.semantic_threshold
+        d
+        for d, score in sample.semantic_scores.items()
+        if score >= config.semantic_threshold
     ]
 
     if config.mode == "semantic":
@@ -93,8 +92,9 @@ def _select_domains(sample: RoutingSample, config: RoutingRunConfig) -> list[str
     return _top1(sample.semantic_scores) if config.fallback == "top1" else []
 
 
-
-def _costs(sample: RoutingSample, selected: list[str]) -> tuple[float, float, float, float]:
+def _costs(
+    sample: RoutingSample, selected: list[str]
+) -> tuple[float, float, float, float]:
     default_flops = 1.0
     default_latency = 1.0
 
@@ -106,12 +106,16 @@ def _costs(sample: RoutingSample, selected: list[str]) -> tuple[float, float, fl
     routed_flops = float(sum(flops_map.get(d, default_flops) for d in selected))
 
     all_latency = float(sum(latency_map.values()))
-    routed_latency = float(sample.routing_overhead_ms + sum(latency_map.get(d, default_latency) for d in selected))
+    routed_latency = float(
+        sample.routing_overhead_ms
+        + sum(latency_map.get(d, default_latency) for d in selected)
+    )
     return all_flops, routed_flops, all_latency, routed_latency
 
 
-
-def evaluate_routing(samples: list[RoutingSample], config: RoutingRunConfig) -> dict[str, Any]:
+def evaluate_routing(
+    samples: list[RoutingSample], config: RoutingRunConfig
+) -> dict[str, Any]:
     """Evaluate routing quality and efficiency for a fixed threshold setup."""
 
     per_query: list[dict[str, Any]] = []
@@ -176,14 +180,20 @@ def evaluate_routing(samples: list[RoutingSample], config: RoutingRunConfig) -> 
         "routing_recall": _avg("recall"),
         "routing_f1": _avg("f1"),
         "avg_flops_savings_fraction": float(
-            fmean([row["flops"]["savings_fraction"] for row in per_query]) if per_query else 0.0
+            fmean([row["flops"]["savings_fraction"] for row in per_query])
+            if per_query
+            else 0.0
         ),
         "avg_latency_delta_ms": float(
-            fmean([row["latency_ms"]["delta"] for row in per_query]) if per_query else 0.0
+            fmean([row["latency_ms"]["delta"] for row in per_query])
+            if per_query
+            else 0.0
         ),
     }
 
-    quality_wins = [row for row in per_query if row["category"] == "quality_preserving_win"]
+    quality_wins = [
+        row for row in per_query if row["category"] == "quality_preserving_win"
+    ]
     compute_only = [row for row in per_query if row["category"] == "compute_only_win"]
     failures = [
         row
@@ -220,7 +230,6 @@ def evaluate_routing(samples: list[RoutingSample], config: RoutingRunConfig) -> 
     }
 
 
-
 def evaluate_threshold_robustness(
     samples: list[RoutingSample],
     config: ThresholdSweepConfig,
@@ -254,7 +263,9 @@ def evaluate_threshold_robustness(
         "config": asdict(config),
         "threshold_runs": runs,
         "robustness": {
-            "best_semantic_threshold_by_f1": None if best is None else best["semantic_threshold"],
+            "best_semantic_threshold_by_f1": None
+            if best is None
+            else best["semantic_threshold"],
             "f1_range": _range("routing_f1"),
             "precision_range": _range("routing_precision"),
             "recall_range": _range("routing_recall"),
@@ -262,7 +273,6 @@ def evaluate_threshold_robustness(
             "latency_delta_range_ms": _range("avg_latency_delta_ms"),
         },
     }
-
 
 
 def _load_samples(path: Path) -> list[RoutingSample]:
@@ -275,7 +285,9 @@ def _load_samples(path: Path) -> list[RoutingSample]:
             RoutingSample(
                 query_id=str(row["query_id"]),
                 relevant_domains=tuple(row.get("relevant_domains", [])),
-                semantic_scores={k: float(v) for k, v in row["semantic_scores"].items()},
+                semantic_scores={
+                    k: float(v) for k, v in row["semantic_scores"].items()
+                },
                 confidence_scores=(
                     None
                     if row.get("confidence_scores") is None
@@ -298,7 +310,6 @@ def _load_samples(path: Path) -> list[RoutingSample]:
     return samples
 
 
-
 def _parse_thresholds(raw: str) -> tuple[float, ...]:
     values = [float(chunk.strip()) for chunk in raw.split(",") if chunk.strip()]
     if not values:
@@ -306,12 +317,19 @@ def _parse_thresholds(raw: str) -> tuple[float, ...]:
     return tuple(values)
 
 
-
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate semantic/confidence routing.")
-    parser.add_argument("--dataset", type=Path, required=True, help="JSON file with routing samples")
-    parser.add_argument("--output", type=Path, required=True, help="Where to write JSON report")
-    parser.add_argument("--mode", choices=["semantic", "confidence"], default="semantic")
+    parser = argparse.ArgumentParser(
+        description="Evaluate semantic/confidence routing."
+    )
+    parser.add_argument(
+        "--dataset", type=Path, required=True, help="JSON file with routing samples"
+    )
+    parser.add_argument(
+        "--output", type=Path, required=True, help="Where to write JSON report"
+    )
+    parser.add_argument(
+        "--mode", choices=["semantic", "confidence"], default="semantic"
+    )
     parser.add_argument("--semantic-threshold", type=float, default=0.7)
     parser.add_argument("--semantic-thresholds", type=str, default="0.5,0.6,0.7,0.8")
     parser.add_argument("--confidence-threshold", type=float, default=0.8)

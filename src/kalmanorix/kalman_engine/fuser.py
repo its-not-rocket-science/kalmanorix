@@ -225,7 +225,9 @@ class Panoramix:
             return results
 
         # Try efficient batch fusion path when all queries route to the same models.
-        selected_models_per_query = [self.router.select(query, village) for query in queries]  # type: ignore
+        selected_models_per_query = [
+            self.router.select(query, village) for query in queries
+        ]  # type: ignore
         first_selected = selected_models_per_query[0]
         shared_selection = all(
             len(selected) == len(first_selected)
@@ -276,7 +278,9 @@ class Panoramix:
                 initial_covariance = None
                 if self.use_prior and self.prior_model is not None:
                     prior_embeddings = [self.prior_model.embed(q) for q in queries]
-                    prior_covariances = [self.prior_model.get_covariance(q) for q in queries]
+                    prior_covariances = [
+                        self.prior_model.get_covariance(q) for q in queries
+                    ]
                     initial_state = np.stack(prior_embeddings, axis=0)
                     initial_covariance = np.stack(prior_covariances, axis=0)
 

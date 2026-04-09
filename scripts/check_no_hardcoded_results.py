@@ -31,7 +31,9 @@ def main() -> int:
                 violations.append(str(file_path.relative_to(repo_root)))
 
     if violations:
-        print("Found hardcoded fabricated benchmark pattern {'1': 0.99, '5': 1.0, '10': 1.0} in:")
+        print(
+            "Found hardcoded fabricated benchmark pattern {'1': 0.99, '5': 1.0, '10': 1.0} in:"
+        )
         for path in violations:
             print(f" - {path}")
         return 1

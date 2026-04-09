@@ -12,7 +12,6 @@ from kalmanorix.village import SEF, Village
 from kalmanorix.kalman_engine.fuser import Panoramix
 
 
-
 def test_sef_get_covariance_uses_declared_dimension_without_dummy_embed() -> None:
     """SEF.get_covariance should use explicit dimension metadata, not embed('dummy')."""
 
@@ -28,7 +27,6 @@ def test_sef_get_covariance_uses_declared_dimension_without_dummy_embed() -> Non
     assert np.allclose(cov, np.array([0.5, 0.5, 0.5]))
 
 
-
 def test_sef_get_covariance_requires_dimension_metadata_when_unavailable() -> None:
     """SEF.get_covariance should fail fast when dimensionality is unknown."""
 
@@ -39,7 +37,6 @@ def test_sef_get_covariance_requires_dimension_metadata_when_unavailable() -> No
 
     with pytest.raises(ValueError, match="Cannot infer embedding dimension"):
         _ = sef.get_covariance("query")
-
 
 
 def test_scout_router_hard_mode_defaults_to_sigma2_only() -> None:
@@ -63,7 +60,6 @@ def test_scout_router_hard_mode_defaults_to_sigma2_only() -> None:
 
     assert len(selected) == 1
     assert selected[0].name == "tech"
-
 
 
 def test_scout_router_hard_mode_accepts_optional_heuristic() -> None:
@@ -92,8 +88,9 @@ def test_scout_router_hard_mode_accepts_optional_heuristic() -> None:
     assert selected[0].name == "charge"
 
 
-
-def test_scout_router_emits_structured_logs_for_semantic_mode(caplog: pytest.LogCaptureFixture) -> None:
+def test_scout_router_emits_structured_logs_for_semantic_mode(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     """Semantic routing should emit logging records (no print debugging)."""
 
     def fast_embedder(_q: str) -> np.ndarray:
@@ -109,7 +106,9 @@ def test_scout_router_emits_structured_logs_for_semantic_mode(caplog: pytest.Log
         ]
     )
 
-    router = ScoutRouter(mode="semantic", fast_embedder=fast_embedder, similarity_threshold=0.5)
+    router = ScoutRouter(
+        mode="semantic", fast_embedder=fast_embedder, similarity_threshold=0.5
+    )
 
     with caplog.at_level(logging.DEBUG, logger="kalmanorix.scout"):
         selected = router.select("science query", village)
@@ -118,7 +117,6 @@ def test_scout_router_emits_structured_logs_for_semantic_mode(caplog: pytest.Log
     assert selected[0].name == "science"
     assert any("ScoutRouter threshold=" in rec.message for rec in caplog.records)
     assert any("ScoutRouter selected modules" in rec.message for rec in caplog.records)
-
 
 
 def test_kalman_engine_fuse_batch_failure_fallback_uses_declared_dimension() -> None:

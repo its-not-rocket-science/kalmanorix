@@ -18,12 +18,24 @@ def test_reporting_runner_generates_artifacts(tmp_path) -> None:
                 "kalman": {"q1": ["d1", "d2"], "q2": ["d4", "d3"]},
                 "mean": {"q1": ["d2", "d1"], "q2": ["d3", "d4"]},
             },
-            "latency_ms": {"kalman": {"q1": 5.0, "q2": 6.0}, "mean": {"q1": 4.0, "q2": 4.5}},
-            "confidence_proxy": {"kalman": {"q1": 0.9, "q2": 0.8}, "mean": {"q1": 0.7, "q2": 0.6}},
-            "specialist_count_selected": {"kalman": {"q1": 2.0, "q2": 2.0}, "mean": {"q1": 2.0, "q2": 2.0}},
+            "latency_ms": {
+                "kalman": {"q1": 5.0, "q2": 6.0},
+                "mean": {"q1": 4.0, "q2": 4.5},
+            },
+            "confidence_proxy": {
+                "kalman": {"q1": 0.9, "q2": 0.8},
+                "mean": {"q1": 0.7, "q2": 0.6},
+            },
+            "specialist_count_selected": {
+                "kalman": {"q1": 2.0, "q2": 2.0},
+                "mean": {"q1": 2.0, "q2": 2.0},
+            },
         }
     }
-    summary_path.write_text(json.dumps({"query_level": {"details_json": str(details_path)}}), encoding="utf-8")
+    summary_path.write_text(
+        json.dumps({"query_level": {"details_json": str(details_path)}}),
+        encoding="utf-8",
+    )
     details_path.write_text(json.dumps(payload), encoding="utf-8")
 
     subprocess.run(

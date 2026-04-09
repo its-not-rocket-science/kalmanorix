@@ -356,7 +356,9 @@ def build_uncertainty_method(
     if normalized in ("keyword", "keyword_based", "keyword_based_sigma2"):
         provided_keywords = set(calibration_texts or [])
         if len(provided_keywords) == 0:
-            raise ValueError("keyword_based_sigma2 requires non-empty calibration_texts.")
+            raise ValueError(
+                "keyword_based_sigma2 requires non-empty calibration_texts."
+            )
         return KeywordSigma2(
             keywords=provided_keywords,
             in_domain_sigma2=base_sigma2,
@@ -365,7 +367,9 @@ def build_uncertainty_method(
     if normalized in ("centroid_distance", "centroid_distance_sigma2"):
         texts = list(calibration_texts or [])
         if not texts:
-            raise ValueError("centroid_distance_sigma2 requires non-empty calibration_texts.")
+            raise ValueError(
+                "centroid_distance_sigma2 requires non-empty calibration_texts."
+            )
         return CentroidDistanceSigma2.from_calibration(
             embed=embed,
             calibration_texts=texts,

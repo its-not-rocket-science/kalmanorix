@@ -24,8 +24,12 @@ class CalibrationResult:
     n_samples: int  # Number of samples used
     bin_edges: np.ndarray  # Bin edges for reliability diagram
     bin_centers: np.ndarray  # Bin centers
-    bin_accuracies: np.ndarray  # Actual accuracy/recall in each bin (NaN for empty bins)
-    bin_confidences: np.ndarray  # Average predicted confidence in each bin (NaN for empty bins)
+    bin_accuracies: (
+        np.ndarray
+    )  # Actual accuracy/recall in each bin (NaN for empty bins)
+    bin_confidences: (
+        np.ndarray
+    )  # Average predicted confidence in each bin (NaN for empty bins)
     bin_counts: np.ndarray  # Number of samples in each bin
     mean_confidence: float  # Mean predicted confidence
     mean_accuracy: float  # Mean empirical accuracy/event rate

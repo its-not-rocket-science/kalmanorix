@@ -9,11 +9,15 @@ import numpy as np
 from kalmanorix.benchmarks import QueryRanking, evaluate_locked_protocol
 
 
-def evaluate_synthetic_recall(corpus: Any, village: Any, strategies: dict[str, tuple[Any, Any]]) -> dict[str, float]:
+def evaluate_synthetic_recall(
+    corpus: Any, village: Any, strategies: dict[str, tuple[Any, Any]]
+) -> dict[str, float]:
     """Evaluate synthetic toy recall@1."""
     metrics: dict[str, float] = {}
     for name, (scout, pan) in strategies.items():
-        doc_mat = np.stack([pan.brew(d, village=village, scout=scout).vector for d in corpus.docs])
+        doc_mat = np.stack(
+            [pan.brew(d, village=village, scout=scout).vector for d in corpus.docs]
+        )
         hits = []
         for q, true_id in corpus.queries:
             qv = pan.brew(q, village=village, scout=scout).vector
@@ -32,7 +36,10 @@ def evaluate_locked(
     specialist_count_by_strategy: dict[str, dict[str, float]] | None = None,
 ) -> dict[str, Any]:
     """Evaluate ranking outputs with locked protocol."""
-    qrels = {r["query_id"]: {doc_id: 1.0 for doc_id in r["ground_truth_relevant_ids"]} for r in rows}
+    qrels = {
+        r["query_id"]: {doc_id: 1.0 for doc_id in r["ground_truth_relevant_ids"]}
+        for r in rows
+    }
     query_domains = {r["query_id"]: r["domain_label"] for r in rows}
     reports: dict[str, Any] = {}
     for strategy, rankings in rankings_by_strategy.items():
@@ -41,12 +48,18 @@ def evaluate_locked(
             qrels=qrels,
             query_domains=query_domains,
             latency_ms=latencies_by_strategy[strategy],
-            flops_proxy=None if flops_proxy_by_strategy is None else flops_proxy_by_strategy.get(strategy),
+            flops_proxy=None
+            if flops_proxy_by_strategy is None
+            else flops_proxy_by_strategy.get(strategy),
             peak_memory_mb=(
-                None if peak_memory_mb_by_strategy is None else peak_memory_mb_by_strategy.get(strategy)
+                None
+                if peak_memory_mb_by_strategy is None
+                else peak_memory_mb_by_strategy.get(strategy)
             ),
             specialist_count_selected=(
-                None if specialist_count_by_strategy is None else specialist_count_by_strategy.get(strategy)
+                None
+                if specialist_count_by_strategy is None
+                else specialist_count_by_strategy.get(strategy)
             ),
         )
         reports[strategy] = {

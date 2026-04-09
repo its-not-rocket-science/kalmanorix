@@ -20,7 +20,9 @@ from torch.utils.data import DataLoader, TensorDataset
 class AlignmentNetwork(nn.Module):
     """Small MLP that learns to map specialist embeddings to reference space."""
 
-    def __init__(self, input_dim: int, hidden_dim: int = 512, output_dim: Optional[int] = None):
+    def __init__(
+        self, input_dim: int, hidden_dim: int = 512, output_dim: Optional[int] = None
+    ):
         super().__init__()
         output_dim = output_dim or input_dim
         self.net = nn.Sequential(
@@ -63,14 +65,20 @@ def train_alignment(
     if source_embeddings.ndim != 2 or target_embeddings.ndim != 2:
         raise ValueError("source_embeddings and target_embeddings must be shape (n, d)")
     if source_embeddings.shape != target_embeddings.shape:
-        raise ValueError("source_embeddings and target_embeddings must have the same shape")
+        raise ValueError(
+            "source_embeddings and target_embeddings must have the same shape"
+        )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     source = torch.from_numpy(source_embeddings.astype(np.float32))
     target = torch.from_numpy(target_embeddings.astype(np.float32))
 
-    model = AlignmentNetwork(input_dim=source.shape[1], output_dim=target.shape[1]).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+    model = AlignmentNetwork(input_dim=source.shape[1], output_dim=target.shape[1]).to(
+        device
+    )
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=learning_rate, weight_decay=1e-4
+    )
 
     dataset = TensorDataset(source, target)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -83,7 +91,12 @@ def train_alignment(
 
             pred = model(src_batch)
             info_nce = _info_nce_loss(pred, tgt_batch)
-            cosine = 1.0 - F.cosine_similarity(pred, F.normalize(tgt_batch, p=2, dim=-1), dim=-1).mean()
+            cosine = (
+                1.0
+                - F.cosine_similarity(
+                    pred, F.normalize(tgt_batch, p=2, dim=-1), dim=-1
+                ).mean()
+            )
             loss = 0.7 * info_nce + 0.3 * cosine
 
             optimizer.zero_grad()

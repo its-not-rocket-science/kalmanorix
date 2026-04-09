@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-from kalmanorix.benchmarks.uncertainty_ablation import MethodMetrics, summarize_scale_sensitivity
+from kalmanorix.benchmarks.uncertainty_ablation import (
+    MethodMetrics,
+    summarize_scale_sensitivity,
+)
 
 
 def test_summarize_scale_sensitivity_computes_ranges() -> None:

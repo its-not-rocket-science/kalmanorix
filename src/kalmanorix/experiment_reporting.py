@@ -29,7 +29,9 @@ def write_calibration_report(
         "ablation_constant_variance": calibration_summary(ablation_calibration),
     }
 
-    payload = {name: {k: float(v) for k, v in stats.items()} for name, stats in rows.items()}
+    payload = {
+        name: {k: float(v) for k, v in stats.items()} for name, stats in rows.items()
+    }
     (experiment_dir / "calibration_summary.json").write_text(
         json.dumps(payload, indent=2),
         encoding="utf-8",

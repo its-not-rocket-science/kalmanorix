@@ -33,12 +33,16 @@ def _fuse_and_rank(
     weights: np.ndarray,
     candidates: list[dict[str, Any]],
 ) -> list[str]:
-    fused_query = np.sum([w * q for w, q in zip(weights, query_vecs, strict=True)], axis=0)
+    fused_query = np.sum(
+        [w * q for w, q in zip(weights, query_vecs, strict=True)], axis=0
+    )
     q_norm = _normalize(fused_query)
 
     scored: list[tuple[str, float]] = []
     for idx, candidate in enumerate(candidates):
-        fused_doc = np.sum([w * d[idx] for w, d in zip(weights, doc_vecs, strict=True)], axis=0)
+        fused_doc = np.sum(
+            [w * d[idx] for w, d in zip(weights, doc_vecs, strict=True)], axis=0
+        )
         score = float(np.dot(_normalize(fused_doc), q_norm))
         scored.append((candidate["doc_id"], score))
 
@@ -65,7 +69,9 @@ class RetrievalFusionStrategy(ABC):
     def __init__(self, name: str) -> None:
         self.name = name
 
-    def fit(self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]) -> None:
+    def fit(
+        self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]
+    ) -> None:
         """Optional fitting step using the same benchmark rows."""
 
     @abstractmethod
@@ -90,7 +96,9 @@ class FixedWeightedMeanStrategy(RetrievalFusionStrategy):
 
     def weights_for_query(self, query_text: str, modules: list[Any]) -> np.ndarray:
         _ = query_text
-        values = np.asarray([self.weights.get(module.name, 0.0) for module in modules], dtype=np.float64)
+        values = np.asarray(
+            [self.weights.get(module.name, 0.0) for module in modules], dtype=np.float64
+        )
         values = np.clip(values, 0.0, None)
         total = float(np.sum(values))
         if total <= 0:
@@ -107,7 +115,9 @@ class SingleNamedModelStrategy(RetrievalFusionStrategy):
         _ = query_text
         names = [module.name for module in modules]
         if self.model_name not in names:
-            raise ValueError(f"Model '{self.model_name}' unavailable. Available: {names}")
+            raise ValueError(
+                f"Model '{self.model_name}' unavailable. Available: {names}"
+            )
         weights = np.zeros(len(modules), dtype=np.float64)
         weights[names.index(self.model_name)] = 1.0
         return weights
@@ -118,10 +128,14 @@ class BestSingleSpecialistStrategy(SingleNamedModelStrategy):
         super().__init__(name="best_single_specialist", model_name="")
         self.train_fraction = train_fraction
 
-    def fit(self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]) -> None:
+    def fit(
+        self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]
+    ) -> None:
         train_fraction = float(options.get("train_fraction", self.train_fraction))
         train_rows = [
-            row for row in rows if _deterministic_fold(str(row["query_id"]), train_fraction) == "train"
+            row
+            for row in rows
+            if _deterministic_fold(str(row["query_id"]), train_fraction) == "train"
         ]
         if not train_rows:
             train_rows = rows
@@ -139,7 +153,9 @@ class BestSingleSpecialistStrategy(SingleNamedModelStrategy):
                     scores.append((cand["doc_id"], float(np.dot(qv, dv))))
                 scores.sort(key=lambda x: (-x[1], x[0]))
                 ranked = [doc_id for doc_id, _ in scores]
-                rr_values.append(_reciprocal_rank(ranked, set(row["ground_truth_relevant_ids"])))
+                rr_values.append(
+                    _reciprocal_rank(ranked, set(row["ground_truth_relevant_ids"]))
+                )
 
             score = float(np.mean(rr_values)) if rr_values else 0.0
             if score > best_score:
@@ -154,7 +170,10 @@ class RouterTop1Strategy(RetrievalFusionStrategy):
         super().__init__(name="router_only_top1")
 
     def weights_for_query(self, query_text: str, modules: list[Any]) -> np.ndarray:
-        scores = np.asarray([1.0 / module.sigma2_for(query_text) for module in modules], dtype=np.float64)
+        scores = np.asarray(
+            [1.0 / module.sigma2_for(query_text) for module in modules],
+            dtype=np.float64,
+        )
         weights = np.zeros(len(modules), dtype=np.float64)
         weights[int(np.argmax(scores))] = 1.0
         return weights
@@ -169,7 +188,10 @@ class RouterTopKMeanStrategy(RetrievalFusionStrategy):
 
     def weights_for_query(self, query_text: str, modules: list[Any]) -> np.ndarray:
         k = min(self.top_k, len(modules))
-        scores = np.asarray([1.0 / module.sigma2_for(query_text) for module in modules], dtype=np.float64)
+        scores = np.asarray(
+            [1.0 / module.sigma2_for(query_text) for module in modules],
+            dtype=np.float64,
+        )
         idx = np.argsort(-scores)[:k]
         weights = np.zeros(len(modules), dtype=np.float64)
         weights[idx] = 1.0 / k
@@ -183,12 +205,16 @@ class LearnedLinearCombinerStrategy(RetrievalFusionStrategy):
         self.train_fraction = train_fraction
         self.weights = np.array([], dtype=np.float64)
 
-    def fit(self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]) -> None:
+    def fit(
+        self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]
+    ) -> None:
         train_fraction = float(options.get("train_fraction", self.train_fraction))
         ridge_lambda = float(options.get("ridge_lambda", self.ridge_lambda))
 
         train_rows = [
-            row for row in rows if _deterministic_fold(str(row["query_id"]), train_fraction) == "train"
+            row
+            for row in rows
+            if _deterministic_fold(str(row["query_id"]), train_fraction) == "train"
         ]
         if not train_rows:
             train_rows = rows
@@ -210,7 +236,9 @@ class LearnedLinearCombinerStrategy(RetrievalFusionStrategy):
 
         x = np.asarray(x_rows, dtype=np.float64)
         if x.size == 0:
-            self.weights = np.full(len(village.modules), 1.0 / len(village.modules), dtype=np.float64)
+            self.weights = np.full(
+                len(village.modules), 1.0 / len(village.modules), dtype=np.float64
+            )
             return
         y = np.ones(x.shape[0], dtype=np.float64)
         ridge = ridge_lambda * np.eye(x.shape[1], dtype=np.float64)
@@ -218,7 +246,9 @@ class LearnedLinearCombinerStrategy(RetrievalFusionStrategy):
         raw = np.clip(raw, 0.0, None)
         denom = float(np.sum(raw))
         if denom <= 0:
-            self.weights = np.full(len(village.modules), 1.0 / len(village.modules), dtype=np.float64)
+            self.weights = np.full(
+                len(village.modules), 1.0 / len(village.modules), dtype=np.float64
+            )
         else:
             self.weights = raw / denom
 
@@ -233,7 +263,9 @@ class GeneralistModelStrategy(SingleNamedModelStrategy):
     def __init__(self, model_name: str | None = None) -> None:
         super().__init__(name="single_generalist_model", model_name=model_name or "")
 
-    def fit(self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]) -> None:
+    def fit(
+        self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]
+    ) -> None:
         _ = rows
         if self.model_name:
             return
@@ -273,10 +305,14 @@ def build_retrieval_baselines(options: dict[str, Any]) -> list[RetrievalFusionSt
     top_k = int(options.get("router_top_k", 2))
 
     return [
-        BestSingleSpecialistStrategy(train_fraction=float(options.get("train_fraction", 0.5))),
+        BestSingleSpecialistStrategy(
+            train_fraction=float(options.get("train_fraction", 0.5))
+        ),
         GeneralistModelStrategy(model_name=options.get("generalist_model_name")),
         UniformMeanStrategy(),
-        FixedWeightedMeanStrategy(weights={str(k): float(v) for k, v in fixed_weights.items()}),
+        FixedWeightedMeanStrategy(
+            weights={str(k): float(v) for k, v in fixed_weights.items()}
+        ),
         RouterTop1Strategy(),
         RouterTopKMeanStrategy(top_k=top_k),
         LearnedLinearCombinerStrategy(
@@ -305,7 +341,9 @@ def rank_query_with_baseline(
 
     weights = strategy.weights_for_query(query_text=query_text, modules=modules)
     if len(weights) != len(modules):
-        raise ValueError(f"Strategy {strategy.name} returned {len(weights)} weights for {len(modules)} modules")
+        raise ValueError(
+            f"Strategy {strategy.name} returned {len(weights)} weights for {len(modules)} modules"
+        )
     if np.any(weights < 0):
         raise ValueError(f"Strategy {strategy.name} returned negative weights")
 
@@ -315,7 +353,9 @@ def rank_query_with_baseline(
     else:
         weights = weights / total
 
-    ranked = _fuse_and_rank(query_vecs=query_vecs, doc_vecs=doc_vecs, weights=weights, candidates=candidates)
+    ranked = _fuse_and_rank(
+        query_vecs=query_vecs, doc_vecs=doc_vecs, weights=weights, candidates=candidates
+    )
     return ranked, (time.perf_counter() - start) * 1000.0
 
 

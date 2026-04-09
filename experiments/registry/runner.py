@@ -14,7 +14,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from kalmanorix.benchmarks import QueryRanking
 
-from experiments.registry.config_schema import BenchmarkExperimentConfig, load_experiment_config
+from experiments.registry.config_schema import (
+    BenchmarkExperimentConfig,
+    load_experiment_config,
+)
 from experiments.registry.datasets import load_dataset
 from experiments.registry.evaluation import evaluate_locked, evaluate_synthetic_recall
 from experiments.registry.fusion import (
@@ -78,7 +81,9 @@ def _run_synthetic(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         name: build_strategy(name=name, routing_mode=config.fusion.routing_mode)
         for name in config.fusion.strategies
     }
-    metrics = evaluate_synthetic_recall(corpus=corpus, village=village, strategies=strategies)
+    metrics = evaluate_synthetic_recall(
+        corpus=corpus, village=village, strategies=strategies
+    )
     return {
         "name": config.name,
         "experiment_type": config.experiment_type,
@@ -107,11 +112,16 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     confidence_by_strategy: dict[str, dict[str, float]] = {}
     specialist_count_by_strategy: dict[str, dict[str, float]] = {}
 
-    def _confidence_from_selected(query_text: str, selected_modules: list[Any]) -> float:
+    def _confidence_from_selected(
+        query_text: str, selected_modules: list[Any]
+    ) -> float:
         if not selected_modules:
             return 0.0
         inv_variances = np.asarray(
-            [1.0 / (1.0 + float(module.sigma2_for(query_text))) for module in selected_modules],
+            [
+                1.0 / (1.0 + float(module.sigma2_for(query_text)))
+                for module in selected_modules
+            ],
             dtype=float,
         )
         return float(np.mean(inv_variances))
@@ -139,7 +149,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         return float(np.sum(weights * inv_var)), float(np.count_nonzero(weights > 0.0))
 
     for strategy_name in config.fusion.strategies:
-        scout, pan = build_strategy(name=strategy_name, routing_mode=config.fusion.routing_mode)
+        scout, pan = build_strategy(
+            name=strategy_name, routing_mode=config.fusion.routing_mode
+        )
         rankings: dict[str, QueryRanking] = {}
         latencies: dict[str, float] = {}
         confidences: dict[str, float] = {}
@@ -208,7 +220,11 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         reverse=True,
     )
 
-    kalman_score = reports[kalman_key]["global_primary"][primary_metric]["mean"] if kalman_key in reports else None
+    kalman_score = (
+        reports[kalman_key]["global_primary"][primary_metric]["mean"]
+        if kalman_key in reports
+        else None
+    )
     best_baseline = None
     best_baseline_score = None
     for name, rep in ranked_methods:
@@ -259,7 +275,8 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             },
             "rankings": {
                 strategy_name: {
-                    query_id: list(ranking.doc_ids) for query_id, ranking in rankings.items()
+                    query_id: list(ranking.doc_ids)
+                    for query_id, ranking in rankings.items()
                 }
                 for strategy_name, rankings in rankings_by_strategy.items()
             },
@@ -290,11 +307,17 @@ def _run_efficiency(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     bench_config = BenchmarkConfig(
         sefs_dir=Path(options.get("sefs_dir", "artefacts/sefs")),
         models_dir=Path(options.get("models_dir", "models")),
-        registry_json=Path(options["registry_json"]) if options.get("registry_json") else None,
+        registry_json=Path(options["registry_json"])
+        if options.get("registry_json")
+        else None,
         repo_root=Path(options.get("repo_root", ".")),
-        query_text=options.get("query_text", "Test query about battery life and cooking stew"),
+        query_text=options.get(
+            "query_text", "Test query about battery life and cooking stew"
+        ),
         num_repeats=int(options.get("num_repeats", 10)),
-        specialist_counts=[int(v) for v in options.get("specialist_counts", [1, 2, 3, 5, 10, 20])],
+        specialist_counts=[
+            int(v) for v in options.get("specialist_counts", [1, 2, 3, 5, 10, 20])
+        ],
         track_gpu=bool(options.get("track_gpu", False)),
         track_memory=bool(options.get("track_memory", True)),
         strategies=config.fusion.strategies,
