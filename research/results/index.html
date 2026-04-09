@@ -2531,7 +2531,13 @@
 <li><code>results/canonical_benchmark/summary.json</code></li>
 <li><code>results/canonical_benchmark/report.md</code></li>
 </ul>
-<p>These files are produced by <code>kalmanorix-run-canonical-benchmark</code> and include paired Kalman-vs-mean statistics, confidence intervals, and method-level quality/latency/FLOPs proxy summaries.</p>
+<p>These files are produced by the single-command pipeline:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kalmanorix-run-canonical-benchmark<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--split<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark
+</span></code></pre></div>
+<p>The artifact includes MeanFuser, KalmanorixFuser, hard-routing, and all-routing+mean baselines (plus LearnedGateFuser only when a two-specialist setup is used), with paired Kalman-vs-mean testing and confidence intervals for quality/latency/FLOPs proxy metrics.</p>
 <h2 id="core-claim-evidence-status">Core Claim Evidence Status<a class="headerlink" href="#core-claim-evidence-status" title="Permanent link">&para;</a></h2>
 <h3 id="1-semantic-routing-improves-compute-efficiency">1) Semantic routing improves compute efficiency<a class="headerlink" href="#1-semantic-routing-improves-compute-efficiency" title="Permanent link">&para;</a></h3>
 <p><strong>Evidence status:</strong> <strong>Supported (artifact-backed).</strong></p>
@@ -2544,7 +2550,7 @@
 <h3 id="2-kalman-fusion-improves-retrieval-quality-over-mean-fusion">2) Kalman fusion improves retrieval quality over mean fusion<a class="headerlink" href="#2-kalman-fusion-improves-retrieval-quality-over-mean-fusion" title="Permanent link">&para;</a></h3>
 <p><strong>Evidence status:</strong> <strong>Unresolved.</strong></p>
 <ul>
-<li>No final statistical artifact in the repository currently establishes a robust improvement claim.</li>
+<li>Use <code>results/canonical_benchmark/report.md</code> to determine this claim for a specific run; do not generalize beyond that benchmark configuration.</li>
 </ul>
 <h3 id="3-fused-specialists-outperform-monolith-at-equal-compute">3) Fused specialists outperform monolith at equal compute<a class="headerlink" href="#3-fused-specialists-outperform-monolith-at-equal-compute" title="Permanent link">&para;</a></h3>
 <p><strong>Evidence status:</strong> <strong>Unresolved.</strong></p>
