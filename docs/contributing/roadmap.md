@@ -49,3 +49,10 @@ Examples:
 - Compute-parity fairness (for specialists vs monolith).
 - Sensitivity to routing thresholds/centroid construction.
 - Potential leakage between train/validation/test resources.
+
+
+### API Surface Guidance
+
+- Place new beginner-facing features in the **stable** top-level API only when they are expected to remain compatible.
+- Place still-evolving features in `kalmanorix.experimental`.
+- Keep maintainer-only helpers in internal modules.

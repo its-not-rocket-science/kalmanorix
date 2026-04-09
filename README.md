@@ -7,6 +7,17 @@
 
 Kalmanorix is an experimental framework for combining specialist embedding models with uncertainty-aware fusion and semantic routing. The project can also be used as a standalone **routing-and-efficiency toolkit** even if fusion-quality hypotheses remain unresolved.
 
+## API Maturity Tiers
+
+Kalmanorix now documents three API tiers to keep the top-level package easier to learn:
+
+- **Stable API (`kalmanorix`)**: core workflow primitives (`SEF`, `Village`, `ScoutRouter`, `Panoramix`, `KalmanorixFuser`, etc.).
+- **Experimental API (`kalmanorix.experimental`)**: advanced adapters, alignment helpers, threshold heuristics, and research fuser variants.
+- **Internal utilities (`kalmanorix.internal`)**: maintainer-facing helpers with no compatibility guarantee.
+
+For compatibility, experimental symbols remain temporarily importable from `kalmanorix` with deprecation warnings.
+
+
 ## Demonstrated Results vs Planned Work
 
 ### Demonstrated (with committed artifacts)
