@@ -2217,20 +2217,24 @@
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--output<span class="w"> </span>results/real_mixed_benchmark/real_benchmark_summary.json
 </span></code></pre></div>
-<p>Compatibility entrypoint (now real by default):</p>
+<p>Compatibility entrypoints (now real by default):</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>experiments/validate_fusion.py
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>experiments/mixed_domain_eval.py
 </span></code></pre></div>
 <p>Debug/smoke only:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>experiments/validate_fusion.py<span class="w"> </span>--debug-synthetic
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>experiments/benchmark_fusion_methods.py
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>experiments/mixed_domain_eval.py<span class="w"> </span>--debug-synthetic
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>python<span class="w"> </span>experiments/benchmark_fusion_methods.py
 </span></code></pre></div>
 <h2 id="4-migration-map-old-scripts-debug-only">4) Migration map (old scripts → debug only)<a class="headerlink" href="#4-migration-map-old-scripts-debug-only" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>experiments/benchmark_fusion_methods.py</code>: <strong>debug only</strong> (synthetic smoke)</li>
 <li><code>experiments/validate_fusion.py --debug-synthetic</code>: <strong>debug only</strong> (toy corpus + keyword embedder)</li>
+<li><code>experiments/mixed_domain_eval.py --debug-synthetic</code>: <strong>debug only</strong> (toy corpus smoke)</li>
 <li>Primary headline validation moved to:</li>
 <li><code>experiments/run_real_mixed_benchmark.py</code></li>
 <li><code>experiments/validate_fusion.py</code> (default mode)</li>
+<li><code>experiments/mixed_domain_eval.py</code> (default mode)</li>
 </ul>
 <h2 id="operational-note">Operational note<a class="headerlink" href="#operational-note" title="Permanent link">&para;</a></h2>
 <p>Use <code>scripts/build_mixed_benchmark.py</code> to regenerate benchmark artifacts when needed.</p>
