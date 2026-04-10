@@ -7,6 +7,7 @@ import pytest
 
 from kalmanorix.village import Village
 from experiments.registry.fusion import (
+    AdaptiveRouteOrFuseStrategy,
     BestSingleSpecialistStrategy,
     LearnedLinearCombinerStrategy,
     RouterTop1Strategy,
@@ -85,6 +86,7 @@ def test_build_retrieval_baselines_contains_required_suite() -> None:
         "fixed_weighted_mean_fusion",
         "router_only_top1",
         "router_only_topk_mean",
+        "adaptive_route_or_fuse",
         "learned_linear_combiner",
     ]
 
@@ -118,3 +120,90 @@ def test_learned_linear_combiner_weights_are_valid() -> None:
     assert strategy.weights.shape == (3,)
     assert np.all(strategy.weights >= 0.0)
     assert float(np.sum(strategy.weights)) == pytest.approx(1.0)
+
+
+def test_adaptive_policy_chooses_hard_routing_for_high_confidence_query() -> None:
+    village = Village(
+        modules=[
+            _FakeModule(
+                "dominant",
+                0.1,
+                {"q": np.array([1.0, 0.0]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+            ),
+            _FakeModule(
+                "backup",
+                0.5,
+                {"q": np.array([0.95, 0.05]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+            ),
+        ]
+    )
+    strategy = AdaptiveRouteOrFuseStrategy(top_k=2)
+
+    diag = strategy.diagnostics_for_query("q", village.modules)
+
+    assert diag is not None
+    assert diag["mode"] == "hard_routing"
+
+
+def test_adaptive_policy_chooses_fusion_for_ambiguous_query() -> None:
+    village = Village(
+        modules=[
+            _FakeModule(
+                "m1",
+                1.0,
+                {
+                    "ambiguous": np.array([1.0, 0.0]),
+                    "d1": np.array([1.0, 0.0]),
+                    "d2": np.array([0.0, 1.0]),
+                },
+            ),
+            _FakeModule(
+                "m2",
+                1.02,
+                {
+                    "ambiguous": np.array([0.0, 1.0]),
+                    "d1": np.array([1.0, 0.0]),
+                    "d2": np.array([0.0, 1.0]),
+                },
+            ),
+            _FakeModule(
+                "m3",
+                1.05,
+                {
+                    "ambiguous": np.array([-1.0, 0.0]),
+                    "d1": np.array([1.0, 0.0]),
+                    "d2": np.array([0.0, 1.0]),
+                },
+            ),
+        ]
+    )
+    strategy = AdaptiveRouteOrFuseStrategy(top_k=2)
+
+    diag = strategy.diagnostics_for_query("ambiguous", village.modules)
+
+    assert diag is not None
+    assert diag["mode"] in {"kalman_fusion", "topk_mean_fusion"}
+
+
+def test_adaptive_policy_fallback_stays_stable_with_degenerate_sigma2() -> None:
+    village = Village(
+        modules=[
+            _FakeModule(
+                "s1",
+                0.0,
+                {"q": np.array([1.0, 0.0]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+            ),
+            _FakeModule(
+                "s2",
+                0.0,
+                {"q": np.array([1.0, 0.0]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+            ),
+        ]
+    )
+    strategy = AdaptiveRouteOrFuseStrategy(top_k=2)
+
+    weights = strategy.weights_for_query("q", village.modules)
+
+    assert weights.shape == (2,)
+    assert np.all(np.isfinite(weights))
+    assert float(np.sum(weights)) == pytest.approx(1.0)

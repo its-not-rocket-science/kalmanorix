@@ -111,6 +111,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     latencies_by_strategy: dict[str, dict[str, float]] = {}
     confidence_by_strategy: dict[str, dict[str, float]] = {}
     specialist_count_by_strategy: dict[str, dict[str, float]] = {}
+    policy_usage_by_strategy: dict[str, dict[str, Any]] = {}
 
     def _confidence_from_selected(
         query_text: str, selected_modules: list[Any]
@@ -184,6 +185,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         latencies = {}
         confidences = {}
         specialist_counts = {}
+        policy_usage: dict[str, Any] = {}
         for row in rows:
             ranked_ids, latency = rank_query_with_baseline(
                 query_text=row["query_text"],
@@ -200,10 +202,17 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             )
             confidences[row["query_id"]] = confidence
             specialist_counts[row["query_id"]] = count
+            diagnostics = strategy.diagnostics_for_query(
+                query_text=row["query_text"], modules=village.modules
+            )
+            if diagnostics is not None:
+                policy_usage[row["query_id"]] = diagnostics
         rankings_by_strategy[strategy.name] = rankings
         latencies_by_strategy[strategy.name] = latencies
         confidence_by_strategy[strategy.name] = confidences
         specialist_count_by_strategy[strategy.name] = specialist_counts
+        if policy_usage:
+            policy_usage_by_strategy[strategy.name] = policy_usage
 
     reports = evaluate_locked(
         rows=rows,
@@ -283,6 +292,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             "latency_ms": latencies_by_strategy,
             "confidence_proxy": confidence_by_strategy,
             "specialist_count_selected": specialist_count_by_strategy,
+            "policy_usage": policy_usage_by_strategy,
         },
         "comparison_table": comparison_table,
         "kalman_guardrail": {
