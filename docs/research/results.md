@@ -4,8 +4,8 @@ This page reports only what is currently supported by committed artifacts.
 
 ## Current Evidence State
 
-- **Canonical artifact path:** `results/canonical_benchmark/`
-- **State:** **Real artifact committed** (`summary.json`, `report.md`).
+- **Canonical artifact paths:** `results/canonical_benchmark/` (v1) and `results/canonical_benchmark_v2/` (stronger protocol target).
+- **State:** v1 artifact committed (`summary.json`, `report.md`); v2 command path documented for regeneration.
 - **What this means:** canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.
 
 ## Demonstrated vs Planned
@@ -23,17 +23,27 @@ This page reports only what is currently supported by committed artifacts.
 ### Canonical Benchmark Artifact
 - `results/canonical_benchmark/summary.json`
 - `results/canonical_benchmark/report.md`
+- `results/canonical_benchmark_v2/README.md` (reproducible stronger-benchmark command)
 
-These files are produced by the single-command pipeline:
+Canonical v2 is produced with a two-step but fully reproducible command sequence:
 
 ```bash
-kalmanorix-run-canonical-benchmark \
-  --benchmark-path benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet \
+PYTHONPATH=src python scripts/build_mixed_benchmark.py \
+  --output-dir benchmarks/mixed_beir_v1.1.0 \
+  --seed 1337 \
+  --max-candidates 80 \
+  --cross-domain-negative-ratio 0.45 \
+  --max-queries-per-domain 900 \
+  --max-test-queries-per-domain 180
+
+PYTHONPATH=src python experiments/run_canonical_benchmark.py \
+  --benchmark-path benchmarks/mixed_beir_v1.1.0/mixed_benchmark.json \
   --split test \
-  --output-dir results/canonical_benchmark
+  --max-queries 600 \
+  --output-dir results/canonical_benchmark_v2
 ```
 
-The artifact includes MeanFuser, KalmanorixFuser, hard-routing, and all-routing+mean baselines (plus LearnedGateFuser only when a two-specialist setup is used), with paired Kalman-vs-mean testing and confidence intervals for quality/latency/FLOPs proxy metrics.
+The canonical artifact includes MeanFuser, KalmanorixFuser, hard-routing, and all-routing+mean baselines (plus LearnedGateFuser only when a two-specialist setup is used), with paired Kalman-vs-mean testing and confidence intervals for quality/latency/FLOPs proxy metrics. v2 additionally tracks nDCG@5, MRR@5, Recall@1, and top-1 success.
 
 ## Core Claim Evidence Status
 

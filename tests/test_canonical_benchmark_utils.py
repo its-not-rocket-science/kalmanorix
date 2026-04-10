@@ -33,12 +33,17 @@ def test_aggregate_strategy_metrics_returns_ci_and_query_level() -> None:
 
     assert summary["num_queries"] == 3
     assert set(summary["metrics"]) == {
+        "ndcg@5",
         "ndcg@10",
+        "recall@1",
         "recall@10",
+        "mrr@5",
         "mrr@10",
+        "top1_success",
         "latency_ms",
         "flops_proxy",
     }
+    assert len(summary["query_level"]["ndcg@5"]) == 3
     assert len(summary["query_level"]["ndcg@10"]) == 3
     assert summary["metrics"]["latency_ms"]["mean"] == np.mean([1.0, 2.0, 3.0])
 
@@ -64,14 +69,22 @@ def test_aggregate_strategy_metrics_sorts_query_ids_for_alignment() -> None:
 
 def test_paired_statistical_report_for_kalman_vs_mean_metrics() -> None:
     kalman = {
+        "ndcg@5": [0.9, 0.8, 0.7, 0.6],
         "ndcg@10": [0.9, 0.8, 0.7, 0.6],
+        "recall@1": [1.0, 1.0, 0.0, 0.0],
         "recall@10": [1.0, 1.0, 1.0, 0.5],
+        "mrr@5": [1.0, 1.0, 0.5, 0.5],
         "mrr@10": [1.0, 1.0, 0.5, 0.5],
+        "top1_success": [1.0, 1.0, 0.0, 0.0],
     }
     mean = {
+        "ndcg@5": [0.7, 0.7, 0.6, 0.4],
         "ndcg@10": [0.7, 0.7, 0.6, 0.4],
+        "recall@1": [1.0, 0.0, 0.0, 0.0],
         "recall@10": [1.0, 1.0, 0.5, 0.5],
+        "mrr@5": [1.0, 0.5, 0.5, 0.25],
         "mrr@10": [1.0, 0.5, 0.5, 0.25],
+        "top1_success": [1.0, 0.0, 0.0, 0.0],
     }
 
     report = generate_statistical_report(
@@ -83,5 +96,13 @@ def test_paired_statistical_report_for_kalman_vs_mean_metrics() -> None:
         seed=7,
     )
 
-    assert set(report.comparisons) == {"ndcg@10", "recall@10", "mrr@10"}
+    assert set(report.comparisons) == {
+        "ndcg@5",
+        "ndcg@10",
+        "recall@1",
+        "recall@10",
+        "mrr@5",
+        "mrr@10",
+        "top1_success",
+    }
     assert report.comparisons["ndcg@10"].mean_difference > 0.0

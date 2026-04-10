@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-BENCHMARK_VERSION = "mixed_beir_v1.0.0"
+BENCHMARK_VERSION = "mixed_beir_v1.1.0"
 DEFAULT_SEED = 1337
 DEFAULT_OUTPUT_DIR = Path("benchmarks") / BENCHMARK_VERSION
 DATASET_SPECS = (
@@ -44,6 +44,33 @@ DATASET_SPECS = (
         "url": "https://huggingface.co/datasets/BeIR/fiqa",
         "license": "cc-by-nc-4.0",
     },
+    {
+        "hf_name": "BeIR/arguana",
+        "key": "arguana",
+        "source_dataset": "beir_arguana",
+        "domain": "argumentation",
+        "domain_id": 3,
+        "url": "https://huggingface.co/datasets/BeIR/arguana",
+        "license": "cc-by-4.0",
+    },
+    {
+        "hf_name": "BeIR/fever",
+        "key": "fever",
+        "source_dataset": "beir_fever",
+        "domain": "fact_checking",
+        "domain_id": 4,
+        "url": "https://huggingface.co/datasets/BeIR/fever",
+        "license": "cc-by-sa-4.0",
+    },
+    {
+        "hf_name": "BeIR/dbpedia-entity",
+        "key": "dbpedia",
+        "source_dataset": "beir_dbpedia_entity",
+        "domain": "encyclopedic",
+        "domain_id": 5,
+        "url": "https://huggingface.co/datasets/BeIR/dbpedia-entity",
+        "license": "cc-by-sa-3.0",
+    },
 )
 
 
@@ -54,6 +81,14 @@ class SplitRatios:
     train: float = 0.8
     validation: float = 0.1
     test: float = 0.1
+
+
+@dataclass(frozen=True)
+class QuerySampling:
+    """Per-domain query sampling constraints."""
+
+    max_queries_per_domain: int | None = 1400
+    max_test_queries_per_domain: int | None = 180
 
 
 def _normalize_text(text: str) -> str:
@@ -243,6 +278,7 @@ def _build_query_records(
     qrels_rows: list[dict[str, Any]],
     split_map: dict[str, str],
     max_candidates: int,
+    cross_domain_negative_ratio: float,
     seed: int,
 ) -> list[dict[str, Any]]:
     positives_by_query: dict[str, set[str]] = {}
@@ -252,6 +288,7 @@ def _build_query_records(
     docs_by_domain: dict[str, list[str]] = {}
     for doc_id, doc in doc_map.items():
         docs_by_domain.setdefault(doc["domain"], []).append(doc_id)
+    all_doc_ids = sorted(doc_map)
 
     rng = random.Random(seed)
     records: list[dict[str, Any]] = []
@@ -264,12 +301,25 @@ def _build_query_records(
 
         domain_docs = sorted(docs_by_domain.get(row["domain"], []))
         negatives = [doc_id for doc_id in domain_docs if doc_id not in positive_ids]
+        cross_domain_negatives = [
+            doc_id
+            for doc_id in all_doc_ids
+            if doc_map[doc_id]["domain"] != row["domain"] and doc_id not in positive_ids
+        ]
         needed_negatives = max(0, max_candidates - len(positive_ids))
-        sampled_negatives = rng.sample(
-            negatives, k=min(needed_negatives, len(negatives))
+        cross_domain_needed = min(
+            needed_negatives, int(round(needed_negatives * cross_domain_negative_ratio))
         )
+        in_domain_needed = max(0, needed_negatives - cross_domain_needed)
+
+        sampled_in_domain = rng.sample(negatives, k=min(in_domain_needed, len(negatives)))
+        sampled_cross_domain = rng.sample(
+            cross_domain_negatives, k=min(cross_domain_needed, len(cross_domain_negatives))
+        )
+        sampled_negatives = sampled_in_domain + sampled_cross_domain
 
         candidate_ids = positive_ids + sampled_negatives
+        rng.shuffle(candidate_ids)
         candidate_docs = [
             {
                 "doc_id": doc_map[doc_id]["doc_id"],
@@ -290,6 +340,7 @@ def _build_query_records(
                 "domain_label": row["domain"],
                 "source_dataset": row["source_dataset"],
                 "split": split_map.get(query_id, "train"),
+                "contains_cross_domain_hard_negatives": bool(sampled_cross_domain),
             }
         )
 
@@ -311,12 +362,14 @@ def build_mixed_domain_benchmark(
     output_dir: Path | str = DEFAULT_OUTPUT_DIR,
     seed: int = DEFAULT_SEED,
     max_candidates: int = 50,
+    cross_domain_negative_ratio: float = 0.4,
+    sampling: QuerySampling = QuerySampling(),
     split_ratios: SplitRatios = SplitRatios(),
 ) -> dict[str, Any]:
     """Download, preprocess, split, and persist a mixed-domain benchmark."""
+    if not (0.0 <= cross_domain_negative_ratio <= 1.0):
+        raise ValueError("cross_domain_negative_ratio must be in [0, 1]")
     from datasets import __version__ as datasets_version
-    import pyarrow as pa
-    import pyarrow.parquet as pq
 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -349,7 +402,32 @@ def build_mixed_domain_benchmark(
         }
 
     query_rows = list(all_queries.values())
+    if sampling.max_queries_per_domain is not None:
+        limited_rows: list[dict[str, Any]] = []
+        grouped: dict[str, list[dict[str, Any]]] = {}
+        for row in query_rows:
+            grouped.setdefault(row["domain"], []).append(row)
+        for domain, rows in grouped.items():
+            rows_sorted = sorted(rows, key=lambda r: r["query_id"])
+            limited_rows.extend(rows_sorted[: sampling.max_queries_per_domain])
+        query_rows = limited_rows
+        allowed_query_ids = {row["query_id"] for row in query_rows}
+        all_qrels = [row for row in all_qrels if row["query_id"] in allowed_query_ids]
     split_map = _deterministic_split(query_rows, seed, split_ratios)
+    if sampling.max_test_queries_per_domain is not None:
+        rng = random.Random(seed + 997)
+        grouped_test: dict[str, list[str]] = {}
+        for row in query_rows:
+            if split_map.get(row["query_id"]) == "test":
+                grouped_test.setdefault(row["domain"], []).append(row["query_id"])
+        for domain, query_ids in grouped_test.items():
+            if len(query_ids) <= sampling.max_test_queries_per_domain:
+                continue
+            ordered = sorted(query_ids)
+            rng.shuffle(ordered)
+            keep_test = set(ordered[: sampling.max_test_queries_per_domain])
+            for qid in ordered[sampling.max_test_queries_per_domain :]:
+                split_map[qid] = "validation"
 
     for query in query_rows:
         query["split"] = split_map[query["query_id"]]
@@ -365,32 +443,69 @@ def build_mixed_domain_benchmark(
         qrels_rows=all_qrels,
         split_map=split_map,
         max_candidates=max_candidates,
+        cross_domain_negative_ratio=cross_domain_negative_ratio,
         seed=seed,
     )
 
     # Persist canonical tables + single benchmark file
-    corpus_path = output_dir / "corpus.parquet"
-    queries_path = output_dir / "queries.parquet"
-    qrels_path = output_dir / "qrels.parquet"
-    splits_path = output_dir / "splits.parquet"
-    benchmark_path = output_dir / "mixed_benchmark.parquet"
+    try:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
 
-    pq.write_table(
-        pa.Table.from_pylist(sorted(all_docs.values(), key=lambda r: r["doc_id"])),
-        corpus_path,
-    )
-    pq.write_table(
-        pa.Table.from_pylist(sorted(query_rows, key=lambda r: r["query_id"])),
-        queries_path,
-    )
-    pq.write_table(
-        pa.Table.from_pylist(
-            sorted(all_qrels, key=lambda r: (r["query_id"], r["doc_id"]))
-        ),
-        qrels_path,
-    )
-    pq.write_table(pa.Table.from_pylist(split_rows), splits_path)
-    pq.write_table(pa.Table.from_pylist(benchmark_records), benchmark_path)
+        use_parquet = True
+    except ImportError:  # pragma: no cover - optional dependency for local runs
+        use_parquet = False
+        pa = None
+        pq = None
+
+    if use_parquet:
+        corpus_path = output_dir / "corpus.parquet"
+        queries_path = output_dir / "queries.parquet"
+        qrels_path = output_dir / "qrels.parquet"
+        splits_path = output_dir / "splits.parquet"
+        benchmark_path = output_dir / "mixed_benchmark.parquet"
+
+        pq.write_table(
+            pa.Table.from_pylist(sorted(all_docs.values(), key=lambda r: r["doc_id"])),
+            corpus_path,
+        )
+        pq.write_table(
+            pa.Table.from_pylist(sorted(query_rows, key=lambda r: r["query_id"])),
+            queries_path,
+        )
+        pq.write_table(
+            pa.Table.from_pylist(
+                sorted(all_qrels, key=lambda r: (r["query_id"], r["doc_id"]))
+            ),
+            qrels_path,
+        )
+        pq.write_table(pa.Table.from_pylist(split_rows), splits_path)
+        pq.write_table(pa.Table.from_pylist(benchmark_records), benchmark_path)
+    else:
+        corpus_path = output_dir / "corpus.json"
+        queries_path = output_dir / "queries.json"
+        qrels_path = output_dir / "qrels.json"
+        splits_path = output_dir / "splits.json"
+        benchmark_path = output_dir / "mixed_benchmark.json"
+        corpus_path.write_text(
+            json.dumps(sorted(all_docs.values(), key=lambda r: r["doc_id"]), indent=2),
+            encoding="utf-8",
+        )
+        queries_path.write_text(
+            json.dumps(sorted(query_rows, key=lambda r: r["query_id"]), indent=2),
+            encoding="utf-8",
+        )
+        qrels_path.write_text(
+            json.dumps(
+                sorted(all_qrels, key=lambda r: (r["query_id"], r["doc_id"])),
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        splits_path.write_text(json.dumps(split_rows, indent=2), encoding="utf-8")
+        benchmark_path.write_text(
+            json.dumps(benchmark_records, indent=2), encoding="utf-8"
+        )
 
     output_files = [corpus_path, queries_path, qrels_path, splits_path, benchmark_path]
 
@@ -404,9 +519,14 @@ def build_mixed_domain_benchmark(
             "test": split_ratios.test,
         },
         "max_candidates_per_query": max_candidates,
+        "cross_domain_negative_ratio": cross_domain_negative_ratio,
+        "sampling": {
+            "max_queries_per_domain": sampling.max_queries_per_domain,
+            "max_test_queries_per_domain": sampling.max_test_queries_per_domain,
+        },
         "packages": {
             "datasets": datasets_version,
-            "pyarrow": pa.__version__,
+            "pyarrow": getattr(pa, "__version__", "not_installed"),
         },
         "datasets": [
             {
@@ -472,6 +592,24 @@ def main() -> None:
         help="Maximum candidate documents stored per query",
     )
     parser.add_argument(
+        "--cross-domain-negative-ratio",
+        type=float,
+        default=0.4,
+        help="Share of sampled negatives drawn from other domains (0-1).",
+    )
+    parser.add_argument(
+        "--max-queries-per-domain",
+        type=int,
+        default=1400,
+        help="Optional cap on total queries retained per domain",
+    )
+    parser.add_argument(
+        "--max-test-queries-per-domain",
+        type=int,
+        default=180,
+        help="Optional cap on held-out test queries per domain",
+    )
+    parser.add_argument(
         "--train-ratio",
         type=float,
         default=0.8,
@@ -496,11 +634,17 @@ def main() -> None:
         validation=args.validation_ratio,
         test=args.test_ratio,
     )
+    sampling = QuerySampling(
+        max_queries_per_domain=args.max_queries_per_domain,
+        max_test_queries_per_domain=args.max_test_queries_per_domain,
+    )
 
     manifest = build_mixed_domain_benchmark(
         output_dir=args.output_dir,
         seed=args.seed,
         max_candidates=args.max_candidates,
+        cross_domain_negative_ratio=args.cross_domain_negative_ratio,
+        sampling=sampling,
         split_ratios=split_ratios,
     )
     print(json.dumps(manifest, indent=2))

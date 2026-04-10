@@ -33,6 +33,15 @@ CANONICAL_DECISION_RULES = {
     "max_latency_ratio_vs_mean": 1.5,
     "max_flops_ratio_vs_mean": 1.1,
 }
+REPORT_METRICS = [
+    "ndcg@5",
+    "ndcg@10",
+    "mrr@5",
+    "mrr@10",
+    "recall@1",
+    "recall@10",
+    "top1_success",
+]
 
 
 def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
@@ -134,26 +143,47 @@ def _render_report(summary: dict[str, Any]) -> str:
         "",
         "## Aggregate Metrics (mean with 95% bootstrap CI)",
         "",
-        "| Method | nDCG@10 | Recall@10 | MRR@10 | Latency (ms) | FLOPs proxy |",
-        "|---|---|---|---|---|---|",
+        "| Method | nDCG@5 | nDCG@10 | MRR@5 | MRR@10 | Recall@1 | Recall@10 | Top-1 success | Latency (ms) | FLOPs proxy |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
+
+    ranking_by_ndcg10 = sorted(
+        (
+            (name, payload["metrics"]["ndcg@10"]["mean"])
+            for name, payload in methods.items()
+        ),
+        key=lambda x: x[1],
+        reverse=True,
+    )
 
     for method_label, key in CANONICAL_METHOD_ALIASES.items():
         if key not in methods:
             continue
         payload = methods[key]["metrics"]
         lines.append(
-            "| {label} | {ndcg:.4f} [{ndcg_l:.4f}, {ndcg_h:.4f}] | {rec:.4f} [{rec_l:.4f}, {rec_h:.4f}] | {mrr:.4f} [{mrr_l:.4f}, {mrr_h:.4f}] | {lat:.3f} [{lat_l:.3f}, {lat_h:.3f}] | {flops:.3f} [{flops_l:.3f}, {flops_h:.3f}] |".format(
+            "| {label} | {ndcg5:.4f} [{ndcg5_l:.4f}, {ndcg5_h:.4f}] | {ndcg10:.4f} [{ndcg10_l:.4f}, {ndcg10_h:.4f}] | {mrr5:.4f} [{mrr5_l:.4f}, {mrr5_h:.4f}] | {mrr10:.4f} [{mrr10_l:.4f}, {mrr10_h:.4f}] | {rec1:.4f} [{rec1_l:.4f}, {rec1_h:.4f}] | {rec10:.4f} [{rec10_l:.4f}, {rec10_h:.4f}] | {top1:.4f} [{top1_l:.4f}, {top1_h:.4f}] | {lat:.3f} [{lat_l:.3f}, {lat_h:.3f}] | {flops:.3f} [{flops_l:.3f}, {flops_h:.3f}] |".format(
                 label=method_label,
-                ndcg=payload["ndcg@10"]["mean"],
-                ndcg_l=payload["ndcg@10"]["ci95_low"],
-                ndcg_h=payload["ndcg@10"]["ci95_high"],
-                rec=payload["recall@10"]["mean"],
-                rec_l=payload["recall@10"]["ci95_low"],
-                rec_h=payload["recall@10"]["ci95_high"],
-                mrr=payload["mrr@10"]["mean"],
-                mrr_l=payload["mrr@10"]["ci95_low"],
-                mrr_h=payload["mrr@10"]["ci95_high"],
+                ndcg5=payload["ndcg@5"]["mean"],
+                ndcg5_l=payload["ndcg@5"]["ci95_low"],
+                ndcg5_h=payload["ndcg@5"]["ci95_high"],
+                ndcg10=payload["ndcg@10"]["mean"],
+                ndcg10_l=payload["ndcg@10"]["ci95_low"],
+                ndcg10_h=payload["ndcg@10"]["ci95_high"],
+                mrr5=payload["mrr@5"]["mean"],
+                mrr5_l=payload["mrr@5"]["ci95_low"],
+                mrr5_h=payload["mrr@5"]["ci95_high"],
+                mrr10=payload["mrr@10"]["mean"],
+                mrr10_l=payload["mrr@10"]["ci95_low"],
+                mrr10_h=payload["mrr@10"]["ci95_high"],
+                rec1=payload["recall@1"]["mean"],
+                rec1_l=payload["recall@1"]["ci95_low"],
+                rec1_h=payload["recall@1"]["ci95_high"],
+                rec10=payload["recall@10"]["mean"],
+                rec10_l=payload["recall@10"]["ci95_low"],
+                rec10_h=payload["recall@10"]["ci95_high"],
+                top1=payload["top1_success"]["mean"],
+                top1_l=payload["top1_success"]["ci95_low"],
+                top1_h=payload["top1_success"]["ci95_high"],
                 lat=payload["latency_ms"]["mean"],
                 lat_l=payload["latency_ms"]["ci95_low"],
                 lat_h=payload["latency_ms"]["ci95_high"],
@@ -165,6 +195,11 @@ def _render_report(summary: dict[str, Any]) -> str:
 
     lines.extend(
         [
+            "",
+            "## Method Ranking Snapshot",
+            "",
+            "- Ranking by nDCG@10 (higher is better): "
+            + " > ".join(f"`{name}` ({score:.4f})" for name, score in ranking_by_ndcg10),
             "",
             "## Decision Framework: KalmanorixFuser vs MeanFuser",
             "",
@@ -197,7 +232,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "|---|---:|---|---:|---:|",
         ]
     )
-    for metric in ["ndcg@10", "recall@10", "mrr@10"]:
+    for metric in REPORT_METRICS:
         metric_payload = stats["overall"][metric]
         lines.append(
             "| {metric} | {delta:.6f} | [{low:.6f}, {high:.6f}] | {p:.6f} | {padj:.6f} |".format(
@@ -234,7 +269,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "mean_diff": stats["overall"][metric]["mean_difference"],
             "adjusted_p_value": stats["overall"][metric]["adjusted_p_value"],
         }
-        for metric in ["ndcg@10", "recall@10", "mrr@10"]
+        for metric in REPORT_METRICS
     ]
     lines.extend(
         [
@@ -428,15 +463,15 @@ def main() -> None:
     parser.add_argument(
         "--benchmark-path",
         type=Path,
-        default=Path("benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet"),
+        default=Path("benchmarks/mixed_beir_v1.1.0/mixed_benchmark.json"),
     )
     parser.add_argument("--split", type=str, default="test")
-    parser.add_argument("--max-queries", type=int, default=150)
+    parser.add_argument("--max-queries", type=int, default=600)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-resamples", type=int, default=5000)
     parser.add_argument(
-        "--output-dir", type=Path, default=Path("results/canonical_benchmark")
+        "--output-dir", type=Path, default=Path("results/canonical_benchmark_v2")
     )
     args = parser.parse_args()
 

@@ -199,5 +199,7 @@ def test_canonical_report_includes_paired_statistics_section(
     assert "## Decision Framework: KalmanorixFuser vs MeanFuser" in report_text
     assert "## Paired Statistical Test: KalmanorixFuser vs MeanFuser" in report_text
     assert "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |" in report_text
+    assert "top1_success" in report_text
+    assert "## Method Ranking Snapshot" in report_text
     assert "## Verdict" in report_text
     assert "## Demonstrated findings" in report_text
