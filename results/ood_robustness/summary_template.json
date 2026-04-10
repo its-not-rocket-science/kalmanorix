@@ -1,0 +1,37 @@
+{
+  "schema_version": "phase_eval.v1",
+  "track": "ood_robustness",
+  "title": "OOD Robustness",
+  "status": "pending",
+  "objective": "Evaluate robustness under distribution shift and distinguish supported effects from null/inconclusive/regression outcomes.",
+  "outcome_slots": {
+    "positive": {
+      "supported": false,
+      "evidence": [],
+      "notes": ""
+    },
+    "null": {
+      "supported": false,
+      "evidence": [],
+      "notes": ""
+    },
+    "inconclusive": {
+      "supported": false,
+      "evidence": [],
+      "notes": ""
+    },
+    "regression": {
+      "supported": false,
+      "evidence": [],
+      "notes": ""
+    }
+  },
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md"
+  },
+  "notes": [
+    "Scaffold only: populate this file after running the preregistered evaluation.",
+    "Do not promote planned outcomes to demonstrated findings."
+  ]
+}

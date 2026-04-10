@@ -15,6 +15,13 @@ This page is the contributor-facing mirror of `ROADMAP.md` and uses the same evi
 - Specialists-vs-monolith advantage at matched compute.
 - OOD robustness advantage from uncertainty weighting.
 
+Post-canonical closure sequencing for contributors:
+1. `results/matched_compute/` scaffold → populate with matched-compute run outputs.
+2. `results/uncertainty_ablation/` scaffold → populate with uncertainty ablation outputs.
+3. `results/ood_robustness/` scaffold → populate with OOD robustness outputs.
+
+All three tracks must keep guarded outcome coverage (`positive`, `null`, `inconclusive`, `regression`) and avoid claim promotion before completed artifacts.
+
 ## Evidence Status for Core Claims
 
 ### Claim: Routing reduces compute cost

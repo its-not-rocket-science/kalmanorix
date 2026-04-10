@@ -13,6 +13,11 @@ publishing speculative outcomes.
 - Milestone 2.2 (OOD robustness): **pending final statistical report**
 - Milestone 2.3 (efficiency): **completed artifact directory present**
 
+Post-canonical closure scaffolds (structure only, not completed studies):
+- `results/matched_compute/{summary_template.json, report_template.md}`
+- `results/uncertainty_ablation/{summary_template.json, report_template.md}`
+- `results/ood_robustness/{summary_template.json, report_template.md}`
+
 For overall status and target dates, see:
 - Project roadmap: `docs/contributing/roadmap.md`
 - Top-level project status: `README.md`

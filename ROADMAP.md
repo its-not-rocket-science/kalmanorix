@@ -38,9 +38,11 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 - Publish a reproducible Kalman-vs-mean benchmark report with statistical testing.
 - Establish explicit pass/fail criterion (e.g., p-value threshold and effect size).
 
-### Phase 2 — Core Hypothesis Validation
-- Specialists-vs-monolith comparison with compute parity constraints.
-- OOD robustness tests for uncertainty weighting.
+### Phase 2 — Core Hypothesis Validation (post-canonical closure sequence)
+- **Step 2.1:** matched-compute scaffold and run path in `results/matched_compute/`.
+- **Step 2.2:** uncertainty ablation scaffold and run path in `results/uncertainty_ablation/`.
+- **Step 2.3:** OOD robustness scaffold and run path in `results/ood_robustness/`.
+- Keep guarded reporting sections for positive/null/inconclusive/regression outcomes in each track.
 - Threat-model documentation for negative results.
 
 ### Phase 3 — Productionization (conditional)
@@ -73,6 +75,8 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 **Status:** Unresolved  
 **Evidence:** no completed OOD report committed yet.  
 **Threats to validity:** OOD definition choice, calibration drift, and sensitivity to query distribution shifts.
+
+**Next sequence after canonical benchmark closure:** scaffold now exists for `results/matched_compute/`, `results/uncertainty_ablation/`, and `results/ood_robustness/`; these remain pending until empirical artifacts replace templates.
 
 
 ## API Surface Policy

@@ -63,6 +63,21 @@ Interpretation:
 
 - No completed OOD benchmark artifact currently supports this claim.
 
+## Next empirical phase scaffold (post-canonical closure)
+
+The repository now includes stable scaffold directories for the next three unresolved tracks:
+- `results/matched_compute/`
+- `results/uncertainty_ablation/`
+- `results/ood_robustness/`
+
+Each scaffold includes `summary_template.json` and `report_template.md` with explicit outcome slots for:
+- `positive`
+- `null`
+- `inconclusive`
+- `regression`
+
+These templates are structural only and must be replaced with real run artifacts before any claim status is upgraded.
+
 ---
 
 ## Synthetic Results (for debugging only)
