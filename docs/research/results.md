@@ -8,7 +8,7 @@ This page reports only what is currently supported by committed artifacts.
 - **Routing efficiency:** semantic routing shows substantial FLOPs reductions in current benchmark artifacts.
 
 ### Planned / Not yet demonstrated
-- Kalman fusion quality improvement over mean fusion (pending review of the canonical benchmark artifact).
+- Kalman fusion quality improvement over mean fusion (**not demonstrated in the latest canonical artifact**).
 - Specialists-vs-monolith quality advantage at matched compute.
 - OOD robustness gains from uncertainty-weighted fusion.
 
@@ -45,7 +45,7 @@ Interpretation:
 ### 2) Kalman fusion improves retrieval quality over mean fusion
 **Evidence status:** **Unresolved.**
 
-- Use `results/canonical_benchmark/report.md` to determine this claim for a specific run; do not generalize beyond that benchmark configuration.
+- The latest canonical run (`results/canonical_benchmark/report.md`) reports **no statistically significant nDCG@10 improvement** for Kalman vs mean under the configured setup; do not generalize beyond that benchmark configuration.
 
 ### 3) Fused specialists outperform monolith at equal compute
 **Evidence status:** **Unresolved.**

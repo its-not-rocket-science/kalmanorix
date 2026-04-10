@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import importlib.util
+import json
 from pathlib import Path
 from typing import Any
 
@@ -18,10 +20,16 @@ def load_dataset(
     if kind == "mixed_parquet":
         if path is None:
             raise ValueError("dataset.path is required for mixed_parquet")
-        import pyarrow.parquet as pq
+        pyarrow_available = importlib.util.find_spec("pyarrow") is not None
+        if pyarrow_available:
+            import pyarrow.parquet as pq
 
-        table = pq.read_table(path)
-        rows = [row for row in table.to_pylist() if row.get("split") == split]
+            table = pq.read_table(path)
+            source_rows = table.to_pylist()
+        else:
+            source_rows = json.loads(path.read_text(encoding="utf-8"))
+
+        rows = [row for row in source_rows if row.get("split") == split]
         if max_queries is not None:
             rows = rows[:max_queries]
         if not rows:

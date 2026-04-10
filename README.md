@@ -45,7 +45,7 @@ For compatibility, experimental symbols remain temporarily importable from `kalm
 ### Claim B: Kalman fusion improves retrieval quality over mean fusion
 **Evidence status:** **Unresolved (not demonstrated).**
 
-- Current state: no published artifact in this repository that establishes a statistically significant improvement over mean fusion.
+- Current state: the canonical benchmark artifact is now published, and it does not establish a statistically significant improvement over mean fusion for the configured run.
 - Prior synthetic/debug experiments exist but are not sufficient for headline claims.
 
 ### Claim C: Fused specialists outperform a monolith at equal compute

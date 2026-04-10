@@ -1,5 +1,590 @@
 {
-  "status": "not_run_in_repo",
-  "how_to_generate": "kalmanorix-run-canonical-benchmark --benchmark-path benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet --split test --output-dir results/canonical_benchmark",
-  "note": "This placeholder exists so the canonical artifact path is stable in version control. Run the command above on the mixed-domain benchmark to produce the publishable summary with metrics, confidence intervals, and paired statistics."
+  "benchmark": {
+    "path": "benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet",
+    "evaluated_split": "test",
+    "split_counts": {
+      "train": 18,
+      "validation": 6,
+      "test": 6
+    },
+    "max_queries": 150
+  },
+  "seed": 42,
+  "num_resamples": 5000,
+  "specialists": [
+    "general_qa",
+    "biomedical",
+    "finance"
+  ],
+  "comparisons": {
+    "MeanFuser": {
+      "strategy_key": "mean",
+      "included": true,
+      "reason": "present"
+    },
+    "KalmanorixFuser": {
+      "strategy_key": "kalman",
+      "included": true,
+      "reason": "present"
+    },
+    "hard routing baseline": {
+      "strategy_key": "router_only_top1",
+      "included": true,
+      "reason": "present"
+    },
+    "all-routing + mean baseline": {
+      "strategy_key": "uniform_mean_fusion",
+      "included": true,
+      "reason": "present"
+    },
+    "LearnedGateFuser": {
+      "strategy_key": "learned_gate_fuser",
+      "included": false,
+      "reason": "LearnedGateFuser requires a two-specialist setup; current run uses 3 specialists"
+    }
+  },
+  "methods": {
+    "best_single_specialist": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.5182598399213523,
+          "ci95_low": 0.4087646826539673,
+          "ci95_high": 0.7153382790366964
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.3666666666666667,
+          "ci95_low": 0.225,
+          "ci95_high": 0.625
+        },
+        "latency_ms": {
+          "mean": 12.345487000250918,
+          "ci95_low": 11.162263166928218,
+          "ci95_high": 13.873098207992957
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.43067655807339306,
+          0.43067655807339306,
+          1.0,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.43067655807339306
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.25,
+          0.25,
+          1.0,
+          0.25,
+          0.2,
+          0.25
+        ]
+      }
+    },
+    "fixed_weighted_mean_fusion": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "ci95_low": 0.3941567657076835,
+          "ci95_high": 0.532089344202718
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.28055555555555556,
+          "ci95_low": 0.20833333333333334,
+          "ci95_high": 0.37222222222222223
+        },
+        "latency_ms": {
+          "mean": 11.30800116698083,
+          "ci95_low": 10.64968633333289,
+          "ci95_high": 11.92576916764665
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.38685280723454163
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.25,
+          0.2,
+          0.5,
+          0.2
+        ]
+      }
+    },
+    "kalman": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.5247061435547001,
+          "ci95_low": 0.4049957795784755,
+          "ci95_high": 0.7268921860244643
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.375,
+          "ci95_low": 0.2222222222222222,
+          "ci95_high": 0.6388888888888888
+        },
+        "latency_ms": {
+          "mean": 25.81189383333064,
+          "ci95_low": 24.41621133281539,
+          "ci95_high": 27.13585500047581
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          1.0,
+          0.43067655807339306,
+          0.3562071871080222,
+          0.43067655807339306,
+          0.5,
+          0.43067655807339306
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          1.0,
+          0.25,
+          0.16666666666666666,
+          0.25,
+          0.3333333333333333,
+          0.25
+        ]
+      }
+    },
+    "learned_linear_combiner": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "ci95_low": 0.4726044995842909,
+          "ci95_high": 0.8769765845238192
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.5694444444444445,
+          "ci95_low": 0.3194444444444444,
+          "ci95_high": 0.8333333333333334
+        },
+        "latency_ms": {
+          "mean": 11.565425666655452,
+          "ci95_low": 10.729366333786553,
+          "ci95_high": 12.496070332720896
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          1.0,
+          0.43067655807339306,
+          0.3562071871080222,
+          0.6309297535714575,
+          1.0,
+          0.6309297535714575
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          1.0,
+          0.25,
+          0.16666666666666666,
+          0.5,
+          1.0,
+          0.5
+        ]
+      }
+    },
+    "mean": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "ci95_low": 0.3941567657076835,
+          "ci95_high": 0.532089344202718
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.28055555555555556,
+          "ci95_low": 0.20833333333333334,
+          "ci95_high": 0.37222222222222223
+        },
+        "latency_ms": {
+          "mean": 11.924944832874948,
+          "ci95_low": 11.16994399944815,
+          "ci95_high": 12.660086858212098
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.38685280723454163
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.25,
+          0.2,
+          0.5,
+          0.2
+        ]
+      }
+    },
+    "router_only_top1": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.6414150094710442,
+          "ci95_low": 0.43922896700128017,
+          "ci95_high": 0.8436010519408085
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.5277777777777778,
+          "ci95_low": 0.2638888888888889,
+          "ci95_high": 0.8333333333333334
+        },
+        "latency_ms": {
+          "mean": 13.149566500336126,
+          "ci95_low": 12.453875000270878,
+          "ci95_high": 13.93299166708554
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.3562071871080222,
+          0.43067655807339306,
+          1.0,
+          0.43067655807339306,
+          1.0,
+          0.6309297535714575
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.16666666666666666,
+          0.25,
+          1.0,
+          0.25,
+          1.0,
+          0.5
+        ]
+      }
+    },
+    "router_only_topk_mean": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4798559461587975,
+          "ci95_low": 0.42337259960025114,
+          "ci95_high": 0.546607011324819
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.31111111111111106,
+          "ci95_low": 0.24166666666666667,
+          "ci95_high": 0.39444444444444443
+        },
+        "latency_ms": {
+          "mean": 13.340173833360799,
+          "ci95_low": 12.656719167049838,
+          "ci95_high": 14.013983500262839
+        },
+        "flops_proxy": {
+          "mean": 2.0,
+          "ci95_low": 2.0,
+          "ci95_high": 2.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.43067655807339306,
+          0.5,
+          0.43067655807339306
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.5,
+          0.25,
+          0.3333333333333333,
+          0.25
+        ]
+      }
+    },
+    "single_generalist_model": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "ci95_low": 0.4726044995842909,
+          "ci95_high": 0.8769765845238192
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.5694444444444445,
+          "ci95_low": 0.3194444444444444,
+          "ci95_high": 0.8333333333333334
+        },
+        "latency_ms": {
+          "mean": 12.091772666281031,
+          "ci95_low": 11.275564499859078,
+          "ci95_high": 12.868891499541254
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          1.0,
+          0.43067655807339306,
+          0.3562071871080222,
+          0.6309297535714575,
+          1.0,
+          0.6309297535714575
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          1.0,
+          0.25,
+          0.16666666666666666,
+          0.5,
+          1.0,
+          0.5
+        ]
+      }
+    },
+    "uniform_mean_fusion": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "ci95_low": 0.3941567657076835,
+          "ci95_high": 0.532089344202718
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.28055555555555556,
+          "ci95_low": 0.20833333333333334,
+          "ci95_high": 0.37222222222222223
+        },
+        "latency_ms": {
+          "mean": 11.508474333519795,
+          "ci95_low": 10.90492000002996,
+          "ci95_high": 12.188184333960331
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.38685280723454163
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.25,
+          0.2,
+          0.5,
+          0.2
+        ]
+      }
+    }
+  },
+  "paired_statistics": {
+    "kalman_vs_mean": {
+      "overall": {
+        "mrr@10": {
+          "mean_difference": 0.09444444444444444,
+          "ci95_low": -0.08055555555555556,
+          "ci95_high": 0.3361111111111111,
+          "p_value": 0.84375,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.32088039785534406,
+          "rank_biserial": 0.14285714285714285,
+          "n_pairs": 6
+        },
+        "ndcg@10": {
+          "mean_difference": 0.07101202132995431,
+          "ci95_low": -0.06326852166700676,
+          "ci95_high": 0.252196355118722,
+          "p_value": 0.84375,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.31872900049667313,
+          "rank_biserial": 0.14285714285714285,
+          "n_pairs": 6
+        },
+        "recall@10": {
+          "mean_difference": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.0,
+          "rank_biserial": 0.0,
+          "n_pairs": 6
+        }
+      },
+      "domains": {},
+      "configuration_hash": "dc040684c2f30b3fd672767db6f13311747f6a5859cf0fc05240bb6a9bbd78fe"
+    }
+  }
 }

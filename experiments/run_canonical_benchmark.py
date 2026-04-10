@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -27,9 +28,13 @@ CANONICAL_METHOD_ALIASES = {
 
 
 def _load_split_counts(benchmark_path: Path) -> dict[str, int]:
-    import pyarrow.parquet as pq
+    pyarrow_available = importlib.util.find_spec("pyarrow") is not None
+    if pyarrow_available:
+        import pyarrow.parquet as pq
 
-    rows = pq.read_table(benchmark_path, columns=["split"]).to_pylist()
+        rows = pq.read_table(benchmark_path, columns=["split"]).to_pylist()
+    else:
+        rows = json.loads(benchmark_path.read_text(encoding="utf-8"))
     counts: dict[str, int] = {}
     for row in rows:
         split = str(row.get("split"))
