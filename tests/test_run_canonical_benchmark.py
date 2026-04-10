@@ -127,3 +127,70 @@ def test_canonical_benchmark_requires_core_baselines(
             seed=7,
             num_resamples=100,
         )
+
+
+def test_canonical_benchmark_fails_loudly_when_mean_is_missing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    payload = _fake_details()
+    del payload["query_level"]["rankings"]["mean"]  # type: ignore[index]
+    del payload["query_level"]["latency_ms"]["mean"]  # type: ignore[index]
+    del payload["query_level"]["specialist_count_selected"]["mean"]  # type: ignore[index]
+
+    monkeypatch.setattr(
+        canonical,
+        "_load_split_counts",
+        lambda _: {"train": 8, "validation": 4, "test": 3},
+    )
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
+    )
+    monkeypatch.setattr(canonical, "run_experiment", lambda cfg: payload)
+
+    with pytest.raises(
+        ValueError, match=r"Missing strategies: \['mean'\]"
+    ) as exc_info:
+        canonical.run_canonical_benchmark(
+            benchmark_path=tmp_path / "dummy.parquet",
+            output_dir=tmp_path / "results",
+            split="test",
+            max_queries=3,
+            device="cpu",
+            seed=7,
+            num_resamples=100,
+        )
+    assert "Canonical benchmark requires MeanFuser" in str(exc_info.value)
+
+
+def test_canonical_report_includes_paired_statistics_section(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(
+        canonical,
+        "_load_split_counts",
+        lambda _: {"train": 8, "validation": 4, "test": 3},
+    )
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
+    )
+    monkeypatch.setattr(canonical, "run_experiment", lambda cfg: _fake_details())
+
+    output_dir = tmp_path / "results"
+    canonical.run_canonical_benchmark(
+        benchmark_path=tmp_path / "dummy.parquet",
+        output_dir=output_dir,
+        split="test",
+        max_queries=3,
+        device="cpu",
+        seed=9,
+        num_resamples=200,
+    )
+
+    report_text = (output_dir / "report.md").read_text(encoding="utf-8")
+    assert "## Paired Statistical Test: KalmanorixFuser vs MeanFuser" in report_text
+    assert "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |" in report_text
+    assert "## Demonstrated findings" in report_text

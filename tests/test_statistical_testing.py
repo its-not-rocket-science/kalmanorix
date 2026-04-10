@@ -7,6 +7,7 @@ import pytest
 from scipy.stats import wilcoxon
 
 from kalmanorix.benchmarks.statistical_testing import (
+    _holm_bonferroni_adjust,
     bootstrap_confidence_interval,
     generate_statistical_report,
     paired_effect_size,
@@ -140,6 +141,52 @@ def test_holm_adjusted_p_values_are_not_smaller_than_raw_p_values() -> None:
             report.comparisons[metric].adjusted_p_value
             >= report.comparisons[metric].p_value
         )
+
+
+def test_holm_correction_matches_known_values() -> None:
+    adjusted = _holm_bonferroni_adjust([0.01, 0.04, 0.03, 0.20])
+    # sorted p-values: [0.01, 0.03, 0.04, 0.20]
+    # scaled: [0.04, 0.09, 0.08, 0.20] -> monotone max: [0.04, 0.09, 0.09, 0.20]
+    assert adjusted.tolist() == pytest.approx([0.04, 0.09, 0.09, 0.20])
+
+
+def test_all_zero_paired_differences_propagate_to_report() -> None:
+    report = generate_statistical_report(
+        reference_method="kalman",
+        candidate_method="mean",
+        reference_metrics={"ndcg@10": [0.4, 0.5, 0.6]},
+        candidate_metrics={"ndcg@10": [0.4, 0.5, 0.6]},
+        num_resamples=300,
+        seed=13,
+    )
+    metric = report.comparisons["ndcg@10"]
+    assert metric.mean_difference == pytest.approx(0.0)
+    assert metric.p_value == pytest.approx(1.0)
+    assert metric.adjusted_p_value == pytest.approx(1.0)
+    assert metric.effect_size.cohen_dz == pytest.approx(0.0)
+    assert metric.effect_size.rank_biserial == pytest.approx(0.0)
+
+
+def test_domain_level_reporting_has_expected_structure() -> None:
+    report = generate_statistical_report(
+        reference_method="kalman",
+        candidate_method="mean",
+        reference_metrics={"ndcg@10": [0.5, 0.6], "mrr@10": [0.4, 0.45]},
+        candidate_metrics={"ndcg@10": [0.45, 0.55], "mrr@10": [0.35, 0.4]},
+        reference_metrics_by_domain={
+            "finance": {"ndcg@10": [0.5], "mrr@10": [0.4]},
+            "biomed": {"ndcg@10": [0.6], "mrr@10": [0.45]},
+        },
+        candidate_metrics_by_domain={
+            "finance": {"ndcg@10": [0.45], "mrr@10": [0.35]},
+            "biomed": {"ndcg@10": [0.55], "mrr@10": [0.4]},
+        },
+        num_resamples=300,
+        seed=21,
+    )
+    assert set(report.domains) == {"overall", "biomed", "finance"}
+    assert set(report.domains["finance"].metrics) == {"mrr@10", "ndcg@10"}
+    assert set(report.comparisons) == {"mrr@10", "ndcg@10"}
 
 
 def test_input_validation_errors() -> None:

@@ -95,3 +95,100 @@ def test_threshold_robustness_contains_ranges() -> None:
     }
     assert robustness["robustness"]["f1_range"] >= 0
     assert robustness["robustness"]["flops_savings_range"] >= 0
+
+
+def test_routing_evaluation_quality_preserving_wins_contract() -> None:
+    samples = [
+        RoutingSample(
+            query_id="q_win",
+            relevant_domains=("tech",),
+            semantic_scores={"tech": 0.95, "cook": 0.2},
+            routing_overhead_ms=0.1,
+            domain_flops={"tech": 3.0, "cook": 3.0},
+            domain_latency_ms={"tech": 1.0, "cook": 1.0},
+            quality_delta=0.0,
+        )
+    ]
+    report = evaluate_routing(
+        samples,
+        RoutingRunConfig(
+            mode="semantic", semantic_threshold=0.8, quality_tolerance=0.01
+        ),
+    )
+    assert report["report"]["quality_preserving_routing_wins"]["queries"] == ["q_win"]
+    assert report["report"]["quality_preserving_routing_wins"]["count"] == 1
+
+
+def test_routing_evaluation_compute_only_win_contract() -> None:
+    samples = [
+        RoutingSample(
+            query_id="q_compute_only",
+            relevant_domains=("cook",),
+            semantic_scores={"tech": 0.9, "cook": 0.1},
+            confidence_scores={"tech": 0.95, "cook": 0.2},
+            routing_overhead_ms=0.1,
+            domain_flops={"tech": 2.0, "cook": 2.0},
+            domain_latency_ms={"tech": 1.0, "cook": 1.0},
+            quality_delta=-0.05,
+        )
+    ]
+    report = evaluate_routing(
+        samples,
+        RoutingRunConfig(
+            mode="confidence",
+            semantic_threshold=0.8,
+            confidence_threshold=0.9,
+            quality_tolerance=0.01,
+        ),
+    )
+    assert report["report"]["compute_only_wins"]["count"] == 1
+    assert report["report"]["compute_only_wins"]["queries"] == ["q_compute_only"]
+
+
+def test_routing_evaluation_failure_mode_contract() -> None:
+    samples = [
+        RoutingSample(
+            query_id="q_fail",
+            relevant_domains=("cook",),
+            semantic_scores={"tech": 0.9, "cook": 0.1},
+            confidence_scores={"tech": 0.95, "cook": 0.2},
+            routing_overhead_ms=5.0,
+            domain_flops={"tech": 4.0, "cook": 0.0},
+            domain_latency_ms={"tech": 1.0, "cook": 1.0},
+            quality_delta=-0.2,
+        )
+    ]
+    report = evaluate_routing(
+        samples,
+        RoutingRunConfig(
+            mode="confidence",
+            semantic_threshold=0.8,
+            confidence_threshold=0.9,
+            quality_tolerance=0.01,
+        ),
+    )
+    assert report["report"]["failure_modes"]["count"] == 1
+    assert report["report"]["failure_modes"]["breakdown"]["quality_loss"] == 1
+    assert report["report"]["failure_modes"]["breakdown"]["zero_recall"] == 0
+
+
+def test_threshold_robustness_output_shape_contract() -> None:
+    robustness = evaluate_threshold_robustness(
+        _samples(),
+        ThresholdSweepConfig(
+            mode="semantic",
+            semantic_thresholds=(0.7, 0.8),
+            quality_tolerance=0.01,
+        ),
+    )
+    assert isinstance(robustness["threshold_runs"], list)
+    assert len(robustness["threshold_runs"]) == 2
+    for run in robustness["threshold_runs"]:
+        assert set(run) == {"semantic_threshold", "summary"}
+        assert {
+            "routing_precision",
+            "routing_recall",
+            "routing_f1",
+            "avg_flops_savings_fraction",
+            "avg_latency_delta_ms",
+        }.issubset(run["summary"])
