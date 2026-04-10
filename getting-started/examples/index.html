@@ -719,6 +719,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#7-routing-toolkit-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Routing Toolkit End-to-End
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1529,6 +1540,34 @@
     
   
     Minimal Fusion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/routing-toolkit-e2e/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Routing Toolkit E2E
   
 
     
@@ -2397,6 +2436,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#7-routing-toolkit-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Routing Toolkit End-to-End
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2611,6 +2661,22 @@
 - Interactive exploration of fusion behavior
 - Visualizing embedding spaces and uncertainty
 - Real‑time parameter tuning</p>
+<h3 id="7-routing-toolkit-end-to-end">7. Routing Toolkit End-to-End<a class="headerlink" href="#7-routing-toolkit-end-to-end" title="Permanent link">&para;</a></h3>
+<p><strong>Doc</strong>: <code>docs/examples/routing-toolkit-e2e.md</code></p>
+<p>A full CLI walkthrough for routing evaluation using the committed small dataset and output artifacts.</p>
+<p><strong>Run it</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kalmanorix-eval-routing<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span>--dataset<span class="w"> </span>datasets/routing_eval/small_routing_eval_v1.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span>--output<span class="w"> </span>results/routing_eval/small_routing_eval_v1_report.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span>--markdown-output<span class="w"> </span>results/routing_eval/small_routing_eval_v1_report.md<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span>--mode<span class="w"> </span>semantic<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span>--semantic-threshold<span class="w"> </span><span class="m">0</span>.7<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span>--semantic-thresholds<span class="w"> </span><span class="m">0</span>.5,0.6,0.7,0.8
+</span></code></pre></div></p>
+<p><strong>Key learning points</strong>:
+- How to run deterministic routing evaluation from versioned input data
+- How to review wins and failure cases without manually inspecting JSON
+- How threshold sweeps change precision/recall/efficiency trade-offs</p>
 <h2 id="running-examples">Running Examples<a class="headerlink" href="#running-examples" title="Permanent link">&para;</a></h2>
 <p>All examples are located in the <code>examples/</code> directory of the repository. Most examples have minimal dependencies beyond the base Kalmanorix installation.</p>
 <h3 id="dependency-groups">Dependency Groups<a class="headerlink" href="#dependency-groups" title="Permanent link">&para;</a></h3>
@@ -2642,7 +2708,7 @@
 </tbody>
 </table>
 <p>Install them with:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[group1,group2]&quot;</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[group1,group2]&quot;</span>
 </span></code></pre></div></p>
 <h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
 <p><strong><code>ModuleNotFoundError</code> for <code>transformers</code> or <code>torch</code></strong>

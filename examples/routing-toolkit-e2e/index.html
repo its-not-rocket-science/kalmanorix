@@ -12,13 +12,13 @@
         <meta name="author" content="Kalmanorix Contributors">
       
       
-        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/getting-started/quickstart/">
+        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/examples/routing-toolkit-e2e/">
       
       
-        <link rel="prev" href="../installation/">
+        <link rel="prev" href="../minimal-fusion/">
       
       
-        <link rel="next" href="../examples/">
+        <link rel="next" href="../huggingface-integration/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Quickstart - Kalmanorix</title>
+        <title>Routing Toolkit E2E - Kalmanorix</title>
       
     
     
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#quickstart" class="md-skip">
+        <a href="#routing-toolkit-end-to-end-cli" class="md-skip">
           Skip to content
         </a>
       
@@ -122,7 +122,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Quickstart
+              Routing Toolkit E2E
             
           </span>
         </div>
@@ -252,13 +252,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../installation/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
           
   
   
@@ -334,11 +332,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../examples/minimal-fusion/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../minimal-fusion/" class="md-tabs__link">
           
   
   
@@ -466,31 +466,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -508,7 +505,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -526,7 +523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+      <a href="../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -551,37 +548,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Quickstart
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
         
   
   
@@ -597,114 +567,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#basic-concepts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Basic Concepts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-1-create-toy-specialists" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Create Toy Specialists
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-2-create-a-fusion-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Create a Fusion Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-3-fuse-embeddings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Fuse Embeddings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-4-try-different-fusion-strategies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Try Different Fusion Strategies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-5-batch-processing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Batch Processing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-6-semantic-routing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 6: Semantic Routing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next Steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -717,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
+      <a href="../../getting-started/examples/" class="md-nav__link">
         
   
   
@@ -1408,28 +1270,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -1447,7 +1312,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1465,7 +1330,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/minimal-fusion/" class="md-nav__link">
+      <a href="../minimal-fusion/" class="md-nav__link">
         
   
   
@@ -1490,10 +1355,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../examples/routing-toolkit-e2e/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Routing Toolkit E2E
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1509,6 +1401,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-run-routing-evaluation-on-the-small-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Run routing evaluation on the small dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-to-inspect-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) What to inspect first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-interpretation-guardrails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Interpretation guardrails
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1521,7 +1466,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/huggingface-integration/" class="md-nav__link">
+      <a href="../huggingface-integration/" class="md-nav__link">
         
   
   
@@ -1549,7 +1494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/api-server/" class="md-nav__link">
+      <a href="../api-server/" class="md-nav__link">
         
   
   
@@ -1577,7 +1522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/interactive-demo/" class="md-nav__link">
+      <a href="../interactive-demo/" class="md-nav__link">
         
   
   
@@ -1605,7 +1550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/multi-domain-search-tutorial/" class="md-nav__link">
+      <a href="../multi-domain-search-tutorial/" class="md-nav__link">
         
   
   
@@ -1633,7 +1578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/real-time-semantic-search/" class="md-nav__link">
+      <a href="../real-time-semantic-search/" class="md-nav__link">
         
   
   
@@ -1661,7 +1606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/cross-lingual-fusion/" class="md-nav__link">
+      <a href="../cross-lingual-fusion/" class="md-nav__link">
         
   
   
@@ -2292,10 +2237,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#basic-concepts" class="md-nav__link">
+  <a href="#1-run-routing-evaluation-on-the-small-dataset" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic Concepts
+        1) Run routing evaluation on the small dataset
       
     </span>
   </a>
@@ -2303,10 +2248,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-1-create-toy-specialists" class="md-nav__link">
+  <a href="#2-what-to-inspect-first" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: Create Toy Specialists
+        2) What to inspect first
       
     </span>
   </a>
@@ -2314,65 +2259,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-2-create-a-fusion-pipeline" class="md-nav__link">
+  <a href="#3-interpretation-guardrails" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2: Create a Fusion Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-3-fuse-embeddings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Fuse Embeddings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-4-try-different-fusion-strategies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Try Different Fusion Strategies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-5-batch-processing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Batch Processing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-6-semantic-routing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 6: Semantic Routing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next Steps
+        3) Interpretation guardrails
       
     </span>
   </a>
@@ -2422,10 +2312,10 @@
     
     
       <li class="md-path__item">
-        <a href="../installation/" class="md-path__link">
+        <a href="../minimal-fusion/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Getting Started
+    Examples
   </span>
 
         </a>
@@ -2447,136 +2337,37 @@
   
 
 
-<h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
-<p>Get started with Kalmanorix in 5 minutes. This guide walks you through creating your first fusion pipeline.</p>
-<h2 id="basic-concepts">Basic Concepts<a class="headerlink" href="#basic-concepts" title="Permanent link">&para;</a></h2>
-<p>Kalmanorix revolves around a few key concepts:</p>
+<h1 id="routing-toolkit-end-to-end-cli">Routing Toolkit End-to-End (CLI)<a class="headerlink" href="#routing-toolkit-end-to-end-cli" title="Permanent link">&para;</a></h1>
+<p>This example shows a complete routing-evaluation workflow using the committed toy dataset and the <code>kalmanorix-eval-routing</code> CLI.</p>
+<h2 id="1-run-routing-evaluation-on-the-small-dataset">1) Run routing evaluation on the small dataset<a class="headerlink" href="#1-run-routing-evaluation-on-the-small-dataset" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kalmanorix-eval-routing<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--dataset<span class="w"> </span>datasets/routing_eval/small_routing_eval_v1.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--output<span class="w"> </span>results/routing_eval/small_routing_eval_v1_report.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--markdown-output<span class="w"> </span>results/routing_eval/small_routing_eval_v1_report.md<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--mode<span class="w"> </span>semantic<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--semantic-threshold<span class="w"> </span><span class="m">0</span>.7<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--semantic-thresholds<span class="w"> </span><span class="m">0</span>.5,0.6,0.7,0.8<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span>--quality-tolerance<span class="w"> </span><span class="m">0</span>.0
+</span></code></pre></div>
+<p>This writes:</p>
 <ul>
-<li><strong>SEF (Specialist Embedding Format)</strong>: A wrapper around an embedder function with uncertainty</li>
-<li><strong>Village</strong>: Container for available SEFs</li>
-<li><strong>ScoutRouter</strong>: Selects which specialists to consult for a query</li>
-<li><strong>Panoramix</strong>: High-level fusion orchestrator</li>
-<li><strong>Fuser</strong>: Strategy for combining embeddings (mean, Kalman, etc.)</li>
+<li><code>results/routing_eval/small_routing_eval_v1_report.json</code> (full machine-readable artifact)</li>
+<li><code>results/routing_eval/small_routing_eval_v1_report.md</code> (compact human-readable summary)</li>
 </ul>
-<h2 id="step-1-create-toy-specialists">Step 1: Create Toy Specialists<a class="headerlink" href="#step-1-create-toy-specialists" title="Permanent link">&para;</a></h2>
-<p>Let's create simple keyword-based specialists for demonstration:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kalmanorix</span><span class="w"> </span><span class="kn">import</span> <span class="n">SEF</span><span class="p">,</span> <span class="n">Village</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Simple keyword-sensitive embedders</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">medical_embedder</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Embeds medical text with bias toward medical dimension.&quot;&quot;&quot;</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># 10-dimensional embeddings</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">kw</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;patient&quot;</span><span class="p">,</span> <span class="s2">&quot;disease&quot;</span><span class="p">,</span> <span class="s2">&quot;treatment&quot;</span><span class="p">]):</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">2.0</span>  <span class="c1"># Boost medical dimension</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">return</span> <span class="n">vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>  <span class="c1"># Normalize</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">def</span><span class="w"> </span><span class="nf">legal_embedder</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Embeds legal text with bias toward legal dimension.&quot;&quot;&quot;</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">kw</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;court&quot;</span><span class="p">,</span> <span class="s2">&quot;law&quot;</span><span class="p">,</span> <span class="s2">&quot;contract&quot;</span><span class="p">]):</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">2.0</span>  <span class="c1"># Boost legal dimension</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="k">return</span> <span class="n">vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># Create SEFs with constant uncertainty</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="n">medical_sef</span> <span class="o">=</span> <span class="n">SEF</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;medical&quot;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="n">medical_embedder</span><span class="p">,</span> <span class="n">sigma2</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="n">legal_sef</span> <span class="o">=</span> <span class="n">SEF</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;legal&quot;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="n">legal_embedder</span><span class="p">,</span> <span class="n">sigma2</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1"># Create a village (container for specialists)</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="n">village</span> <span class="o">=</span> <span class="n">Village</span><span class="p">(</span><span class="n">sefs</span><span class="o">=</span><span class="p">[</span><span class="n">medical_sef</span><span class="p">,</span> <span class="n">legal_sef</span><span class="p">])</span>
-</span></code></pre></div>
-<h2 id="step-2-create-a-fusion-pipeline">Step 2: Create a Fusion Pipeline<a class="headerlink" href="#step-2-create-a-fusion-pipeline" title="Permanent link">&para;</a></h2>
-<p>Now let's create a fusion pipeline using <code>Panoramix</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kalmanorix</span><span class="w"> </span><span class="kn">import</span> <span class="n">Panoramix</span><span class="p">,</span> <span class="n">ScoutRouter</span><span class="p">,</span> <span class="n">KalmanorixFuser</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Create a router that selects all specialists (for fusion)</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">router</span> <span class="o">=</span> <span class="n">ScoutRouter</span><span class="p">(</span><span class="n">village</span><span class="o">=</span><span class="n">village</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Create a Kalman fuser</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">fuser</span> <span class="o">=</span> <span class="n">KalmanorixFuser</span><span class="p">()</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># Create the fusion orchestrator</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">panoramix</span> <span class="o">=</span> <span class="n">Panoramix</span><span class="p">(</span><span class="n">village</span><span class="o">=</span><span class="n">village</span><span class="p">,</span> <span class="n">router</span><span class="o">=</span><span class="n">router</span><span class="p">,</span> <span class="n">fuser</span><span class="o">=</span><span class="n">fuser</span><span class="p">)</span>
-</span></code></pre></div>
-<h2 id="step-3-fuse-embeddings">Step 3: Fuse Embeddings<a class="headerlink" href="#step-3-fuse-embeddings" title="Permanent link">&para;</a></h2>
-<p>Fuse embeddings for different types of queries:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Medical query</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">medical_query</span> <span class="o">=</span> <span class="s2">&quot;Patient with influenza needs treatment&quot;</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">panoramix</span><span class="o">.</span><span class="n">brew</span><span class="p">(</span><span class="n">medical_query</span><span class="p">)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Medical query - fused embedding shape: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Weights: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Higher weight for medical specialist</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Legal query</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">legal_query</span> <span class="o">=</span> <span class="s2">&quot;Court ruled on contract dispute&quot;</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">result</span> <span class="o">=</span> <span class="n">panoramix</span><span class="o">.</span><span class="n">brew</span><span class="p">(</span><span class="n">legal_query</span><span class="p">)</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Legal query - fused embedding shape: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Weights: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Higher weight for legal specialist</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1"># Mixed query</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="n">mixed_query</span> <span class="o">=</span> <span class="s2">&quot;Medical malpractice lawsuit settlement&quot;</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="n">result</span> <span class="o">=</span> <span class="n">panoramix</span><span class="o">.</span><span class="n">brew</span><span class="p">(</span><span class="n">mixed_query</span><span class="p">)</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mixed query - fused embedding shape: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Weights: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Both specialists contribute</span>
-</span></code></pre></div>
-<h2 id="step-4-try-different-fusion-strategies">Step 4: Try Different Fusion Strategies<a class="headerlink" href="#step-4-try-different-fusion-strategies" title="Permanent link">&para;</a></h2>
-<p>Compare different fusion strategies:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kalmanorix</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeanFuser</span><span class="p">,</span> <span class="n">DiagonalKalmanFuser</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Mean fusion (simple averaging)</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">mean_fuser</span> <span class="o">=</span> <span class="n">MeanFuser</span><span class="p">()</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">mean_panoramix</span> <span class="o">=</span> <span class="n">Panoramix</span><span class="p">(</span><span class="n">village</span><span class="o">=</span><span class="n">village</span><span class="p">,</span> <span class="n">router</span><span class="o">=</span><span class="n">router</span><span class="p">,</span> <span class="n">fuser</span><span class="o">=</span><span class="n">mean_fuser</span><span class="p">)</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">mean_result</span> <span class="o">=</span> <span class="n">mean_panoramix</span><span class="o">.</span><span class="n">brew</span><span class="p">(</span><span class="n">medical_query</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean fusion weights: </span><span class="si">{</span><span class="n">mean_result</span><span class="o">.</span><span class="n">weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Diagonal Kalman fusion (scalar variance)</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">diagonal_fuser</span> <span class="o">=</span> <span class="n">DiagonalKalmanFuser</span><span class="p">()</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">diagonal_panoramix</span> <span class="o">=</span> <span class="n">Panoramix</span><span class="p">(</span><span class="n">village</span><span class="o">=</span><span class="n">village</span><span class="p">,</span> <span class="n">router</span><span class="o">=</span><span class="n">router</span><span class="p">,</span> <span class="n">fuser</span><span class="o">=</span><span class="n">diagonal_fuser</span><span class="p">)</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="n">diagonal_result</span> <span class="o">=</span> <span class="n">diagonal_panoramix</span><span class="o">.</span><span class="n">brew</span><span class="p">(</span><span class="n">medical_query</span><span class="p">)</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Diagonal Kalman weights: </span><span class="si">{</span><span class="n">diagonal_result</span><span class="o">.</span><span class="n">weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span></code></pre></div>
-<h2 id="step-5-batch-processing">Step 5: Batch Processing<a class="headerlink" href="#step-5-batch-processing" title="Permanent link">&para;</a></h2>
-<p>Process multiple queries efficiently:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">queries</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;Patient diagnosis report&quot;</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="s2">&quot;Legal contract review&quot;</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;Medical legal consultation&quot;</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">]</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Batch fusion</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">batch_results</span> <span class="o">=</span> <span class="n">panoramix</span><span class="o">.</span><span class="n">brew_batch</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_results</span><span class="p">):</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Query </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">queries</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="mi">30</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Weights: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span></code></pre></div>
-<h2 id="step-6-semantic-routing">Step 6: Semantic Routing<a class="headerlink" href="#step-6-semantic-routing" title="Permanent link">&para;</a></h2>
-<p>Use semantic routing to select only relevant specialists:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kalmanorix</span><span class="w"> </span><span class="kn">import</span> <span class="n">threshold_top_k</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Create router with semantic routing</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">semantic_router</span> <span class="o">=</span> <span class="n">ScoutRouter</span><span class="p">(</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">village</span><span class="o">=</span><span class="n">village</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;semantic&quot;</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">threshold_fn</span><span class="o">=</span><span class="n">threshold_top_k</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Select top specialist</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">)</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Create fusion pipeline with routing</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="n">routing_panoramix</span> <span class="o">=</span> <span class="n">Panoramix</span><span class="p">(</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="n">village</span><span class="o">=</span><span class="n">village</span><span class="p">,</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    <span class="n">router</span><span class="o">=</span><span class="n">semantic_router</span><span class="p">,</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="n">fuser</span><span class="o">=</span><span class="n">fuser</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="p">)</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="c1"># Medical query will only use medical specialist</span>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="n">result</span> <span class="o">=</span> <span class="n">routing_panoramix</span><span class="o">.</span><span class="n">brew</span><span class="p">(</span><span class="n">medical_query</span><span class="p">)</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selected specialists: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">selected_sef_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Effective FLOPs reduction: Using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">selected_sef_names</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">village</span><span class="p">)</span><span class="si">}</span><span class="s2"> specialists&quot;</span><span class="p">)</span>
-</span></code></pre></div>
-<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h2 id="2-what-to-inspect-first">2) What to inspect first<a class="headerlink" href="#2-what-to-inspect-first" title="Permanent link">&para;</a></h2>
+<p>The markdown report is intended as the first stop for interpretation:</p>
 <ul>
-<li>Explore the <a href="../examples/">examples</a> for more advanced use cases</li>
-<li>Learn about <a href="../../guides/creating-specialists/">creating specialists</a> with real models</li>
-<li>Understand <a href="../../guides/uncertainty-calibration/">uncertainty calibration</a> for better fusion</li>
-<li>Check out the <a href="../../api-reference/village/">API reference</a> for detailed documentation</li>
+<li><strong>Single-run summary</strong> for precision/recall/F1 plus efficiency deltas.</li>
+<li><strong>Outcome split</strong> that lists quality-preserving wins, compute-only wins, and failure modes.</li>
+<li><strong>Threshold robustness</strong> to see metric stability as thresholds move.</li>
+<li><strong>Per-query table</strong> for transparent failure/win inspection.</li>
+</ul>
+<h2 id="3-interpretation-guardrails">3) Interpretation guardrails<a class="headerlink" href="#3-interpretation-guardrails" title="Permanent link">&para;</a></h2>
+<p>Treat compute wins and quality failures symmetrically:</p>
+<ul>
+<li>A routing run can reduce FLOPs while still showing quality loss on some queries.</li>
+<li>Use <code>quality_preserving_routing_wins</code>, <code>compute_only_wins</code>, and <code>failure_modes</code> together.</li>
+<li>Avoid quality-improvement claims unless supported by committed quality artifacts.</li>
 </ul>
 
 
