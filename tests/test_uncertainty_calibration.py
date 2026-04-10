@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 
-from kalmanorix.benchmarks.uncertainty_calibration import run_uncertainty_calibration
+from kalmanorix.benchmarks.uncertainty_calibration import ValidationPowerConfig, run_uncertainty_calibration
 from kalmanorix.uncertainty_calibration import fit_scalar_calibrator
 
 
@@ -45,3 +45,27 @@ def test_fallback_for_too_small_calibration_data() -> None:
     fit = fit_scalar_calibrator(x, y, method="isotonic", min_samples=8)
     assert fit.used_fallback is True
     assert fit.calibrator.name == "identity"
+
+
+def test_validation_powered_split_and_status(tmp_path) -> None:
+    summary = run_uncertainty_calibration(tmp_path)
+    assert summary["status"] == "sufficient"
+    assert summary["validation_power"]["validation_count"] >= 8
+    assert summary["validation_power"]["specialist_effective_support"]["tech"] >= 6
+    assert summary["validation_power"]["specialist_effective_support"]["cook"] >= 6
+
+
+def test_underpowered_validation_emits_explicit_status(tmp_path) -> None:
+    summary = run_uncertainty_calibration(
+        tmp_path,
+        power_config=ValidationPowerConfig(
+            min_validation_total=50,
+            min_validation_per_domain=20,
+            min_effective_support_per_specialist=20,
+            calibrator_min_samples=20,
+        ),
+    )
+    assert summary["status"] == "underpowered_validation"
+    assert summary["validation_power"]["failures"]
+    assert summary["selected_calibrators"]["tech"]["fallback"] is True
+    assert summary["selected_calibrators"]["tech"]["sufficiently_powered"] is False
