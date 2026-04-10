@@ -48,6 +48,15 @@ from .routing_evaluation import (
     evaluate_threshold_robustness,
     render_routing_eval_markdown,
 )
+from .kalman_covariance_ablation import (
+    AblationConfig,
+    CovarianceFitConfig,
+    RetrievalMetrics,
+    fit_diagonal_variance,
+    fit_scalar_variance,
+    fit_structured_covariance,
+    run_kalman_covariance_ablation,
+)
 
 __all__ = [
     "EmbeddingDataset",
@@ -89,4 +98,11 @@ __all__ = [
     "evaluate_routing",
     "evaluate_threshold_robustness",
     "render_routing_eval_markdown",
+    "AblationConfig",
+    "CovarianceFitConfig",
+    "RetrievalMetrics",
+    "fit_diagonal_variance",
+    "fit_scalar_variance",
+    "fit_structured_covariance",
+    "run_kalman_covariance_ablation",
 ]
