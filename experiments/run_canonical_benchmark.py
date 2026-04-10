@@ -332,6 +332,10 @@ def run_canonical_benchmark(
         cfg = load_experiment_config(cfg_path)
         details = run_experiment(cfg)
 
+    (output_dir / "runner_details.json").write_text(
+        json.dumps(details, indent=2), encoding="utf-8"
+    )
+
     query_level = details["query_level"]
     rankings = query_level["rankings"]
     ground_truth = {qid: set(ids) for qid, ids in query_level["ground_truth"].items()}
