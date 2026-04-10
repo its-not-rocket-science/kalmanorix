@@ -6,6 +6,7 @@ from kalmanorix.benchmarks.routing_evaluation import (
     ThresholdSweepConfig,
     evaluate_routing,
     evaluate_threshold_robustness,
+    render_routing_eval_markdown,
 )
 
 
@@ -192,3 +193,32 @@ def test_threshold_robustness_output_shape_contract() -> None:
             "avg_flops_savings_fraction",
             "avg_latency_delta_ms",
         }.issubset(run["summary"])
+
+
+def test_render_routing_eval_markdown_contains_balanced_sections() -> None:
+    samples = _samples()
+    report = {
+        "schema_version": "routing_eval.v1",
+        "single_run": evaluate_routing(
+            samples,
+            RoutingRunConfig(
+                mode="confidence",
+                semantic_threshold=0.75,
+                confidence_threshold=0.8,
+                quality_tolerance=0.01,
+            ),
+        ),
+        "threshold_robustness": evaluate_threshold_robustness(
+            samples,
+            ThresholdSweepConfig(
+                mode="semantic",
+                semantic_thresholds=(0.6, 0.75, 0.85),
+                quality_tolerance=0.01,
+            ),
+        ),
+    }
+    markdown = render_routing_eval_markdown(report)
+    assert "## Outcome split (wins and failures)" in markdown
+    assert "Quality-preserving routing wins" in markdown
+    assert "Failure modes" in markdown
+    assert "| Query | Selected domains | Precision | Recall | F1 |" in markdown

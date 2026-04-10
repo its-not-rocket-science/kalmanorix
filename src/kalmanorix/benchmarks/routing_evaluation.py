@@ -275,6 +275,100 @@ def evaluate_threshold_robustness(
     }
 
 
+def render_routing_eval_markdown(report: dict[str, Any]) -> str:
+    """Render a compact markdown summary for a routing evaluation artifact."""
+
+    single_run = report["single_run"]
+    summary = single_run["summary"]
+    split = single_run["report"]
+    robustness = report["threshold_robustness"]["robustness"]
+    threshold_runs = report["threshold_robustness"]["threshold_runs"]
+
+    lines = [
+        "# Routing Evaluation Report",
+        "",
+        "## Single-run summary",
+        f"- Routing precision: **{summary['routing_precision']:.3f}**",
+        f"- Routing recall: **{summary['routing_recall']:.3f}**",
+        f"- Routing F1: **{summary['routing_f1']:.3f}**",
+        f"- Avg FLOPs savings fraction: **{summary['avg_flops_savings_fraction']:.3f}**",
+        f"- Avg latency delta (all - routed, ms): **{summary['avg_latency_delta_ms']:.3f}**",
+        "",
+        "## Outcome split (wins and failures)",
+        (
+            f"- Quality-preserving routing wins: **{split['quality_preserving_routing_wins']['count']}** "
+            f"({', '.join(split['quality_preserving_routing_wins']['queries']) or 'none'})"
+        ),
+        (
+            f"- Compute-only wins (quality loss tolerated by config): "
+            f"**{split['compute_only_wins']['count']}** "
+            f"({', '.join(split['compute_only_wins']['queries']) or 'none'})"
+        ),
+        (
+            f"- Failure modes: **{split['failure_modes']['count']}** "
+            f"({', '.join(split['failure_modes']['queries']) or 'none'})"
+        ),
+        (
+            "- Failure breakdown: "
+            f"quality_loss={split['failure_modes']['breakdown']['quality_loss']}, "
+            f"zero_recall={split['failure_modes']['breakdown']['zero_recall']}"
+        ),
+        "",
+        "## Threshold robustness",
+        (
+            "- Best semantic threshold by F1: "
+            f"**{robustness['best_semantic_threshold_by_f1']}**"
+        ),
+        f"- F1 range across sweep: **{robustness['f1_range']:.3f}**",
+        f"- Precision range across sweep: **{robustness['precision_range']:.3f}**",
+        f"- Recall range across sweep: **{robustness['recall_range']:.3f}**",
+        (
+            "- FLOPs savings range across sweep: "
+            f"**{robustness['flops_savings_range']:.3f}**"
+        ),
+        "",
+        "### Sweep table",
+        "| Threshold | Precision | Recall | F1 | FLOPs savings | Latency delta ms |",
+        "|---:|---:|---:|---:|---:|---:|",
+    ]
+    for run in threshold_runs:
+        run_summary = run["summary"]
+        lines.append(
+            "| "
+            f"{run['semantic_threshold']:.2f} | "
+            f"{run_summary['routing_precision']:.3f} | "
+            f"{run_summary['routing_recall']:.3f} | "
+            f"{run_summary['routing_f1']:.3f} | "
+            f"{run_summary['avg_flops_savings_fraction']:.3f} | "
+            f"{run_summary['avg_latency_delta_ms']:.3f} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "### Per-query outcomes",
+            "| Query | Selected domains | Precision | Recall | F1 | FLOPs savings | Latency delta ms | Quality delta | Category |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---|",
+        ]
+    )
+    for row in single_run["per_query"]:
+        lines.append(
+            "| "
+            f"{row['query_id']} | "
+            f"{', '.join(row['selected_domains']) or '(none)'} | "
+            f"{row['precision']:.3f} | "
+            f"{row['recall']:.3f} | "
+            f"{row['f1']:.3f} | "
+            f"{row['flops']['savings_fraction']:.3f} | "
+            f"{row['latency_ms']['delta']:.3f} | "
+            f"{row['quality_delta']:.3f} | "
+            f"{row['category']} |"
+        )
+
+    lines.append("")
+    return "\n".join(lines)
+
+
 def _load_samples(path: Path) -> list[RoutingSample]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     rows = payload["samples"] if isinstance(payload, dict) else payload
@@ -328,6 +422,12 @@ def main() -> None:
         "--output", type=Path, required=True, help="Where to write JSON report"
     )
     parser.add_argument(
+        "--markdown-output",
+        type=Path,
+        default=None,
+        help="Optional path for compact markdown report",
+    )
+    parser.add_argument(
         "--mode", choices=["semantic", "confidence"], default="semantic"
     )
     parser.add_argument("--semantic-threshold", type=float, default=0.7)
@@ -365,6 +465,11 @@ def main() -> None:
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    if args.markdown_output is not None:
+        args.markdown_output.parent.mkdir(parents=True, exist_ok=True)
+        args.markdown_output.write_text(
+            render_routing_eval_markdown(report), encoding="utf-8"
+        )
     print(json.dumps(report, indent=2))
 
 

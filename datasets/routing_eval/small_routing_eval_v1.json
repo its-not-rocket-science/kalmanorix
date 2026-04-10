@@ -1,0 +1,175 @@
+{
+  "dataset_name": "small_routing_eval_v1",
+  "notes": "Deterministic toy routing-evaluation set for CLI smoke/e2e docs.",
+  "samples": [
+    {
+      "query_id": "q_tech_fix_bug",
+      "relevant_domains": [
+        "tech"
+      ],
+      "semantic_scores": {
+        "tech": 0.94,
+        "cook": 0.3,
+        "charge": 0.22
+      },
+      "confidence_scores": {
+        "tech": 0.92,
+        "cook": 0.12,
+        "charge": 0.11
+      },
+      "routing_overhead_ms": 0.2,
+      "domain_flops": {
+        "tech": 9.0,
+        "cook": 9.0,
+        "charge": 9.0
+      },
+      "domain_latency_ms": {
+        "tech": 5.0,
+        "cook": 5.0,
+        "charge": 5.0
+      },
+      "quality_delta": 0.01
+    },
+    {
+      "query_id": "q_recipe_pasta",
+      "relevant_domains": [
+        "cook"
+      ],
+      "semantic_scores": {
+        "tech": 0.25,
+        "cook": 0.91,
+        "charge": 0.35
+      },
+      "confidence_scores": {
+        "tech": 0.1,
+        "cook": 0.89,
+        "charge": 0.2
+      },
+      "routing_overhead_ms": 0.2,
+      "domain_flops": {
+        "tech": 9.0,
+        "cook": 9.0,
+        "charge": 9.0
+      },
+      "domain_latency_ms": {
+        "tech": 5.0,
+        "cook": 5.0,
+        "charge": 5.0
+      },
+      "quality_delta": 0.0
+    },
+    {
+      "query_id": "q_chargeback_fraud",
+      "relevant_domains": [
+        "charge"
+      ],
+      "semantic_scores": {
+        "tech": 0.78,
+        "cook": 0.2,
+        "charge": 0.66
+      },
+      "confidence_scores": {
+        "tech": 0.81,
+        "cook": 0.2,
+        "charge": 0.62
+      },
+      "routing_overhead_ms": 0.2,
+      "domain_flops": {
+        "tech": 9.0,
+        "cook": 9.0,
+        "charge": 9.0
+      },
+      "domain_latency_ms": {
+        "tech": 5.0,
+        "cook": 5.0,
+        "charge": 5.0
+      },
+      "quality_delta": -0.03
+    },
+    {
+      "query_id": "q_multi_doc_query",
+      "relevant_domains": [
+        "tech",
+        "cook"
+      ],
+      "semantic_scores": {
+        "tech": 0.83,
+        "cook": 0.79,
+        "charge": 0.19
+      },
+      "confidence_scores": {
+        "tech": 0.75,
+        "cook": 0.73,
+        "charge": 0.15
+      },
+      "routing_overhead_ms": 0.2,
+      "domain_flops": {
+        "tech": 9.0,
+        "cook": 9.0,
+        "charge": 9.0
+      },
+      "domain_latency_ms": {
+        "tech": 5.0,
+        "cook": 5.0,
+        "charge": 5.0
+      },
+      "quality_delta": 0.0
+    },
+    {
+      "query_id": "q_longtail_unknown",
+      "relevant_domains": [
+        "charge"
+      ],
+      "semantic_scores": {
+        "tech": 0.74,
+        "cook": 0.72,
+        "charge": 0.71
+      },
+      "confidence_scores": {
+        "tech": 0.58,
+        "cook": 0.55,
+        "charge": 0.45
+      },
+      "routing_overhead_ms": 2.5,
+      "domain_flops": {
+        "tech": 9.0,
+        "cook": 9.0,
+        "charge": 9.0
+      },
+      "domain_latency_ms": {
+        "tech": 5.0,
+        "cook": 5.0,
+        "charge": 5.0
+      },
+      "quality_delta": -0.01
+    },
+    {
+      "query_id": "q_ambiguous_help",
+      "relevant_domains": [
+        "tech"
+      ],
+      "semantic_scores": {
+        "tech": 0.71,
+        "cook": 0.7,
+        "charge": 0.69
+      },
+      "confidence_scores": {
+        "tech": 0.72,
+        "cook": 0.7,
+        "charge": 0.68
+      },
+      "routing_overhead_ms": 0.2,
+      "domain_flops": {
+        "tech": 9.0,
+        "cook": 9.0,
+        "charge": 9.0
+      },
+      "domain_latency_ms": {
+        "tech": 5.0,
+        "cook": 5.0,
+        "charge": 5.0
+      },
+      "quality_delta": 0.0
+    }
+  ]
+}

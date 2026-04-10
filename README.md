@@ -109,6 +109,27 @@ kalmanorix-eval-routing \
 python experiments/run_real_mixed_benchmark.py
 ```
 
+## Routing Toolkit Quickstart
+
+Use the committed tiny dataset to run an end-to-end routing evaluation with both JSON and markdown outputs:
+
+```bash
+kalmanorix-eval-routing \
+  --dataset datasets/routing_eval/small_routing_eval_v1.json \
+  --output results/routing_eval/small_routing_eval_v1_report.json \
+  --markdown-output results/routing_eval/small_routing_eval_v1_report.md \
+  --mode semantic \
+  --semantic-threshold 0.7 \
+  --semantic-thresholds 0.5,0.6,0.7,0.8 \
+  --quality-tolerance 0.0
+```
+
+- Dataset: `datasets/routing_eval/small_routing_eval_v1.json`
+- Real committed artifact: `results/routing_eval/small_routing_eval_v1_report.json`
+- Human-readable report: `results/routing_eval/small_routing_eval_v1_report.md`
+
+Interpretation note: evaluate quality-preserving wins, compute-only wins, and failure modes together; avoid extrapolating quality-improvement claims from routing-efficiency metrics alone.
+
 ## Roadmap and Research Docs
 
 - Top-level roadmap: [ROADMAP.md](ROADMAP.md)

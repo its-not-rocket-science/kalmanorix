@@ -1,0 +1,248 @@
+{
+  "schema_version": "routing_eval.v1",
+  "single_run": {
+    "config": {
+      "mode": "semantic",
+      "semantic_threshold": 0.7,
+      "confidence_threshold": 0.8,
+      "fallback": "top1",
+      "quality_tolerance": 0.0
+    },
+    "summary": {
+      "routing_precision": 0.638888888888889,
+      "routing_recall": 0.8333333333333334,
+      "routing_f1": 0.6944444444444445,
+      "avg_flops_savings_fraction": 0.4444444444444444,
+      "avg_latency_delta_ms": 6.083333333333333
+    },
+    "report": {
+      "quality_preserving_routing_wins": {
+        "count": 4,
+        "queries": [
+          "q_tech_fix_bug",
+          "q_recipe_pasta",
+          "q_multi_doc_query",
+          "q_ambiguous_help"
+        ]
+      },
+      "compute_only_wins": {
+        "count": 1,
+        "queries": [
+          "q_chargeback_fraud"
+        ]
+      },
+      "failure_modes": {
+        "count": 1,
+        "queries": [
+          "q_longtail_unknown"
+        ],
+        "breakdown": {
+          "quality_loss": 1,
+          "zero_recall": 0
+        }
+      }
+    },
+    "per_query": [
+      {
+        "query_id": "q_tech_fix_bug",
+        "selected_domains": [
+          "tech"
+        ],
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "flops": {
+          "all": 27.0,
+          "routed": 9.0,
+          "savings_fraction": 0.6666666666666666
+        },
+        "latency_ms": {
+          "all": 15.0,
+          "routed": 5.2,
+          "delta": 9.8
+        },
+        "quality_delta": 0.01,
+        "quality_preserved": true,
+        "category": "quality_preserving_win"
+      },
+      {
+        "query_id": "q_recipe_pasta",
+        "selected_domains": [
+          "cook"
+        ],
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "flops": {
+          "all": 27.0,
+          "routed": 9.0,
+          "savings_fraction": 0.6666666666666666
+        },
+        "latency_ms": {
+          "all": 15.0,
+          "routed": 5.2,
+          "delta": 9.8
+        },
+        "quality_delta": 0.0,
+        "quality_preserved": true,
+        "category": "quality_preserving_win"
+      },
+      {
+        "query_id": "q_chargeback_fraud",
+        "selected_domains": [
+          "tech"
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "flops": {
+          "all": 27.0,
+          "routed": 9.0,
+          "savings_fraction": 0.6666666666666666
+        },
+        "latency_ms": {
+          "all": 15.0,
+          "routed": 5.2,
+          "delta": 9.8
+        },
+        "quality_delta": -0.03,
+        "quality_preserved": false,
+        "category": "compute_only_win"
+      },
+      {
+        "query_id": "q_multi_doc_query",
+        "selected_domains": [
+          "cook",
+          "tech"
+        ],
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "flops": {
+          "all": 27.0,
+          "routed": 18.0,
+          "savings_fraction": 0.3333333333333333
+        },
+        "latency_ms": {
+          "all": 15.0,
+          "routed": 10.2,
+          "delta": 4.800000000000001
+        },
+        "quality_delta": 0.0,
+        "quality_preserved": true,
+        "category": "quality_preserving_win"
+      },
+      {
+        "query_id": "q_longtail_unknown",
+        "selected_domains": [
+          "charge",
+          "cook",
+          "tech"
+        ],
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1": 0.5,
+        "flops": {
+          "all": 27.0,
+          "routed": 27.0,
+          "savings_fraction": 0.0
+        },
+        "latency_ms": {
+          "all": 15.0,
+          "routed": 17.5,
+          "delta": -2.5
+        },
+        "quality_delta": -0.01,
+        "quality_preserved": false,
+        "category": "failure_quality_loss"
+      },
+      {
+        "query_id": "q_ambiguous_help",
+        "selected_domains": [
+          "cook",
+          "tech"
+        ],
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "flops": {
+          "all": 27.0,
+          "routed": 18.0,
+          "savings_fraction": 0.3333333333333333
+        },
+        "latency_ms": {
+          "all": 15.0,
+          "routed": 10.2,
+          "delta": 4.800000000000001
+        },
+        "quality_delta": 0.0,
+        "quality_preserved": true,
+        "category": "quality_preserving_win"
+      }
+    ]
+  },
+  "threshold_robustness": {
+    "config": {
+      "mode": "semantic",
+      "semantic_thresholds": [
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ],
+      "confidence_threshold": 0.8,
+      "fallback": "top1",
+      "quality_tolerance": 0.0
+    },
+    "threshold_runs": [
+      {
+        "semantic_threshold": 0.5,
+        "summary": {
+          "routing_precision": 0.6944444444444445,
+          "routing_recall": 1.0,
+          "routing_f1": 0.7777777777777778,
+          "avg_flops_savings_fraction": 0.3333333333333333,
+          "avg_latency_delta_ms": 4.416666666666667
+        }
+      },
+      {
+        "semantic_threshold": 0.6,
+        "summary": {
+          "routing_precision": 0.6944444444444445,
+          "routing_recall": 1.0,
+          "routing_f1": 0.7777777777777778,
+          "avg_flops_savings_fraction": 0.3333333333333333,
+          "avg_latency_delta_ms": 4.416666666666667
+        }
+      },
+      {
+        "semantic_threshold": 0.7,
+        "summary": {
+          "routing_precision": 0.638888888888889,
+          "routing_recall": 0.8333333333333334,
+          "routing_f1": 0.6944444444444445,
+          "avg_flops_savings_fraction": 0.4444444444444444,
+          "avg_latency_delta_ms": 6.083333333333333
+        }
+      },
+      {
+        "semantic_threshold": 0.8,
+        "summary": {
+          "routing_precision": 0.6666666666666666,
+          "routing_recall": 0.5833333333333334,
+          "routing_f1": 0.611111111111111,
+          "avg_flops_savings_fraction": 0.6666666666666666,
+          "avg_latency_delta_ms": 9.416666666666666
+        }
+      }
+    ],
+    "robustness": {
+      "best_semantic_threshold_by_f1": 0.5,
+      "f1_range": 0.16666666666666674,
+      "precision_range": 0.05555555555555558,
+      "recall_range": 0.41666666666666663,
+      "flops_savings_range": 0.3333333333333333,
+      "latency_delta_range_ms": 4.999999999999999
+    }
+  }
+}
