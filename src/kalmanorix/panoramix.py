@@ -181,14 +181,107 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
     diagonal covariance matrix (sigma² * I).
     """
 
-    def __init__(self, sort_by_certainty: bool = True, epsilon: float = 1e-8):
+    def __init__(
+        self,
+        sort_by_certainty: bool = True,
+        epsilon: float = 1e-8,
+        use_fast_scalar_path: bool = True,
+    ):
         """
         Args:
             sort_by_certainty: Sort measurements by certainty before fusion
             epsilon: Small constant for numerical stability
+            use_fast_scalar_path: Use optimized scalar-sigma² Kalman path that
+                avoids constructing repeated diagonal covariance vectors.
         """
         self.sort_by_certainty = sort_by_certainty
         self.epsilon = epsilon
+        self.use_fast_scalar_path = use_fast_scalar_path
+
+    def _fuse_legacy(
+        self,
+        query: str,
+        modules: List[SEF],
+    ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        """Reference implementation retained for regression benchmarking."""
+        embeddings = []
+        covariances = []
+        for module in modules:
+            emb = module.embed(query)
+            if module.alignment_matrix is not None:
+                emb = module.alignment_matrix @ emb
+            sigma2 = module.sigma2_for(query)
+            cov = np.full(emb.shape, sigma2, dtype=np.float64)
+            embeddings.append(emb)
+            covariances.append(cov)
+
+        fused, fused_cov = kalman_fuse_diagonal(
+            embeddings,
+            covariances,
+            sort_by_certainty=self.sort_by_certainty,
+            epsilon=self.epsilon,
+        )
+
+        total_uncertainties = [np.sum(cov) for cov in covariances]
+        inv_uncertainties = [1.0 / (tu + self.epsilon) for tu in total_uncertainties]
+        total_inv = sum(inv_uncertainties)
+        weights = {
+            module.name: float(inv_uncertainties[i] / total_inv)
+            for i, module in enumerate(modules)
+        }
+        meta = {
+            "fused_covariance": fused_cov,
+            "total_uncertainties": total_uncertainties,
+            "sort_by_certainty": self.sort_by_certainty,
+            "variance": float(np.mean(fused_cov)),
+            "implementation": "legacy",
+        }
+        return fused, weights, meta
+
+    def _fuse_scalar_sigma2(
+        self,
+        query: str,
+        modules: List[SEF],
+    ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        """Optimized implementation equivalent to sigma²*I covariance fusion."""
+        embeddings = []
+        sigma2_values = []
+        for module in modules:
+            emb = module.embed(query)
+            if module.alignment_matrix is not None:
+                emb = module.alignment_matrix @ emb
+            embeddings.append(np.asarray(emb, dtype=np.float64))
+            sigma2_values.append(float(module.sigma2_for(query)))
+
+        order = np.arange(len(modules))
+        if self.sort_by_certainty and len(modules) > 1:
+            order = np.argsort(np.asarray(sigma2_values, dtype=np.float64))
+
+        x = embeddings[int(order[0])].copy()
+        p = max(float(sigma2_values[int(order[0])]), self.epsilon)
+        for idx in order[1:]:
+            r = max(float(sigma2_values[int(idx)]), self.epsilon)
+            k = p / (p + r + self.epsilon)
+            x += k * (embeddings[int(idx)] - x)
+            p = max((1.0 - k) * p, self.epsilon)
+
+        d = int(x.shape[0])
+        fused_cov = np.full((d,), p, dtype=np.float64)
+        total_uncertainties = [d * float(s) for s in sigma2_values]
+        inv_uncertainties = [1.0 / (tu + self.epsilon) for tu in total_uncertainties]
+        total_inv = sum(inv_uncertainties)
+        weights = {
+            module.name: float(inv_uncertainties[i] / total_inv)
+            for i, module in enumerate(modules)
+        }
+        meta = {
+            "fused_covariance": fused_cov,
+            "total_uncertainties": total_uncertainties,
+            "sort_by_certainty": self.sort_by_certainty,
+            "variance": float(p),
+            "implementation": "optimized_scalar_sigma2",
+        }
+        return x, weights, meta
 
     def fuse(  # pylint: disable=too-many-locals
         self,
@@ -198,47 +291,9 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         if not modules:
             raise ValueError("KalmanorixFuser requires at least one module")
 
-        # Get embeddings and convert scalar sigma² to diagonal covariance
-        embeddings = []
-        covariances = []
-
-        for module in modules:
-            emb = module.embed(query)
-            # Apply alignment if available
-            if module.alignment_matrix is not None:
-                emb = module.alignment_matrix @ emb
-            sigma2 = module.sigma2_for(query)
-            # Convert scalar variance to diagonal covariance vector
-            cov = np.full(emb.shape, sigma2, dtype=np.float64)
-            embeddings.append(emb)
-            covariances.append(cov)
-
-        # Perform Kalman fusion
-        fused, fused_cov = kalman_fuse_diagonal(
-            embeddings,
-            covariances,
-            sort_by_certainty=self.sort_by_certainty,
-            epsilon=self.epsilon,
-        )
-
-        # Compute weights from contributions (diagnostic)
-        # Weight proportional to inverse total uncertainty
-        total_uncertainties = [np.sum(cov) for cov in covariances]
-        inv_uncertainties = [1.0 / (tu + self.epsilon) for tu in total_uncertainties]
-        total_inv = sum(inv_uncertainties)
-        weights = {
-            module.name: float(inv_uncertainties[i] / total_inv)
-            for i, module in enumerate(modules)
-        }
-
-        meta = {
-            "fused_covariance": fused_cov,
-            "total_uncertainties": total_uncertainties,
-            "sort_by_certainty": self.sort_by_certainty,
-            "variance": float(np.mean(fused_cov)),
-        }
-
-        return fused, weights, meta
+        if self.use_fast_scalar_path:
+            return self._fuse_scalar_sigma2(query=query, modules=modules)
+        return self._fuse_legacy(query=query, modules=modules)
 
     def fuse_batch(
         self,
@@ -253,42 +308,52 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         if b == 0:
             return [], [], None
 
-        # Build arrays: embeddings (n, b, d), covariances (n, b, d)
-        embeddings_list = []
-        covariances_list = []
-        for module in modules:
+        # Build arrays: embeddings (n, b, d), sigma² values (n, b)
+        embeddings = []
+        sigma2 = np.empty((n, b), dtype=np.float64)
+        for i, module in enumerate(modules):
             module_embs = []
-            module_covs = []
-            for query in queries:
+            for j, query in enumerate(queries):
                 emb = module.embed(query)
                 if module.alignment_matrix is not None:
                     emb = module.alignment_matrix @ emb
-                sigma2 = module.sigma2_for(query)
-                cov = np.full(emb.shape, sigma2, dtype=np.float64)
                 module_embs.append(emb)
-                module_covs.append(cov)
-            # Stack across queries: (b, d)
-            embeddings_list.append(np.stack(module_embs, axis=0))
-            covariances_list.append(np.stack(module_covs, axis=0))
-        # Stack across modules: (n, b, d)
-        embeddings = np.stack(embeddings_list, axis=0)
-        covariances = np.stack(covariances_list, axis=0)
+                sigma2[i, j] = module.sigma2_for(query)
+            embeddings.append(np.stack(module_embs, axis=0))
+        embeddings_arr = np.stack(embeddings, axis=0).astype(np.float64, copy=False)
 
-        # Perform batch Kalman fusion
-        fused, fused_cov = kalman_fuse_diagonal_batch(
-            embeddings,
-            covariances,
-            sort_by_certainty=self.sort_by_certainty,
-            epsilon=self.epsilon,
-        )
-        # fused shape (b, d), fused_cov shape (b, d)
+        if self.use_fast_scalar_path:
+            if self.sort_by_certainty and n > 1:
+                avg_sigma2 = np.mean(sigma2, axis=1)
+                order = np.argsort(avg_sigma2)
+                embeddings_arr = embeddings_arr[order]
+                sigma2 = sigma2[order]
 
-        # Compute weights per module per query
-        # total uncertainty per module per query: sum over dimensions
-        total_uncertainties = np.sum(covariances, axis=2)  # shape (n, b)
-        inv_uncertainties = 1.0 / (total_uncertainties + self.epsilon)  # shape (n, b)
+            x = embeddings_arr[0].copy()
+            p = np.maximum(sigma2[0].copy(), self.epsilon)
+            for i in range(1, n):
+                r = np.maximum(sigma2[i], self.epsilon)
+                k = p / (p + r + self.epsilon)
+                x += k[:, None] * (embeddings_arr[i] - x)
+                p = np.maximum((1.0 - k) * p, self.epsilon)
+            fused = x
+            d = embeddings_arr.shape[2]
+            fused_cov = np.repeat(p[:, None], d, axis=1)
+            total_uncertainties = sigma2 * float(d)
+        else:
+            covariances = sigma2[:, :, None] * np.ones(
+                (1, 1, embeddings_arr.shape[2]), dtype=np.float64
+            )
+            fused, fused_cov = kalman_fuse_diagonal_batch(
+                embeddings_arr,
+                covariances,
+                sort_by_certainty=self.sort_by_certainty,
+                epsilon=self.epsilon,
+            )
+            total_uncertainties = np.sum(covariances, axis=2)
+
+        inv_uncertainties = 1.0 / (total_uncertainties + self.epsilon)
         total_inv = np.sum(inv_uncertainties, axis=0)  # shape (b,)
-        # Normalize
         weights_per_module = inv_uncertainties / total_inv  # shape (n, b)
 
         # Convert to list of dicts
@@ -305,6 +370,9 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
                 "total_uncertainties": total_uncertainties[:, j].tolist(),
                 "sort_by_certainty": self.sort_by_certainty,
                 "variance": float(np.mean(fused_cov[j])),
+                "implementation": (
+                    "optimized_scalar_sigma2" if self.use_fast_scalar_path else "legacy"
+                ),
             }
             meta_list.append(meta)
 

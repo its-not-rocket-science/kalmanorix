@@ -1,0 +1,614 @@
+{
+  "benchmark": {
+    "path": "benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet",
+    "evaluated_split": "test",
+    "split_counts": {
+      "train": 18,
+      "validation": 6,
+      "test": 6
+    },
+    "max_queries": 150
+  },
+  "seed": 42,
+  "num_resamples": 500,
+  "specialists": [
+    "general_qa",
+    "biomedical",
+    "finance"
+  ],
+  "comparisons": {
+    "MeanFuser": {
+      "strategy_key": "mean",
+      "included": true,
+      "reason": "present"
+    },
+    "KalmanorixFuser": {
+      "strategy_key": "kalman",
+      "included": true,
+      "reason": "present"
+    },
+    "hard routing baseline": {
+      "strategy_key": "router_only_top1",
+      "included": true,
+      "reason": "present"
+    },
+    "all-routing + mean baseline": {
+      "strategy_key": "uniform_mean_fusion",
+      "included": true,
+      "reason": "present"
+    },
+    "LearnedGateFuser": {
+      "strategy_key": "learned_gate_fuser",
+      "included": false,
+      "reason": "LearnedGateFuser requires a two-specialist setup; current run uses 3 specialists"
+    }
+  },
+  "methods": {
+    "best_single_specialist": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.5182598399213523,
+          "ci95_low": 0.40876468265396737,
+          "ci95_high": 0.7153382790366964
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.3666666666666667,
+          "ci95_low": 0.225,
+          "ci95_high": 0.6210416666666665
+        },
+        "latency_ms": {
+          "mean": 25.72836416705589,
+          "ci95_low": 23.509987333121295,
+          "ci95_high": 28.108555371477447
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.43067655807339306,
+          0.43067655807339306,
+          1.0,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.43067655807339306
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.25,
+          0.25,
+          1.0,
+          0.25,
+          0.2,
+          0.25
+        ]
+      }
+    },
+    "fixed_weighted_mean_fusion": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "ci95_low": 0.3941567657076835,
+          "ci95_high": 0.5293525010921302
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.28055555555555556,
+          "ci95_low": 0.20833333333333334,
+          "ci95_high": 0.37222222222222223
+        },
+        "latency_ms": {
+          "mean": 22.67266583324575,
+          "ci95_low": 21.27678799994707,
+          "ci95_high": 24.210470166508458
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.38685280723454163
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.25,
+          0.2,
+          0.5,
+          0.2
+        ]
+      }
+    },
+    "kalman": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.5485813625458471,
+          "ci95_low": 0.40571067269545136,
+          "ci95_high": 0.7341058946734235
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.4055555555555556,
+          "ci95_low": 0.2222222222222222,
+          "ci95_high": 0.65
+        },
+        "latency_ms": {
+          "mean": 50.43228150013116,
+          "ci95_low": 45.900345374896766,
+          "ci95_high": 56.279434833716856
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          1.0,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.38685280723454163
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          1.0,
+          0.2,
+          0.5,
+          0.2
+        ]
+      }
+    },
+    "learned_linear_combiner": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "ci95_low": 0.48501606141185283,
+          "ci95_high": 0.8769765845238192
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.5694444444444445,
+          "ci95_low": 0.3333333333333333,
+          "ci95_high": 0.8333333333333334
+        },
+        "latency_ms": {
+          "mean": 23.31229183346295,
+          "ci95_low": 22.408227008562182,
+          "ci95_high": 24.228706500252883
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          1.0,
+          0.43067655807339306,
+          0.3562071871080222,
+          0.6309297535714575,
+          1.0,
+          0.6309297535714575
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          1.0,
+          0.25,
+          0.16666666666666666,
+          0.5,
+          1.0,
+          0.5
+        ]
+      }
+    },
+    "mean": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "ci95_low": 0.3941567657076835,
+          "ci95_high": 0.5293525010921302
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.28055555555555556,
+          "ci95_low": 0.20833333333333334,
+          "ci95_high": 0.37222222222222223
+        },
+        "latency_ms": {
+          "mean": 23.931927999607677,
+          "ci95_low": 22.498781637258013,
+          "ci95_high": 25.445257999914855
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.38685280723454163
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.25,
+          0.2,
+          0.5,
+          0.2
+        ]
+      }
+    },
+    "router_only_top1": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.6414150094710442,
+          "ci95_low": 0.4347389523141395,
+          "ci95_high": 0.8436010519408085
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.5277777777777778,
+          "ci95_low": 0.2638888888888889,
+          "ci95_high": 0.7916666666666666
+        },
+        "latency_ms": {
+          "mean": 26.143981333613436,
+          "ci95_low": 24.521249795740612,
+          "ci95_high": 27.854488316529565
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.3562071871080222,
+          0.43067655807339306,
+          1.0,
+          0.43067655807339306,
+          1.0,
+          0.6309297535714575
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.16666666666666666,
+          0.25,
+          1.0,
+          0.25,
+          1.0,
+          0.5
+        ]
+      }
+    },
+    "router_only_topk_mean": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4798559461587975,
+          "ci95_low": 0.4203185896417352,
+          "ci95_high": 0.5451992252610107
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.31111111111111106,
+          "ci95_low": 0.2388888888888889,
+          "ci95_high": 0.3961805555555552
+        },
+        "latency_ms": {
+          "mean": 26.957621166426787,
+          "ci95_low": 25.118657666401607,
+          "ci95_high": 28.967681857867927
+        },
+        "flops_proxy": {
+          "mean": 2.0,
+          "ci95_low": 2.0,
+          "ci95_high": 2.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.43067655807339306,
+          0.5,
+          0.43067655807339306
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.5,
+          0.25,
+          0.3333333333333333,
+          0.25
+        ]
+      }
+    },
+    "single_generalist_model": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "ci95_low": 0.48501606141185283,
+          "ci95_high": 0.8769765845238192
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.5694444444444445,
+          "ci95_low": 0.3333333333333333,
+          "ci95_high": 0.8333333333333334
+        },
+        "latency_ms": {
+          "mean": 23.16447583295182,
+          "ci95_low": 21.64707033322581,
+          "ci95_high": 24.86058233262156
+        },
+        "flops_proxy": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          1.0,
+          0.43067655807339306,
+          0.3562071871080222,
+          0.6309297535714575,
+          1.0,
+          0.6309297535714575
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          1.0,
+          0.25,
+          0.16666666666666666,
+          0.5,
+          1.0,
+          0.5
+        ]
+      }
+    },
+    "uniform_mean_fusion": {
+      "num_queries": 6,
+      "metrics": {
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "ci95_low": 0.3941567657076835,
+          "ci95_high": 0.5293525010921302
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "ci95_low": 1.0,
+          "ci95_high": 1.0
+        },
+        "mrr@10": {
+          "mean": 0.28055555555555556,
+          "ci95_low": 0.20833333333333334,
+          "ci95_high": 0.37222222222222223
+        },
+        "latency_ms": {
+          "mean": 22.439185166452564,
+          "ci95_low": 20.800107333040312,
+          "ci95_high": 23.984294999839523
+        },
+        "flops_proxy": {
+          "mean": 3.0,
+          "ci95_low": 3.0,
+          "ci95_high": 3.0
+        }
+      },
+      "query_level": {
+        "ndcg@10": [
+          0.5,
+          0.38685280723454163,
+          0.43067655807339306,
+          0.38685280723454163,
+          0.6309297535714575,
+          0.38685280723454163
+        ],
+        "recall@10": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mrr@10": [
+          0.3333333333333333,
+          0.2,
+          0.25,
+          0.2,
+          0.5,
+          0.2
+        ]
+      }
+    }
+  },
+  "paired_statistics": {
+    "kalman_vs_mean": {
+      "overall": {
+        "mrr@10": {
+          "mean_difference": 0.125,
+          "ci95_low": 0.0,
+          "ci95_high": 0.375,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.4082482904638631,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "ndcg@10": {
+          "mean_difference": 0.09488724032110114,
+          "ci95_low": 0.0,
+          "ci95_high": 0.28466172096330344,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.408248290463863,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "recall@10": {
+          "mean_difference": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.0,
+          "rank_biserial": 0.0,
+          "n_pairs": 6
+        }
+      },
+      "domains": {},
+      "configuration_hash": "91e439a5b15bdbfa357517df2987972162c5ae4e4fcfcd1fd515115ea0581e33"
+    }
+  },
+  "decision": {
+    "kalman_vs_mean": {
+      "verdict": "inconclusive",
+      "rules": {
+        "primary_metric": "ndcg@10",
+        "minimum_effect_size": 0.02,
+        "adjusted_p_value_threshold": 0.05,
+        "max_latency_ratio_vs_mean": 1.5,
+        "max_flops_ratio_vs_mean": 1.1
+      },
+      "observed": {
+        "primary_metric_delta": 0.09488724032110114,
+        "primary_metric_adjusted_p_value": 1.0,
+        "latency_ratio_vs_mean": 2.1073221305428427,
+        "flops_ratio_vs_mean": 1.0
+      },
+      "checks": {
+        "effect_size_ok": true,
+        "adjusted_p_value_ok": false,
+        "latency_ratio_ok": false,
+        "flops_ratio_ok": true
+      }
+    }
+  }
+}
