@@ -48,6 +48,12 @@ from .routing_evaluation import (
     evaluate_threshold_robustness,
     render_routing_eval_markdown,
 )
+from .kalman_prior_ablation import (
+    PriorAblationConfig,
+    fit_learned_linear_prior,
+    kalman_fuse_with_prior_modes,
+    run_kalman_prior_ablation,
+)
 from .kalman_covariance_ablation import (
     AblationConfig,
     CovarianceFitConfig,
@@ -105,4 +111,8 @@ __all__ = [
     "fit_scalar_variance",
     "fit_structured_covariance",
     "run_kalman_covariance_ablation",
+    "PriorAblationConfig",
+    "fit_learned_linear_prior",
+    "kalman_fuse_with_prior_modes",
+    "run_kalman_prior_ablation",
 ]
