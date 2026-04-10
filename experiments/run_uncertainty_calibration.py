@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from kalmanorix.benchmarks.uncertainty_calibration import run_uncertainty_calibration
+from kalmanorix.benchmarks.uncertainty_calibration import ValidationPowerConfig, run_uncertainty_calibration
 
 
 def main() -> None:
@@ -28,8 +28,21 @@ def main() -> None:
         ],
         help="Held-out objective used to fit sigma2 calibrators.",
     )
+    parser.add_argument("--min-validation-total", type=int, default=8)
+    parser.add_argument("--min-validation-per-domain", type=int, default=2)
+    parser.add_argument("--min-effective-support-per-specialist", type=int, default=6)
+    parser.add_argument("--calibrator-min-samples", type=int, default=8)
     args = parser.parse_args()
-    run_uncertainty_calibration(output_dir=args.output_dir, objective=args.objective)
+    run_uncertainty_calibration(
+        output_dir=args.output_dir,
+        objective=args.objective,
+        power_config=ValidationPowerConfig(
+            min_validation_total=args.min_validation_total,
+            min_validation_per_domain=args.min_validation_per_domain,
+            min_effective_support_per_specialist=args.min_effective_support_per_specialist,
+            calibrator_min_samples=args.calibrator_min_samples,
+        ),
+    )
 
 
 if __name__ == "__main__":

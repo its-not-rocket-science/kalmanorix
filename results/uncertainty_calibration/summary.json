@@ -1,65 +1,192 @@
 {
+  "status": "sufficient",
   "objective": "rank_error_proxy",
   "sigma2_method": "centroid_distance_sigma2",
   "split": {
     "train": [
+      7
+    ],
+    "validation": [
       0,
       1,
       2,
       3,
-      4,
       5,
-      6
-    ],
-    "validation": [
-      7,
+      6,
       8,
       9,
-      10
+      10,
+      11
     ],
     "test": [
-      11,
+      4,
       12,
       13,
       14
+    ]
+  },
+  "validation_power": {
+    "status": "sufficient",
+    "configured_minimums": {
+      "min_validation_total": 8,
+      "min_validation_per_domain": 2,
+      "min_effective_support_per_specialist": 6,
+      "min_train_total": 1,
+      "min_test_total": 3,
+      "calibrator_min_samples": 8
+    },
+    "validation_count": 10,
+    "validation_by_domain": {
+      "cook": 4,
+      "mixed": 2,
+      "tech": 4
+    },
+    "specialist_effective_support": {
+      "tech": 6,
+      "cook": 6
+    },
+    "strata_in_validation": {
+      "tech:direct": 4,
+      "cook:direct": 4,
+      "mixed:cross_domain_compositional": 2
+    },
+    "split_counts": {
+      "train": 1,
+      "validation": 10,
+      "test": 4
+    },
+    "split_by_domain": {
+      "train": {
+        "cook": 1
+      },
+      "validation": {
+        "cook": 4,
+        "mixed": 2,
+        "tech": 4
+      },
+      "test": {
+        "mixed": 1,
+        "tech": 3
+      }
+    },
+    "failures": [],
+    "auto_enlarged_validation": true
+  },
+  "stratification": {
+    "query_labels": [
+      {
+        "domain": "tech",
+        "query_type": "direct",
+        "stratum": "tech:direct"
+      },
+      {
+        "domain": "tech",
+        "query_type": "direct",
+        "stratum": "tech:direct"
+      },
+      {
+        "domain": "tech",
+        "query_type": "direct",
+        "stratum": "tech:direct"
+      },
+      {
+        "domain": "tech",
+        "query_type": "direct",
+        "stratum": "tech:direct"
+      },
+      {
+        "domain": "tech",
+        "query_type": "direct",
+        "stratum": "tech:direct"
+      },
+      {
+        "domain": "cook",
+        "query_type": "direct",
+        "stratum": "cook:direct"
+      },
+      {
+        "domain": "cook",
+        "query_type": "direct",
+        "stratum": "cook:direct"
+      },
+      {
+        "domain": "cook",
+        "query_type": "direct",
+        "stratum": "cook:direct"
+      },
+      {
+        "domain": "cook",
+        "query_type": "direct",
+        "stratum": "cook:direct"
+      },
+      {
+        "domain": "cook",
+        "query_type": "direct",
+        "stratum": "cook:direct"
+      },
+      {
+        "domain": "mixed",
+        "query_type": "cross_domain_compositional",
+        "stratum": "mixed:cross_domain_compositional"
+      },
+      {
+        "domain": "mixed",
+        "query_type": "cross_domain_compositional",
+        "stratum": "mixed:cross_domain_compositional"
+      },
+      {
+        "domain": "tech",
+        "query_type": "direct",
+        "stratum": "tech:direct"
+      },
+      {
+        "domain": "tech",
+        "query_type": "cross_domain_compositional",
+        "stratum": "tech:cross_domain_compositional"
+      },
+      {
+        "domain": "mixed",
+        "query_type": "cross_domain_compositional",
+        "stratum": "mixed:cross_domain_compositional"
+      }
     ]
   },
   "leakage_checks": [
     {
       "module": "tech",
       "train_indices": [
+        7
+      ],
+      "validation_indices": [
         0,
         1,
         2,
         3,
-        4,
         5,
-        6
-      ],
-      "validation_indices": [
-        7,
+        6,
         8,
         9,
-        10
+        10,
+        11
       ],
       "intersection": []
     },
     {
       "module": "cook",
       "train_indices": [
+        7
+      ],
+      "validation_indices": [
         0,
         1,
         2,
         3,
-        4,
         5,
-        6
-      ],
-      "validation_indices": [
-        7,
+        6,
         8,
         9,
-        10
+        10,
+        11
       ],
       "intersection": []
     }
@@ -68,134 +195,138 @@
     {
       "module": "tech",
       "calibrator": "affine",
-      "objective_mse": 0.09198919898764485,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.0017063700585273432,
+      "used_fallback": false,
+      "n_train": 10
     },
     {
       "module": "tech",
       "calibrator": "temperature",
-      "objective_mse": 0.09198919898764485,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.0017074183074077486,
+      "used_fallback": false,
+      "n_train": 10
     },
     {
       "module": "tech",
       "calibrator": "isotonic",
-      "objective_mse": 0.09198919898764485,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.0013393964356575962,
+      "used_fallback": false,
+      "n_train": 10
     },
     {
       "module": "tech",
       "calibrator": "piecewise_monotonic",
-      "objective_mse": 0.09198919898764485,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.001743637227560401,
+      "used_fallback": false,
+      "n_train": 10
     },
     {
       "module": "cook",
       "calibrator": "affine",
-      "objective_mse": 0.07564720025249319,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.0015557928799378672,
+      "used_fallback": false,
+      "n_train": 10
     },
     {
       "module": "cook",
       "calibrator": "temperature",
-      "objective_mse": 0.07564720025249319,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.0015770230239561787,
+      "used_fallback": false,
+      "n_train": 10
     },
     {
       "module": "cook",
       "calibrator": "isotonic",
-      "objective_mse": 0.07564720025249319,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.0011052295918367347,
+      "used_fallback": false,
+      "n_train": 10
     },
     {
       "module": "cook",
       "calibrator": "piecewise_monotonic",
-      "objective_mse": 0.07564720025249319,
-      "used_fallback": true,
-      "n_train": 4
+      "objective_mse": 0.0029422109452772603,
+      "used_fallback": false,
+      "n_train": 10
     }
   ],
   "selected_calibrators": {
     "tech": {
-      "name": "identity",
-      "mse": 0.09198919898764485,
-      "fallback": true
+      "name": "isotonic",
+      "mse": 0.0013393964356575962,
+      "fallback": false,
+      "sufficiently_powered": true,
+      "effective_support": 6
     },
     "cook": {
-      "name": "identity",
-      "mse": 0.07564720025249319,
-      "fallback": true
+      "name": "isotonic",
+      "mse": 0.0011052295918367347,
+      "fallback": false,
+      "sufficiently_powered": true,
+      "effective_support": 6
     }
   },
   "uncertainty_diagnostics": {
     "tech": {
       "pre": {
         "reliability": {
-          "ece": 0.22788375458484128,
-          "mean_predicted": 0.2903837545848413,
-          "mean_realized": 0.0625,
+          "ece": 0.24572770018263226,
+          "mean_predicted": 0.2769777001826323,
+          "mean_realized": 0.03125,
           "bin_predicted": [
             0.235464689653201,
             NaN,
             NaN,
             NaN,
+            0.27071286383785925,
+            NaN,
             NaN,
             NaN,
             0.29488371763328797,
-            NaN,
-            0.30684952960618095,
-            0.32433708144669526
+            0.30684952960618095
           ],
           "bin_realized": [
             0.0,
             NaN,
             NaN,
             NaN,
+            0.0,
+            NaN,
             NaN,
             NaN,
             0.125,
-            NaN,
-            0.0,
-            0.125
+            0.0
           ],
           "bin_counts": [
             1,
             0,
             0,
             0,
-            0,
-            0,
             1,
+            0,
+            0,
             0,
             1,
             1
           ]
         },
-        "spearman": 0.4472135954999579
+        "spearman": 0.2581988897471611
       },
       "post": {
         "reliability": {
-          "ece": 0.22788375458484128,
-          "mean_predicted": 0.2903837545848413,
-          "mean_realized": 0.0625,
+          "ece": 0.03025786403355945,
+          "mean_predicted": 0.021316500344886864,
+          "mean_realized": 0.03125,
           "bin_predicted": [
-            0.235464689653201,
+            0.01910725409752344,
             NaN,
             NaN,
             NaN,
             NaN,
             NaN,
-            0.29488371763328797,
             NaN,
-            0.30684952960618095,
-            0.32433708144669526
+            0.02154147465936918,
+            NaN,
+            0.022308636311327415
           ],
           "bin_realized": [
             0.0,
@@ -204,10 +335,10 @@
             NaN,
             NaN,
             NaN,
-            0.125,
             NaN,
             0.0,
-            0.125
+            NaN,
+            0.0625
           ],
           "bin_counts": [
             1,
@@ -216,27 +347,27 @@
             0,
             0,
             0,
-            1,
             0,
             1,
-            1
+            0,
+            2
           ]
         },
-        "spearman": 0.4472135954999579
+        "spearman": 0.2581988897471611
       }
     },
     "cook": {
       "pre": {
         "reliability": {
-          "ece": 0.2150943370898214,
-          "mean_predicted": 0.3088443370898214,
-          "mean_realized": 0.09375,
+          "ece": 0.24751519788643989,
+          "mean_predicted": 0.3100151978864399,
+          "mean_realized": 0.0625,
           "bin_predicted": [
             0.2779714904123971,
             NaN,
             NaN,
-            0.3034302803898825,
-            0.30885678592824256,
+            NaN,
+            0.3084852547522995,
             NaN,
             NaN,
             NaN,
@@ -247,7 +378,7 @@
             0.25,
             NaN,
             NaN,
-            0.125,
+            NaN,
             0.0,
             NaN,
             NaN,
@@ -259,8 +390,8 @@
             1,
             0,
             0,
-            1,
-            1,
+            0,
+            2,
             0,
             0,
             0,
@@ -268,33 +399,33 @@
             1
           ]
         },
-        "spearman": -0.9486832980505139
+        "spearman": -0.7745966692414834
       },
       "post": {
         "reliability": {
-          "ece": 0.2150943370898214,
-          "mean_predicted": 0.3088443370898214,
-          "mean_realized": 0.09375,
+          "ece": 0.10292318434167916,
+          "mean_predicted": 0.04042318434217916,
+          "mean_realized": 0.0625,
           "bin_predicted": [
-            0.2779714904123971,
-            NaN,
-            NaN,
-            0.3034302803898825,
-            0.30885678592824256,
+            1e-12,
             NaN,
             NaN,
             NaN,
             NaN,
-            0.34511879162876347
+            NaN,
+            0.0375,
+            NaN,
+            NaN,
+            0.062096368683858316
           ],
           "bin_realized": [
             0.25,
             NaN,
             NaN,
-            0.125,
+            NaN,
+            NaN,
+            NaN,
             0.0,
-            NaN,
-            NaN,
             NaN,
             NaN,
             0.0
@@ -303,28 +434,28 @@
             1,
             0,
             0,
+            0,
+            0,
+            0,
             1,
-            1,
             0,
             0,
-            0,
-            0,
-            1
+            2
           ]
         },
-        "spearman": -0.9486832980505139
+        "spearman": -0.7745966692414834
       }
     }
   },
   "benchmark_delta": {
     "pre": {
-      "kalman_mrr": 0.6666666666666666,
-      "mean_mrr": 0.6666666666666666,
+      "kalman_mrr": 0.8333333333333334,
+      "mean_mrr": 0.8333333333333334,
       "delta": 0.0
     },
     "post": {
-      "kalman_mrr": 0.6666666666666666,
-      "mean_mrr": 0.6666666666666666,
+      "kalman_mrr": 0.8333333333333334,
+      "mean_mrr": 0.8333333333333334,
       "delta": 0.0
     },
     "delta_change": 0.0
@@ -342,5 +473,5 @@
       "src/kalmanorix/benchmarks/uncertainty_ablation.py"
     ]
   },
-  "notes": "Calibration was fit on validation split only and applied to held-out test split."
+  "notes": "Calibration fit uses validation-only data with stratified splits and power checks."
 }

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
@@ -16,6 +17,7 @@ from kalmanorix.uncertainty import UncertaintyMethodConfig, create_uncertainty_m
 from kalmanorix.uncertainty_calibration import (
     CalibratorName,
     CalibrationFit,
+    ScalarCalibrator,
     apply_calibrator_to_sigma2_fn,
     fit_scalar_calibrator,
     reliability_summary,
@@ -33,6 +35,22 @@ class QueryEvaluation:
     hit_at_5: float
     relevant_distance: float
     relevant_score: float
+
+
+@dataclass(frozen=True)
+class ValidationPowerConfig:
+    min_validation_total: int = 8
+    min_validation_per_domain: int = 2
+    min_effective_support_per_specialist: int = 6
+    min_train_total: int = 1
+    min_test_total: int = 3
+    calibrator_min_samples: int = 8
+
+
+_DOMAIN_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "tech": ("battery", "charging", "charger", "cpu", "gpu", "camera", "usb", "thermal", "power", "smartphone", "driver", "pipeline", "pd", "cable"),
+    "cook": ("braise", "simmer", "sauce", "oven", "stew", "cook", "recipe", "saute", "food processor", "tender", "vegetables"),
+}
 
 
 def _token_embedder(vocab: list[str], boost: tuple[str, str]) -> Callable[[str], np.ndarray]:
@@ -115,15 +133,145 @@ def _target_from_eval(row: QueryEvaluation, objective: str, max_rank: int) -> fl
     raise ValueError(f"Unknown objective: {objective}")
 
 
-def _split_indices(n: int) -> dict[str, list[int]]:
-    train_end = max(1, int(0.5 * n))
-    val_end = max(train_end + 1, int(0.75 * n))
-    val_end = min(val_end, n)
-    return {
-        "train": list(range(0, train_end)),
-        "validation": list(range(train_end, val_end)),
-        "test": list(range(val_end, n)),
+def _infer_domain(query: str) -> str:
+    lower = query.lower()
+    hit_tech = any(token in lower for token in _DOMAIN_KEYWORDS["tech"])
+    hit_cook = any(token in lower for token in _DOMAIN_KEYWORDS["cook"])
+    if hit_tech and hit_cook:
+        return "mixed"
+    if hit_tech:
+        return "tech"
+    if hit_cook:
+        return "cook"
+    return "mixed"
+
+
+def _infer_query_type(query: str) -> str:
+    lower = query.lower()
+    if any(marker in lower for marker in (" like ", " unlike ", "—", ":", "(", ")")):
+        return "cross_domain_compositional"
+    if len(lower.split()) >= 9:
+        return "long_form"
+    return "direct"
+
+
+def _make_strata(queries: list[str]) -> list[dict[str, str]]:
+    labels: list[dict[str, str]] = []
+    for query in queries:
+        domain = _infer_domain(query)
+        query_type = _infer_query_type(query)
+        labels.append({"domain": domain, "query_type": query_type, "stratum": f"{domain}:{query_type}"})
+    return labels
+
+
+def _specialist_support(split: list[int], labels: list[dict[str, str]]) -> dict[str, int]:
+    support = {"tech": 0, "cook": 0}
+    for idx in split:
+        domain = labels[idx]["domain"]
+        if domain in {"tech", "mixed"}:
+            support["tech"] += 1
+        if domain in {"cook", "mixed"}:
+            support["cook"] += 1
+    return support
+
+
+def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tuple[dict[str, list[int]], dict[str, Any]]:
+    n = len(queries)
+    labels = _make_strata(queries)
+    by_stratum: dict[str, list[int]] = defaultdict(list)
+    for idx, label in enumerate(labels):
+        by_stratum[label["stratum"]].append(idx)
+
+    split = {"train": [], "validation": [], "test": []}
+    for _, members in sorted(by_stratum.items()):
+        local = sorted(members)
+        m = len(local)
+        n_val = max(1, int(round(0.25 * m)))
+        n_test = max(1, int(round(0.25 * m))) if m >= 3 else 1
+        if n_val + n_test >= m:
+            n_val = 1
+            n_test = 1
+        n_train = m - n_val - n_test
+        split["train"].extend(local[:n_train])
+        split["validation"].extend(local[n_train : n_train + n_val])
+        split["test"].extend(local[n_train + n_val :])
+
+    split = {k: sorted(v) for k, v in split.items()}
+
+    def _domain_counts(indices: list[int]) -> dict[str, int]:
+        counts = Counter(labels[i]["domain"] for i in indices)
+        return {k: int(v) for k, v in sorted(counts.items())}
+
+    def _move_to_validation(predicate: Callable[[int], bool], needed: int) -> int:
+        moved = 0
+        for src in ("train", "test"):
+            if src == "test" and len(split["test"]) <= cfg.min_test_total:
+                continue
+            if src == "train" and len(split["train"]) <= cfg.min_train_total:
+                continue
+            candidates = [i for i in split[src] if predicate(i)]
+            for idx in candidates:
+                if src == "test" and len(split["test"]) <= cfg.min_test_total:
+                    return moved
+                if src == "train" and len(split["train"]) <= cfg.min_train_total:
+                    return moved
+                split[src].remove(idx)
+                split["validation"].append(idx)
+                moved += 1
+                if moved >= needed:
+                    return moved
+        return moved
+
+    if len(split["validation"]) < cfg.min_validation_total:
+        _move_to_validation(lambda _: True, cfg.min_validation_total - len(split["validation"]))
+
+    existing_domains = sorted(set(l["domain"] for l in labels))
+    for domain in existing_domains:
+        current = _domain_counts(split["validation"]).get(domain, 0)
+        if current < cfg.min_validation_per_domain:
+            _move_to_validation(lambda i, d=domain: labels[i]["domain"] == d, cfg.min_validation_per_domain - current)
+
+    support = _specialist_support(split["validation"], labels)
+    for specialist, current in support.items():
+        if current < cfg.min_effective_support_per_specialist:
+            if specialist == "tech":
+                predicate = lambda i: labels[i]["domain"] in {"tech", "mixed"}
+            else:
+                predicate = lambda i: labels[i]["domain"] in {"cook", "mixed"}
+            _move_to_validation(predicate, cfg.min_effective_support_per_specialist - current)
+
+    split = {k: sorted(v) for k, v in split.items()}
+    val_domain_counts = _domain_counts(split["validation"])
+    effective_support = _specialist_support(split["validation"], labels)
+
+    failures: list[str] = []
+    if len(split["validation"]) < cfg.min_validation_total:
+        failures.append("min_validation_total")
+    for domain in existing_domains:
+        if val_domain_counts.get(domain, 0) < cfg.min_validation_per_domain:
+            failures.append(f"min_validation_per_domain:{domain}")
+    for specialist, count in effective_support.items():
+        if count < cfg.min_effective_support_per_specialist:
+            failures.append(f"min_effective_support_per_specialist:{specialist}")
+
+    power_report = {
+        "status": "sufficient" if not failures else "underpowered_validation",
+        "configured_minimums": asdict(cfg),
+        "validation_count": len(split["validation"]),
+        "validation_by_domain": val_domain_counts,
+        "specialist_effective_support": effective_support,
+        "strata_in_validation": dict(Counter(labels[i]["stratum"] for i in split["validation"])),
+        "split_counts": {k: len(v) for k, v in split.items()},
+        "split_by_domain": {
+            "train": _domain_counts(split["train"]),
+            "validation": val_domain_counts,
+            "test": _domain_counts(split["test"]),
+        },
+        "failures": failures,
+        "auto_enlarged_validation": len(split["validation"]) > max(1, int(round(0.25 * n))),
+        "labels": labels,
     }
+    return split, power_report
 
 
 def _eval_fusers(village: Village, queries: list[str], targets: list[int], docs: list[str], split: list[int]) -> dict[str, float]:
@@ -174,17 +322,20 @@ def run_uncertainty_calibration(
         "isotonic",
         "piecewise_monotonic",
     ),
+    power_config: ValidationPowerConfig = ValidationPowerConfig(),
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     repo_root = Path(__file__).resolve().parents[3]
 
     village, queries, targets = _build_village(sigma2_method)
     docs = build_toy_corpus(british_spelling=False).docs
-    split = _split_indices(len(queries))
+    split, power_report = _build_split_indices(queries, power_config)
 
     leakage_checks: list[dict[str, Any]] = []
     cal_records: list[dict[str, Any]] = []
     fitted_by_module: dict[str, CalibrationFit] = {}
+
+    sufficiently_powered = power_report["status"] == "sufficient"
 
     for module in village.modules:
         evals = _evaluate_specialist(module, queries, targets, docs)
@@ -203,9 +354,38 @@ def run_uncertainty_calibration(
             }
         )
 
+        if not sufficiently_powered:
+            fit = CalibrationFit(
+                calibrator=ScalarCalibrator(
+                    name="identity",
+                    params={"reason": "underpowered_validation", "failures": power_report["failures"]},
+                ),
+                n_train=int(len(val_idx)),
+                used_fallback=True,
+                objective_mse=float(np.mean((val_sigma - val_target) ** 2)) if len(val_idx) else 0.0,
+            )
+            cal_records.append(
+                {
+                    "module": module.name,
+                    "calibrator": "identity",
+                    "objective_mse": fit.objective_mse,
+                    "used_fallback": True,
+                    "n_train": fit.n_train,
+                    "skipped_due_to_underpowered_validation": True,
+                }
+            )
+            fitted_by_module[module.name] = fit
+            fit.calibrator.to_json(output_dir / f"calibrator_{module.name}.json")
+            continue
+
         best_fit: CalibrationFit | None = None
         for method in calibrators:
-            fit = fit_scalar_calibrator(val_sigma, val_target, method)
+            fit = fit_scalar_calibrator(
+                val_sigma,
+                val_target,
+                method,
+                min_samples=power_config.calibrator_min_samples,
+            )
             cal_records.append(
                 {
                     "module": module.name,
@@ -257,13 +437,24 @@ def run_uncertainty_calibration(
     post_bench = _eval_fusers(Village(calibrated_modules), queries, targets, docs, test_idx)
 
     summary = {
+        "status": power_report["status"],
         "objective": objective,
         "sigma2_method": sigma2_method,
         "split": split,
+        "validation_power": {k: v for k, v in power_report.items() if k != "labels"},
+        "stratification": {
+            "query_labels": power_report["labels"],
+        },
         "leakage_checks": leakage_checks,
         "calibration_candidates": cal_records,
         "selected_calibrators": {
-            m: {"name": fit.calibrator.name, "mse": fit.objective_mse, "fallback": fit.used_fallback}
+            m: {
+                "name": fit.calibrator.name,
+                "mse": fit.objective_mse,
+                "fallback": fit.used_fallback,
+                "sufficiently_powered": sufficiently_powered,
+                "effective_support": power_report["specialist_effective_support"].get(m, 0),
+            }
             for m, fit in fitted_by_module.items()
         },
         "uncertainty_diagnostics": diagnostics,
@@ -273,7 +464,7 @@ def run_uncertainty_calibration(
             "delta_change": post_bench["delta"] - pre_bench["delta"],
         },
         "sigma2_path_audit": _audit_sigma2_paths(repo_root),
-        "notes": "Calibration was fit on validation split only and applied to held-out test split.",
+        "notes": "Calibration fit uses validation-only data with stratified splits and power checks.",
     }
 
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
