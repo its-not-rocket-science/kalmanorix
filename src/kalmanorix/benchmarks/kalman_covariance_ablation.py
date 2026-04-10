@@ -1,0 +1,322 @@
+"""Kalman covariance-structure ablation benchmark.
+
+Compares four fusion variants on a shared synthetic retrieval benchmark:
+- mean fusion
+- scalar Kalman (single variance per specialist)
+- diagonal Kalman (per-dimension variance)
+- structured Kalman (diagonal + low-rank covariance)
+
+Covariance fitting is performed on held-out validation residuals only.
+"""
+
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+import json
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+
+from kalmanorix.kalman_engine.kalman_fuser import (
+    kalman_fuse_diagonal,
+    kalman_fuse_structured,
+)
+from kalmanorix.kalman_engine.structured_covariance import StructuredCovariance
+
+
+@dataclass(frozen=True)
+class CovarianceFitConfig:
+    diagonal_floor: float = 1e-6
+    shrinkage_to_diagonal: float = 0.1
+    max_lowrank_fro_norm: float = 10.0
+    lowrank_rank: int = 4
+
+
+@dataclass(frozen=True)
+class AblationConfig:
+    random_seed: int = 0
+    dimension: int = 32
+    n_docs: int = 128
+    n_val: int = 200
+    n_test: int = 300
+    n_specialists: int = 3
+    fit: CovarianceFitConfig = CovarianceFitConfig()
+
+
+@dataclass(frozen=True)
+class RetrievalMetrics:
+    recall_at_1: float
+    recall_at_5: float
+    mrr_at_10: float
+
+
+def _l2_normalize(x: np.ndarray) -> np.ndarray:
+    return x / (np.linalg.norm(x, axis=1, keepdims=True) + 1e-12)
+
+
+def project_psd(matrix: np.ndarray, eigenvalue_floor: float = 0.0) -> np.ndarray:
+    """Project a symmetric matrix to PSD cone by clipping eigenvalues."""
+    sym = 0.5 * (matrix + matrix.T)
+    evals, evecs = np.linalg.eigh(sym)
+    evals_clipped = np.clip(evals, eigenvalue_floor, None)
+    return (evecs * evals_clipped[None, :]) @ evecs.T
+
+
+def _stable_diagonal(diagonal: np.ndarray, floor: float) -> np.ndarray:
+    return np.maximum(np.asarray(diagonal, dtype=np.float64), floor)
+
+
+def fit_scalar_variance(residuals: np.ndarray, diagonal_floor: float = 1e-6) -> float:
+    sq = np.asarray(residuals, dtype=np.float64) ** 2
+    return float(max(np.mean(sq), diagonal_floor))
+
+
+def fit_diagonal_variance(residuals: np.ndarray, diagonal_floor: float = 1e-6) -> np.ndarray:
+    var = np.var(np.asarray(residuals, dtype=np.float64), axis=0, ddof=1)
+    return _stable_diagonal(var, diagonal_floor)
+
+
+def fit_structured_covariance(
+    residuals: np.ndarray,
+    *,
+    rank: int,
+    diagonal_floor: float = 1e-6,
+    shrinkage_to_diagonal: float = 0.1,
+    max_lowrank_fro_norm: float = 10.0,
+) -> StructuredCovariance:
+    """Fit diagonal + low-rank covariance from residuals using PCA/SVD structure."""
+    err = np.asarray(residuals, dtype=np.float64)
+    if err.ndim != 2:
+        raise ValueError("residuals must be (n_samples, d)")
+
+    n_samples, d = err.shape
+    if n_samples < 2:
+        diagonal = np.full(d, diagonal_floor, dtype=np.float64)
+        return StructuredCovariance.from_diagonal(diagonal)
+
+    centered = err - np.mean(err, axis=0, keepdims=True)
+    cov = (centered.T @ centered) / max(n_samples - 1, 1)
+    cov = project_psd(cov, eigenvalue_floor=0.0)
+
+    shrink = float(np.clip(shrinkage_to_diagonal, 0.0, 1.0))
+    diag_cov = np.diag(np.diag(cov))
+    cov_shrunk = (1.0 - shrink) * cov + shrink * diag_cov
+    cov_shrunk = project_psd(cov_shrunk, eigenvalue_floor=0.0)
+
+    diagonal = _stable_diagonal(np.diag(cov_shrunk), diagonal_floor)
+
+    k = int(max(0, min(rank, d)))
+    if k == 0:
+        return StructuredCovariance.from_diagonal(diagonal)
+
+    offdiag = cov_shrunk - np.diag(np.diag(cov_shrunk))
+    offdiag = project_psd(offdiag, eigenvalue_floor=0.0)
+    evals, evecs = np.linalg.eigh(offdiag)
+    order = np.argsort(evals)[::-1]
+    evals = evals[order]
+    evecs = evecs[:, order]
+
+    positive = evals > 1e-12
+    if not np.any(positive):
+        return StructuredCovariance.from_diagonal(diagonal)
+
+    evals = evals[positive][:k]
+    evecs = evecs[:, positive][:, :k]
+    if evals.size == 0:
+        return StructuredCovariance.from_diagonal(diagonal)
+
+    lowrank = evecs * np.sqrt(evals)[None, :]
+    fro = float(np.linalg.norm(lowrank, ord="fro"))
+    if fro > max_lowrank_fro_norm and fro > 0:
+        lowrank = lowrank * (max_lowrank_fro_norm / fro)
+
+    return StructuredCovariance.from_lowrank(diagonal=diagonal, lowrank_factor=lowrank)
+
+
+def _make_ground_truth_covariances(cfg: AblationConfig, rng: np.random.Generator) -> list[np.ndarray]:
+    covs: list[np.ndarray] = []
+    d = cfg.dimension
+    base_scales = np.linspace(0.03, 0.12, cfg.n_specialists)
+
+    for idx, base in enumerate(base_scales):
+        diag = np.linspace(base, base * (1.0 + 0.7 * (idx + 1)), d)
+        cov = np.diag(diag)
+        if idx % 2 == 1:
+            rank = min(3, d // 4)
+            vecs = rng.normal(size=(d, rank))
+            vecs /= np.linalg.norm(vecs, axis=0, keepdims=True) + 1e-12
+            strengths = np.linspace(base * 0.5, base * 1.2, rank)
+            cov += (vecs * strengths[None, :]) @ vecs.T
+        covs.append(project_psd(cov, eigenvalue_floor=1e-8))
+
+    return covs
+
+
+def _sample_problem(cfg: AblationConfig) -> dict[str, Any]:
+    rng = np.random.default_rng(cfg.random_seed)
+    d = cfg.dimension
+
+    docs = rng.normal(size=(cfg.n_docs, d))
+    docs = _l2_normalize(docs)
+
+    val_true = _l2_normalize(rng.normal(size=(cfg.n_val, d)))
+    test_true = _l2_normalize(rng.normal(size=(cfg.n_test, d)))
+
+    val_targets = np.argmax(val_true @ docs.T, axis=1)
+    test_targets = np.argmax(test_true @ docs.T, axis=1)
+
+    true_covs = _make_ground_truth_covariances(cfg, rng)
+
+    val_obs: list[np.ndarray] = []
+    test_obs: list[np.ndarray] = []
+    for cov in true_covs:
+        val_noise = rng.multivariate_normal(np.zeros(d), cov, size=cfg.n_val)
+        test_noise = rng.multivariate_normal(np.zeros(d), cov, size=cfg.n_test)
+        val_obs.append(_l2_normalize(val_true + val_noise))
+        test_obs.append(_l2_normalize(test_true + test_noise))
+
+    return {
+        "docs": docs,
+        "val_true": val_true,
+        "test_true": test_true,
+        "val_targets": val_targets,
+        "test_targets": test_targets,
+        "val_obs": val_obs,
+        "test_obs": test_obs,
+    }
+
+
+def _retrieval_metrics(queries: np.ndarray, docs: np.ndarray, targets: np.ndarray) -> RetrievalMetrics:
+    scores = _l2_normalize(queries) @ _l2_normalize(docs).T
+    ranked = np.argsort(-scores, axis=1)
+
+    hit1 = np.mean(ranked[:, 0] == targets)
+    hit5 = np.mean([t in ranked[i, :5] for i, t in enumerate(targets)])
+
+    rr = []
+    for i, t in enumerate(targets):
+        top10 = ranked[i, :10]
+        loc = np.where(top10 == t)[0]
+        rr.append(0.0 if loc.size == 0 else 1.0 / float(loc[0] + 1))
+
+    return RetrievalMetrics(float(hit1), float(hit5), float(np.mean(rr)))
+
+
+def _fuse_queries(
+    method: str,
+    observations: list[np.ndarray],
+    scalar_vars: list[float],
+    diag_vars: list[np.ndarray],
+    structured_covs: list[StructuredCovariance],
+) -> np.ndarray:
+    n_q = observations[0].shape[0]
+    fused = []
+
+    for q_idx in range(n_q):
+        embs = [obs[q_idx] for obs in observations]
+        if method == "mean_fusion":
+            fused_vec = np.mean(np.stack(embs, axis=0), axis=0)
+        elif method == "scalar_kalman":
+            covs = [np.full_like(embs[0], s, dtype=np.float64) for s in scalar_vars]
+            fused_vec, _ = kalman_fuse_diagonal(embs, covs)
+        elif method == "diagonal_kalman":
+            fused_vec, _ = kalman_fuse_diagonal(embs, diag_vars)
+        elif method == "structured_kalman":
+            fused_vec, _ = kalman_fuse_structured(embs, structured_covs)
+        else:
+            raise ValueError(f"Unknown fusion method: {method}")
+        fused.append(fused_vec)
+
+    return np.asarray(fused, dtype=np.float64)
+
+
+def run_kalman_covariance_ablation(
+    output_dir: Path = Path("results/kalman_covariance_ablation"),
+    config: AblationConfig | None = None,
+) -> dict[str, Any]:
+    """Run covariance-structure ablation and write summary/report artifacts."""
+    cfg = config or AblationConfig()
+    problem = _sample_problem(cfg)
+
+    val_true = problem["val_true"]
+    val_obs: list[np.ndarray] = problem["val_obs"]
+
+    scalar_vars = []
+    diag_vars = []
+    structured_covs = []
+    fit_cfg = cfg.fit
+
+    for specialist_obs in val_obs:
+        residuals = specialist_obs - val_true
+        scalar_vars.append(fit_scalar_variance(residuals, fit_cfg.diagonal_floor))
+        diag_vars.append(fit_diagonal_variance(residuals, fit_cfg.diagonal_floor))
+        structured_covs.append(
+            fit_structured_covariance(
+                residuals,
+                rank=fit_cfg.lowrank_rank,
+                diagonal_floor=fit_cfg.diagonal_floor,
+                shrinkage_to_diagonal=fit_cfg.shrinkage_to_diagonal,
+                max_lowrank_fro_norm=fit_cfg.max_lowrank_fro_norm,
+            )
+        )
+
+    methods = ["mean_fusion", "scalar_kalman", "diagonal_kalman", "structured_kalman"]
+    metrics: dict[str, dict[str, float]] = {}
+    for method in methods:
+        fused = _fuse_queries(
+            method,
+            problem["test_obs"],
+            scalar_vars,
+            diag_vars,
+            structured_covs,
+        )
+        m = _retrieval_metrics(fused, problem["docs"], problem["test_targets"])
+        metrics[method] = asdict(m)
+
+    summary = {
+        "config": asdict(cfg),
+        "covariance_fit": {
+            "scalar_variances": scalar_vars,
+            "diagonal_shapes": [list(v.shape) for v in diag_vars],
+            "structured_ranks": [cov.rank for cov in structured_covs],
+        },
+        "metrics": metrics,
+        "question": "Do richer uncertainty families justify complexity?",
+        "answer": _answer(metrics),
+    }
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "report.md").write_text(_render_report(summary), encoding="utf-8")
+
+    return summary
+
+
+def _answer(metrics: dict[str, dict[str, float]]) -> str:
+    best = max(metrics.items(), key=lambda kv: kv[1]["recall_at_1"])[0]
+    if best in {"diagonal_kalman", "structured_kalman"}:
+        return "Richer uncertainty improved retrieval enough to justify additional covariance structure in this benchmark."
+    return "Richer covariance did not clearly beat simpler baselines in this benchmark setting."
+
+
+def _render_report(summary: dict[str, Any]) -> str:
+    lines = [
+        "# Kalman Covariance Ablation",
+        "",
+        summary["question"],
+        "",
+        f"**Answer:** {summary['answer']}",
+        "",
+        "## Retrieval Metrics",
+        "",
+        "| Method | Recall@1 | Recall@5 | MRR@10 |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+
+    for method, vals in summary["metrics"].items():
+        lines.append(
+            f"| {method} | {vals['recall_at_1']:.4f} | {vals['recall_at_5']:.4f} | {vals['mrr_at_10']:.4f} |"
+        )
+
+    return "\n".join(lines) + "\n"

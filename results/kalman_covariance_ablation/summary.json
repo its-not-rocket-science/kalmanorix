@@ -1,0 +1,63 @@
+{
+  "config": {
+    "random_seed": 0,
+    "dimension": 32,
+    "n_docs": 128,
+    "n_val": 200,
+    "n_test": 300,
+    "n_specialists": 3,
+    "fit": {
+      "diagonal_floor": 1e-06,
+      "shrinkage_to_diagonal": 0.1,
+      "max_lowrank_fro_norm": 10.0,
+      "lowrank_rank": 4
+    }
+  },
+  "covariance_fit": {
+    "scalar_variances": [
+      0.02105501533788411,
+      0.03534447205524705,
+      0.041353725118779355
+    ],
+    "diagonal_shapes": [
+      [
+        32
+      ],
+      [
+        32
+      ],
+      [
+        32
+      ]
+    ],
+    "structured_ranks": [
+      4,
+      4,
+      4
+    ]
+  },
+  "metrics": {
+    "mean_fusion": {
+      "recall_at_1": 0.19333333333333333,
+      "recall_at_5": 0.53,
+      "mrr_at_10": 0.32936772486772486
+    },
+    "scalar_kalman": {
+      "recall_at_1": 0.21,
+      "recall_at_5": 0.5633333333333334,
+      "mrr_at_10": 0.35260714285714284
+    },
+    "diagonal_kalman": {
+      "recall_at_1": 0.20333333333333334,
+      "recall_at_5": 0.5666666666666667,
+      "mrr_at_10": 0.34932407407407406
+    },
+    "structured_kalman": {
+      "recall_at_1": 0.18666666666666668,
+      "recall_at_5": 0.5733333333333334,
+      "mrr_at_10": 0.3441256613756614
+    }
+  },
+  "question": "Do richer uncertainty families justify complexity?",
+  "answer": "Richer covariance did not clearly beat simpler baselines in this benchmark setting."
+}
