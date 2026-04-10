@@ -1,0 +1,1097 @@
+[
+  {
+    "query_id": "general_qa:00",
+    "query_text": "What causes rainbows to appear?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:00:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:00:rel",
+        "title": "general_qa note",
+        "text": "light refraction in water droplets"
+      },
+      {
+        "doc_id": "general_qa:00:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:00:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:00:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:00:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "general_qa:01",
+    "query_text": "How does photosynthesis produce glucose?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:01:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:01:rel",
+        "title": "general_qa note",
+        "text": "plants convert carbon dioxide and water using sunlight"
+      },
+      {
+        "doc_id": "general_qa:01:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:01:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:01:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:01:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "general_qa:02",
+    "query_text": "Why do eclipses happen?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:02:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:02:rel",
+        "title": "general_qa note",
+        "text": "the moon blocks sunlight or enters Earth shadow"
+      },
+      {
+        "doc_id": "general_qa:02:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:02:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:02:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:02:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "general_qa:03",
+    "query_text": "What is plate tectonics?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:03:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:03:rel",
+        "title": "general_qa note",
+        "text": "Earth crust plates move and interact"
+      },
+      {
+        "doc_id": "general_qa:03:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:03:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:03:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:03:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "general_qa:04",
+    "query_text": "How does vaccination build immunity?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:04:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:04:rel",
+        "title": "general_qa note",
+        "text": "immune system learns antigens and memory cells"
+      },
+      {
+        "doc_id": "general_qa:04:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:04:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:04:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:04:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "general_qa:05",
+    "query_text": "What is natural selection?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:05:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:05:rel",
+        "title": "general_qa note",
+        "text": "traits improving reproduction become more common"
+      },
+      {
+        "doc_id": "general_qa:05:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:05:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:05:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:05:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "general_qa:06",
+    "query_text": "Why is the sky blue?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:06:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:06:rel",
+        "title": "general_qa note",
+        "text": "shorter blue wavelengths scatter more in atmosphere"
+      },
+      {
+        "doc_id": "general_qa:06:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:06:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:06:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:06:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "validation"
+  },
+  {
+    "query_id": "general_qa:07",
+    "query_text": "How do black holes form?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:07:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:07:rel",
+        "title": "general_qa note",
+        "text": "massive stars collapse after exhausting fuel"
+      },
+      {
+        "doc_id": "general_qa:07:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:07:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:07:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:07:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "validation"
+  },
+  {
+    "query_id": "general_qa:08",
+    "query_text": "What is entropy in thermodynamics?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:08:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:08:rel",
+        "title": "general_qa note",
+        "text": "measure of disorder and energy dispersal"
+      },
+      {
+        "doc_id": "general_qa:08:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:08:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:08:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:08:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      },
+      {
+        "doc_id": "general_qa:08:hard",
+        "title": "hard negative",
+        "text": "measure context with conflicting detail"
+      }
+    ],
+    "split": "test"
+  },
+  {
+    "query_id": "general_qa:09",
+    "query_text": "How do tides work?",
+    "domain_label": "general_qa",
+    "ground_truth_relevant_ids": [
+      "general_qa:09:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "general_qa:09:rel",
+        "title": "general_qa note",
+        "text": "moon gravity and sun gravity move oceans"
+      },
+      {
+        "doc_id": "general_qa:09:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "general_qa:09:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "general_qa:09:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "general_qa:09:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "test"
+  },
+  {
+    "query_id": "biomedical:00",
+    "query_text": "What is insulin resistance?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:00:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:00:rel",
+        "title": "biomedical note",
+        "text": "cells respond poorly to insulin and glucose rises"
+      },
+      {
+        "doc_id": "biomedical:00:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:00:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:00:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:00:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "biomedical:01",
+    "query_text": "How do beta blockers help hypertension?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:01:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:01:rel",
+        "title": "biomedical note",
+        "text": "they reduce heart rate and cardiac output"
+      },
+      {
+        "doc_id": "biomedical:01:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:01:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:01:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:01:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "biomedical:02",
+    "query_text": "What does MRI stand for?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:02:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:02:rel",
+        "title": "biomedical note",
+        "text": "magnetic resonance imaging for soft tissue"
+      },
+      {
+        "doc_id": "biomedical:02:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:02:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:02:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:02:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "biomedical:03",
+    "query_text": "Why are antibiotics ineffective for viruses?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:03:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:03:rel",
+        "title": "biomedical note",
+        "text": "antibiotics target bacterial processes not viral replication"
+      },
+      {
+        "doc_id": "biomedical:03:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:03:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:03:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:03:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "biomedical:04",
+    "query_text": "What is randomized controlled trial?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:04:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:04:rel",
+        "title": "biomedical note",
+        "text": "participants randomly assigned to treatment or control"
+      },
+      {
+        "doc_id": "biomedical:04:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:04:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:04:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:04:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "biomedical:05",
+    "query_text": "How does CRISPR edit genes?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:05:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:05:rel",
+        "title": "biomedical note",
+        "text": "guide RNA directs Cas enzyme to DNA sequence"
+      },
+      {
+        "doc_id": "biomedical:05:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:05:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:05:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:05:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "biomedical:06",
+    "query_text": "What is anaphylaxis?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:06:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:06:rel",
+        "title": "biomedical note",
+        "text": "severe rapid allergic reaction requiring epinephrine"
+      },
+      {
+        "doc_id": "biomedical:06:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:06:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:06:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:06:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "validation"
+  },
+  {
+    "query_id": "biomedical:07",
+    "query_text": "What does LDL cholesterol indicate?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:07:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:07:rel",
+        "title": "biomedical note",
+        "text": "higher levels are linked to cardiovascular risk"
+      },
+      {
+        "doc_id": "biomedical:07:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:07:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:07:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:07:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "validation"
+  },
+  {
+    "query_id": "biomedical:08",
+    "query_text": "How do vaccines trigger antibodies?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:08:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:08:rel",
+        "title": "biomedical note",
+        "text": "antigen exposure activates B cells and plasma cells"
+      },
+      {
+        "doc_id": "biomedical:08:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:08:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:08:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:08:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      },
+      {
+        "doc_id": "biomedical:08:hard",
+        "title": "hard negative",
+        "text": "antigen context with conflicting detail"
+      }
+    ],
+    "split": "test"
+  },
+  {
+    "query_id": "biomedical:09",
+    "query_text": "What is placebo effect?",
+    "domain_label": "biomedical",
+    "ground_truth_relevant_ids": [
+      "biomedical:09:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "biomedical:09:rel",
+        "title": "biomedical note",
+        "text": "symptom change from expectation rather than active drug"
+      },
+      {
+        "doc_id": "biomedical:09:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "biomedical:09:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "biomedical:09:d3",
+        "title": "distractor",
+        "text": "cross-domain text about stocks and recipes"
+      },
+      {
+        "doc_id": "biomedical:09:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "test"
+  },
+  {
+    "query_id": "finance:00",
+    "query_text": "What is duration risk in bonds?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:00:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:00:rel",
+        "title": "finance note",
+        "text": "bond prices fall when interest rates rise"
+      },
+      {
+        "doc_id": "finance:00:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:00:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:00:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:00:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "finance:01",
+    "query_text": "How does compound interest work?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:01:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:01:rel",
+        "title": "finance note",
+        "text": "interest earns additional interest over time"
+      },
+      {
+        "doc_id": "finance:01:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:01:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:01:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:01:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "finance:02",
+    "query_text": "What is EBITDA?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:02:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:02:rel",
+        "title": "finance note",
+        "text": "earnings before interest taxes depreciation and amortization"
+      },
+      {
+        "doc_id": "finance:02:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:02:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:02:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:02:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "finance:03",
+    "query_text": "Why diversify a portfolio?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:03:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:03:rel",
+        "title": "finance note",
+        "text": "reduce unsystematic risk by spreading assets"
+      },
+      {
+        "doc_id": "finance:03:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:03:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:03:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:03:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "finance:04",
+    "query_text": "What is bid ask spread?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:04:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:04:rel",
+        "title": "finance note",
+        "text": "difference between buying and selling quotes"
+      },
+      {
+        "doc_id": "finance:04:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:04:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:04:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:04:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "finance:05",
+    "query_text": "How does inflation affect purchasing power?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:05:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:05:rel",
+        "title": "finance note",
+        "text": "higher prices reduce real value of money"
+      },
+      {
+        "doc_id": "finance:05:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:05:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:05:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:05:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "train"
+  },
+  {
+    "query_id": "finance:06",
+    "query_text": "What is discounted cash flow?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:06:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:06:rel",
+        "title": "finance note",
+        "text": "valuation from present value of future cash flows"
+      },
+      {
+        "doc_id": "finance:06:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:06:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:06:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:06:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "validation"
+  },
+  {
+    "query_id": "finance:07",
+    "query_text": "What does P/E ratio measure?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:07:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:07:rel",
+        "title": "finance note",
+        "text": "price relative to earnings per share"
+      },
+      {
+        "doc_id": "finance:07:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:07:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:07:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:07:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "validation"
+  },
+  {
+    "query_id": "finance:08",
+    "query_text": "How do central banks fight inflation?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:08:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:08:rel",
+        "title": "finance note",
+        "text": "raise policy rates and tighten liquidity"
+      },
+      {
+        "doc_id": "finance:08:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:08:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:08:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:08:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      },
+      {
+        "doc_id": "finance:08:hard",
+        "title": "hard negative",
+        "text": "raise context with conflicting detail"
+      }
+    ],
+    "split": "test"
+  },
+  {
+    "query_id": "finance:09",
+    "query_text": "What is liquidity risk?",
+    "domain_label": "finance",
+    "ground_truth_relevant_ids": [
+      "finance:09:rel"
+    ],
+    "candidate_documents": [
+      {
+        "doc_id": "finance:09:rel",
+        "title": "finance note",
+        "text": "difficulty selling assets quickly without price loss"
+      },
+      {
+        "doc_id": "finance:09:d1",
+        "title": "distractor",
+        "text": "unrelated generic statement about weather and sports"
+      },
+      {
+        "doc_id": "finance:09:d2",
+        "title": "distractor",
+        "text": "miscellaneous commentary with little relevance"
+      },
+      {
+        "doc_id": "finance:09:d3",
+        "title": "distractor",
+        "text": "cross-domain text about biology and recipes"
+      },
+      {
+        "doc_id": "finance:09:d4",
+        "title": "distractor",
+        "text": "short note with ambiguous terminology"
+      }
+    ],
+    "split": "test"
+  }
+]

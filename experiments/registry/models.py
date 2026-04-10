@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
+import importlib.util
 from typing import Any
 
 import numpy as np
@@ -59,6 +61,24 @@ class HFMeanPoolEmbedder:
             return vec
 
 
+class DeterministicHashEmbedder:
+    """Dependency-free fallback embedder when transformer stack is unavailable."""
+
+    def __init__(self, model_name: str, dim: int = 384) -> None:
+        self.model_name = model_name
+        self.dim = dim
+
+    def __call__(self, text: str) -> np.ndarray:
+        values = np.empty(self.dim, dtype=np.float64)
+        base = f"{self.model_name}::{text}".encode("utf-8")
+        for idx in range(self.dim):
+            digest = hashlib.sha256(base + idx.to_bytes(2, "little")).digest()
+            raw = int.from_bytes(digest[:8], "little", signed=False)
+            values[idx] = (raw / 2**64) * 2.0 - 1.0
+        values /= np.linalg.norm(values) + 1e-12
+        return values
+
+
 @dataclass(frozen=True)
 class SpecialistSpec:
     name: str
@@ -94,9 +114,14 @@ def build_village(
             raise ValueError("models.specialists must be set for hf_specialists")
         rows = payload
         modules = []
+        has_transformers = importlib.util.find_spec("transformers") is not None
+        has_torch = importlib.util.find_spec("torch") is not None
         for raw in specialists:
             spec = SpecialistSpec(**raw)
-            embedder = HFMeanPoolEmbedder(spec.model_name, device=device)
+            if has_transformers and has_torch:
+                embedder = HFMeanPoolEmbedder(spec.model_name, device=device)
+            else:
+                embedder = DeterministicHashEmbedder(spec.model_name)
             texts = [
                 r["query_text"] for r in rows if r.get("domain_label") == spec.domain
             ]
