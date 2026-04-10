@@ -1,0 +1,68 @@
+{
+  "config": {
+    "random_seed": 13,
+    "dimension": 48,
+    "n_specialists": 4,
+    "n_train": 220,
+    "n_validation": 120,
+    "n_test": 220,
+    "n_noise_docs": 60,
+    "kalman_anchor": 0.35,
+    "model_type": "linear",
+    "ridge_lambda": 0.01,
+    "mlp_hidden_dim": 8,
+    "mlp_steps": 350,
+    "mlp_lr": 0.04,
+    "mlp_l2": 0.005
+  },
+  "fit": {
+    "train_size": 220,
+    "test_size": 220,
+    "checkpoint": {
+      "model_type": "linear",
+      "feature_dim": 9,
+      "n_specialists": 4,
+      "kalman_anchor": 0.35,
+      "linear_weights": [
+        0.2596324053209475,
+        -0.1445835893861687,
+        0.21722218235324298,
+        0.13415828394126494,
+        -0.0031979091230468276,
+        0.0012188558395542202,
+        -0.15618166586640295,
+        -0.13950478590939444,
+        0.002002392926368482
+      ],
+      "linear_bias": -0.04251196769063201,
+      "mlp_w1": null,
+      "mlp_b1": null,
+      "mlp_w2": null,
+      "mlp_b2": null
+    }
+  },
+  "metrics": {
+    "mean": {
+      "recall@1": 0.6136363636363636,
+      "recall@5": 0.8181818181818182,
+      "mrr": 0.7173229367987941
+    },
+    "kalman_precision": {
+      "recall@1": 0.6363636363636364,
+      "recall@5": 0.8318181818181818,
+      "mrr": 0.7349858730390681
+    },
+    "learned_linear_combiner": {
+      "recall@1": 0.6090909090909091,
+      "recall@5": 0.8318181818181818,
+      "mrr": 0.7131217675701813
+    },
+    "kalman_learned_correction": {
+      "recall@1": 0.6681818181818182,
+      "recall@5": 0.85,
+      "mrr": 0.7598917304357655
+    }
+  },
+  "question": "Can task-aware learned correction recover Kalman fusion quality without abandoning precision weighting?",
+  "answer": "Yes in this benchmark: Kalman + learned correction improves MRR while retaining Kalman precision as the anchor."
+}
