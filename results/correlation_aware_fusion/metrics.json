@@ -1,0 +1,26 @@
+{
+  "mean": {
+    "recall_at_1": 0.9533333333333334,
+    "mean_posterior_variance": 1.1304303219845502,
+    "calibration_gap_abs_mse_minus_var": 2.376345850597462,
+    "embedding_mse": 3.506776172582012
+  },
+  "kalman": {
+    "recall_at_1": 0.9533333333333334,
+    "mean_posterior_variance": 0.3600001599797498,
+    "calibration_gap_abs_mse_minus_var": 3.1467760122074786,
+    "embedding_mse": 3.5067761721872284
+  },
+  "kalman_corr_inflation": {
+    "recall_at_1": 0.9533333333333334,
+    "mean_posterior_variance": 0.529239334732189,
+    "calibration_gap_abs_mse_minus_var": 2.977413961542414,
+    "embedding_mse": 3.506653296274603
+  },
+  "kalman_corr_ess": {
+    "recall_at_1": 0.9533333333333334,
+    "mean_posterior_variance": 0.867769823139967,
+    "calibration_gap_abs_mse_minus_var": 2.639006348490435,
+    "embedding_mse": 3.506776171630402
+  }
+}
