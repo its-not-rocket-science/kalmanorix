@@ -37,6 +37,7 @@ from ..embedder_adapters import (
 )
 from ..model_registry import ModelRegistry, get_default_registry
 from ..panoramix import (
+    CorrelationAwareKalmanFuser,
     DiagonalKalmanFuser,
     EnsembleKalmanFuser,
     LearnedGateFuser,
@@ -85,5 +86,6 @@ __all__ = [
     "EnsembleKalmanFuser",
     "StructuredKalmanFuser",
     "DiagonalKalmanFuser",
+    "CorrelationAwareKalmanFuser",
     "LearnedGateFuser",
 ]

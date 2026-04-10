@@ -30,6 +30,11 @@ from .kalman_engine.kalman_fuser import (
     kalman_fuse_diagonal_ensemble_batch,
 )
 from .kalman_engine.structured_covariance import StructuredCovariance
+from .kalman_engine.correlation import (
+    ResidualCorrelationProfile,
+    correlation_inflation_factors,
+    effective_sample_size_discount,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -519,6 +524,93 @@ class StructuredKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
             "has_lowrank": any(not cov.is_diagonal for cov in structured_covs),
         }
 
+        return fused, weights, meta
+
+
+class CorrelationAwareKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
+    """Kalman fusion that discounts redundant evidence from correlated experts.
+
+    Variants:
+    - ``covariance_inflation``: inflate each expert covariance by mean positive
+      residual correlation to peers.
+    - ``effective_sample_size``: apply a global precision discount
+      ``discount=n_eff/n`` before ensemble fusion.
+    """
+
+    def __init__(
+        self,
+        correlation_profile: ResidualCorrelationProfile,
+        mode: str = "covariance_inflation",
+        inflation_alpha: float = 1.0,
+        epsilon: float = 1e-8,
+    ):
+        if mode not in {"covariance_inflation", "effective_sample_size"}:
+            raise ValueError(f"Unsupported mode: {mode}")
+        self.correlation_profile = correlation_profile
+        self.mode = mode
+        self.inflation_alpha = inflation_alpha
+        self.epsilon = epsilon
+
+    def fuse(
+        self,
+        query: str,
+        modules: List[SEF],
+    ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
+        if not modules:
+            raise ValueError("CorrelationAwareKalmanFuser requires at least one module")
+
+        embeddings = []
+        base_covariances = []
+        module_names = []
+        for module in modules:
+            emb = module.embed(query)
+            if module.alignment_matrix is not None:
+                emb = module.alignment_matrix @ emb
+            sigma2 = module.sigma2_for(query)
+            cov = np.full(emb.shape, sigma2, dtype=np.float64)
+            embeddings.append(emb)
+            base_covariances.append(cov)
+            module_names.append(module.name)
+
+        corr_sub = self.correlation_profile.submatrix(module_names)
+
+        adjusted_covariances = [cov.copy() for cov in base_covariances]
+        ess_discount = 1.0
+        inflation = np.ones(len(modules), dtype=np.float64)
+
+        if self.mode == "covariance_inflation":
+            inflation = correlation_inflation_factors(
+                corr_submatrix=corr_sub, alpha=self.inflation_alpha
+            )
+            adjusted_covariances = [
+                cov * inflation[i] for i, cov in enumerate(base_covariances)
+            ]
+        else:
+            ess_discount = effective_sample_size_discount(corr_sub)
+            adjusted_covariances = [cov / ess_discount for cov in base_covariances]
+
+        fused, fused_cov = kalman_fuse_diagonal_ensemble(
+            embeddings,
+            adjusted_covariances,
+            epsilon=self.epsilon,
+        )
+
+        total_precisions = []
+        for cov in adjusted_covariances:
+            total_precisions.append(float(np.sum(1.0 / (cov + self.epsilon))))
+        precision_sum = sum(total_precisions)
+        weights = {
+            m.name: float(total_precisions[i] / precision_sum)
+            for i, m in enumerate(modules)
+        }
+        meta = {
+            "fused_covariance": fused_cov,
+            "variance": float(np.mean(fused_cov)),
+            "correlation_mode": self.mode,
+            "inflation_factors": inflation.tolist(),
+            "effective_sample_size_discount": float(ess_discount),
+            "correlation_submatrix": corr_sub,
+        }
         return fused, weights, meta
 
 

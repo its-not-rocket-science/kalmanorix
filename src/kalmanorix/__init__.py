@@ -102,6 +102,10 @@ _EXPERIMENTAL_SHIMS: dict[str, tuple[str, str]] = {
     "EnsembleKalmanFuser": ("kalmanorix.experimental", "EnsembleKalmanFuser"),
     "StructuredKalmanFuser": ("kalmanorix.experimental", "StructuredKalmanFuser"),
     "DiagonalKalmanFuser": ("kalmanorix.experimental", "DiagonalKalmanFuser"),
+    "CorrelationAwareKalmanFuser": (
+        "kalmanorix.experimental",
+        "CorrelationAwareKalmanFuser",
+    ),
     "LearnedGateFuser": ("kalmanorix.experimental", "LearnedGateFuser"),
     "create_procrustes_alignment": ("kalmanorix.internal", "create_procrustes_alignment"),
 }
