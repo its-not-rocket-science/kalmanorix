@@ -3,7 +3,9 @@
 import pytest
 
 from kalmanorix.benchmarks.mixed_domain import (
+    HardQueryConfig,
     SplitRatios,
+    _augment_hard_queries,
     _build_query_records,
     _deterministic_split,
     build_mixed_domain_benchmark,
@@ -85,3 +87,45 @@ def test_build_query_records_can_include_cross_domain_negatives() -> None:
 def test_cross_domain_ratio_validation() -> None:
     with pytest.raises(ValueError, match="cross_domain_negative_ratio"):
         build_mixed_domain_benchmark(cross_domain_negative_ratio=1.1)
+
+
+def test_augment_hard_queries_adds_required_categories_and_metadata() -> None:
+    query_rows = [
+        {
+            "query_id": "nq:q1",
+            "query_text": "cpu thermal throttling prevention",
+            "domain": "general_qa",
+            "source_dataset": "beir_nq",
+        },
+        {
+            "query_id": "fiqa:q1",
+            "query_text": "equity duration convexity risk",
+            "domain": "finance",
+            "source_dataset": "beir_fiqa",
+        },
+    ]
+    qrels_rows = [
+        {"query_id": "nq:q1", "doc_id": "nq:d1", "relevance": 1, "source_dataset": "beir_nq"},
+        {"query_id": "fiqa:q1", "doc_id": "fiqa:d1", "relevance": 1, "source_dataset": "beir_fiqa"},
+    ]
+    split_map = {"nq:q1": "test", "fiqa:q1": "test"}
+
+    augmented_queries, augmented_qrels, augmented_split_map = _augment_hard_queries(
+        query_rows=query_rows,
+        qrels_rows=qrels_rows,
+        split_map=split_map,
+        seed=5,
+        config=HardQueryConfig(enabled=True, per_category_per_domain=1),
+    )
+
+    assert len(augmented_queries) > len(query_rows)
+    synthetic = [row for row in augmented_queries if row.get("is_synthetic")]
+    categories = {row["query_category"] for row in synthetic}
+    assert "ambiguous_cross_domain" in categories
+    assert "misleading_lexical_overlap" in categories
+    assert "mixed_intent" in categories
+    assert "adversarial_near_miss" in categories
+    assert all(row.get("provenance_note", "").startswith("synthetic") for row in synthetic)
+    assert all(augmented_split_map[row["query_id"]] == "test" for row in synthetic)
+    synthetic_qrels = {row["query_id"] for row in augmented_qrels if row["query_id"].startswith("syn:")}
+    assert synthetic_qrels

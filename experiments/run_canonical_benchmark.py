@@ -39,6 +39,7 @@ REPORT_METRICS = [
     "mrr@5",
     "mrr@10",
     "recall@1",
+    "recall@5",
     "recall@10",
     "top1_success",
 ]
@@ -143,7 +144,7 @@ def _render_report(summary: dict[str, Any]) -> str:
         "",
         "## Aggregate Metrics (mean with 95% bootstrap CI)",
         "",
-        "| Method | nDCG@5 | nDCG@10 | MRR@5 | MRR@10 | Recall@1 | Recall@10 | Top-1 success | Latency (ms) | FLOPs proxy |",
+        "| Method | nDCG@5 | nDCG@10 | MRR@5 | MRR@10 | Recall@1 | Recall@5 | Recall@10 | Top-1 success | Latency (ms) | FLOPs proxy |",
         "|---|---|---|---|---|---|---|---|---|---|",
     ]
 
@@ -161,7 +162,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             continue
         payload = methods[key]["metrics"]
         lines.append(
-            "| {label} | {ndcg5:.4f} [{ndcg5_l:.4f}, {ndcg5_h:.4f}] | {ndcg10:.4f} [{ndcg10_l:.4f}, {ndcg10_h:.4f}] | {mrr5:.4f} [{mrr5_l:.4f}, {mrr5_h:.4f}] | {mrr10:.4f} [{mrr10_l:.4f}, {mrr10_h:.4f}] | {rec1:.4f} [{rec1_l:.4f}, {rec1_h:.4f}] | {rec10:.4f} [{rec10_l:.4f}, {rec10_h:.4f}] | {top1:.4f} [{top1_l:.4f}, {top1_h:.4f}] | {lat:.3f} [{lat_l:.3f}, {lat_h:.3f}] | {flops:.3f} [{flops_l:.3f}, {flops_h:.3f}] |".format(
+            "| {label} | {ndcg5:.4f} [{ndcg5_l:.4f}, {ndcg5_h:.4f}] | {ndcg10:.4f} [{ndcg10_l:.4f}, {ndcg10_h:.4f}] | {mrr5:.4f} [{mrr5_l:.4f}, {mrr5_h:.4f}] | {mrr10:.4f} [{mrr10_l:.4f}, {mrr10_h:.4f}] | {rec1:.4f} [{rec1_l:.4f}, {rec1_h:.4f}] | {rec5:.4f} [{rec5_l:.4f}, {rec5_h:.4f}] | {rec10:.4f} [{rec10_l:.4f}, {rec10_h:.4f}] | {top1:.4f} [{top1_l:.4f}, {top1_h:.4f}] | {lat:.3f} [{lat_l:.3f}, {lat_h:.3f}] | {flops:.3f} [{flops_l:.3f}, {flops_h:.3f}] |".format(
                 label=method_label,
                 ndcg5=payload["ndcg@5"]["mean"],
                 ndcg5_l=payload["ndcg@5"]["ci95_low"],
@@ -178,6 +179,9 @@ def _render_report(summary: dict[str, Any]) -> str:
                 rec1=payload["recall@1"]["mean"],
                 rec1_l=payload["recall@1"]["ci95_low"],
                 rec1_h=payload["recall@1"]["ci95_high"],
+                rec5=payload["recall@5"]["mean"],
+                rec5_l=payload["recall@5"]["ci95_low"],
+                rec5_h=payload["recall@5"]["ci95_high"],
                 rec10=payload["recall@10"]["mean"],
                 rec10_l=payload["recall@10"]["ci95_low"],
                 rec10_h=payload["recall@10"]["ci95_high"],
