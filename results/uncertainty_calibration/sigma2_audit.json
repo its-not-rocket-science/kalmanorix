@@ -1,0 +1,13 @@
+{
+  "produced_existing": [
+    "src/kalmanorix/uncertainty.py",
+    "src/kalmanorix/village.py",
+    "src/kalmanorix/models/sef.py"
+  ],
+  "consumed_existing": [
+    "src/kalmanorix/panoramix.py",
+    "src/kalmanorix/kalman_engine/fuser.py",
+    "src/kalmanorix/calibration.py",
+    "src/kalmanorix/benchmarks/uncertainty_ablation.py"
+  ]
+}

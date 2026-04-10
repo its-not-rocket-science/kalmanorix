@@ -1,0 +1,7 @@
+{
+  "name": "identity",
+  "params": {
+    "min_samples": 8.0,
+    "reason": "too_few_samples:4"
+  }
+}
