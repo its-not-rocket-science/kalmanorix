@@ -21,7 +21,7 @@ def load_dataset(
         if path is None:
             raise ValueError("dataset.path is required for mixed_parquet")
         pyarrow_available = importlib.util.find_spec("pyarrow") is not None
-        if pyarrow_available:
+        if pyarrow_available and path.suffix == ".parquet":
             import pyarrow.parquet as pq
 
             table = pq.read_table(path)

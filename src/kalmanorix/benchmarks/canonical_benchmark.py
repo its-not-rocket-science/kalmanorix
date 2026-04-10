@@ -17,6 +17,7 @@ class QueryMetrics:
     ndcg5: float
     ndcg10: float
     recall1: float
+    recall5: float
     recall10: float
     mrr5: float
     mrr10: float
@@ -53,6 +54,7 @@ def evaluate_query(ranked: list[str], relevant: set[str]) -> QueryMetrics:
         ndcg5=ndcg_at_k(ranked, relevant, 5),
         ndcg10=ndcg_at_k(ranked, relevant, 10),
         recall1=recall_at_k(ranked, relevant, 1),
+        recall5=recall_at_k(ranked, relevant, 5),
         recall10=recall_at_k(ranked, relevant, 10),
         mrr5=mrr_at_k(ranked, relevant, 5),
         mrr10=mrr_at_k(ranked, relevant, 10),
@@ -75,6 +77,7 @@ def aggregate_strategy_metrics(
     ndcg5 = [row.ndcg5 for row in evaluated]
     ndcg10 = [row.ndcg10 for row in evaluated]
     recall1 = [row.recall1 for row in evaluated]
+    recall5 = [row.recall5 for row in evaluated]
     recall10 = [row.recall10 for row in evaluated]
     mrr5 = [row.mrr5 for row in evaluated]
     mrr10 = [row.mrr10 for row in evaluated]
@@ -101,17 +104,19 @@ def aggregate_strategy_metrics(
             "ndcg@5": _with_ci(ndcg5, seed + 5),
             "ndcg@10": _with_ci(ndcg10, seed + 11),
             "recall@1": _with_ci(recall1, seed + 16),
-            "recall@10": _with_ci(recall10, seed + 22),
-            "mrr@5": _with_ci(mrr5, seed + 27),
-            "mrr@10": _with_ci(mrr10, seed + 33),
-            "top1_success": _with_ci(top1_success, seed + 38),
-            "latency_ms": _with_ci(latency, seed + 44),
-            "flops_proxy": _with_ci(flops, seed + 55),
+            "recall@5": _with_ci(recall5, seed + 22),
+            "recall@10": _with_ci(recall10, seed + 28),
+            "mrr@5": _with_ci(mrr5, seed + 33),
+            "mrr@10": _with_ci(mrr10, seed + 39),
+            "top1_success": _with_ci(top1_success, seed + 44),
+            "latency_ms": _with_ci(latency, seed + 50),
+            "flops_proxy": _with_ci(flops, seed + 61),
         },
         "query_level": {
             "ndcg@5": ndcg5,
             "ndcg@10": ndcg10,
             "recall@1": recall1,
+            "recall@5": recall5,
             "recall@10": recall10,
             "mrr@5": mrr5,
             "mrr@10": mrr10,

@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-BENCHMARK_VERSION = "mixed_beir_v1.1.0"
+BENCHMARK_VERSION = "mixed_beir_v1.2.0"
 DEFAULT_SEED = 1337
 DEFAULT_OUTPUT_DIR = Path("benchmarks") / BENCHMARK_VERSION
 DATASET_SPECS = (
@@ -87,8 +87,17 @@ class SplitRatios:
 class QuerySampling:
     """Per-domain query sampling constraints."""
 
-    max_queries_per_domain: int | None = 1400
-    max_test_queries_per_domain: int | None = 180
+    max_queries_per_domain: int | None = 2200
+    max_test_queries_per_domain: int | None = 420
+
+
+@dataclass(frozen=True)
+class HardQueryConfig:
+    """Synthetic hard-query expansion controls."""
+
+    enabled: bool = True
+    per_category_per_domain: int = 24
+    min_token_length_for_long_tail: int = 9
 
 
 def _normalize_text(text: str) -> str:
@@ -331,6 +340,7 @@ def _build_query_records(
             for doc_id in candidate_ids
         ]
 
+        ambiguity_category = str(row.get("ambiguity_category") or "none")
         records.append(
             {
                 "query_id": query_id,
@@ -341,6 +351,19 @@ def _build_query_records(
                 "source_dataset": row["source_dataset"],
                 "split": split_map.get(query_id, "train"),
                 "contains_cross_domain_hard_negatives": bool(sampled_cross_domain),
+                "dominant_domain": row["domain"],
+                "secondary_domain": row.get("secondary_domain"),
+                "query_category": row.get("query_category", "original"),
+                "ambiguity_category": ambiguity_category,
+                "ambiguity_score": float(
+                    row.get("ambiguity_score", 0.0 if ambiguity_category == "none" else 0.5)
+                ),
+                "fusion_usefulness_bucket": row.get("fusion_usefulness_bucket", "low"),
+                "is_synthetic": bool(row.get("is_synthetic", False)),
+                "provenance_note": row.get(
+                    "provenance_note",
+                    "original BEIR query; non-synthetic",
+                ),
             }
         )
 
@@ -358,6 +381,220 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _tokenize(text: str) -> list[str]:
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+
+def _augment_hard_queries(
+    *,
+    query_rows: list[dict[str, Any]],
+    qrels_rows: list[dict[str, Any]],
+    split_map: dict[str, str],
+    seed: int,
+    config: HardQueryConfig,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, str]]:
+    if not config.enabled or config.per_category_per_domain <= 0:
+        return query_rows, qrels_rows, split_map
+
+    positives_by_query: dict[str, set[str]] = {}
+    for row in qrels_rows:
+        positives_by_query.setdefault(row["query_id"], set()).add(row["doc_id"])
+
+    domain_rows: dict[str, list[dict[str, Any]]] = {}
+    for row in query_rows:
+        if split_map.get(row["query_id"]) != "test":
+            continue
+        domain_rows.setdefault(row["domain"], []).append(row)
+
+    domain_token_counts: dict[str, dict[str, int]] = {}
+    for domain, rows in domain_rows.items():
+        counts: dict[str, int] = {}
+        for row in rows:
+            for tok in _tokenize(row["query_text"]):
+                counts[tok] = counts.get(tok, 0) + 1
+        domain_token_counts[domain] = counts
+
+    by_id = {row["query_id"]: row for row in query_rows}
+    rng = random.Random(seed + 3101)
+    new_queries: list[dict[str, Any]] = []
+    new_qrels: list[dict[str, Any]] = []
+    new_splits: dict[str, str] = {}
+    category_counts: dict[str, int] = {}
+
+    def _clone_row(base: dict[str, Any], *, query_id: str, query_text: str) -> dict[str, Any]:
+        return {
+            **base,
+            "query_id": query_id,
+            "query_text": query_text,
+            "source_query_id": f"synthetic_from:{base['query_id']}",
+            "source_dataset": "synthetic_mixed_beir_v1_2_0",
+            "is_synthetic": True,
+            "provenance_note": (
+                "synthetic hard-query expansion derived from held-out BEIR test queries"
+            ),
+        }
+
+    domains = sorted(domain_rows)
+    for dominant_domain in domains:
+        primary_pool = sorted(domain_rows[dominant_domain], key=lambda r: r["query_id"])
+        if not primary_pool:
+            continue
+        other_domains = [d for d in domains if d != dominant_domain and domain_rows[d]]
+        if not other_domains:
+            continue
+        shuffled_primary = primary_pool[:]
+        rng.shuffle(shuffled_primary)
+        limit = min(config.per_category_per_domain, len(shuffled_primary))
+
+        for i in range(limit):
+            base = shuffled_primary[i]
+            secondary_domain = rng.choice(other_domains)
+            partner = rng.choice(domain_rows[secondary_domain])
+            base_pos = sorted(positives_by_query.get(base["query_id"], set()))
+            partner_pos = sorted(positives_by_query.get(partner["query_id"], set()))
+            if not base_pos:
+                continue
+
+            # 1) ambiguous cross-domain
+            qid = f"syn:ambiguous:{base['query_id']}:{partner['query_id']}"
+            row = _clone_row(
+                base,
+                query_id=qid,
+                query_text=f"{base['query_text']} ; {partner['query_text']}",
+            )
+            row.update(
+                {
+                    "domain": dominant_domain,
+                    "secondary_domain": secondary_domain,
+                    "query_category": "ambiguous_cross_domain",
+                    "ambiguity_category": "high",
+                    "ambiguity_score": 0.9,
+                    "fusion_usefulness_bucket": "high",
+                }
+            )
+            new_queries.append(row)
+            for doc_id in sorted(set(base_pos + partner_pos)):
+                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+            new_splits[qid] = "test"
+            category_counts["ambiguous_cross_domain"] = category_counts.get("ambiguous_cross_domain", 0) + 1
+
+            # 2) misleading lexical overlap
+            qid = f"syn:lexical:{base['query_id']}:{partner['query_id']}"
+            row = _clone_row(
+                base,
+                query_id=qid,
+                query_text=f"{base['query_text']} with {partner['query_text'].split(' ')[0]} context",
+            )
+            row.update(
+                {
+                    "domain": dominant_domain,
+                    "secondary_domain": secondary_domain,
+                    "query_category": "misleading_lexical_overlap",
+                    "ambiguity_category": "medium",
+                    "ambiguity_score": 0.7,
+                    "fusion_usefulness_bucket": "medium",
+                }
+            )
+            new_queries.append(row)
+            for doc_id in base_pos:
+                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+            new_splits[qid] = "test"
+            category_counts["misleading_lexical_overlap"] = category_counts.get("misleading_lexical_overlap", 0) + 1
+
+            # 3) mixed-intent
+            qid = f"syn:mixed_intent:{base['query_id']}:{partner['query_id']}"
+            row = _clone_row(
+                base,
+                query_id=qid,
+                query_text=f"{base['query_text']} and also {partner['query_text']}",
+            )
+            row.update(
+                {
+                    "domain": dominant_domain,
+                    "secondary_domain": secondary_domain,
+                    "query_category": "mixed_intent",
+                    "ambiguity_category": "high",
+                    "ambiguity_score": 0.85,
+                    "fusion_usefulness_bucket": "high",
+                }
+            )
+            new_queries.append(row)
+            for doc_id in sorted(set(base_pos + partner_pos)):
+                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+            new_splits[qid] = "test"
+            category_counts["mixed_intent"] = category_counts.get("mixed_intent", 0) + 1
+
+            # 4) adversarial near-miss
+            qid = f"syn:near_miss:{base['query_id']}:{partner['query_id']}"
+            row = _clone_row(
+                base,
+                query_id=qid,
+                query_text=f"not {base['query_text']} but close to {partner['query_text']}",
+            )
+            row.update(
+                {
+                    "domain": dominant_domain,
+                    "secondary_domain": secondary_domain,
+                    "query_category": "adversarial_near_miss",
+                    "ambiguity_category": "high",
+                    "ambiguity_score": 0.95,
+                    "fusion_usefulness_bucket": "high",
+                }
+            )
+            new_queries.append(row)
+            for doc_id in base_pos:
+                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+            new_splits[qid] = "test"
+            category_counts["adversarial_near_miss"] = category_counts.get("adversarial_near_miss", 0) + 1
+
+            # 5) long-tail domain terms (if detected)
+            rare_terms = [
+                tok
+                for tok in _tokenize(base["query_text"])
+                if len(tok) >= config.min_token_length_for_long_tail
+                and domain_token_counts[dominant_domain].get(tok, 0) <= 2
+            ]
+            if rare_terms:
+                rare_term = rare_terms[0]
+                qid = f"syn:long_tail:{base['query_id']}:{rare_term}"
+                row = _clone_row(
+                    base,
+                    query_id=qid,
+                    query_text=f"{base['query_text']} ({rare_term})",
+                )
+                row.update(
+                    {
+                        "domain": dominant_domain,
+                        "secondary_domain": None,
+                        "query_category": "long_tail_domain_terms",
+                        "ambiguity_category": "low",
+                        "ambiguity_score": 0.35,
+                        "fusion_usefulness_bucket": "medium",
+                    }
+                )
+                new_queries.append(row)
+                for doc_id in base_pos:
+                    new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+                new_splits[qid] = "test"
+                category_counts["long_tail_domain_terms"] = category_counts.get("long_tail_domain_terms", 0) + 1
+
+    augmented_queries = query_rows + new_queries
+    augmented_qrels = qrels_rows + new_qrels
+    augmented_split = {**split_map, **new_splits}
+
+    for row in augmented_queries:
+        if row["query_id"] in by_id:
+            row.setdefault("query_category", "original")
+            row.setdefault("secondary_domain", None)
+            row.setdefault("ambiguity_category", "none")
+            row.setdefault("ambiguity_score", 0.0)
+            row.setdefault("fusion_usefulness_bucket", "low")
+            row.setdefault("is_synthetic", False)
+            row.setdefault("provenance_note", "original BEIR query; non-synthetic")
+
+    return augmented_queries, augmented_qrels, augmented_split
+
+
 def build_mixed_domain_benchmark(
     output_dir: Path | str = DEFAULT_OUTPUT_DIR,
     seed: int = DEFAULT_SEED,
@@ -365,6 +602,7 @@ def build_mixed_domain_benchmark(
     cross_domain_negative_ratio: float = 0.4,
     sampling: QuerySampling = QuerySampling(),
     split_ratios: SplitRatios = SplitRatios(),
+    hard_queries: HardQueryConfig = HardQueryConfig(),
 ) -> dict[str, Any]:
     """Download, preprocess, split, and persist a mixed-domain benchmark."""
     if not (0.0 <= cross_domain_negative_ratio <= 1.0):
@@ -428,6 +666,14 @@ def build_mixed_domain_benchmark(
             keep_test = set(ordered[: sampling.max_test_queries_per_domain])
             for qid in ordered[sampling.max_test_queries_per_domain :]:
                 split_map[qid] = "validation"
+
+    query_rows, all_qrels, split_map = _augment_hard_queries(
+        query_rows=query_rows,
+        qrels_rows=all_qrels,
+        split_map=split_map,
+        seed=seed,
+        config=hard_queries,
+    )
 
     for query in query_rows:
         query["split"] = split_map[query["query_id"]]
@@ -524,6 +770,11 @@ def build_mixed_domain_benchmark(
             "max_queries_per_domain": sampling.max_queries_per_domain,
             "max_test_queries_per_domain": sampling.max_test_queries_per_domain,
         },
+        "hard_query_expansion": {
+            "enabled": hard_queries.enabled,
+            "per_category_per_domain": hard_queries.per_category_per_domain,
+            "min_token_length_for_long_tail": hard_queries.min_token_length_for_long_tail,
+        },
         "packages": {
             "datasets": datasets_version,
             "pyarrow": getattr(pa, "__version__", "not_installed"),
@@ -551,6 +802,7 @@ def build_mixed_domain_benchmark(
             "documents": len(all_docs),
             "duplicates_removed": len(duplicate_map),
             "all_queries_have_relevant": True,
+            "synthetic_queries": sum(1 for row in query_rows if row.get("is_synthetic")),
         },
     }
 
@@ -600,14 +852,25 @@ def main() -> None:
     parser.add_argument(
         "--max-queries-per-domain",
         type=int,
-        default=1400,
+        default=2200,
         help="Optional cap on total queries retained per domain",
     )
     parser.add_argument(
         "--max-test-queries-per-domain",
         type=int,
-        default=180,
+        default=420,
         help="Optional cap on held-out test queries per domain",
+    )
+    parser.add_argument(
+        "--hard-queries-per-category-per-domain",
+        type=int,
+        default=24,
+        help="Synthetic hard-query expansion count per category per domain.",
+    )
+    parser.add_argument(
+        "--disable-hard-query-expansion",
+        action="store_true",
+        help="Disable synthetic hard-query expansion.",
     )
     parser.add_argument(
         "--train-ratio",
@@ -646,6 +909,10 @@ def main() -> None:
         cross_domain_negative_ratio=args.cross_domain_negative_ratio,
         sampling=sampling,
         split_ratios=split_ratios,
+        hard_queries=HardQueryConfig(
+            enabled=not args.disable_hard_query_expansion,
+            per_category_per_domain=args.hard_queries_per_category_per_domain,
+        ),
     )
     print(json.dumps(manifest, indent=2))
 
