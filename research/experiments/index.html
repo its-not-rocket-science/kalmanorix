@@ -1736,6 +1736,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#canonical-benchmark-decision-criteria-kalman-vs-mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical benchmark decision criteria (Kalman vs Mean)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2-pending-core-claims-planned-not-demonstrated" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2462,6 +2473,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#canonical-benchmark-decision-criteria-kalman-vs-mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical benchmark decision criteria (Kalman vs Mean)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2-pending-core-claims-planned-not-demonstrated" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2684,6 +2706,22 @@
 </ul>
 <h3 id="scope-limitation">Scope limitation<a class="headerlink" href="#scope-limitation" title="Permanent link">&para;</a></h3>
 <p>This evidence demonstrates compute behavior in the tested benchmark setup; it does <strong>not</strong> by itself prove quality gains or universal real-world latency improvements.</p>
+<hr />
+<h2 id="canonical-benchmark-decision-criteria-kalman-vs-mean">Canonical benchmark decision criteria (Kalman vs Mean)<a class="headerlink" href="#canonical-benchmark-decision-criteria-kalman-vs-mean" title="Permanent link">&para;</a></h2>
+<p>The canonical benchmark must end with a rule-based verdict for <strong>KalmanorixFuser vs MeanFuser</strong>:</p>
+<ul>
+<li><strong>primary metric:</strong> <code>nDCG@10</code> paired mean difference (<code>Kalman - Mean</code>)</li>
+<li><strong>minimum effect size:</strong> <code>&gt;= 0.02</code></li>
+<li><strong>adjusted p-value threshold:</strong> Holm-adjusted <code>p &lt;= 0.05</code></li>
+<li><strong>latency/FLOPs trade-off constraint:</strong> <code>latency_ratio(Kalman/Mean) &lt;= 1.5</code> and <code>flops_ratio(Kalman/Mean) &lt;= 1.1</code></li>
+</ul>
+<p>Verdict labels are defined as:</p>
+<ul>
+<li><strong>supported:</strong> all four checks pass</li>
+<li><strong>unsupported:</strong> <code>nDCG@10</code> delta is non-positive (<code>&lt;= 0</code>) <strong>and</strong> Holm-adjusted p-value is significant (<code>&lt;= 0.05</code>)</li>
+<li><strong>inconclusive:</strong> any other outcome</li>
+</ul>
+<p>This framework is intentionally conservative and prefers <strong>inconclusive</strong> over forced directional claims when evidence is weak or trade-offs fail.</p>
 <hr />
 <h2 id="2-pending-core-claims-planned-not-demonstrated">2) Pending Core Claims (planned, not demonstrated)<a class="headerlink" href="#2-pending-core-claims-planned-not-demonstrated" title="Permanent link">&para;</a></h2>
 <h3 id="claim-kalman-fusion-mean-fusion-on-retrieval-quality">Claim: Kalman fusion &gt; mean fusion on retrieval quality<a class="headerlink" href="#claim-kalman-fusion-mean-fusion-on-retrieval-quality" title="Permanent link">&para;</a></h3>
