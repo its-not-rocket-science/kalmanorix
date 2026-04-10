@@ -95,6 +95,11 @@ def test_canonical_benchmark_writes_artifacts(
         "uniform_mean_fusion",
     }
     assert "ndcg@10" in on_disk["paired_statistics"]["kalman_vs_mean"]["overall"]
+    assert on_disk["decision"]["kalman_vs_mean"]["verdict"] in {
+        "supported",
+        "unsupported",
+        "inconclusive",
+    }
     assert summary["comparisons"]["LearnedGateFuser"]["included"] is False
     assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
 
@@ -191,6 +196,8 @@ def test_canonical_report_includes_paired_statistics_section(
     )
 
     report_text = (output_dir / "report.md").read_text(encoding="utf-8")
+    assert "## Decision Framework: KalmanorixFuser vs MeanFuser" in report_text
     assert "## Paired Statistical Test: KalmanorixFuser vs MeanFuser" in report_text
     assert "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |" in report_text
+    assert "## Verdict" in report_text
     assert "## Demonstrated findings" in report_text

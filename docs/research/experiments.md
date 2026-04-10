@@ -24,6 +24,25 @@ This evidence demonstrates compute behavior in the tested benchmark setup; it do
 
 ---
 
+## Canonical benchmark decision criteria (Kalman vs Mean)
+
+The canonical benchmark must end with a rule-based verdict for **KalmanorixFuser vs MeanFuser**:
+
+- **primary metric:** `nDCG@10` paired mean difference (`Kalman - Mean`)
+- **minimum effect size:** `>= 0.02`
+- **adjusted p-value threshold:** Holm-adjusted `p <= 0.05`
+- **latency/FLOPs trade-off constraint:** `latency_ratio(Kalman/Mean) <= 1.5` and `flops_ratio(Kalman/Mean) <= 1.1`
+
+Verdict labels are defined as:
+
+- **supported:** all four checks pass
+- **unsupported:** `nDCG@10` delta is non-positive (`<= 0`) **and** Holm-adjusted p-value is significant (`<= 0.05`)
+- **inconclusive:** any other outcome
+
+This framework is intentionally conservative and prefers **inconclusive** over forced directional claims when evidence is weak or trade-offs fail.
+
+---
+
 ## 2) Pending Core Claims (planned, not demonstrated)
 
 ### Claim: Kalman fusion > mean fusion on retrieval quality

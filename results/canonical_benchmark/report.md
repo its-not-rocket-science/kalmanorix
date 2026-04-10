@@ -21,6 +21,15 @@
 | hard routing baseline | 0.6414 [0.4392, 0.8436] | 1.0000 [1.0000, 1.0000] | 0.5278 [0.2639, 0.8333] | 13.150 [12.454, 13.933] | 1.000 [1.000, 1.000] |
 | all-routing + mean baseline | 0.4537 [0.3942, 0.5321] | 1.0000 [1.0000, 1.0000] | 0.2806 [0.2083, 0.3722] | 11.508 [10.905, 12.188] | 3.000 [3.000, 3.000] |
 
+## Decision Framework: KalmanorixFuser vs MeanFuser
+
+| Rule | Threshold | Observed | Pass |
+|---|---:|---:|---|
+| Primary metric (nDCG@10 Δ mean) | >= 0.0200 | 0.071012 | yes |
+| Adjusted p-value (Holm) | <= 0.0500 | 1.000000 | no |
+| Latency ratio (Kalman/Mean) | <= 1.500 | 2.165 | no |
+| FLOPs ratio (Kalman/Mean) | <= 1.100 | 1.000 | yes |
+
 ## Paired Statistical Test: KalmanorixFuser vs MeanFuser
 
 | Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |
@@ -29,9 +38,10 @@
 | recall@10 | 0.000000 | [0.000000, 0.000000] | 1.000000 | 1.000000 |
 | mrr@10 | 0.094444 | [-0.080556, 0.336111] | 0.843750 | 1.000000 |
 
-## Interpretation
+## Verdict
 
-- KalmanorixFuser does not show a statistically significant nDCG@10 improvement over MeanFuser in this run.
+- **kalman_vs_mean:** `inconclusive`
+- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise `inconclusive`.
 - LearnedGateFuser omitted: LearnedGateFuser requires a two-specialist setup; current run uses 3 specialists
 - This report is descriptive for the configured setup and should not be generalized beyond it.
 
