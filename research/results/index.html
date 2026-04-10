@@ -2588,8 +2588,8 @@
 <p>This page reports only what is currently supported by committed artifacts.</p>
 <h2 id="current-evidence-state">Current Evidence State<a class="headerlink" href="#current-evidence-state" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Canonical artifact path:</strong> <code>results/canonical_benchmark/</code></li>
-<li><strong>State:</strong> <strong>Real artifact committed</strong> (<code>summary.json</code>, <code>report.md</code>).</li>
+<li><strong>Canonical artifact paths:</strong> <code>results/canonical_benchmark/</code> (v1) and <code>results/canonical_benchmark_v2/</code> (stronger protocol target).</li>
+<li><strong>State:</strong> v1 artifact committed (<code>summary.json</code>, <code>report.md</code>); v2 command path documented for regeneration.</li>
 <li><strong>What this means:</strong> canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.</li>
 </ul>
 <h2 id="demonstrated-vs-planned">Demonstrated vs Planned<a class="headerlink" href="#demonstrated-vs-planned" title="Permanent link">&para;</a></h2>
@@ -2608,14 +2608,24 @@
 <ul>
 <li><code>results/canonical_benchmark/summary.json</code></li>
 <li><code>results/canonical_benchmark/report.md</code></li>
+<li><code>results/canonical_benchmark_v2/README.md</code> (reproducible stronger-benchmark command)</li>
 </ul>
-<p>These files are produced by the single-command pipeline:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kalmanorix-run-canonical-benchmark<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--split<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark
+<p>Canonical v2 is produced with a two-step but fully reproducible command sequence:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>scripts/build_mixed_benchmark.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--output-dir<span class="w"> </span>benchmarks/mixed_beir_v1.1.0<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--seed<span class="w"> </span><span class="m">1337</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--max-candidates<span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--cross-domain-negative-ratio<span class="w"> </span><span class="m">0</span>.45<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--max-queries-per-domain<span class="w"> </span><span class="m">900</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--max-test-queries-per-domain<span class="w"> </span><span class="m">180</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>experiments/run_canonical_benchmark.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.1.0/mixed_benchmark.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span>--split<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark_v2
 </span></code></pre></div>
-<p>The artifact includes MeanFuser, KalmanorixFuser, hard-routing, and all-routing+mean baselines (plus LearnedGateFuser only when a two-specialist setup is used), with paired Kalman-vs-mean testing and confidence intervals for quality/latency/FLOPs proxy metrics.</p>
+<p>The canonical artifact includes MeanFuser, KalmanorixFuser, hard-routing, and all-routing+mean baselines (plus LearnedGateFuser only when a two-specialist setup is used), with paired Kalman-vs-mean testing and confidence intervals for quality/latency/FLOPs proxy metrics. v2 additionally tracks nDCG@5, MRR@5, Recall@1, and top-1 success.</p>
 <h2 id="core-claim-evidence-status">Core Claim Evidence Status<a class="headerlink" href="#core-claim-evidence-status" title="Permanent link">&para;</a></h2>
 <h3 id="1-semantic-routing-improves-compute-efficiency">1) Semantic routing improves compute efficiency<a class="headerlink" href="#1-semantic-routing-improves-compute-efficiency" title="Permanent link">&para;</a></h3>
 <p><strong>Evidence status:</strong> <strong>Supported (artifact-backed).</strong></p>
