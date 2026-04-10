@@ -2,6 +2,12 @@
 
 This document defines the experiment policy after the April 2026 audit: **separate demonstrated evidence from planned work, and label synthetic results explicitly**.
 
+## Current Evidence State
+
+- **Canonical artifact path:** `results/canonical_benchmark/`
+- **State:** **Real artifact committed** (`summary.json`, `report.md`).
+- **Status signal:** this confirms the benchmark pipeline is active; it does not close the unresolved quality claims.
+
 ## 1) Demonstrated Evidence (as of April 9, 2026)
 
 ### Demonstrated claim
