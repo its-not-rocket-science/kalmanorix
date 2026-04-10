@@ -54,6 +54,13 @@ from .kalman_prior_ablation import (
     kalman_fuse_with_prior_modes,
     run_kalman_prior_ablation,
 )
+from .kalman_learned_correction import (
+    LearnedCorrectionConfig,
+    CorrectionCheckpoint,
+    KalmanLearnedCorrection,
+    run_kalman_learned_correction,
+)
+
 from .kalman_covariance_ablation import (
     AblationConfig,
     CovarianceFitConfig,
@@ -115,4 +122,8 @@ __all__ = [
     "fit_learned_linear_prior",
     "kalman_fuse_with_prior_modes",
     "run_kalman_prior_ablation",
+    "LearnedCorrectionConfig",
+    "CorrectionCheckpoint",
+    "KalmanLearnedCorrection",
+    "run_kalman_learned_correction",
 ]
