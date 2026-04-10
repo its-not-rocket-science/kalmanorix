@@ -26,6 +26,62 @@ CANONICAL_METHOD_ALIASES = {
     "LearnedGateFuser": "learned_gate_fuser",
 }
 
+CANONICAL_DECISION_RULES = {
+    "primary_metric": "ndcg@10",
+    "minimum_effect_size": 0.02,
+    "adjusted_p_value_threshold": 0.05,
+    "max_latency_ratio_vs_mean": 1.5,
+    "max_flops_ratio_vs_mean": 1.1,
+}
+
+
+def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
+    rules = CANONICAL_DECISION_RULES
+    stats = summary["paired_statistics"]["kalman_vs_mean"]["overall"]
+    methods = summary["methods"]
+    primary_metric = rules["primary_metric"]
+    primary_stats = stats[primary_metric]
+
+    effect_delta = float(primary_stats["mean_difference"])
+    adjusted_p_value = float(primary_stats["adjusted_p_value"])
+    latency_ratio = float(
+        methods["kalman"]["metrics"]["latency_ms"]["mean"]
+        / methods["mean"]["metrics"]["latency_ms"]["mean"]
+    )
+    flops_ratio = float(
+        methods["kalman"]["metrics"]["flops_proxy"]["mean"]
+        / methods["mean"]["metrics"]["flops_proxy"]["mean"]
+    )
+
+    checks = {
+        "effect_size_ok": effect_delta >= float(rules["minimum_effect_size"]),
+        "adjusted_p_value_ok": adjusted_p_value
+        <= float(rules["adjusted_p_value_threshold"]),
+        "latency_ratio_ok": latency_ratio <= float(rules["max_latency_ratio_vs_mean"]),
+        "flops_ratio_ok": flops_ratio <= float(rules["max_flops_ratio_vs_mean"]),
+    }
+
+    if all(checks.values()):
+        verdict = "supported"
+    elif effect_delta <= 0.0 and adjusted_p_value <= float(
+        rules["adjusted_p_value_threshold"]
+    ):
+        verdict = "unsupported"
+    else:
+        verdict = "inconclusive"
+
+    return {
+        "verdict": verdict,
+        "rules": rules,
+        "observed": {
+            "primary_metric_delta": effect_delta,
+            "primary_metric_adjusted_p_value": adjusted_p_value,
+            "latency_ratio_vs_mean": latency_ratio,
+            "flops_ratio_vs_mean": flops_ratio,
+        },
+        "checks": checks,
+    }
+
 
 def _load_split_counts(benchmark_path: Path) -> dict[str, int]:
     pyarrow_available = importlib.util.find_spec("pyarrow") is not None
@@ -60,15 +116,11 @@ def _by_domain(
 def _render_report(summary: dict[str, Any]) -> str:
     methods = summary["methods"]
     stats = summary["paired_statistics"]["kalman_vs_mean"]
-    ndcg_delta = stats["overall"]["ndcg@10"]["mean_difference"]
-    ndcg_padj = stats["overall"]["ndcg@10"]["adjusted_p_value"]
-    kalman_wins = ndcg_delta > 0 and ndcg_padj < 0.05
-
-    verdict = (
-        "KalmanorixFuser outperforms MeanFuser on nDCG@10 with paired significance."
-        if kalman_wins
-        else "KalmanorixFuser does not show a statistically significant nDCG@10 improvement over MeanFuser in this run."
-    )
+    decision = summary["decision"]["kalman_vs_mean"]
+    rules = decision["rules"]
+    observed = decision["observed"]
+    checks = decision["checks"]
+    verdict = decision["verdict"]
 
     lines = [
         "# Canonical Benchmark Report",
@@ -114,6 +166,31 @@ def _render_report(summary: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "## Decision Framework: KalmanorixFuser vs MeanFuser",
+            "",
+            "| Rule | Threshold | Observed | Pass |",
+            "|---|---:|---:|---|",
+            "| Primary metric (nDCG@10 Δ mean) | >= {threshold:.4f} | {observed_value:.6f} | {passed} |".format(
+                threshold=rules["minimum_effect_size"],
+                observed_value=observed["primary_metric_delta"],
+                passed="yes" if checks["effect_size_ok"] else "no",
+            ),
+            "| Adjusted p-value (Holm) | <= {threshold:.4f} | {observed_value:.6f} | {passed} |".format(
+                threshold=rules["adjusted_p_value_threshold"],
+                observed_value=observed["primary_metric_adjusted_p_value"],
+                passed="yes" if checks["adjusted_p_value_ok"] else "no",
+            ),
+            "| Latency ratio (Kalman/Mean) | <= {threshold:.3f} | {observed_value:.3f} | {passed} |".format(
+                threshold=rules["max_latency_ratio_vs_mean"],
+                observed_value=observed["latency_ratio_vs_mean"],
+                passed="yes" if checks["latency_ratio_ok"] else "no",
+            ),
+            "| FLOPs ratio (Kalman/Mean) | <= {threshold:.3f} | {observed_value:.3f} | {passed} |".format(
+                threshold=rules["max_flops_ratio_vs_mean"],
+                observed_value=observed["flops_ratio_vs_mean"],
+                passed="yes" if checks["flops_ratio_ok"] else "no",
+            ),
+            "",
             "## Paired Statistical Test: KalmanorixFuser vs MeanFuser",
             "",
             "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |",
@@ -133,7 +210,15 @@ def _render_report(summary: dict[str, Any]) -> str:
             )
         )
 
-    lines.extend(["", "## Interpretation", "", f"- {verdict}"])
+    lines.extend(
+        [
+            "",
+            "## Verdict",
+            "",
+            f"- **kalman_vs_mean:** `{verdict}`",
+            "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise `inconclusive`.",
+        ]
+    )
     if not summary["comparisons"]["LearnedGateFuser"]["included"]:
         lines.append(
             f"- LearnedGateFuser omitted: {summary['comparisons']['LearnedGateFuser']['reason']}"
@@ -327,6 +412,7 @@ def run_canonical_benchmark(
         "methods": methods,
         "paired_statistics": {"kalman_vs_mean": paired_summary},
     }
+    summary["decision"] = {"kalman_vs_mean": _classify_kalman_vs_mean(summary)}
 
     (output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
@@ -364,7 +450,15 @@ def main() -> None:
         num_resamples=args.num_resamples,
     )
     print(
-        json.dumps(summary["paired_statistics"]["kalman_vs_mean"]["overall"], indent=2)
+        json.dumps(
+            {
+                "paired_statistics": summary["paired_statistics"]["kalman_vs_mean"][
+                    "overall"
+                ],
+                "decision": summary["decision"]["kalman_vs_mean"],
+            },
+            indent=2,
+        )
     )
 
 
