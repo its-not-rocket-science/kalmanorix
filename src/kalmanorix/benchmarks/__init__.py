@@ -46,6 +46,7 @@ from .routing_evaluation import (
     ThresholdSweepConfig,
     evaluate_routing,
     evaluate_threshold_robustness,
+    render_routing_eval_markdown,
 )
 
 __all__ = [
@@ -87,4 +88,5 @@ __all__ = [
     "ThresholdSweepConfig",
     "evaluate_routing",
     "evaluate_threshold_robustness",
+    "render_routing_eval_markdown",
 ]

@@ -119,6 +119,27 @@ This creates a `demo.ipynb` notebook that you can open in Jupyter.
 - Visualizing embedding spaces and uncertainty
 - Real‑time parameter tuning
 
+### 7. Routing Toolkit End-to-End
+**Doc**: `docs/examples/routing-toolkit-e2e.md`
+
+A full CLI walkthrough for routing evaluation using the committed small dataset and output artifacts.
+
+**Run it**:
+```bash
+kalmanorix-eval-routing \
+  --dataset datasets/routing_eval/small_routing_eval_v1.json \
+  --output results/routing_eval/small_routing_eval_v1_report.json \
+  --markdown-output results/routing_eval/small_routing_eval_v1_report.md \
+  --mode semantic \
+  --semantic-threshold 0.7 \
+  --semantic-thresholds 0.5,0.6,0.7,0.8
+```
+
+**Key learning points**:
+- How to run deterministic routing evaluation from versioned input data
+- How to review wins and failure cases without manually inspecting JSON
+- How threshold sweeps change precision/recall/efficiency trade-offs
+
 ## Running Examples
 
 All examples are located in the `examples/` directory of the repository. Most examples have minimal dependencies beyond the base Kalmanorix installation.

@@ -137,6 +137,7 @@ nav:
     - Production API Design: guides/production-api-design.md
   - Examples:
     - Minimal Fusion: examples/minimal-fusion.md
+    - Routing Toolkit E2E: examples/routing-toolkit-e2e.md
     - HuggingFace Integration: examples/huggingface-integration.md
     - API Server: examples/api-server.md
     - Interactive Demo: examples/interactive-demo.md
