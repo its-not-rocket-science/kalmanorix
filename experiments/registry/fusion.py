@@ -78,6 +78,13 @@ class RetrievalFusionStrategy(ABC):
     def weights_for_query(self, query_text: str, modules: list[Any]) -> np.ndarray:
         """Return per-module non-negative weights summing to 1."""
 
+    def diagnostics_for_query(
+        self, query_text: str, modules: list[Any]
+    ) -> dict[str, Any] | None:
+        """Optional per-query diagnostics emitted by adaptive policies."""
+        _ = (query_text, modules)
+        return None
+
 
 class UniformMeanStrategy(RetrievalFusionStrategy):
     def __init__(self) -> None:
@@ -198,6 +205,199 @@ class RouterTopKMeanStrategy(RetrievalFusionStrategy):
         return weights
 
 
+class AdaptiveRouteOrFuseStrategy(RetrievalFusionStrategy):
+    """Interpretable adaptive selector across hard-route, mean-fuse, and Kalman-fuse."""
+
+    def __init__(
+        self,
+        top_k: int = 2,
+        selector_type: str = "rule",
+        high_conf_gap: float = 0.35,
+        low_conf_gap: float = 0.12,
+        low_disagreement: float = 0.20,
+        high_disagreement: float = 0.45,
+        low_dispersion: float = 0.20,
+        high_dispersion: float = 0.45,
+        router_relative_threshold: float = 0.85,
+    ) -> None:
+        super().__init__(name="adaptive_route_or_fuse")
+        if selector_type not in {"rule", "learned"}:
+            raise ValueError("selector_type must be 'rule' or 'learned'")
+        self.top_k = top_k
+        self.selector_type = selector_type
+        self.high_conf_gap = high_conf_gap
+        self.low_conf_gap = low_conf_gap
+        self.low_disagreement = low_disagreement
+        self.high_disagreement = high_disagreement
+        self.low_dispersion = low_dispersion
+        self.high_dispersion = high_dispersion
+        self.router_relative_threshold = router_relative_threshold
+        self._centroids: dict[str, np.ndarray] = {}
+
+    def _signals(self, query_text: str, modules: list[Any]) -> dict[str, Any]:
+        sigma2 = np.asarray([float(module.sigma2_for(query_text)) for module in modules])
+        router_scores = 1.0 / np.clip(sigma2, 1e-8, None)
+        order = np.argsort(-router_scores)
+        top = router_scores[order[0]]
+        second = router_scores[order[1]] if len(order) > 1 else 0.0
+        confidence_gap = float((top - second) / max(top, 1e-8))
+
+        selected = np.where(router_scores >= top * self.router_relative_threshold)[0]
+        if selected.size == 0:
+            selected = np.asarray([int(order[0])])
+
+        query_vecs = [_normalize(_resolve_embedding(module, query_text)) for module in modules]
+        disagreement_values: list[float] = []
+        for i, left in enumerate(selected):
+            for right in selected[i + 1 :]:
+                sim = float(np.dot(query_vecs[int(left)], query_vecs[int(right)]))
+                disagreement_values.append(1.0 - sim)
+        specialist_disagreement = (
+            float(np.mean(disagreement_values)) if disagreement_values else 0.0
+        )
+
+        selected_sigma2 = sigma2[selected]
+        mean_sigma2 = float(np.mean(selected_sigma2)) if selected_sigma2.size else 0.0
+        uncertainty_dispersion = float(np.std(selected_sigma2) / max(mean_sigma2, 1e-8))
+
+        return {
+            "confidence_gap": confidence_gap,
+            "selected_specialist_count": int(selected.size),
+            "selected_indices": selected,
+            "router_order": order,
+            "specialist_disagreement": specialist_disagreement,
+            "uncertainty_dispersion": uncertainty_dispersion,
+            "sigma2": sigma2,
+        }
+
+    def _rule_mode(self, signals: dict[str, Any]) -> str:
+        count = int(signals["selected_specialist_count"])
+        gap = float(signals["confidence_gap"])
+        disagreement = float(signals["specialist_disagreement"])
+        dispersion = float(signals["uncertainty_dispersion"])
+        if (
+            count <= 1
+            and gap >= self.high_conf_gap
+            and disagreement <= self.low_disagreement
+            and dispersion <= self.low_dispersion
+        ):
+            return "hard_routing"
+        if (
+            count >= 3
+            or gap <= self.low_conf_gap
+            or disagreement >= self.high_disagreement
+            or dispersion >= self.high_dispersion
+        ):
+            return "kalman_fusion"
+        return "topk_mean_fusion"
+
+    def _feature_vector(self, signals: dict[str, Any]) -> np.ndarray:
+        return np.asarray(
+            [
+                float(signals["confidence_gap"]),
+                float(signals["selected_specialist_count"]),
+                float(signals["specialist_disagreement"]),
+                float(signals["uncertainty_dispersion"]),
+            ],
+            dtype=np.float64,
+        )
+
+    def _weights_for_mode(self, mode: str, signals: dict[str, Any], n_modules: int) -> np.ndarray:
+        order = np.asarray(signals["router_order"])
+        sigma2 = np.asarray(signals["sigma2"], dtype=np.float64)
+        weights = np.zeros(n_modules, dtype=np.float64)
+        if mode == "hard_routing":
+            weights[int(order[0])] = 1.0
+            return weights
+        if mode == "topk_mean_fusion":
+            k = min(max(self.top_k, 1), n_modules)
+            idx = order[:k]
+            weights[idx] = 1.0 / k
+            return weights
+
+        k = min(max(self.top_k, 2), n_modules)
+        idx = order[:k]
+        precision = 1.0 / np.clip(sigma2[idx], 1e-8, None)
+        precision_sum = float(np.sum(precision))
+        if precision_sum <= 0.0:
+            weights[idx] = 1.0 / len(idx)
+            return weights
+        weights[idx] = precision / precision_sum
+        return weights
+
+    def _select_mode(self, signals: dict[str, Any]) -> str:
+        if self.selector_type == "learned" and self._centroids:
+            feature = self._feature_vector(signals)
+            best_mode = min(
+                self._centroids,
+                key=lambda label: float(np.linalg.norm(feature - self._centroids[label])),
+            )
+            return best_mode
+        return self._rule_mode(signals)
+
+    def fit(
+        self, rows: list[dict[str, Any]], village: Village, options: dict[str, Any]
+    ) -> None:
+        if self.selector_type != "learned":
+            return
+        mode_features: dict[str, list[np.ndarray]] = {
+            "hard_routing": [],
+            "topk_mean_fusion": [],
+            "kalman_fusion": [],
+        }
+        for row in rows:
+            modules = village.modules
+            signals = self._signals(row["query_text"], modules)
+            query_vecs = [_resolve_embedding(module, row["query_text"]) for module in modules]
+            doc_vecs: list[list[np.ndarray]] = [[] for _ in modules]
+            for candidate in row["candidate_documents"]:
+                doc_text = f"{candidate.get('title', '')} {candidate.get('text', '')}".strip()
+                for idx, module in enumerate(modules):
+                    doc_vecs[idx].append(_resolve_embedding(module, doc_text))
+            rr_by_mode: dict[str, float] = {}
+            for mode in mode_features:
+                weights = self._weights_for_mode(mode, signals, len(modules))
+                ranked = _fuse_and_rank(
+                    query_vecs=query_vecs,
+                    doc_vecs=doc_vecs,
+                    weights=weights,
+                    candidates=row["candidate_documents"],
+                )
+                rr_by_mode[mode] = _reciprocal_rank(
+                    ranked_ids=ranked,
+                    relevant_ids=set(row["ground_truth_relevant_ids"]),
+                )
+            oracle_mode = max(rr_by_mode.items(), key=lambda item: item[1])[0]
+            mode_features[oracle_mode].append(self._feature_vector(signals))
+
+        self._centroids = {}
+        for mode, features in mode_features.items():
+            if not features:
+                continue
+            self._centroids[mode] = np.mean(np.asarray(features), axis=0)
+
+    def diagnostics_for_query(
+        self, query_text: str, modules: list[Any]
+    ) -> dict[str, Any] | None:
+        signals = self._signals(query_text, modules)
+        mode = self._select_mode(signals)
+        return {
+            "mode": mode,
+            "selector_type": self.selector_type,
+            "signals": {
+                "confidence_gap": float(signals["confidence_gap"]),
+                "selected_specialist_count": int(signals["selected_specialist_count"]),
+                "specialist_disagreement": float(signals["specialist_disagreement"]),
+                "uncertainty_dispersion": float(signals["uncertainty_dispersion"]),
+            },
+        }
+
+    def weights_for_query(self, query_text: str, modules: list[Any]) -> np.ndarray:
+        signals = self._signals(query_text, modules)
+        mode = self._select_mode(signals)
+        return self._weights_for_mode(mode, signals, len(modules))
+
+
 class LearnedLinearCombinerStrategy(RetrievalFusionStrategy):
     def __init__(self, ridge_lambda: float = 1e-3, train_fraction: float = 0.5) -> None:
         super().__init__(name="learned_linear_combiner")
@@ -303,6 +503,7 @@ def build_retrieval_baselines(options: dict[str, Any]) -> list[RetrievalFusionSt
     """Build required rigorous baseline suite with a unified interface."""
     fixed_weights = options.get("fixed_weights", {})
     top_k = int(options.get("router_top_k", 2))
+    adaptive_selector_type = str(options.get("adaptive_selector_type", "rule"))
 
     return [
         BestSingleSpecialistStrategy(
@@ -315,6 +516,7 @@ def build_retrieval_baselines(options: dict[str, Any]) -> list[RetrievalFusionSt
         ),
         RouterTop1Strategy(),
         RouterTopKMeanStrategy(top_k=top_k),
+        AdaptiveRouteOrFuseStrategy(top_k=top_k, selector_type=adaptive_selector_type),
         LearnedLinearCombinerStrategy(
             ridge_lambda=float(options.get("ridge_lambda", 1e-3)),
             train_fraction=float(options.get("train_fraction", 0.5)),
