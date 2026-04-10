@@ -1,18 +1,18 @@
 """Experimental public API for :mod:`kalmanorix`.
 
-This module contains advanced and still-evolving features that remain
+This package contains advanced and still-evolving features that remain
 importable for early adopters, but are not part of the stable top-level
 ``kalmanorix`` namespace contract.
 """
 
-from .alignment import (
+from ..alignment import (
     align_sef_list,
     apply_alignment,
     compute_alignments,
     validate_alignment_improvement,
     validate_alignment_sign,
 )
-from .embedder_adapters import (
+from ..embedder_adapters import (
     AnthropicEmbedder,
     AzureOpenAIEmbedder,
     CohereEmbedder,
@@ -35,14 +35,14 @@ from .embedder_adapters import (
     create_vertexai_sef,
     create_vertexai_sef_with_calibration,
 )
-from .model_registry import ModelRegistry, get_default_registry
-from .panoramix import (
+from ..model_registry import ModelRegistry, get_default_registry
+from ..panoramix import (
     DiagonalKalmanFuser,
     EnsembleKalmanFuser,
     LearnedGateFuser,
     StructuredKalmanFuser,
 )
-from .threshold_heuristics import (
+from ..threshold_heuristics import (
     threshold_adaptive_spread,
     threshold_query_length_adaptive,
     threshold_relative_to_max,
