@@ -1,5 +1,10 @@
 # Canonical Benchmark Report
 
+## Current Evidence State
+- **Canonical artifact path:** `results/canonical_benchmark/`
+- **State:** **Real artifact committed** (`summary.json`, `report.md`).
+- **Interpretation boundary:** this run is valid benchmark evidence for this setup, but it does not close the open quality hypotheses.
+
 ## Setup
 - Benchmark: `benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet`
 - Split evaluated: `test`

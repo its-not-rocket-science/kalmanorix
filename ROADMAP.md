@@ -5,6 +5,12 @@
 
 This roadmap separates what has been **demonstrated** from what is still **planned**.
 
+## Current Evidence State
+
+- **Canonical artifact path:** `results/canonical_benchmark/`
+- **State:** **Real artifact committed** (`summary.json` and `report.md` exist).
+- **Implication:** benchmark machinery exists and has produced a canonical run, but core quality claims are still unresolved.
+
 ## Snapshot: Evidence-Grounded Status
 
 | Core claim | Evidence status | Notes |

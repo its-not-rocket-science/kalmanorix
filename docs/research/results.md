@@ -2,6 +2,12 @@
 
 This page reports only what is currently supported by committed artifacts.
 
+## Current Evidence State
+
+- **Canonical artifact path:** `results/canonical_benchmark/`
+- **State:** **Real artifact committed** (`summary.json`, `report.md`).
+- **What this means:** canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.
+
 ## Demonstrated vs Planned
 
 ### Demonstrated

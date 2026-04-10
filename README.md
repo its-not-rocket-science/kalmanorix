@@ -5,6 +5,12 @@
 > - ⚠️ Not yet demonstrated: statistically significant quality gains of Kalman fusion over simple mean fusion.
 > - ⚠️ Not yet demonstrated: specialists-vs-monolith quality advantage under matched compute.
 
+## Current Evidence State
+
+- **Canonical artifact path:** `results/canonical_benchmark/`
+- **State:** **Real artifact committed** (`summary.json` and `report.md` are present).
+- **Readout:** the committed canonical run is evidence, but it does **not** close the quality hypotheses (Kalman-vs-mean and specialists-vs-monolith remain unresolved).
+
 Kalmanorix is an experimental framework for combining specialist embedding models with uncertainty-aware fusion and semantic routing. The project can also be used as a standalone **routing-and-efficiency toolkit** even if fusion-quality hypotheses remain unresolved.
 
 ## API Maturity Tiers
@@ -45,7 +51,7 @@ For compatibility, experimental symbols remain temporarily importable from `kalm
 ### Claim B: Kalman fusion improves retrieval quality over mean fusion
 **Evidence status:** **Unresolved (not demonstrated).**
 
-- Current state: the canonical benchmark artifact is now published, and it does not establish a statistically significant improvement over mean fusion for the configured run.
+- Current state: the committed canonical benchmark run does not establish a statistically significant improvement over mean fusion for the configured run.
 - Prior synthetic/debug experiments exist but are not sufficient for headline claims.
 
 ### Claim C: Fused specialists outperform a monolith at equal compute
