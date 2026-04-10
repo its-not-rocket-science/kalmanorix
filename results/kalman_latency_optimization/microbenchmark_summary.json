@@ -1,0 +1,27 @@
+{
+  "strategies": {
+    "mean": {
+      "mean_ms": 0.26693495495237585,
+      "p50_ms": 0.2335070003027795,
+      "p95_ms": 0.3949583013309166
+    },
+    "kalman_legacy": {
+      "mean_ms": 1.6329606650015194,
+      "p50_ms": 1.5682260009270976,
+      "p95_ms": 2.4072331990282687
+    },
+    "kalman_optimized": {
+      "mean_ms": 0.7930358250087011,
+      "p50_ms": 0.7827435001672711,
+      "p95_ms": 0.9786445000827371
+    }
+  },
+  "speedup_legacy_to_optimized": 2.059125973260543,
+  "optimized_vs_mean_latency_ratio": 2.9708953821734867,
+  "profiling": {
+    "embed_calls": 10800,
+    "embed_seconds": 0.3822638100300537,
+    "sigma2_calls": 4800,
+    "sigma2_seconds": 0.30612397000913916
+  }
+}
