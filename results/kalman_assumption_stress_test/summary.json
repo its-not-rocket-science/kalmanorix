@@ -1,0 +1,305 @@
+{
+  "config": {
+    "random_seed": 41,
+    "dimension": 48,
+    "n_docs": 300,
+    "n_specialists": 4,
+    "n_per_case_type": 20,
+    "variance_floor": 1e-06,
+    "inflation_alpha": 1.0
+  },
+  "methods": [
+    "mean",
+    "hard_routing",
+    "scalar_kalman",
+    "correlation_aware_kalman",
+    "structured_kalman"
+  ],
+  "structured_kalman_available": true,
+  "notes": {
+    "slice_scope": "isolated_stress_test",
+    "headline_claim_guardrail": "requires_replication_on_canonical",
+    "intended_use": "mechanism_level_hypothesis_testing"
+  },
+  "metrics_by_assumption": {
+    "strong_specialist_asymmetry": {
+      "rationale": "One specialist is clearly better per-query while others are much noisier; tests if uncertainty-aware fusion and routing exploit heterogeneity.",
+      "n_queries": 20,
+      "metrics": {
+        "mean": {
+          "recall_at_1": 0.3,
+          "recall_at_5": 0.85,
+          "mrr": 0.4958458646616541
+        },
+        "hard_routing": {
+          "recall_at_1": 0.55,
+          "recall_at_5": 0.85,
+          "mrr": 0.7050595238095237
+        },
+        "scalar_kalman": {
+          "recall_at_1": 0.3,
+          "recall_at_5": 0.75,
+          "mrr": 0.4573567608861726
+        },
+        "correlation_aware_kalman": {
+          "recall_at_1": 0.3,
+          "recall_at_5": 0.75,
+          "mrr": 0.45742063492063495
+        },
+        "structured_kalman": {
+          "recall_at_1": 0.3,
+          "recall_at_5": 0.8,
+          "mrr": 0.4457140369209335
+        }
+      },
+      "estimated_sigma2": [
+        0.010429134708812461,
+        0.011920382429347157,
+        0.011843373530639337,
+        0.016037347439122177
+      ],
+      "estimated_correlation": [
+        [
+          1.0,
+          -0.24370370424738605,
+          -0.4371817685309353,
+          -0.4325779909399566
+        ],
+        [
+          -0.24370370424738605,
+          1.0,
+          -0.47877274871569975,
+          -0.24497954526508778
+        ],
+        [
+          -0.4371817685309353,
+          -0.4787727487156998,
+          1.0,
+          0.09476654137504056
+        ],
+        [
+          -0.43257799093995664,
+          -0.24497954526508775,
+          0.09476654137504056,
+          1.0
+        ]
+      ]
+    },
+    "conflicting_specialists": {
+      "rationale": "Specialists are similarly noisy, but one specialist may carry an adversarial bias; tests robustness when experts disagree with structured conflict.",
+      "n_queries": 20,
+      "metrics": {
+        "mean": {
+          "recall_at_1": 0.25,
+          "recall_at_5": 0.65,
+          "mrr": 0.44352869352869356
+        },
+        "hard_routing": {
+          "recall_at_1": 0.15,
+          "recall_at_5": 0.35,
+          "mrr": 0.2762428188418219
+        },
+        "scalar_kalman": {
+          "recall_at_1": 0.25,
+          "recall_at_5": 0.65,
+          "mrr": 0.427430600800166
+        },
+        "correlation_aware_kalman": {
+          "recall_at_1": 0.25,
+          "recall_at_5": 0.65,
+          "mrr": 0.427430600800166
+        },
+        "structured_kalman": {
+          "recall_at_1": 0.25,
+          "recall_at_5": 0.55,
+          "mrr": 0.3859591307385425
+        }
+      },
+      "estimated_sigma2": [
+        0.01424818605445259,
+        0.012058550743158323,
+        0.011431600304739992,
+        0.013582108290788592
+      ],
+      "estimated_correlation": [
+        [
+          1.0,
+          -0.18315397694364755,
+          0.0017380445607054539,
+          -0.5214572825515051
+        ],
+        [
+          -0.18315397694364755,
+          1.0,
+          -0.2027969171441123,
+          -0.2051775121143584
+        ],
+        [
+          0.0017380445607054539,
+          -0.2027969171441123,
+          1.0,
+          -0.5215068485438812
+        ],
+        [
+          -0.5214572825515051,
+          -0.2051775121143584,
+          -0.5215068485438811,
+          1.0
+        ]
+      ]
+    },
+    "high_redundancy": {
+      "rationale": "Experts are near-identical and share uncertainty; Kalman should offer little gain over mean when assumptions of complementary information are weak.",
+      "n_queries": 20,
+      "metrics": {
+        "mean": {
+          "recall_at_1": 0.2,
+          "recall_at_5": 0.45,
+          "mrr": 0.3213687744069476
+        },
+        "hard_routing": {
+          "recall_at_1": 0.2,
+          "recall_at_5": 0.45,
+          "mrr": 0.32505877583521203
+        },
+        "scalar_kalman": {
+          "recall_at_1": 0.2,
+          "recall_at_5": 0.45,
+          "mrr": 0.3213687744069476
+        },
+        "correlation_aware_kalman": {
+          "recall_at_1": 0.2,
+          "recall_at_5": 0.45,
+          "mrr": 0.3213687744069476
+        },
+        "structured_kalman": {
+          "recall_at_1": 0.2,
+          "recall_at_5": 0.45,
+          "mrr": 0.31687067198187097
+        }
+      },
+      "estimated_sigma2": [
+        0.007686158532685358,
+        0.007674787720981341,
+        0.0077239162197456175,
+        0.007713747292830081
+      ],
+      "estimated_correlation": [
+        [
+          1.0,
+          0.9931078468905197,
+          0.9941725110308813,
+          0.9930610076310714
+        ],
+        [
+          0.9931078468905197,
+          1.0,
+          0.9931958121182212,
+          0.9906483696747914
+        ],
+        [
+          0.9941725110308814,
+          0.9931958121182212,
+          1.0,
+          0.9891914802859109
+        ],
+        [
+          0.9930610076310714,
+          0.9906483696747914,
+          0.9891914802859108,
+          1.0
+        ]
+      ]
+    },
+    "low_redundancy_complementary": {
+      "rationale": "No single specialist dominates all dimensions of query space; signals are complementary with lower redundancy, where Kalman-style weighting should help.",
+      "n_queries": 20,
+      "metrics": {
+        "mean": {
+          "recall_at_1": 0.35,
+          "recall_at_5": 0.85,
+          "mrr": 0.5561038011695907
+        },
+        "hard_routing": {
+          "recall_at_1": 0.3,
+          "recall_at_5": 0.65,
+          "mrr": 0.4637807754680819
+        },
+        "scalar_kalman": {
+          "recall_at_1": 0.35,
+          "recall_at_5": 0.85,
+          "mrr": 0.5518055555555555
+        },
+        "correlation_aware_kalman": {
+          "recall_at_1": 0.35,
+          "recall_at_5": 0.85,
+          "mrr": 0.5559722222222223
+        },
+        "structured_kalman": {
+          "recall_at_1": 0.4,
+          "recall_at_5": 0.8,
+          "mrr": 0.5685284876413909
+        }
+      },
+      "estimated_sigma2": [
+        0.01058770424844716,
+        0.009812156109013854,
+        0.01172180620305705,
+        0.010977001465608364
+      ],
+      "estimated_correlation": [
+        [
+          1.0,
+          0.5498067507664504,
+          -0.5168566769362171,
+          -0.6771305538533886
+        ],
+        [
+          0.5498067507664504,
+          1.0,
+          -0.6456929575726655,
+          -0.5777752799870093
+        ],
+        [
+          -0.5168566769362171,
+          -0.6456929575726655,
+          1.0,
+          0.46543292820289517
+        ],
+        [
+          -0.6771305538533886,
+          -0.5777752799870093,
+          0.4654329282028951,
+          1.0
+        ]
+      ]
+    }
+  },
+  "overall_metrics": {
+    "mean": {
+      "recall_at_1": 0.275,
+      "recall_at_5": 0.7,
+      "mrr": 0.4542117834417215
+    },
+    "hard_routing": {
+      "recall_at_1": 0.3,
+      "recall_at_5": 0.575,
+      "mrr": 0.4425354734886599
+    },
+    "scalar_kalman": {
+      "recall_at_1": 0.275,
+      "recall_at_5": 0.675,
+      "mrr": 0.43949042291221047
+    },
+    "correlation_aware_kalman": {
+      "recall_at_1": 0.275,
+      "recall_at_5": 0.675,
+      "mrr": 0.44054805808749264
+    },
+    "structured_kalman": {
+      "recall_at_1": 0.2875,
+      "recall_at_5": 0.65,
+      "mrr": 0.42926808182068443
+    }
+  }
+}
