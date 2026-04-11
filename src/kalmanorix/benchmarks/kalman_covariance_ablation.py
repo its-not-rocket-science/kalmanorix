@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 import json
+import time
+import tracemalloc
 from pathlib import Path
 from typing import Any
 
@@ -35,12 +37,16 @@ class CovarianceFitConfig:
 
 @dataclass(frozen=True)
 class AblationConfig:
+    benchmark_version: str = "kalman_covariance_ablation_v2_enlarged"
     random_seed: int = 0
     dimension: int = 32
-    n_docs: int = 128
-    n_val: int = 200
-    n_test: int = 300
+    n_docs: int = 512
+    n_val: int = 1200
+    n_test: int = 1600
     n_specialists: int = 3
+    n_domains: int = 4
+    disagreement_quantile: float = 0.8
+    uncertainty_skew_quantile: float = 0.8
     fit: CovarianceFitConfig = CovarianceFitConfig()
 
 
@@ -157,37 +163,84 @@ def _sample_problem(cfg: AblationConfig) -> dict[str, Any]:
     rng = np.random.default_rng(cfg.random_seed)
     d = cfg.dimension
 
-    docs = rng.normal(size=(cfg.n_docs, d))
+    domain_centers = _l2_normalize(rng.normal(size=(cfg.n_domains, d)))
+    doc_domains = rng.integers(0, cfg.n_domains, size=cfg.n_docs)
+    docs = domain_centers[doc_domains] + 0.45 * rng.normal(size=(cfg.n_docs, d))
     docs = _l2_normalize(docs)
 
-    val_true = _l2_normalize(rng.normal(size=(cfg.n_val, d)))
-    test_true = _l2_normalize(rng.normal(size=(cfg.n_test, d)))
+    def _sample_queries(n_q: int) -> tuple[np.ndarray, np.ndarray]:
+        queries = []
+        multi_mask = np.zeros(n_q, dtype=bool)
+        for i in range(n_q):
+            is_multi = bool(rng.random() < 0.35)
+            multi_mask[i] = is_multi
+            if is_multi:
+                doms = rng.choice(cfg.n_domains, size=2, replace=False)
+                latent = (
+                    0.55 * domain_centers[doms[0]]
+                    + 0.45 * domain_centers[doms[1]]
+                    + 0.65 * rng.normal(size=d)
+                )
+            else:
+                dom = int(rng.integers(0, cfg.n_domains))
+                latent = domain_centers[dom] + 0.55 * rng.normal(size=d)
+            queries.append(latent)
+        return _l2_normalize(np.asarray(queries, dtype=np.float64)), multi_mask
+
+    val_true, _ = _sample_queries(cfg.n_val)
+    test_true, test_multi_domain_mask = _sample_queries(cfg.n_test)
 
     val_targets = np.argmax(val_true @ docs.T, axis=1)
     test_targets = np.argmax(test_true @ docs.T, axis=1)
 
     true_covs = _make_ground_truth_covariances(cfg, rng)
+    query_noise_scale_val = rng.lognormal(mean=0.0, sigma=0.3, size=(cfg.n_val, cfg.n_specialists))
+    query_noise_scale_test = rng.lognormal(mean=0.0, sigma=0.45, size=(cfg.n_test, cfg.n_specialists))
 
     val_obs: list[np.ndarray] = []
     test_obs: list[np.ndarray] = []
-    for cov in true_covs:
+    for idx, cov in enumerate(true_covs):
         val_noise = rng.multivariate_normal(np.zeros(d), cov, size=cfg.n_val)
         test_noise = rng.multivariate_normal(np.zeros(d), cov, size=cfg.n_test)
-        val_obs.append(_l2_normalize(val_true + val_noise))
-        test_obs.append(_l2_normalize(test_true + test_noise))
+        val_obs.append(_l2_normalize(val_true + query_noise_scale_val[:, [idx]] * val_noise))
+        test_obs.append(_l2_normalize(test_true + query_noise_scale_test[:, [idx]] * test_noise))
+
+    specialist_top1 = np.stack([np.argmax(obs @ docs.T, axis=1) for obs in test_obs], axis=1)
+    disagreement = np.array([len(set(preds.tolist())) for preds in specialist_top1], dtype=np.float64) / float(
+        cfg.n_specialists
+    )
+    skew = (
+        np.max(query_noise_scale_test, axis=1)
+        / (np.min(query_noise_scale_test, axis=1) + 1e-12)
+    )
+    disagreement_thr = float(np.quantile(disagreement, cfg.disagreement_quantile))
+    skew_thr = float(np.quantile(skew, cfg.uncertainty_skew_quantile))
 
     return {
         "docs": docs,
+        "doc_domains": doc_domains,
         "val_true": val_true,
         "test_true": test_true,
         "val_targets": val_targets,
         "test_targets": test_targets,
         "val_obs": val_obs,
         "test_obs": test_obs,
+        "bucket_masks": {
+            "all_queries": np.ones(cfg.n_test, dtype=bool),
+            "high_disagreement": disagreement >= disagreement_thr,
+            "multi_domain": test_multi_domain_mask,
+            "uncertainty_skewed": skew >= skew_thr,
+        },
+        "bucket_metadata": {
+            "disagreement_threshold": disagreement_thr,
+            "uncertainty_skew_threshold": skew_thr,
+        },
     }
 
 
 def _retrieval_metrics(queries: np.ndarray, docs: np.ndarray, targets: np.ndarray) -> RetrievalMetrics:
+    if queries.shape[0] == 0 or targets.shape[0] == 0:
+        return RetrievalMetrics(0.0, 0.0, 0.0)
     scores = _l2_normalize(queries) @ _l2_normalize(docs).T
     ranked = np.argsort(-scores, axis=1)
 
@@ -231,8 +284,29 @@ def _fuse_queries(
     return np.asarray(fused, dtype=np.float64)
 
 
+def _profile_method(
+    method: str,
+    observations: list[np.ndarray],
+    scalar_vars: list[float],
+    diag_vars: list[np.ndarray],
+    structured_covs: list[StructuredCovariance],
+) -> tuple[np.ndarray, dict[str, float]]:
+    tracemalloc.start()
+    start = time.perf_counter()
+    fused = _fuse_queries(method, observations, scalar_vars, diag_vars, structured_covs)
+    elapsed_ms = (time.perf_counter() - start) * 1000.0
+    _, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    n_queries = max(1, observations[0].shape[0])
+    return fused, {
+        "latency_ms_total": float(elapsed_ms),
+        "latency_ms_per_query": float(elapsed_ms / n_queries),
+        "peak_memory_kib": float(peak / 1024.0),
+    }
+
+
 def run_kalman_covariance_ablation(
-    output_dir: Path = Path("results/kalman_covariance_ablation"),
+    output_dir: Path = Path("results/kalman_covariance_ablation_v2"),
     config: AblationConfig | None = None,
 ) -> dict[str, Any]:
     """Run covariance-structure ablation and write summary/report artifacts."""
@@ -263,16 +337,26 @@ def run_kalman_covariance_ablation(
 
     methods = ["mean_fusion", "scalar_kalman", "diagonal_kalman", "structured_kalman"]
     metrics: dict[str, dict[str, float]] = {}
+    bucket_metrics: dict[str, dict[str, dict[str, float]]] = {}
+    efficiency: dict[str, dict[str, float]] = {}
     for method in methods:
-        fused = _fuse_queries(
+        fused, perf = _profile_method(
             method,
             problem["test_obs"],
             scalar_vars,
             diag_vars,
             structured_covs,
         )
+        efficiency[method] = perf
         m = _retrieval_metrics(fused, problem["docs"], problem["test_targets"])
         metrics[method] = asdict(m)
+        bucket_metrics[method] = {}
+        for bucket_name, mask in problem["bucket_masks"].items():
+            bucket_targets = problem["test_targets"][mask]
+            bucket_fused = fused[mask]
+            bucket_metrics[method][bucket_name] = asdict(
+                _retrieval_metrics(bucket_fused, problem["docs"], bucket_targets)
+            )
 
     summary = {
         "config": asdict(cfg),
@@ -282,8 +366,13 @@ def run_kalman_covariance_ablation(
             "structured_ranks": [cov.rank for cov in structured_covs],
         },
         "metrics": metrics,
+        "bucket_metrics": bucket_metrics,
+        "efficiency": efficiency,
+        "bucket_metadata": problem["bucket_metadata"],
+        "benchmark_artifact": str(output_dir),
+        "prior_artifact_for_comparison": "results/kalman_covariance_ablation",
         "question": "Do richer uncertainty families justify complexity?",
-        "answer": _answer(metrics),
+        "answer": _answer(metrics, bucket_metrics),
     }
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -293,16 +382,34 @@ def run_kalman_covariance_ablation(
     return summary
 
 
-def _answer(metrics: dict[str, dict[str, float]]) -> str:
-    best = max(metrics.items(), key=lambda kv: kv[1]["recall_at_1"])[0]
-    if best in {"diagonal_kalman", "structured_kalman"}:
-        return "Richer uncertainty improved retrieval enough to justify additional covariance structure in this benchmark."
-    return "Richer covariance did not clearly beat simpler baselines in this benchmark setting."
+def _answer(metrics: dict[str, dict[str, float]], bucket_metrics: dict[str, dict[str, dict[str, float]]]) -> str:
+    baseline_global = metrics["scalar_kalman"]["recall_at_1"]
+    richer_global = max(metrics["diagonal_kalman"]["recall_at_1"], metrics["structured_kalman"]["recall_at_1"])
+    global_gain = richer_global - baseline_global
+    local_gain = max(
+        bucket_metrics["diagonal_kalman"][bucket]["recall_at_1"] - bucket_metrics["scalar_kalman"][bucket]["recall_at_1"]
+        for bucket in ["high_disagreement", "multi_domain", "uncertainty_skewed"]
+    )
+    local_gain = max(
+        local_gain,
+        max(
+            bucket_metrics["structured_kalman"][bucket]["recall_at_1"]
+            - bucket_metrics["scalar_kalman"][bucket]["recall_at_1"]
+            for bucket in ["high_disagreement", "multi_domain", "uncertainty_skewed"]
+        ),
+    )
+    if global_gain >= 0.01:
+        return "Richer covariance is globally useful: diagonal/structured variants improve overall recall@1 by at least 1 point."
+    if local_gain >= 0.02:
+        return "Richer covariance is niche useful: global gains are small, but targeted buckets show meaningful improvements."
+    return "Richer covariance is not worth it in this setup: no global or bucket-level gain cleared practical thresholds."
 
 
 def _render_report(summary: dict[str, Any]) -> str:
     lines = [
         "# Kalman Covariance Ablation",
+        "",
+        f"Benchmark version: `{summary['config']['benchmark_version']}`",
         "",
         summary["question"],
         "",
@@ -317,6 +424,37 @@ def _render_report(summary: dict[str, Any]) -> str:
     for method, vals in summary["metrics"].items():
         lines.append(
             f"| {method} | {vals['recall_at_1']:.4f} | {vals['recall_at_5']:.4f} | {vals['mrr_at_10']:.4f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Per-bucket Recall@1",
+            "",
+            "| Method | All | High Disagreement | Multi-domain | Uncertainty-skewed |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for method, vals in summary["bucket_metrics"].items():
+        lines.append(
+            "| "
+            f"{method} | "
+            f"{vals['all_queries']['recall_at_1']:.4f} | "
+            f"{vals['high_disagreement']['recall_at_1']:.4f} | "
+            f"{vals['multi_domain']['recall_at_1']:.4f} | "
+            f"{vals['uncertainty_skewed']['recall_at_1']:.4f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Efficiency Trade-offs",
+            "",
+            "| Method | Total latency (ms) | Latency/query (ms) | Peak memory (KiB) |",
+            "| --- | ---: | ---: | ---: |",
+        ]
+    )
+    for method, vals in summary["efficiency"].items():
+        lines.append(
+            f"| {method} | {vals['latency_ms_total']:.2f} | {vals['latency_ms_per_query']:.4f} | {vals['peak_memory_kib']:.1f} |"
         )
 
     return "\n".join(lines) + "\n"
