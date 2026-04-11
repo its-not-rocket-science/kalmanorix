@@ -29,6 +29,11 @@ def _fake_details() -> dict[str, object]:
                     "q2": ["d2", "d3"],
                     "q3": ["d3", "d1"],
                 },
+                "router_only_topk_mean": {
+                    "q1": ["d1", "d4"],
+                    "q2": ["d2", "d3"],
+                    "q3": ["d3", "d1"],
+                },
                 "uniform_mean_fusion": {
                     "q1": ["d1", "d4"],
                     "q2": ["d2", "d3"],
@@ -39,13 +44,38 @@ def _fake_details() -> dict[str, object]:
                 "mean": {"q1": 1.0, "q2": 1.2, "q3": 1.1},
                 "kalman": {"q1": 1.1, "q2": 1.3, "q3": 1.2},
                 "router_only_top1": {"q1": 0.8, "q2": 0.9, "q3": 0.85},
+                "router_only_topk_mean": {"q1": 0.9, "q2": 1.0, "q3": 0.95},
                 "uniform_mean_fusion": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
+            },
+            "confidence_proxy": {
+                "router_only_top1": {"q1": 0.65, "q2": 0.55, "q3": 0.75}
             },
             "specialist_count_selected": {
                 "mean": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
                 "kalman": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
                 "router_only_top1": {"q1": 1.0, "q2": 1.0, "q3": 1.0},
+                "router_only_topk_mean": {"q1": 2.0, "q2": 2.0, "q3": 2.0},
                 "uniform_mean_fusion": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
+            },
+            "query_metadata": {
+                "q1": {
+                    "is_multi_domain": False,
+                    "specialist_disagreement": 0.2,
+                    "uncertainty_spread": 0.1,
+                    "router_confidence": 0.8,
+                },
+                "q2": {
+                    "is_multi_domain": True,
+                    "specialist_disagreement": 0.8,
+                    "uncertainty_spread": 0.3,
+                    "router_confidence": 0.4,
+                },
+                "q3": {
+                    "is_multi_domain": False,
+                    "specialist_disagreement": 0.4,
+                    "uncertainty_spread": 0.2,
+                    "router_confidence": 0.6,
+                },
             },
         }
     }
@@ -92,9 +122,11 @@ def test_canonical_benchmark_writes_artifacts(
         "mean",
         "kalman",
         "router_only_top1",
+        "router_only_topk_mean",
         "uniform_mean_fusion",
     }
     assert "ndcg@10" in on_disk["paired_statistics"]["kalman_vs_mean"]["overall"]
+    assert "bucket_analysis" in on_disk
     assert on_disk["decision"]["kalman_vs_mean"]["verdict"] in {
         "supported",
         "unsupported",
@@ -203,3 +235,4 @@ def test_canonical_report_includes_paired_statistics_section(
     assert "## Method Ranking Snapshot" in report_text
     assert "## Verdict" in report_text
     assert "## Demonstrated findings" in report_text
+    assert "## Bucketed Analysis" in report_text

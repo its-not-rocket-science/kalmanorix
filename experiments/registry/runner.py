@@ -112,6 +112,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     confidence_by_strategy: dict[str, dict[str, float]] = {}
     specialist_count_by_strategy: dict[str, dict[str, float]] = {}
     policy_usage_by_strategy: dict[str, dict[str, Any]] = {}
+    query_metadata: dict[str, dict[str, Any]] = {}
 
     def _confidence_from_selected(
         query_text: str, selected_modules: list[Any]
@@ -177,6 +178,58 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         latencies_by_strategy[strategy_name] = latencies
         confidence_by_strategy[strategy_name] = confidences
         specialist_count_by_strategy[strategy_name] = specialist_counts
+
+    for row in rows:
+        query_text = row["query_text"]
+        sigma2_by_specialist = {
+            module.name: float(module.sigma2_for(query_text)) for module in village.modules
+        }
+        precision_by_specialist = {
+            name: float(1.0 / max(value, 1e-8))
+            for name, value in sigma2_by_specialist.items()
+        }
+        precision_values = np.asarray(list(precision_by_specialist.values()), dtype=float)
+        sorted_precision = np.sort(precision_values)[::-1]
+        top_precision = float(sorted_precision[0]) if len(sorted_precision) else 0.0
+        second_precision = float(sorted_precision[1]) if len(sorted_precision) > 1 else 0.0
+        precision_sum = float(np.sum(precision_values))
+        if precision_sum > 0.0:
+            precision_probs = precision_values / precision_sum
+            entropy = -np.sum(precision_probs * np.log(precision_probs + 1e-12))
+            max_entropy = np.log(max(len(precision_values), 1))
+            disagreement = float(entropy / max(max_entropy, 1e-8))
+        else:
+            disagreement = 0.0
+
+        secondary_domain = row.get("secondary_domain")
+        is_multi_domain = bool(
+            secondary_domain
+            and str(secondary_domain).strip()
+            and str(secondary_domain) != str(row.get("dominant_domain", ""))
+        )
+        query_metadata[row["query_id"]] = {
+            "dominant_domain": row.get("dominant_domain", row.get("domain_label")),
+            "secondary_domain": secondary_domain,
+            "query_category": row.get("query_category"),
+            "ambiguity_category": row.get("ambiguity_category"),
+            "ambiguity_score": row.get("ambiguity_score"),
+            "fusion_usefulness_bucket": row.get("fusion_usefulness_bucket"),
+            "is_multi_domain": is_multi_domain,
+            "sigma2_by_specialist": sigma2_by_specialist,
+            "precision_by_specialist": precision_by_specialist,
+            "uncertainty_spread": float(
+                max(sigma2_by_specialist.values()) - min(sigma2_by_specialist.values())
+            )
+            if sigma2_by_specialist
+            else 0.0,
+            "router_top1_precision": top_precision,
+            "router_top2_precision": second_precision,
+            "router_confidence": float(top_precision / max(precision_sum, 1e-8)),
+            "router_margin": float(
+                (top_precision - second_precision) / max(top_precision, 1e-8)
+            ),
+            "specialist_disagreement": disagreement,
+        }
 
     baseline_strategies = build_retrieval_baselines(config.fusion.options)
     for strategy in baseline_strategies:
@@ -293,6 +346,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             "confidence_proxy": confidence_by_strategy,
             "specialist_count_selected": specialist_count_by_strategy,
             "policy_usage": policy_usage_by_strategy,
+            "query_metadata": query_metadata,
         },
         "comparison_table": comparison_table,
         "kalman_guardrail": {
