@@ -10,6 +10,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+import numpy as np
 
 from experiments.registry.config_schema import load_experiment_config
 from experiments.registry.runner import DEFAULT_REAL_SPECIALISTS, run_experiment
@@ -43,6 +44,179 @@ REPORT_METRICS = [
     "recall@10",
     "top1_success",
 ]
+BUCKET_SIGNIFICANCE_MIN_PAIRS = 20
+
+
+def _quantile(values: list[float], q: float) -> float:
+    if not values:
+        return 0.0
+    return float(np.quantile(np.asarray(values, dtype=float), q))
+
+
+def _bucket_query_ids(
+    *,
+    query_ids: list[str],
+    query_metadata: dict[str, dict[str, Any]],
+    specialist_counts: dict[str, float],
+    confidence_proxy: dict[str, float],
+) -> tuple[dict[str, list[str]], dict[str, float]]:
+    disagreement_values = [
+        float(query_metadata.get(qid, {}).get("specialist_disagreement", 0.0))
+        for qid in query_ids
+    ]
+    uncertainty_values = [
+        float(query_metadata.get(qid, {}).get("uncertainty_spread", 0.0))
+        for qid in query_ids
+    ]
+    router_conf_values = [
+        float(
+            query_metadata.get(qid, {}).get(
+                "router_confidence", confidence_proxy.get(qid, 0.0)
+            )
+        )
+        for qid in query_ids
+    ]
+    thresholds = {
+        "specialist_disagreement_median": _quantile(disagreement_values, 0.5),
+        "uncertainty_spread_median": _quantile(uncertainty_values, 0.5),
+        "router_confidence_low": _quantile(router_conf_values, 0.33),
+        "router_confidence_high": _quantile(router_conf_values, 0.67),
+    }
+    buckets = {
+        "high_specialist_disagreement": [],
+        "low_specialist_disagreement": [],
+        "high_uncertainty_spread": [],
+        "low_uncertainty_spread": [],
+        "single_domain_clear_winner": [],
+        "true_multi_domain_queries": [],
+        "router_high_confidence": [],
+        "router_low_confidence": [],
+    }
+    for qid in query_ids:
+        meta = query_metadata.get(qid, {})
+        disagreement = float(meta.get("specialist_disagreement", 0.0))
+        uncertainty = float(meta.get("uncertainty_spread", 0.0))
+        router_conf = float(meta.get("router_confidence", confidence_proxy.get(qid, 0.0)))
+        is_multi = bool(meta.get("is_multi_domain", False))
+        if not is_multi and float(specialist_counts.get(qid, 1.0)) > 1.0:
+            is_multi = True
+
+        if disagreement >= thresholds["specialist_disagreement_median"]:
+            buckets["high_specialist_disagreement"].append(qid)
+        else:
+            buckets["low_specialist_disagreement"].append(qid)
+        if uncertainty >= thresholds["uncertainty_spread_median"]:
+            buckets["high_uncertainty_spread"].append(qid)
+        else:
+            buckets["low_uncertainty_spread"].append(qid)
+        if is_multi:
+            buckets["true_multi_domain_queries"].append(qid)
+        if (not is_multi) and router_conf >= thresholds["router_confidence_high"]:
+            buckets["single_domain_clear_winner"].append(qid)
+        if router_conf >= thresholds["router_confidence_high"]:
+            buckets["router_high_confidence"].append(qid)
+        if router_conf <= thresholds["router_confidence_low"]:
+            buckets["router_low_confidence"].append(qid)
+    return buckets, thresholds
+
+
+def _build_bucket_report(
+    *,
+    methods: dict[str, Any],
+    query_ids: list[str],
+    bucket_to_qids: dict[str, list[str]],
+    seed: int,
+    num_resamples: int,
+) -> dict[str, Any]:
+    method_keys = ["mean", "kalman", "router_only_top1", "router_only_topk_mean"]
+    qid_to_idx = {qid: idx for idx, qid in enumerate(query_ids)}
+    bucket_payload: dict[str, Any] = {}
+    consistent_gain_buckets: list[str] = []
+
+    for bucket, qids in bucket_to_qids.items():
+        idxs = [qid_to_idx[qid] for qid in qids if qid in qid_to_idx]
+        per_method_metrics: dict[str, dict[str, float]] = {}
+        for method in method_keys:
+            metrics = methods[method]["query_level"]
+            per_method_metrics[method] = {
+                metric: (
+                    float(np.mean([metrics[metric][idx] for idx in idxs])) if idxs else 0.0
+                )
+                for metric in REPORT_METRICS
+            }
+
+        n_pairs = len(idxs)
+        comparisons: dict[str, Any] = {}
+        for baseline in ["mean", "router_only_top1", "router_only_topk_mean"]:
+            label = f"kalman_vs_{baseline}"
+            if n_pairs < BUCKET_SIGNIFICANCE_MIN_PAIRS:
+                comparisons[label] = {
+                    "status": "exploratory_only",
+                    "reason": f"n_pairs={n_pairs} < {BUCKET_SIGNIFICANCE_MIN_PAIRS}",
+                }
+                continue
+            kalman_subset = {
+                metric: [methods["kalman"]["query_level"][metric][idx] for idx in idxs]
+                for metric in REPORT_METRICS
+            }
+            baseline_subset = {
+                metric: [methods[baseline]["query_level"][metric][idx] for idx in idxs]
+                for metric in REPORT_METRICS
+            }
+            stats = generate_statistical_report(
+                reference_method="kalman",
+                candidate_method=baseline,
+                reference_metrics=kalman_subset,
+                candidate_metrics=baseline_subset,
+                seed=seed,
+                num_resamples=num_resamples,
+                config={"bucket": bucket},
+            )
+            ndcg10 = stats.comparisons["ndcg@10"]
+            comparisons[label] = {
+                "status": "inferential",
+                "metric": "ndcg@10",
+                "mean_difference": ndcg10.mean_difference,
+                "ci95_low": ndcg10.confidence_interval.lower,
+                "ci95_high": ndcg10.confidence_interval.upper,
+                "p_value": ndcg10.p_value,
+                "adjusted_p_value": ndcg10.adjusted_p_value,
+                "n_pairs": ndcg10.n_pairs,
+            }
+
+        deltas = {
+            baseline: per_method_metrics["kalman"]["ndcg@10"]
+            - per_method_metrics[baseline]["ndcg@10"]
+            for baseline in ["mean", "router_only_top1", "router_only_topk_mean"]
+        }
+        is_consistent_gain = all(delta > 0.0 for delta in deltas.values())
+        if is_consistent_gain:
+            inferential = [
+                comparisons[f"kalman_vs_{baseline}"]
+                for baseline in ["mean", "router_only_top1", "router_only_topk_mean"]
+                if comparisons[f"kalman_vs_{baseline}"]["status"] == "inferential"
+            ]
+            if inferential and all(c["adjusted_p_value"] <= 0.05 for c in inferential):
+                consistent_gain_buckets.append(bucket)
+
+        bucket_payload[bucket] = {
+            "n_queries": n_pairs,
+            "method_metrics": per_method_metrics,
+            "kalman_ndcg10_deltas": deltas,
+            "comparisons": comparisons,
+            "consistency_flag": (
+                "consistent_gain"
+                if is_consistent_gain
+                else "mixed_or_no_gain"
+            ),
+            "exploratory_only": n_pairs < BUCKET_SIGNIFICANCE_MIN_PAIRS,
+        }
+
+    return {
+        "minimum_pairs_for_significance": BUCKET_SIGNIFICANCE_MIN_PAIRS,
+        "buckets": bucket_payload,
+        "consistent_kalman_gain_buckets": consistent_gain_buckets,
+    }
 
 
 def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
@@ -258,6 +432,46 @@ def _render_report(summary: dict[str, Any]) -> str:
             "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise `inconclusive`.",
         ]
     )
+    bucket_analysis = summary.get("bucket_analysis", {})
+    if bucket_analysis:
+        lines.extend(
+            [
+                "",
+                "## Bucketed Analysis (Exploratory unless significance criteria are met)",
+                "",
+                "| Bucket | n | Mean | Kalman | Hard routing | Top-k mean | Δ(K-M) nDCG@10 | Δ(K-Hard) | Δ(K-TopK) | Significance status |",
+                "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+            ]
+        )
+        for bucket, payload in bucket_analysis["buckets"].items():
+            metrics = payload["method_metrics"]
+            comps = payload["comparisons"]["kalman_vs_mean"]
+            sig_status = comps["status"]
+            if sig_status == "inferential":
+                sig_status = f"inferential (adj p={comps['adjusted_p_value']:.4f})"
+            lines.append(
+                "| {bucket} | {n} | {mean:.4f} | {kalman:.4f} | {hard:.4f} | {topk:.4f} | {dkm:.4f} | {dkh:.4f} | {dkt:.4f} | {sig_status} |".format(
+                    bucket=bucket,
+                    n=payload["n_queries"],
+                    mean=metrics["mean"]["ndcg@10"],
+                    kalman=metrics["kalman"]["ndcg@10"],
+                    hard=metrics["router_only_top1"]["ndcg@10"],
+                    topk=metrics["router_only_topk_mean"]["ndcg@10"],
+                    dkm=payload["kalman_ndcg10_deltas"]["mean"],
+                    dkh=payload["kalman_ndcg10_deltas"]["router_only_top1"],
+                    dkt=payload["kalman_ndcg10_deltas"]["router_only_topk_mean"],
+                    sig_status=sig_status,
+                )
+            )
+        lines.extend(["", "### Buckets with consistent Kalman gains"])
+        buckets = bucket_analysis.get("consistent_kalman_gain_buckets", [])
+        if buckets:
+            lines.extend([f"- `{bucket}`" for bucket in buckets])
+        else:
+            lines.append("- None met the consistency + inferential significance criteria in this run.")
+        lines.append(
+            "- These subgroup findings are secondary and must not be promoted to headline claims without dedicated confirmatory evaluation."
+        )
     if not summary["comparisons"]["LearnedGateFuser"]["included"]:
         lines.append(
             f"- LearnedGateFuser omitted: {summary['comparisons']['LearnedGateFuser']['reason']}"
@@ -346,6 +560,7 @@ def run_canonical_benchmark(
     domains = query_level["domains"]
     latencies = query_level["latency_ms"]
     flops_proxy = query_level["specialist_count_selected"]
+    query_metadata = query_level.get("query_metadata", {})
 
     methods: dict[str, Any] = {}
     for method_key in sorted(rankings):
@@ -358,12 +573,19 @@ def run_canonical_benchmark(
             num_resamples=num_resamples,
         )
 
-    required_methods = {"mean", "kalman", "router_only_top1", "uniform_mean_fusion"}
+    required_methods = {
+        "mean",
+        "kalman",
+        "router_only_top1",
+        "router_only_topk_mean",
+        "uniform_mean_fusion",
+    }
     missing_required = sorted(required_methods.difference(methods))
     if missing_required:
         raise ValueError(
             "Canonical benchmark requires MeanFuser, KalmanorixFuser, hard-routing, "
-            f"and all-routing+mean baselines. Missing strategies: {missing_required}"
+            "top-k-mean routing baseline, and all-routing+mean baselines. "
+            f"Missing strategies: {missing_required}"
         )
 
     ordered_qids = sorted(rankings["kalman"])
@@ -425,6 +647,35 @@ def run_canonical_benchmark(
         "configuration_hash": paired.configuration_hash,
     }
 
+    bucket_to_qids, bucket_thresholds = _bucket_query_ids(
+        query_ids=ordered_qids,
+        query_metadata=query_metadata,
+        specialist_counts=query_level.get("specialist_count_selected", {}).get(
+            "router_only_top1", {}
+        ),
+        confidence_proxy=query_level.get("confidence_proxy", {}).get(
+            "router_only_top1", {}
+        ),
+    )
+    bucket_analysis = _build_bucket_report(
+        methods=methods,
+        query_ids=ordered_qids,
+        bucket_to_qids=bucket_to_qids,
+        seed=seed + 10_000,
+        num_resamples=num_resamples,
+    )
+    bucket_analysis["definitions"] = {
+        "high_specialist_disagreement": "specialist_disagreement >= median (entropy-normalized precision distribution across specialists)",
+        "low_specialist_disagreement": "specialist_disagreement < median",
+        "high_uncertainty_spread": "uncertainty_spread >= median (max sigma2 - min sigma2 across specialists)",
+        "low_uncertainty_spread": "uncertainty_spread < median",
+        "single_domain_clear_winner": "is_multi_domain == False and router_confidence >= high-confidence threshold",
+        "true_multi_domain_queries": "is_multi_domain == True (secondary_domain exists and differs from dominant_domain, with fallback to selected specialist count > 1)",
+        "router_high_confidence": "router_confidence >= 67th percentile",
+        "router_low_confidence": "router_confidence <= 33rd percentile",
+    }
+    bucket_analysis["thresholds"] = bucket_thresholds
+
     summary = {
         "benchmark": {
             "path": str(benchmark_path),
@@ -454,6 +705,7 @@ def run_canonical_benchmark(
         },
         "methods": methods,
         "paired_statistics": {"kalman_vs_mean": paired_summary},
+        "bucket_analysis": bucket_analysis,
     }
     summary["decision"] = {"kalman_vs_mean": _classify_kalman_vs_mean(summary)}
 
