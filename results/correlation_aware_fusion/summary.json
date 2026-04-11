@@ -1,0 +1,136 @@
+{
+  "config": {
+    "random_seed": 13,
+    "dimension": 32,
+    "n_docs": 256,
+    "n_val": 280,
+    "n_test": 420,
+    "n_specialists": 4,
+    "inflation_alpha": 1.0,
+    "variance_floor": 1e-06
+  },
+  "validation_fit": {
+    "sigma2": [
+      0.007928811173031782,
+      0.012526018993660092,
+      0.0169064171381449,
+      0.020970174284138495
+    ],
+    "residual_norm_shape": [
+      280,
+      4
+    ],
+    "correlation_matrix": [
+      [
+        1.0,
+        0.1560041264357239,
+        0.3058278965288867,
+        0.3000431432164101
+      ],
+      [
+        0.1560041264357239,
+        1.0,
+        0.2750021078488864,
+        0.3136856104845184
+      ],
+      [
+        0.3058278965288867,
+        0.2750021078488864,
+        1.0,
+        0.39210952463052745
+      ],
+      [
+        0.30004314321641007,
+        0.3136856104845184,
+        0.39210952463052745,
+        1.0
+      ]
+    ],
+    "module_names": [
+      "specialist_0",
+      "specialist_1",
+      "specialist_2",
+      "specialist_3"
+    ]
+  },
+  "test_split": {
+    "n_queries": 420,
+    "buckets": {
+      "low_correlation": 210,
+      "high_correlation": 210
+    }
+  },
+  "test_metrics": {
+    "mean_fusion": {
+      "recall_at_1": 0.35,
+      "recall_at_5": 0.6833333333333333,
+      "mrr_at_10": 0.4928817082388511
+    },
+    "baseline_kalman": {
+      "recall_at_1": 0.39285714285714285,
+      "recall_at_5": 0.7214285714285714,
+      "mrr_at_10": 0.5318376795162509
+    },
+    "corr_kalman_cov_inflation": {
+      "recall_at_1": 0.3952380952380952,
+      "recall_at_5": 0.7261904761904762,
+      "mrr_at_10": 0.5355820105820106
+    },
+    "corr_kalman_effective_sample_size": {
+      "recall_at_1": 0.39285714285714285,
+      "recall_at_5": 0.7214285714285714,
+      "mrr_at_10": 0.5318376795162509
+    }
+  },
+  "bucket_metrics": {
+    "mean_fusion": {
+      "high_correlation": {
+        "recall_at_1": 0.28095238095238095,
+        "recall_at_5": 0.6238095238095238,
+        "mrr_at_10": 0.42053287981859416
+      },
+      "low_correlation": {
+        "recall_at_1": 0.41904761904761906,
+        "recall_at_5": 0.7428571428571429,
+        "mrr_at_10": 0.565230536659108
+      }
+    },
+    "baseline_kalman": {
+      "high_correlation": {
+        "recall_at_1": 0.3238095238095238,
+        "recall_at_5": 0.6476190476190476,
+        "mrr_at_10": 0.46367535903250184
+      },
+      "low_correlation": {
+        "recall_at_1": 0.46190476190476193,
+        "recall_at_5": 0.7952380952380952,
+        "mrr_at_10": 0.6
+      }
+    },
+    "corr_kalman_cov_inflation": {
+      "high_correlation": {
+        "recall_at_1": 0.3238095238095238,
+        "recall_at_5": 0.6476190476190476,
+        "mrr_at_10": 0.4645219198790628
+      },
+      "low_correlation": {
+        "recall_at_1": 0.4666666666666667,
+        "recall_at_5": 0.8047619047619048,
+        "mrr_at_10": 0.6066421012849584
+      }
+    },
+    "corr_kalman_effective_sample_size": {
+      "high_correlation": {
+        "recall_at_1": 0.3238095238095238,
+        "recall_at_5": 0.6476190476190476,
+        "mrr_at_10": 0.46367535903250184
+      },
+      "low_correlation": {
+        "recall_at_1": 0.46190476190476193,
+        "recall_at_5": 0.7952380952380952,
+        "mrr_at_10": 0.6
+      }
+    }
+  },
+  "answer": "Correlation-aware Kalman improved over baseline Kalman (best: corr_kalman_cov_inflation, \u0394MRR@10=0.0037)."
+}
