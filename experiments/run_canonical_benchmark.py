@@ -45,6 +45,9 @@ REPORT_METRICS = [
     "top1_success",
 ]
 BUCKET_SIGNIFICANCE_MIN_PAIRS = 20
+CALIBRATION_MIN_VALIDATION_QUERIES = 100
+PAIRED_TEST_MIN_TEST_QUERIES = 50
+PER_DOMAIN_MIN_QUERIES = 20
 
 
 def _quantile(values: list[float], q: float) -> float:
@@ -245,14 +248,19 @@ def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
         "flops_ratio_ok": flops_ratio <= float(rules["max_flops_ratio_vs_mean"]),
     }
 
+    power_diag = summary["power_diagnostics"]["kalman_vs_mean"]
+    sufficiently_powered = bool(power_diag["is_sufficiently_powered_for_target_effect"])
+
     if all(checks.values()):
         verdict = "supported"
     elif effect_delta <= 0.0 and adjusted_p_value <= float(
         rules["adjusted_p_value_threshold"]
     ):
         verdict = "unsupported"
+    elif sufficiently_powered:
+        verdict = "inconclusive_sufficiently_powered"
     else:
-        verdict = "inconclusive"
+        verdict = "inconclusive_underpowered"
 
     return {
         "verdict": verdict,
@@ -305,6 +313,8 @@ def _render_report(summary: dict[str, Any]) -> str:
     observed = decision["observed"]
     checks = decision["checks"]
     verdict = decision["verdict"]
+    power_diag = summary["power_diagnostics"]["kalman_vs_mean"]
+    adequacy = summary["sample_size_adequacy"]
 
     lines = [
         "# Canonical Benchmark Report",
@@ -404,6 +414,38 @@ def _render_report(summary: dict[str, Any]) -> str:
                 passed="yes" if checks["flops_ratio_ok"] else "no",
             ),
             "",
+            "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)",
+            "",
+            f"- Number of evaluated test queries: **{power_diag['num_test_queries']}**",
+            f"- Per-domain evaluated test counts: `{power_diag['per_domain_test_counts']}`",
+            f"- Observed primary effect size (nDCG@10 Δ mean): `{power_diag['observed_effect_size']:.6f}`",
+            f"- Detectable effect threshold estimate (80% power, α=0.05, paired-normal approximation): `{power_diag['detectable_effect_threshold_estimate']:.6f}`",
+            f"- Target effect for decision rule: `{power_diag['target_effect_size']:.6f}`",
+            f"- Sufficiently powered for target effect: `{power_diag['is_sufficiently_powered_for_target_effect']}`",
+            "",
+            "## Sample Size Adequacy Checks",
+            "",
+            "| Use case | Available | Minimum | Adequate | Notes |",
+            "|---|---:|---:|---|---|",
+            "| Uncertainty calibration (validation split) | {avail} | {minimum} | {ok} | {note} |".format(
+                avail=adequacy["uncertainty_calibration"]["available_queries"],
+                minimum=adequacy["uncertainty_calibration"]["minimum_required"],
+                ok="yes" if adequacy["uncertainty_calibration"]["adequate"] else "no",
+                note=adequacy["uncertainty_calibration"]["note"],
+            ),
+            "| Paired significance testing (test split) | {avail} | {minimum} | {ok} | {note} |".format(
+                avail=adequacy["paired_significance_testing"]["available_queries"],
+                minimum=adequacy["paired_significance_testing"]["minimum_required"],
+                ok="yes" if adequacy["paired_significance_testing"]["adequate"] else "no",
+                note=adequacy["paired_significance_testing"]["note"],
+            ),
+            "| Per-domain analysis (min test queries in any domain) | {avail} | {minimum} | {ok} | {note} |".format(
+                avail=adequacy["per_domain_analysis"]["minimum_domain_count"],
+                minimum=adequacy["per_domain_analysis"]["minimum_required_per_domain"],
+                ok="yes" if adequacy["per_domain_analysis"]["adequate"] else "no",
+                note=adequacy["per_domain_analysis"]["note"],
+            ),
+            "",
             "## Paired Statistical Test: KalmanorixFuser vs MeanFuser",
             "",
             "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |",
@@ -429,7 +471,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "## Verdict",
             "",
             f"- **kalman_vs_mean:** `{verdict}`",
-            "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise `inconclusive`.",
+            "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
         ]
     )
     bucket_analysis = summary.get("bucket_analysis", {})
@@ -589,6 +631,11 @@ def run_canonical_benchmark(
         )
 
     ordered_qids = sorted(rankings["kalman"])
+    per_domain_test_counts: dict[str, int] = {}
+    for qid in ordered_qids:
+        domain = str(domains[qid])
+        per_domain_test_counts[domain] = per_domain_test_counts.get(domain, 0) + 1
+
     kalman_metrics = methods["kalman"]["query_level"]
     mean_metrics = methods["mean"]["query_level"]
     kalman_domain = {
@@ -645,6 +692,56 @@ def run_canonical_benchmark(
             if domain != "overall"
         },
         "configuration_hash": paired.configuration_hash,
+    }
+    primary_metric = CANONICAL_DECISION_RULES["primary_metric"]
+    primary_stats = paired_summary["overall"][primary_metric]
+    primary_deltas = np.asarray(kalman_metrics[primary_metric], dtype=float) - np.asarray(
+        mean_metrics[primary_metric], dtype=float
+    )
+    n_test = int(len(primary_deltas))
+    std_delta = float(np.std(primary_deltas, ddof=1)) if n_test > 1 else 0.0
+    detectable_threshold = (
+        float((1.96 + 0.84) * (std_delta / np.sqrt(n_test)))
+        if n_test > 1
+        else float("inf")
+    )
+    power_diagnostics = {
+        "kalman_vs_mean": {
+            "num_test_queries": n_test,
+            "per_domain_test_counts": dict(sorted(per_domain_test_counts.items())),
+            "observed_effect_size": float(primary_stats["mean_difference"]),
+            "target_effect_size": float(CANONICAL_DECISION_RULES["minimum_effect_size"]),
+            "detectable_effect_threshold_estimate": detectable_threshold,
+            "paired_delta_stddev": std_delta,
+            "power_approximation": "detectable_effect ≈ (1.96+0.84)*std(delta)/sqrt(n)",
+            "is_sufficiently_powered_for_target_effect": bool(
+                detectable_threshold
+                <= float(CANONICAL_DECISION_RULES["minimum_effect_size"])
+            ),
+        }
+    }
+
+    min_domain_count = min(per_domain_test_counts.values()) if per_domain_test_counts else 0
+    sample_size_adequacy = {
+        "uncertainty_calibration": {
+            "available_queries": int(split_counts["validation"]),
+            "minimum_required": CALIBRATION_MIN_VALIDATION_QUERIES,
+            "adequate": bool(split_counts["validation"] >= CALIBRATION_MIN_VALIDATION_QUERIES),
+            "note": "Validation split size governs stability of uncertainty calibration.",
+        },
+        "paired_significance_testing": {
+            "available_queries": n_test,
+            "minimum_required": PAIRED_TEST_MIN_TEST_QUERIES,
+            "adequate": bool(n_test >= PAIRED_TEST_MIN_TEST_QUERIES),
+            "note": "Test split paired query count governs inferential precision.",
+        },
+        "per_domain_analysis": {
+            "minimum_domain_count": int(min_domain_count),
+            "per_domain_counts": dict(sorted(per_domain_test_counts.items())),
+            "minimum_required_per_domain": PER_DOMAIN_MIN_QUERIES,
+            "adequate": bool(min_domain_count >= PER_DOMAIN_MIN_QUERIES),
+            "note": "Lowest-count domain determines whether per-domain inference is stable.",
+        },
     }
 
     bucket_to_qids, bucket_thresholds = _bucket_query_ids(
@@ -705,6 +802,8 @@ def run_canonical_benchmark(
         },
         "methods": methods,
         "paired_statistics": {"kalman_vs_mean": paired_summary},
+        "power_diagnostics": power_diagnostics,
+        "sample_size_adequacy": sample_size_adequacy,
         "bucket_analysis": bucket_analysis,
     }
     summary["decision"] = {"kalman_vs_mean": _classify_kalman_vs_mean(summary)}

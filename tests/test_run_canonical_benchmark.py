@@ -130,8 +130,11 @@ def test_canonical_benchmark_writes_artifacts(
     assert on_disk["decision"]["kalman_vs_mean"]["verdict"] in {
         "supported",
         "unsupported",
-        "inconclusive",
+        "inconclusive_underpowered",
+        "inconclusive_sufficiently_powered",
     }
+    assert "power_diagnostics" in on_disk
+    assert "sample_size_adequacy" in on_disk
     assert summary["comparisons"]["LearnedGateFuser"]["included"] is False
     assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
 
@@ -230,6 +233,8 @@ def test_canonical_report_includes_paired_statistics_section(
     report_text = (output_dir / "report.md").read_text(encoding="utf-8")
     assert "## Decision Framework: KalmanorixFuser vs MeanFuser" in report_text
     assert "## Paired Statistical Test: KalmanorixFuser vs MeanFuser" in report_text
+    assert "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)" in report_text
+    assert "## Sample Size Adequacy Checks" in report_text
     assert "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |" in report_text
     assert "top1_success" in report_text
     assert "## Method Ranking Snapshot" in report_text
