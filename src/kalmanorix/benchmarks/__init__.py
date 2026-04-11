@@ -60,6 +60,12 @@ from .kalman_learned_correction import (
     KalmanLearnedCorrection,
     run_kalman_learned_correction,
 )
+from .kalman_assumption_stress_test import (
+    AssumptionStressConfig,
+    TaggedCase,
+    run_kalman_assumption_stress_test,
+)
+
 from .correlation_aware_fusion import (
     CorrelationAwareFusionConfig,
     run_correlation_aware_fusion_benchmark,
@@ -132,4 +138,7 @@ __all__ = [
     "run_kalman_learned_correction",
     "CorrelationAwareFusionConfig",
     "run_correlation_aware_fusion_benchmark",
+    "AssumptionStressConfig",
+    "TaggedCase",
+    "run_kalman_assumption_stress_test",
 ]
