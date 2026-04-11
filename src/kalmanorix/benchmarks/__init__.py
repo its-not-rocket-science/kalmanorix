@@ -60,6 +60,10 @@ from .kalman_learned_correction import (
     KalmanLearnedCorrection,
     run_kalman_learned_correction,
 )
+from .correlation_aware_fusion import (
+    CorrelationAwareFusionConfig,
+    run_correlation_aware_fusion_benchmark,
+)
 
 from .kalman_covariance_ablation import (
     AblationConfig,
@@ -126,4 +130,6 @@ __all__ = [
     "CorrectionCheckpoint",
     "KalmanLearnedCorrection",
     "run_kalman_learned_correction",
+    "CorrelationAwareFusionConfig",
+    "run_correlation_aware_fusion_benchmark",
 ]

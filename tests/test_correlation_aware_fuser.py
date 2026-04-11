@@ -5,8 +5,12 @@ from __future__ import annotations
 import numpy as np
 
 from kalmanorix import SEF, Village, ScoutRouter, Panoramix, KalmanorixFuser
-from kalmanorix.panoramix import CorrelationAwareKalmanFuser
 from kalmanorix.kalman_engine.correlation import ResidualCorrelationProfile
+from kalmanorix.kalman_engine.correlation import (
+    correlation_inflation_factors,
+    effective_sample_size_discount,
+)
+from kalmanorix.panoramix import CorrelationAwareKalmanFuser
 
 
 def _make_two_module_village() -> Village:
@@ -80,3 +84,21 @@ def test_independence_reduces_to_baseline_behavior() -> None:
     assert np.allclose(
         aware.meta["fused_covariance"], baseline.meta["fused_covariance"], atol=1e-12  # type: ignore[index]
     )
+
+def test_numerical_stability_for_discount_and_inflation() -> None:
+    corr = np.array(
+        [
+            [1.0, 0.999999999, 0.999999],
+            [0.999999999, 1.0, 0.95],
+            [0.999999, 0.95, 1.0],
+        ],
+        dtype=np.float64,
+    )
+
+    inflation = correlation_inflation_factors(corr, alpha=2.0)
+    assert np.all(np.isfinite(inflation))
+    assert np.all(inflation >= 1.0)
+
+    discount = effective_sample_size_discount(corr)
+    assert np.isfinite(discount)
+    assert 1.0 / 3.0 <= discount <= 1.0
