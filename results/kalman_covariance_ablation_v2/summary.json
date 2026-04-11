@@ -1,0 +1,185 @@
+{
+  "config": {
+    "benchmark_version": "kalman_covariance_ablation_v2_enlarged",
+    "random_seed": 0,
+    "dimension": 32,
+    "n_docs": 512,
+    "n_val": 1200,
+    "n_test": 1600,
+    "n_specialists": 3,
+    "n_domains": 4,
+    "disagreement_quantile": 0.8,
+    "uncertainty_skew_quantile": 0.8,
+    "fit": {
+      "diagonal_floor": 1e-06,
+      "shrinkage_to_diagonal": 0.1,
+      "max_lowrank_fro_norm": 10.0,
+      "lowrank_rank": 4
+    }
+  },
+  "covariance_fit": {
+    "scalar_variances": [
+      0.02119670841274321,
+      0.03492237178550251,
+      0.04110370829942572
+    ],
+    "diagonal_shapes": [
+      [
+        32
+      ],
+      [
+        32
+      ],
+      [
+        32
+      ]
+    ],
+    "structured_ranks": [
+      4,
+      4,
+      4
+    ]
+  },
+  "metrics": {
+    "mean_fusion": {
+      "recall_at_1": 0.14875,
+      "recall_at_5": 0.37625,
+      "mrr_at_10": 0.24670858134920637
+    },
+    "scalar_kalman": {
+      "recall_at_1": 0.1725,
+      "recall_at_5": 0.424375,
+      "mrr_at_10": 0.2806235119047619
+    },
+    "diagonal_kalman": {
+      "recall_at_1": 0.173125,
+      "recall_at_5": 0.425625,
+      "mrr_at_10": 0.28014037698412697
+    },
+    "structured_kalman": {
+      "recall_at_1": 0.175,
+      "recall_at_5": 0.42125,
+      "mrr_at_10": 0.2809873511904762
+    }
+  },
+  "bucket_metrics": {
+    "mean_fusion": {
+      "all_queries": {
+        "recall_at_1": 0.14875,
+        "recall_at_5": 0.37625,
+        "mrr_at_10": 0.24670858134920637
+      },
+      "high_disagreement": {
+        "recall_at_1": 0.14285714285714285,
+        "recall_at_5": 0.36818181818181817,
+        "mrr_at_10": 0.23985466914038342
+      },
+      "multi_domain": {
+        "recall_at_1": 0.16258741258741258,
+        "recall_at_5": 0.3688811188811189,
+        "mrr_at_10": 0.24995282495282495
+      },
+      "uncertainty_skewed": {
+        "recall_at_1": 0.140625,
+        "recall_at_5": 0.378125,
+        "mrr_at_10": 0.23983506944444444
+      }
+    },
+    "scalar_kalman": {
+      "all_queries": {
+        "recall_at_1": 0.1725,
+        "recall_at_5": 0.424375,
+        "mrr_at_10": 0.2806235119047619
+      },
+      "high_disagreement": {
+        "recall_at_1": 0.16493506493506493,
+        "recall_at_5": 0.41688311688311686,
+        "mrr_at_10": 0.2731849103277675
+      },
+      "multi_domain": {
+        "recall_at_1": 0.18706293706293706,
+        "recall_at_5": 0.4090909090909091,
+        "mrr_at_10": 0.2788745976245976
+      },
+      "uncertainty_skewed": {
+        "recall_at_1": 0.1375,
+        "recall_at_5": 0.421875,
+        "mrr_at_10": 0.26193204365079364
+      }
+    },
+    "diagonal_kalman": {
+      "all_queries": {
+        "recall_at_1": 0.173125,
+        "recall_at_5": 0.425625,
+        "mrr_at_10": 0.28014037698412697
+      },
+      "high_disagreement": {
+        "recall_at_1": 0.16558441558441558,
+        "recall_at_5": 0.41818181818181815,
+        "mrr_at_10": 0.2726695526695527
+      },
+      "multi_domain": {
+        "recall_at_1": 0.1888111888111888,
+        "recall_at_5": 0.40734265734265734,
+        "mrr_at_10": 0.28168220668220667
+      },
+      "uncertainty_skewed": {
+        "recall_at_1": 0.14375,
+        "recall_at_5": 0.425,
+        "mrr_at_10": 0.2611185515873016
+      }
+    },
+    "structured_kalman": {
+      "all_queries": {
+        "recall_at_1": 0.175,
+        "recall_at_5": 0.42125,
+        "mrr_at_10": 0.2809873511904762
+      },
+      "high_disagreement": {
+        "recall_at_1": 0.16753246753246753,
+        "recall_at_5": 0.4142857142857143,
+        "mrr_at_10": 0.273665996701711
+      },
+      "multi_domain": {
+        "recall_at_1": 0.19405594405594406,
+        "recall_at_5": 0.40384615384615385,
+        "mrr_at_10": 0.2836836774336774
+      },
+      "uncertainty_skewed": {
+        "recall_at_1": 0.146875,
+        "recall_at_5": 0.4125,
+        "mrr_at_10": 0.26308779761904766
+      }
+    }
+  },
+  "efficiency": {
+    "mean_fusion": {
+      "latency_ms_total": 78.57408199924976,
+      "latency_ms_per_query": 0.0491088012495311,
+      "peak_memory_kib": 1043.0380859375
+    },
+    "scalar_kalman": {
+      "latency_ms_total": 427.36928099475335,
+      "latency_ms_per_query": 0.26710580062172085,
+      "peak_memory_kib": 1054.443359375
+    },
+    "diagonal_kalman": {
+      "latency_ms_total": 373.7613799967221,
+      "latency_ms_per_query": 0.2336008624979513,
+      "peak_memory_kib": 1040.1015625
+    },
+    "structured_kalman": {
+      "latency_ms_total": 788.2894380018115,
+      "latency_ms_per_query": 0.4926808987511322,
+      "peak_memory_kib": 1049.818359375
+    }
+  },
+  "bucket_metadata": {
+    "disagreement_threshold": 1.0,
+    "uncertainty_skew_threshold": 3.080418178347194
+  },
+  "benchmark_artifact": "results/kalman_covariance_ablation_v2",
+  "prior_artifact_for_comparison": "results/kalman_covariance_ablation",
+  "question": "Do richer uncertainty families justify complexity?",
+  "answer": "Richer covariance is not worth it in this setup: no global or bucket-level gain cleared practical thresholds."
+}
