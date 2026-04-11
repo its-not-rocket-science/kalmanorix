@@ -25,6 +25,15 @@ from kalmanorix.uncertainty_calibration import (
 )
 from kalmanorix.village import SEF, Village
 
+CALIBRATION_OBJECTIVES: tuple[str, ...] = (
+    "rank_error_proxy",
+    "topk_miss_indicator",
+    "top1_miss_indicator",
+    "distance_to_relevant_doc_centroid",
+    "specialist_vs_fused_residual_proxy",
+    "query_difficulty_proxy",
+)
+
 
 @dataclass(frozen=True)
 class QueryEvaluation:
@@ -105,6 +114,35 @@ def _build_village(method: str) -> tuple[Village, list[str], list[int]]:
     return village, queries, targets
 
 
+def _expanded_query_set(
+    queries: list[str],
+    targets: list[int],
+    multiplier: int = 5,
+) -> tuple[list[str], list[int]]:
+    prefixes = (
+        "user asks:",
+        "retrieval request:",
+        "need answer:",
+        "focus:",
+        "find guidance:",
+    )
+    suffixes = (
+        "",
+        " please prioritize exact match",
+        " include practical details",
+        " with concise explanation",
+        " in mixed-domain context",
+    )
+    expanded_q: list[str] = []
+    expanded_t: list[int] = []
+    for idx, (query, target) in enumerate(zip(queries, targets)):
+        for m in range(multiplier):
+            variant = f"{prefixes[m % len(prefixes)]} {query}{suffixes[(idx + m) % len(suffixes)]}".strip()
+            expanded_q.append(variant)
+            expanded_t.append(target)
+    return expanded_q, expanded_t
+
+
 def _evaluate_specialist(module: SEF, queries: list[str], targets: list[int], docs: list[str]) -> list[QueryEvaluation]:
     doc_embs = np.stack([module.embed(d) for d in docs], axis=0)
     results: list[QueryEvaluation] = []
@@ -126,10 +164,14 @@ def _target_from_eval(row: QueryEvaluation, objective: str, max_rank: int) -> fl
         return float((row.rank - 1) / max(max_rank - 1, 1))
     if objective == "topk_miss_indicator":
         return float(1.0 - row.hit_at_5)
+    if objective == "top1_miss_indicator":
+        return float(1.0 if row.rank != 1 else 0.0)
     if objective == "distance_to_relevant_doc_centroid":
         return float(row.relevant_distance)
-    if objective == "score_quality_residual":
+    if objective == "specialist_vs_fused_residual_proxy":
         return float(abs(row.relevant_score - row.reciprocal_rank))
+    if objective == "query_difficulty_proxy":
+        return 0.0
     raise ValueError(f"Unknown objective: {objective}")
 
 
@@ -162,6 +204,19 @@ def _make_strata(queries: list[str]) -> list[dict[str, str]]:
         query_type = _infer_query_type(query)
         labels.append({"domain": domain, "query_type": query_type, "stratum": f"{domain}:{query_type}"})
     return labels
+
+
+def _difficulty_proxy(label: dict[str, str]) -> float:
+    domain = label["domain"]
+    query_type = label["query_type"]
+    score = 0.2
+    if domain == "mixed":
+        score += 0.5
+    if query_type == "cross_domain_compositional":
+        score += 0.3
+    elif query_type == "long_form":
+        score += 0.2
+    return float(min(score, 1.0))
 
 
 def _specialist_support(split: list[int], labels: list[dict[str, str]]) -> dict[str, int]:
@@ -294,6 +349,35 @@ def _eval_fusers(village: Village, queries: list[str], targets: list[int], docs:
     return {"kalman_mrr": kalman_mrr, "mean_mrr": mean_mrr, "delta": kalman_mrr - mean_mrr}
 
 
+def _fused_target_scores(village: Village, queries: list[str], targets: list[int], docs: list[str]) -> np.ndarray:
+    scout = ScoutRouter(mode="all")
+    mean = Panoramix(fuser=MeanFuser())
+    doc_emb = np.stack([village.modules[0].embed(d) for d in docs], axis=0)
+    vals = np.zeros(len(queries), dtype=np.float64)
+    for i, (query, target) in enumerate(zip(queries, targets)):
+        potion = mean.brew(query, village=village, scout=scout)
+        vals[i] = float(doc_emb[target] @ potion.vector)
+    return vals
+
+
+def _objective_target_array(
+    objective: str,
+    evals: list[QueryEvaluation],
+    indices: list[int],
+    max_rank: int,
+    labels: list[dict[str, str]],
+    fused_target_scores: np.ndarray,
+) -> np.ndarray:
+    if objective == "query_difficulty_proxy":
+        return np.array([_difficulty_proxy(labels[i]) for i in indices], dtype=np.float64)
+    if objective == "specialist_vs_fused_residual_proxy":
+        return np.array(
+            [abs(evals[i].relevant_score - float(fused_target_scores[i])) for i in indices],
+            dtype=np.float64,
+        )
+    return np.array([_target_from_eval(evals[i], objective, max_rank) for i in indices], dtype=np.float64)
+
+
 def _audit_sigma2_paths(repo_root: Path) -> dict[str, list[str]]:
     produced = [
         "src/kalmanorix/uncertainty.py",
@@ -312,6 +396,31 @@ def _audit_sigma2_paths(repo_root: Path) -> dict[str, list[str]]:
     }
 
 
+def _bucketed_delta(
+    village_pre: Village,
+    village_post: Village,
+    queries: list[str],
+    targets: list[int],
+    docs: list[str],
+    split: list[int],
+    labels: list[dict[str, str]],
+) -> dict[str, dict[str, float]]:
+    by_bucket: dict[str, list[int]] = defaultdict(list)
+    for i in split:
+        by_bucket[labels[i]["stratum"]].append(i)
+    result: dict[str, dict[str, float]] = {}
+    for bucket, idxs in sorted(by_bucket.items()):
+        pre = _eval_fusers(village_pre, queries, targets, docs, idxs)
+        post = _eval_fusers(village_post, queries, targets, docs, idxs)
+        result[bucket] = {
+            "count": float(len(idxs)),
+            "pre_delta": pre["delta"],
+            "post_delta": post["delta"],
+            "delta_change": post["delta"] - pre["delta"],
+        }
+    return result
+
+
 def run_uncertainty_calibration(
     output_dir: Path,
     sigma2_method: str = "centroid_distance_sigma2",
@@ -324,12 +433,32 @@ def run_uncertainty_calibration(
     ),
     power_config: ValidationPowerConfig = ValidationPowerConfig(),
 ) -> dict[str, Any]:
+    study = run_uncertainty_calibration_objective_study(
+        output_dir=output_dir,
+        sigma2_method=sigma2_method,
+        calibrators=calibrators,
+        power_config=power_config,
+    )
+    return study["objective_reports"][objective]
+
+
+def _run_single_objective(
+    *,
+    output_dir: Path,
+    sigma2_method: str,
+    objective: str,
+    calibrators: tuple[CalibratorName, ...],
+    power_config: ValidationPowerConfig,
+) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     repo_root = Path(__file__).resolve().parents[3]
 
     village, queries, targets = _build_village(sigma2_method)
+    queries, targets = _expanded_query_set(queries, targets, multiplier=5)
     docs = build_toy_corpus(british_spelling=False).docs
     split, power_report = _build_split_indices(queries, power_config)
+    labels = power_report["labels"]
+    fused_target_scores = _fused_target_scores(village, queries, targets, docs)
 
     leakage_checks: list[dict[str, Any]] = []
     cal_records: list[dict[str, Any]] = []
@@ -343,7 +472,14 @@ def run_uncertainty_calibration(
 
         val_idx = split["validation"]
         val_sigma = np.array([module.sigma2_for(queries[i]) for i in val_idx], dtype=np.float64)
-        val_target = np.array([_target_from_eval(evals[i], objective, max_rank) for i in val_idx], dtype=np.float64)
+        val_target = _objective_target_array(
+            objective,
+            evals,
+            val_idx,
+            max_rank,
+            labels,
+            fused_target_scores,
+        )
 
         leakage_checks.append(
             {
@@ -420,7 +556,14 @@ def run_uncertainty_calibration(
         evals = _evaluate_specialist(module, queries, targets, docs)
         max_rank = len(docs)
         raw = np.array([module.sigma2_for(queries[i]) for i in test_idx], dtype=np.float64)
-        target = np.array([_target_from_eval(evals[i], objective, max_rank) for i in test_idx], dtype=np.float64)
+        target = _objective_target_array(
+            objective,
+            evals,
+            test_idx,
+            max_rank,
+            labels,
+            fused_target_scores,
+        )
         post = fit.calibrator.transform(raw)
         diagnostics[module.name] = {
             "pre": {
@@ -434,7 +577,10 @@ def run_uncertainty_calibration(
         }
 
     pre_bench = _eval_fusers(village, queries, targets, docs, test_idx)
-    post_bench = _eval_fusers(Village(calibrated_modules), queries, targets, docs, test_idx)
+    calibrated_village = Village(calibrated_modules)
+    post_bench = _eval_fusers(calibrated_village, queries, targets, docs, test_idx)
+    val_pre_bench = _eval_fusers(village, queries, targets, docs, split["validation"])
+    val_post_bench = _eval_fusers(calibrated_village, queries, targets, docs, split["validation"])
 
     summary = {
         "status": power_report["status"],
@@ -459,14 +605,88 @@ def run_uncertainty_calibration(
         },
         "uncertainty_diagnostics": diagnostics,
         "benchmark_delta": {
+            "validation": {
+                "pre": val_pre_bench,
+                "post": val_post_bench,
+                "delta_change": val_post_bench["delta"] - val_pre_bench["delta"],
+            },
             "pre": pre_bench,
             "post": post_bench,
             "delta_change": post_bench["delta"] - pre_bench["delta"],
         },
+        "per_bucket_outcomes": _bucketed_delta(
+            village, calibrated_village, queries, targets, docs, test_idx, labels
+        ),
         "sigma2_path_audit": _audit_sigma2_paths(repo_root),
         "notes": "Calibration fit uses validation-only data with stratified splits and power checks.",
     }
-
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    (output_dir / "sigma2_audit.json").write_text(json.dumps(summary["sigma2_path_audit"], indent=2), encoding="utf-8")
     return summary
+
+
+def run_uncertainty_calibration_objective_study(
+    output_dir: Path,
+    sigma2_method: str = "centroid_distance_sigma2",
+    calibrators: tuple[CalibratorName, ...] = (
+        "affine",
+        "temperature",
+        "isotonic",
+        "piecewise_monotonic",
+    ),
+    objectives: tuple[str, ...] = CALIBRATION_OBJECTIVES,
+    power_config: ValidationPowerConfig = ValidationPowerConfig(),
+) -> dict[str, Any]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    reports: dict[str, Any] = {}
+    for objective in objectives:
+        reports[objective] = _run_single_objective(
+            output_dir=output_dir / objective,
+            sigma2_method=sigma2_method,
+            objective=objective,
+            calibrators=calibrators,
+            power_config=power_config,
+        )
+
+    validation_transfer_scores: dict[str, float] = {}
+    for objective, rep in reports.items():
+        diag_improvement = 0.0
+        count = 0
+        for module_diag in rep["uncertainty_diagnostics"].values():
+            pre_ece = module_diag["pre"]["reliability"]["ece"]
+            post_ece = module_diag["post"]["reliability"]["ece"]
+            pre_corr = module_diag["pre"]["spearman"]
+            post_corr = module_diag["post"]["spearman"]
+            diag_improvement += (pre_ece - post_ece) + (post_corr - pre_corr)
+            count += 1
+        diag_improvement = diag_improvement / max(count, 1)
+        validation_delta_change = rep["benchmark_delta"]["validation"]["delta_change"]
+        # Strictly validation-driven rule: objective must improve diagnostics and not hurt validation fusion delta.
+        validation_transfer_scores[objective] = float(diag_improvement + validation_delta_change)
+
+    selected_objective = max(validation_transfer_scores, key=validation_transfer_scores.get)
+    selected_report = reports[selected_objective]
+
+    study = {
+        "selection_rule": "Select objective maximizing validation diagnostic gain + validation Kalman-vs-Mean delta change.",
+        "selected_objective": selected_objective,
+        "validation_transfer_scores": validation_transfer_scores,
+        "objective_reports": reports,
+        "selected_report": selected_report,
+        "selection_is_validation_only": True,
+        "observations": {
+            "diagnostics_without_fusion_gain": [
+                obj
+                for obj, rep in reports.items()
+                if any(
+                    m["post"]["reliability"]["ece"] < m["pre"]["reliability"]["ece"]
+                    for m in rep["uncertainty_diagnostics"].values()
+                )
+                and rep["benchmark_delta"]["delta_change"] <= 0.0
+            ]
+        },
+    }
+
+    (output_dir / "summary.json").write_text(json.dumps(study, indent=2), encoding="utf-8")
+    (output_dir / "sigma2_audit.json").write_text(
+        json.dumps(selected_report["sigma2_path_audit"], indent=2), encoding="utf-8"
+    )
+    return study

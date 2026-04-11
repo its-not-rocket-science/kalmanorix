@@ -4,7 +4,12 @@ import json
 
 import numpy as np
 
-from kalmanorix.benchmarks.uncertainty_calibration import ValidationPowerConfig, run_uncertainty_calibration
+from kalmanorix.benchmarks.uncertainty_calibration import (
+    CALIBRATION_OBJECTIVES,
+    ValidationPowerConfig,
+    run_uncertainty_calibration,
+    run_uncertainty_calibration_objective_study,
+)
 from kalmanorix.uncertainty_calibration import fit_scalar_calibrator
 
 
@@ -69,3 +74,19 @@ def test_underpowered_validation_emits_explicit_status(tmp_path) -> None:
     assert summary["validation_power"]["failures"]
     assert summary["selected_calibrators"]["tech"]["fallback"] is True
     assert summary["selected_calibrators"]["tech"]["sufficiently_powered"] is False
+
+
+def test_objective_study_covers_required_objectives_and_uses_validation_selection(tmp_path) -> None:
+    study = run_uncertainty_calibration_objective_study(tmp_path)
+    assert study["selection_is_validation_only"] is True
+    assert set(CALIBRATION_OBJECTIVES).issubset(study["objective_reports"])
+    assert study["selected_objective"] in CALIBRATION_OBJECTIVES
+    assert study["selected_objective"] in study["validation_transfer_scores"]
+
+
+def test_report_contains_bucket_outcomes_and_validation_test_deltas(tmp_path) -> None:
+    study = run_uncertainty_calibration_objective_study(tmp_path)
+    report = study["selected_report"]
+    assert "validation" in report["benchmark_delta"]
+    assert "delta_change" in report["benchmark_delta"]["validation"]
+    assert report["per_bucket_outcomes"]
