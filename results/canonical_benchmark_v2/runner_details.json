@@ -1,0 +1,2213 @@
+{
+  "name": "canonical-benchmark",
+  "experiment_type": "real_mixed",
+  "seed": {
+    "python": 42,
+    "numpy": 42,
+    "torch": 42
+  },
+  "dataset": {
+    "path": "benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet",
+    "split": "test",
+    "max_queries": 600
+  },
+  "specialists": [
+    {
+      "name": "general_qa",
+      "domain": "general_qa",
+      "model_name": "sentence-transformers/all-mpnet-base-v2"
+    },
+    {
+      "name": "biomedical",
+      "domain": "biomedical",
+      "model_name": "emilyalsentzer/Bio_ClinicalBERT"
+    },
+    {
+      "name": "finance",
+      "domain": "finance",
+      "model_name": "ProsusAI/finbert"
+    }
+  ],
+  "results": {
+    "mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.28055555555555556,
+          "median": 0.225
+        },
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "median": 0.40876468265396737
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.74100200065247,
+          "median": 19.726402000742382
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "kalman": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.16666666666666666,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.4055555555555556,
+          "median": 0.26666666666666666
+        },
+        "ndcg@10": {
+          "mean": 0.5485813625458471,
+          "median": 0.4434264036172708
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 40.57526400022956,
+          "median": 40.469338000548305
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.6,
+            "median": 0.6
+          },
+          "ndcg@10": {
+            "mean": 0.6934264036172708,
+            "median": 0.6934264036172708
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "best_single_specialist": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.16666666666666666,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.3666666666666667,
+          "median": 0.25
+        },
+        "ndcg@10": {
+          "mean": 0.5182598399213523,
+          "median": 0.43067655807339306
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 20.235612166288774,
+          "median": 19.89919350035052
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.25,
+            "median": 0.25
+          },
+          "ndcg@10": {
+            "mean": 0.43067655807339306,
+            "median": 0.43067655807339306
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        }
+      }
+    },
+    "single_generalist_model": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.3333333333333333,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.8333333333333334,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.5694444444444445,
+          "median": 0.5
+        },
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "median": 0.6309297535714575
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.846414999847184,
+          "median": 20.06353799970384
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.3333333333333333,
+            "median": 0.3333333333333333
+          },
+          "ndcg@10": {
+            "mean": 0.49356847033973983,
+            "median": 0.49356847033973983
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.75,
+            "median": 0.75
+          },
+          "ndcg@10": {
+            "mean": 0.8154648767857288,
+            "median": 0.8154648767857288
+          }
+        }
+      }
+    },
+    "uniform_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.28055555555555556,
+          "median": 0.225
+        },
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "median": 0.40876468265396737
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.138966833149123,
+          "median": 19.191168999896036
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "fixed_weighted_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.28055555555555556,
+          "median": 0.225
+        },
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "median": 0.40876468265396737
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 20.255095833211573,
+          "median": 19.61937549913273
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "router_only_top1": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.3333333333333333,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.8333333333333334,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.5277777777777778,
+          "median": 0.375
+        },
+        "ndcg@10": {
+          "mean": 0.6414150094710442,
+          "median": 0.5308031558224253
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 22.21368183351539,
+          "median": 22.649151000223355
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.20833333333333331,
+            "median": 0.20833333333333331
+          },
+          "ndcg@10": {
+            "mean": 0.3934418725907076,
+            "median": 0.3934418725907076
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.75,
+            "median": 0.75
+          },
+          "ndcg@10": {
+            "mean": 0.8154648767857288,
+            "median": 0.8154648767857288
+          }
+        }
+      }
+    },
+    "router_only_topk_mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.31111111111111106,
+          "median": 0.29166666666666663
+        },
+        "ndcg@10": {
+          "mean": 0.4798559461587975,
+          "median": 0.46533827903669656
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 22.35145433345072,
+          "median": 22.719786999914504
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.375,
+            "median": 0.375
+          },
+          "ndcg@10": {
+            "mean": 0.5308031558224253,
+            "median": 0.5308031558224253
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.29166666666666663,
+            "median": 0.29166666666666663
+          },
+          "ndcg@10": {
+            "mean": 0.46533827903669656,
+            "median": 0.46533827903669656
+          }
+        }
+      }
+    },
+    "adaptive_route_or_fuse": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.31111111111111106,
+          "median": 0.29166666666666663
+        },
+        "ndcg@10": {
+          "mean": 0.4798559461587975,
+          "median": 0.46533827903669656
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 24.844215832975653,
+          "median": 24.825059499562485
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.375,
+            "median": 0.375
+          },
+          "ndcg@10": {
+            "mean": 0.5308031558224253,
+            "median": 0.5308031558224253
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.29166666666666663,
+            "median": 0.29166666666666663
+          },
+          "ndcg@10": {
+            "mean": 0.46533827903669656,
+            "median": 0.46533827903669656
+          }
+        }
+      }
+    },
+    "learned_linear_combiner": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.3333333333333333,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.8333333333333334,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.5694444444444445,
+          "median": 0.5
+        },
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "median": 0.6309297535714575
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.582810833829473,
+          "median": 18.841584501387842
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.3333333333333333,
+            "median": 0.3333333333333333
+          },
+          "ndcg@10": {
+            "mean": 0.49356847033973983,
+            "median": 0.49356847033973983
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.75,
+            "median": 0.75
+          },
+          "ndcg@10": {
+            "mean": 0.8154648767857288,
+            "median": 0.8154648767857288
+          }
+        }
+      }
+    }
+  },
+  "query_level": {
+    "domains": {
+      "general_qa:08": "general_qa",
+      "general_qa:09": "general_qa",
+      "biomedical:08": "biomedical",
+      "biomedical:09": "biomedical",
+      "finance:08": "finance",
+      "finance:09": "finance"
+    },
+    "ground_truth": {
+      "general_qa:08": [
+        "general_qa:08:rel"
+      ],
+      "general_qa:09": [
+        "general_qa:09:rel"
+      ],
+      "biomedical:08": [
+        "biomedical:08:rel"
+      ],
+      "biomedical:09": [
+        "biomedical:09:rel"
+      ],
+      "finance:08": [
+        "finance:08:rel"
+      ],
+      "finance:09": [
+        "finance:09:rel"
+      ]
+    },
+    "rankings": {
+      "mean": {
+        "general_qa:08": [
+          "general_qa:08:d4",
+          "general_qa:08:rel",
+          "general_qa:08:d3",
+          "general_qa:08:hard",
+          "general_qa:08:d1",
+          "general_qa:08:d2"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:d2",
+          "general_qa:09:d3",
+          "general_qa:09:d1",
+          "general_qa:09:rel"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d4",
+          "biomedical:08:d3",
+          "biomedical:08:rel",
+          "biomedical:08:d1",
+          "biomedical:08:d2",
+          "biomedical:08:hard"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d4",
+          "biomedical:09:d3",
+          "biomedical:09:d2",
+          "biomedical:09:d1",
+          "biomedical:09:rel"
+        ],
+        "finance:08": [
+          "finance:08:d1",
+          "finance:08:d2",
+          "finance:08:hard",
+          "finance:08:rel",
+          "finance:08:d3",
+          "finance:08:d4"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d3",
+          "finance:09:d4",
+          "finance:09:d2",
+          "finance:09:rel"
+        ]
+      },
+      "kalman": {
+        "general_qa:08": [
+          "general_qa:08:d4",
+          "general_qa:08:rel",
+          "general_qa:08:d3",
+          "general_qa:08:hard",
+          "general_qa:08:d1",
+          "general_qa:08:d2"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:d2",
+          "general_qa:09:d1",
+          "general_qa:09:d3",
+          "general_qa:09:rel"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d4",
+          "biomedical:08:d3",
+          "biomedical:08:rel",
+          "biomedical:08:d1",
+          "biomedical:08:d2",
+          "biomedical:08:hard"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d4",
+          "biomedical:09:d3",
+          "biomedical:09:d2",
+          "biomedical:09:d1",
+          "biomedical:09:rel"
+        ],
+        "finance:08": [
+          "finance:08:rel",
+          "finance:08:d1",
+          "finance:08:hard",
+          "finance:08:d2",
+          "finance:08:d3",
+          "finance:08:d4"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d3",
+          "finance:09:d4",
+          "finance:09:d2",
+          "finance:09:rel"
+        ]
+      },
+      "best_single_specialist": {
+        "general_qa:08": [
+          "general_qa:08:d2",
+          "general_qa:08:d3",
+          "general_qa:08:d4",
+          "general_qa:08:hard",
+          "general_qa:08:rel",
+          "general_qa:08:d1"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:d3",
+          "general_qa:09:d1",
+          "general_qa:09:rel",
+          "general_qa:09:d2"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d4",
+          "biomedical:08:d2",
+          "biomedical:08:d3",
+          "biomedical:08:rel",
+          "biomedical:08:hard",
+          "biomedical:08:d1"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d4",
+          "biomedical:09:d3",
+          "biomedical:09:d1",
+          "biomedical:09:rel",
+          "biomedical:09:d2"
+        ],
+        "finance:08": [
+          "finance:08:rel",
+          "finance:08:d1",
+          "finance:08:hard",
+          "finance:08:d3",
+          "finance:08:d4",
+          "finance:08:d2"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d4",
+          "finance:09:d3",
+          "finance:09:rel",
+          "finance:09:d2"
+        ]
+      },
+      "single_generalist_model": {
+        "general_qa:08": [
+          "general_qa:08:rel",
+          "general_qa:08:d3",
+          "general_qa:08:d4",
+          "general_qa:08:d2",
+          "general_qa:08:d1",
+          "general_qa:08:hard"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:rel",
+          "general_qa:09:d3",
+          "general_qa:09:d1",
+          "general_qa:09:d2"
+        ],
+        "biomedical:08": [
+          "biomedical:08:rel",
+          "biomedical:08:d4",
+          "biomedical:08:d1",
+          "biomedical:08:d2",
+          "biomedical:08:hard",
+          "biomedical:08:d3"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d2",
+          "biomedical:09:d1",
+          "biomedical:09:d3",
+          "biomedical:09:rel",
+          "biomedical:09:d4"
+        ],
+        "finance:08": [
+          "finance:08:d3",
+          "finance:08:d1",
+          "finance:08:hard",
+          "finance:08:d2",
+          "finance:08:d4",
+          "finance:08:rel"
+        ],
+        "finance:09": [
+          "finance:09:d4",
+          "finance:09:rel",
+          "finance:09:d2",
+          "finance:09:d3",
+          "finance:09:d1"
+        ]
+      },
+      "uniform_mean_fusion": {
+        "general_qa:08": [
+          "general_qa:08:d4",
+          "general_qa:08:rel",
+          "general_qa:08:d3",
+          "general_qa:08:hard",
+          "general_qa:08:d1",
+          "general_qa:08:d2"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:d2",
+          "general_qa:09:d3",
+          "general_qa:09:d1",
+          "general_qa:09:rel"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d4",
+          "biomedical:08:d3",
+          "biomedical:08:rel",
+          "biomedical:08:d1",
+          "biomedical:08:d2",
+          "biomedical:08:hard"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d4",
+          "biomedical:09:d3",
+          "biomedical:09:d2",
+          "biomedical:09:d1",
+          "biomedical:09:rel"
+        ],
+        "finance:08": [
+          "finance:08:d1",
+          "finance:08:d2",
+          "finance:08:hard",
+          "finance:08:rel",
+          "finance:08:d3",
+          "finance:08:d4"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d3",
+          "finance:09:d4",
+          "finance:09:d2",
+          "finance:09:rel"
+        ]
+      },
+      "fixed_weighted_mean_fusion": {
+        "general_qa:08": [
+          "general_qa:08:d4",
+          "general_qa:08:rel",
+          "general_qa:08:d3",
+          "general_qa:08:hard",
+          "general_qa:08:d1",
+          "general_qa:08:d2"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:d2",
+          "general_qa:09:d3",
+          "general_qa:09:d1",
+          "general_qa:09:rel"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d4",
+          "biomedical:08:d3",
+          "biomedical:08:rel",
+          "biomedical:08:d1",
+          "biomedical:08:d2",
+          "biomedical:08:hard"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d4",
+          "biomedical:09:d3",
+          "biomedical:09:d2",
+          "biomedical:09:d1",
+          "biomedical:09:rel"
+        ],
+        "finance:08": [
+          "finance:08:d1",
+          "finance:08:d2",
+          "finance:08:hard",
+          "finance:08:rel",
+          "finance:08:d3",
+          "finance:08:d4"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d3",
+          "finance:09:d4",
+          "finance:09:d2",
+          "finance:09:rel"
+        ]
+      },
+      "router_only_top1": {
+        "general_qa:08": [
+          "general_qa:08:rel",
+          "general_qa:08:d3",
+          "general_qa:08:d4",
+          "general_qa:08:d2",
+          "general_qa:08:d1",
+          "general_qa:08:hard"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:rel",
+          "general_qa:09:d3",
+          "general_qa:09:d1",
+          "general_qa:09:d2"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d3",
+          "biomedical:08:d2",
+          "biomedical:08:d4",
+          "biomedical:08:hard",
+          "biomedical:08:d1",
+          "biomedical:08:rel"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d1",
+          "biomedical:09:d4",
+          "biomedical:09:d3",
+          "biomedical:09:rel",
+          "biomedical:09:d2"
+        ],
+        "finance:08": [
+          "finance:08:rel",
+          "finance:08:d1",
+          "finance:08:hard",
+          "finance:08:d3",
+          "finance:08:d4",
+          "finance:08:d2"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d4",
+          "finance:09:d3",
+          "finance:09:rel",
+          "finance:09:d2"
+        ]
+      },
+      "router_only_topk_mean": {
+        "general_qa:08": [
+          "general_qa:08:d4",
+          "general_qa:08:d3",
+          "general_qa:08:rel",
+          "general_qa:08:hard",
+          "general_qa:08:d2",
+          "general_qa:08:d1"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:d3",
+          "general_qa:09:d2",
+          "general_qa:09:rel",
+          "general_qa:09:d1"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d4",
+          "biomedical:08:d3",
+          "biomedical:08:rel",
+          "biomedical:08:hard",
+          "biomedical:08:d1",
+          "biomedical:08:d2"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d3",
+          "biomedical:09:d1",
+          "biomedical:09:d2",
+          "biomedical:09:d4",
+          "biomedical:09:rel"
+        ],
+        "finance:08": [
+          "finance:08:d1",
+          "finance:08:rel",
+          "finance:08:hard",
+          "finance:08:d3",
+          "finance:08:d4",
+          "finance:08:d2"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d4",
+          "finance:09:d3",
+          "finance:09:rel",
+          "finance:09:d2"
+        ]
+      },
+      "adaptive_route_or_fuse": {
+        "general_qa:08": [
+          "general_qa:08:d4",
+          "general_qa:08:d3",
+          "general_qa:08:rel",
+          "general_qa:08:hard",
+          "general_qa:08:d2",
+          "general_qa:08:d1"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:d3",
+          "general_qa:09:d2",
+          "general_qa:09:rel",
+          "general_qa:09:d1"
+        ],
+        "biomedical:08": [
+          "biomedical:08:d4",
+          "biomedical:08:d3",
+          "biomedical:08:rel",
+          "biomedical:08:hard",
+          "biomedical:08:d1",
+          "biomedical:08:d2"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d3",
+          "biomedical:09:d1",
+          "biomedical:09:d2",
+          "biomedical:09:d4",
+          "biomedical:09:rel"
+        ],
+        "finance:08": [
+          "finance:08:d1",
+          "finance:08:rel",
+          "finance:08:hard",
+          "finance:08:d3",
+          "finance:08:d4",
+          "finance:08:d2"
+        ],
+        "finance:09": [
+          "finance:09:d1",
+          "finance:09:d4",
+          "finance:09:d3",
+          "finance:09:rel",
+          "finance:09:d2"
+        ]
+      },
+      "learned_linear_combiner": {
+        "general_qa:08": [
+          "general_qa:08:rel",
+          "general_qa:08:d3",
+          "general_qa:08:d4",
+          "general_qa:08:d2",
+          "general_qa:08:d1",
+          "general_qa:08:hard"
+        ],
+        "general_qa:09": [
+          "general_qa:09:d4",
+          "general_qa:09:rel",
+          "general_qa:09:d3",
+          "general_qa:09:d1",
+          "general_qa:09:d2"
+        ],
+        "biomedical:08": [
+          "biomedical:08:rel",
+          "biomedical:08:d4",
+          "biomedical:08:d1",
+          "biomedical:08:d2",
+          "biomedical:08:hard",
+          "biomedical:08:d3"
+        ],
+        "biomedical:09": [
+          "biomedical:09:d2",
+          "biomedical:09:d1",
+          "biomedical:09:d3",
+          "biomedical:09:rel",
+          "biomedical:09:d4"
+        ],
+        "finance:08": [
+          "finance:08:d3",
+          "finance:08:d1",
+          "finance:08:hard",
+          "finance:08:d2",
+          "finance:08:d4",
+          "finance:08:rel"
+        ],
+        "finance:09": [
+          "finance:09:d4",
+          "finance:09:rel",
+          "finance:09:d2",
+          "finance:09:d3",
+          "finance:09:d1"
+        ]
+      }
+    },
+    "latency_ms": {
+      "mean": {
+        "general_qa:08": 21.281215000271914,
+        "general_qa:09": 18.18216200081224,
+        "biomedical:08": 21.087066001200583,
+        "biomedical:09": 18.365738000284182,
+        "finance:08": 21.741126000051736,
+        "finance:09": 17.788705001294147
+      },
+      "kalman": {
+        "general_qa:08": 43.925726000452414,
+        "general_qa:09": 37.76081800060638,
+        "biomedical:08": 43.26022500026738,
+        "biomedical:09": 37.84009999981208,
+        "finance:08": 43.09857600128453,
+        "finance:09": 37.56613899895456
+      },
+      "best_single_specialist": {
+        "general_qa:08": 22.42080299947702,
+        "general_qa:09": 18.930697999167023,
+        "biomedical:08": 20.766861000083736,
+        "biomedical:09": 19.031526000617305,
+        "finance:08": 21.609184999761055,
+        "finance:09": 18.65459999862651
+      },
+      "single_generalist_model": {
+        "general_qa:08": 20.472763999350718,
+        "general_qa:09": 19.65431200005696,
+        "biomedical:08": 21.759274999567424,
+        "biomedical:09": 17.40979399983189,
+        "finance:08": 21.064934000605717,
+        "finance:09": 18.717410999670392
+      },
+      "uniform_mean_fusion": {
+        "general_qa:08": 21.065749999252148,
+        "general_qa:09": 17.607873000088148,
+        "biomedical:08": 20.95613500023319,
+        "biomedical:09": 17.248099999051192,
+        "finance:08": 20.774464999703923,
+        "finance:09": 17.18147800056613
+      },
+      "fixed_weighted_mean_fusion": {
+        "general_qa:08": 24.746355000388576,
+        "general_qa:09": 19.050353999773506,
+        "biomedical:08": 20.188396998491953,
+        "biomedical:09": 17.572745000506984,
+        "finance:08": 21.098051000080886,
+        "finance:09": 18.874673000027542
+      },
+      "router_only_top1": {
+        "general_qa:08": 24.424582999927225,
+        "general_qa:09": 19.496292999974685,
+        "biomedical:08": 23.52060100020026,
+        "biomedical:09": 19.78866100034793,
+        "finance:08": 24.27425200039579,
+        "finance:09": 21.777701000246452
+      },
+      "router_only_topk_mean": {
+        "general_qa:08": 23.716489000435104,
+        "general_qa:09": 19.62789800018072,
+        "biomedical:08": 23.608580999280093,
+        "biomedical:09": 21.1447629990289,
+        "finance:08": 24.180002001230605,
+        "finance:09": 21.830993000548915
+      },
+      "adaptive_route_or_fuse": {
+        "general_qa:08": 26.3677570001164,
+        "general_qa:09": 23.17722599946137,
+        "biomedical:08": 25.805385999774444,
+        "biomedical:09": 23.844732999350526,
+        "finance:08": 26.181031998930848,
+        "finance:09": 23.689161000220338
+      },
+      "learned_linear_combiner": {
+        "general_qa:08": 20.03005100050359,
+        "general_qa:09": 17.459775999668636,
+        "biomedical:08": 19.57350000157021,
+        "biomedical:09": 18.109669001205475,
+        "finance:08": 24.2841330000374,
+        "finance:09": 18.039735999991535
+      }
+    },
+    "confidence_proxy": {
+      "mean": {
+        "general_qa:08": 0.8156658210383068,
+        "general_qa:09": 0.8177777252679719,
+        "biomedical:08": 0.8150468715023633,
+        "biomedical:09": 0.8182176656912749,
+        "finance:08": 0.8156750860876506,
+        "finance:09": 0.816280498442539
+      },
+      "kalman": {
+        "general_qa:08": 0.8156658210383068,
+        "general_qa:09": 0.8177777252679719,
+        "biomedical:08": 0.8150468715023633,
+        "biomedical:09": 0.8182176656912749,
+        "finance:08": 0.8156750860876506,
+        "finance:09": 0.816280498442539
+      },
+      "best_single_specialist": {
+        "general_qa:08": 0.7973498335240247,
+        "general_qa:09": 0.7973523574753437,
+        "biomedical:08": 0.7988799455281438,
+        "biomedical:09": 0.8035747070970178,
+        "finance:08": 0.8453453434460154,
+        "finance:09": 0.8474946203387121
+      },
+      "single_generalist_model": {
+        "general_qa:08": 0.8458353416901534,
+        "general_qa:09": 0.846909861127805,
+        "biomedical:08": 0.8000551795020023,
+        "biomedical:09": 0.8037973398131264,
+        "finance:08": 0.8009765483877755,
+        "finance:09": 0.8034316470328212
+      },
+      "uniform_mean_fusion": {
+        "general_qa:08": 0.8156658210383068,
+        "general_qa:09": 0.8177777252679719,
+        "biomedical:08": 0.8150468715023632,
+        "biomedical:09": 0.8182176656912749,
+        "finance:08": 0.8156750860876506,
+        "finance:09": 0.8162804984425389
+      },
+      "fixed_weighted_mean_fusion": {
+        "general_qa:08": 0.8156658210383068,
+        "general_qa:09": 0.8177777252679719,
+        "biomedical:08": 0.8150468715023632,
+        "biomedical:09": 0.8182176656912749,
+        "finance:08": 0.8156750860876506,
+        "finance:09": 0.8162804984425389
+      },
+      "router_only_top1": {
+        "general_qa:08": 0.8458353416901534,
+        "general_qa:09": 0.846909861127805,
+        "biomedical:08": 0.8462054894769437,
+        "biomedical:09": 0.8472809501636805,
+        "finance:08": 0.8453453434460154,
+        "finance:09": 0.8474946203387121
+      },
+      "router_only_topk_mean": {
+        "general_qa:08": 0.8248238147954478,
+        "general_qa:09": 0.827990409164286,
+        "biomedical:08": 0.823130334489473,
+        "biomedical:09": 0.8255391449884035,
+        "finance:08": 0.8231609459168955,
+        "finance:09": 0.8254631336857667
+      },
+      "adaptive_route_or_fuse": {
+        "general_qa:08": 0.8248238147954478,
+        "general_qa:09": 0.827990409164286,
+        "biomedical:08": 0.823130334489473,
+        "biomedical:09": 0.8255391449884035,
+        "finance:08": 0.8231609459168955,
+        "finance:09": 0.8254631336857667
+      },
+      "learned_linear_combiner": {
+        "general_qa:08": 0.8458353416901534,
+        "general_qa:09": 0.846909861127805,
+        "biomedical:08": 0.8000551795020023,
+        "biomedical:09": 0.8037973398131264,
+        "finance:08": 0.8009765483877755,
+        "finance:09": 0.8034316470328212
+      }
+    },
+    "specialist_count_selected": {
+      "mean": {
+        "general_qa:08": 3.0,
+        "general_qa:09": 3.0,
+        "biomedical:08": 3.0,
+        "biomedical:09": 3.0,
+        "finance:08": 3.0,
+        "finance:09": 3.0
+      },
+      "kalman": {
+        "general_qa:08": 3.0,
+        "general_qa:09": 3.0,
+        "biomedical:08": 3.0,
+        "biomedical:09": 3.0,
+        "finance:08": 3.0,
+        "finance:09": 3.0
+      },
+      "best_single_specialist": {
+        "general_qa:08": 1.0,
+        "general_qa:09": 1.0,
+        "biomedical:08": 1.0,
+        "biomedical:09": 1.0,
+        "finance:08": 1.0,
+        "finance:09": 1.0
+      },
+      "single_generalist_model": {
+        "general_qa:08": 1.0,
+        "general_qa:09": 1.0,
+        "biomedical:08": 1.0,
+        "biomedical:09": 1.0,
+        "finance:08": 1.0,
+        "finance:09": 1.0
+      },
+      "uniform_mean_fusion": {
+        "general_qa:08": 3.0,
+        "general_qa:09": 3.0,
+        "biomedical:08": 3.0,
+        "biomedical:09": 3.0,
+        "finance:08": 3.0,
+        "finance:09": 3.0
+      },
+      "fixed_weighted_mean_fusion": {
+        "general_qa:08": 3.0,
+        "general_qa:09": 3.0,
+        "biomedical:08": 3.0,
+        "biomedical:09": 3.0,
+        "finance:08": 3.0,
+        "finance:09": 3.0
+      },
+      "router_only_top1": {
+        "general_qa:08": 1.0,
+        "general_qa:09": 1.0,
+        "biomedical:08": 1.0,
+        "biomedical:09": 1.0,
+        "finance:08": 1.0,
+        "finance:09": 1.0
+      },
+      "router_only_topk_mean": {
+        "general_qa:08": 2.0,
+        "general_qa:09": 2.0,
+        "biomedical:08": 2.0,
+        "biomedical:09": 2.0,
+        "finance:08": 2.0,
+        "finance:09": 2.0
+      },
+      "adaptive_route_or_fuse": {
+        "general_qa:08": 2.0,
+        "general_qa:09": 2.0,
+        "biomedical:08": 2.0,
+        "biomedical:09": 2.0,
+        "finance:08": 2.0,
+        "finance:09": 2.0
+      },
+      "learned_linear_combiner": {
+        "general_qa:08": 1.0,
+        "general_qa:09": 1.0,
+        "biomedical:08": 1.0,
+        "biomedical:09": 1.0,
+        "finance:08": 1.0,
+        "finance:09": 1.0
+      }
+    },
+    "policy_usage": {
+      "adaptive_route_or_fuse": {
+        "general_qa:08": {
+          "mode": "topk_mean_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.25323864388613104,
+            "selected_specialist_count": 1,
+            "specialist_disagreement": 0.0,
+            "uncertainty_dispersion": 0.0
+          }
+        },
+        "general_qa:09": {
+          "mode": "topk_mean_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.23400727689961237,
+            "selected_specialist_count": 1,
+            "specialist_disagreement": 0.0,
+            "uncertainty_dispersion": 0.0
+          }
+        },
+        "biomedical:08": {
+          "mode": "topk_mean_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.2727649892284971,
+            "selected_specialist_count": 1,
+            "specialist_disagreement": 0.0,
+            "uncertainty_dispersion": 0.0
+          }
+        },
+        "biomedical:09": {
+          "mode": "topk_mean_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.2615732099686852,
+            "selected_specialist_count": 1,
+            "specialist_disagreement": 0.0,
+            "uncertainty_dispersion": 0.0
+          }
+        },
+        "finance:08": {
+          "mode": "topk_mean_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.26371766151307013,
+            "selected_specialist_count": 1,
+            "specialist_disagreement": 0.0,
+            "uncertainty_dispersion": 0.0
+          }
+        },
+        "finance:09": {
+          "mode": "topk_mean_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.2644985225732907,
+            "selected_specialist_count": 1,
+            "specialist_disagreement": 0.0,
+            "uncertainty_dispersion": 0.0
+          }
+        }
+      }
+    },
+    "query_metadata": {
+      "general_qa:08": {
+        "dominant_domain": "general_qa",
+        "secondary_domain": null,
+        "query_category": null,
+        "ambiguity_category": null,
+        "ambiguity_score": null,
+        "fusion_usefulness_bucket": null,
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.18226320267227633,
+          "biomedical": 0.24407155134643063,
+          "finance": 0.25415464825561973
+        },
+        "precision_by_specialist": {
+          "general_qa": 5.4865709882102704,
+          "biomedical": 4.097159191570912,
+          "finance": 3.9346122798204166
+        },
+        "uncertainty_spread": 0.0718914455833434,
+        "router_top1_precision": 5.4865709882102704,
+        "router_top2_precision": 4.097159191570912,
+        "router_confidence": 0.40586122186254825,
+        "router_margin": 0.25323864388613104,
+        "specialist_disagreement": 0.9894488538896844
+      },
+      "general_qa:09": {
+        "dominant_domain": "general_qa",
+        "secondary_domain": null,
+        "query_category": null,
+        "ambiguity_category": null,
+        "ambiguity_score": null,
+        "fusion_usefulness_bucket": null,
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.18076320267227644,
+          "biomedical": 0.23598553513750078,
+          "finance": 0.25415067833535915
+        },
+        "precision_by_specialist": {
+          "general_qa": 5.532099372088463,
+          "biomedical": 4.237547862487986,
+          "finance": 3.934673739805924
+        },
+        "uncertainty_spread": 0.07338747566308271,
+        "router_top1_precision": 5.532099372088463,
+        "router_top2_precision": 4.237547862487986,
+        "router_confidence": 0.40367555477062106,
+        "router_margin": 0.23400727689961237,
+        "specialist_disagreement": 0.9897985344003202
+      },
+      "biomedical:08": {
+        "dominant_domain": "biomedical",
+        "secondary_domain": null,
+        "query_category": null,
+        "ambiguity_category": null,
+        "ambiguity_score": null,
+        "fusion_usefulness_bucket": null,
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.2499137879745421,
+          "biomedical": 0.1817460562896132,
+          "finance": 0.25175253878590564
+        },
+        "precision_by_specialist": {
+          "general_qa": 4.001379868252274,
+          "biomedical": 5.502182663080706,
+          "finance": 3.9721545801387763
+        },
+        "uncertainty_spread": 0.07000648249629243,
+        "router_top1_precision": 5.502182663080706,
+        "router_top2_precision": 4.001379868252274,
+        "router_confidence": 0.4083035149496236,
+        "router_margin": 0.2727649892284971,
+        "specialist_disagreement": 0.9888510446886691
+      },
+      "biomedical:09": {
+        "dominant_domain": "biomedical",
+        "secondary_domain": null,
+        "query_category": null,
+        "ambiguity_category": null,
+        "ambiguity_score": null,
+        "fusion_usefulness_bucket": null,
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.24409468714152305,
+          "biomedical": 0.18024605628961293,
+          "finance": 0.24443936720281473
+        },
+        "precision_by_specialist": {
+          "general_qa": 4.096770854419344,
+          "biomedical": 5.547971592750056,
+          "finance": 4.0909940630401245
+        },
+        "uncertainty_spread": 0.0641933109132018,
+        "router_top1_precision": 5.547971592750056,
+        "router_top2_precision": 4.096770854419344,
+        "router_confidence": 0.40390783476563846,
+        "router_margin": 0.2615732099686852,
+        "specialist_disagreement": 0.9901071045673292
+      },
+      "finance:08": {
+        "dominant_domain": "finance",
+        "secondary_domain": null,
+        "query_category": null,
+        "ambiguity_category": null,
+        "ambiguity_score": null,
+        "fusion_usefulness_bucket": null,
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.24847600346455034,
+          "biomedical": 0.2489019553641043,
+          "finance": 0.1829484928887656
+        },
+        "precision_by_specialist": {
+          "general_qa": 4.024533500445923,
+          "biomedical": 4.017646219521087,
+          "finance": 5.466019338065875
+        },
+        "uncertainty_spread": 0.0659534624753387,
+        "router_top1_precision": 5.466019338065875,
+        "router_top2_precision": 4.024533500445923,
+        "router_confidence": 0.40464456546599464,
+        "router_margin": 0.26371766151307013,
+        "specialist_disagreement": 0.9899021935013593
+      },
+      "finance:09": {
+        "dominant_domain": "finance",
+        "secondary_domain": null,
+        "query_category": null,
+        "ambiguity_category": null,
+        "ambiguity_score": null,
+        "fusion_usefulness_bucket": null,
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.24466095366436158,
+          "biomedical": 0.25326596731531364,
+          "finance": 0.1799484928887656
+        },
+        "precision_by_specialist": {
+          "general_qa": 4.087288899281621,
+          "biomedical": 3.948418378514354,
+          "finance": 5.557145736242124
+        },
+        "uncertainty_spread": 0.07331747442654804,
+        "router_top1_precision": 5.557145736242124,
+        "router_top2_precision": 4.087288899281621,
+        "router_confidence": 0.40882850204463694,
+        "router_margin": 0.2644985225732907,
+        "specialist_disagreement": 0.9886198340713781
+      }
+    }
+  },
+  "comparison_table": [
+    {
+      "strategy": "single_generalist_model",
+      "mrr_mean": 0.5694444444444445,
+      "recall@1_mean": 0.3333333333333333,
+      "recall@5_mean": 0.8333333333333334,
+      "delta_vs_kalman_mrr": 0.16388888888888892
+    },
+    {
+      "strategy": "learned_linear_combiner",
+      "mrr_mean": 0.5694444444444445,
+      "recall@1_mean": 0.3333333333333333,
+      "recall@5_mean": 0.8333333333333334,
+      "delta_vs_kalman_mrr": 0.16388888888888892
+    },
+    {
+      "strategy": "router_only_top1",
+      "mrr_mean": 0.5277777777777778,
+      "recall@1_mean": 0.3333333333333333,
+      "recall@5_mean": 0.8333333333333334,
+      "delta_vs_kalman_mrr": 0.12222222222222218
+    },
+    {
+      "strategy": "kalman",
+      "mrr_mean": 0.4055555555555556,
+      "recall@1_mean": 0.16666666666666666,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "best_single_specialist",
+      "mrr_mean": 0.3666666666666667,
+      "recall@1_mean": 0.16666666666666666,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.03888888888888892
+    },
+    {
+      "strategy": "router_only_topk_mean",
+      "mrr_mean": 0.31111111111111106,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.09444444444444455
+    },
+    {
+      "strategy": "adaptive_route_or_fuse",
+      "mrr_mean": 0.31111111111111106,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.09444444444444455
+    },
+    {
+      "strategy": "mean",
+      "mrr_mean": 0.28055555555555556,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.12500000000000006
+    },
+    {
+      "strategy": "uniform_mean_fusion",
+      "mrr_mean": 0.28055555555555556,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.12500000000000006
+    },
+    {
+      "strategy": "fixed_weighted_mean_fusion",
+      "mrr_mean": 0.28055555555555556,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.12500000000000006
+    }
+  ],
+  "kalman_guardrail": {
+    "primary_metric": "mrr",
+    "kalman_score": 0.4055555555555556,
+    "best_non_kalman_strategy": "single_generalist_model",
+    "best_non_kalman_score": 0.5694444444444445,
+    "kalman_minus_best_non_kalman": -0.16388888888888892
+  },
+  "delta_last_minus_first": {
+    "recall@1": 0.16666666666666666,
+    "recall@5": 0.0,
+    "recall@10": 0.0,
+    "mrr": 0.12500000000000006,
+    "ndcg@10": 0.09488724032110119
+  }
+}
