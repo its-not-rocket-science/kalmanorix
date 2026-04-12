@@ -1,0 +1,1252 @@
+{
+  "name": "canonical-benchmark",
+  "experiment_type": "real_mixed",
+  "seed": {
+    "python": 42,
+    "numpy": 42,
+    "torch": 42
+  },
+  "dataset": {
+    "path": "benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet",
+    "split": "test",
+    "max_queries": 600
+  },
+  "specialists": [
+    {
+      "name": "general_qa",
+      "domain": "general_qa",
+      "model_name": "sentence-transformers/all-mpnet-base-v2"
+    },
+    {
+      "name": "biomedical",
+      "domain": "biomedical",
+      "model_name": "emilyalsentzer/Bio_ClinicalBERT"
+    },
+    {
+      "name": "finance",
+      "domain": "finance",
+      "model_name": "ProsusAI/finbert"
+    }
+  ],
+  "results": {
+    "mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.28055555555555556,
+          "median": 0.225
+        },
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "median": 0.40876468265396737
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.74100200065247,
+          "median": 19.726402000742382
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "kalman": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.16666666666666666,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.4055555555555556,
+          "median": 0.26666666666666666
+        },
+        "ndcg@10": {
+          "mean": 0.5485813625458471,
+          "median": 0.4434264036172708
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 40.57526400022956,
+          "median": 40.469338000548305
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.6,
+            "median": 0.6
+          },
+          "ndcg@10": {
+            "mean": 0.6934264036172708,
+            "median": 0.6934264036172708
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "best_single_specialist": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.16666666666666666,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.3666666666666667,
+          "median": 0.25
+        },
+        "ndcg@10": {
+          "mean": 0.5182598399213523,
+          "median": 0.43067655807339306
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 20.235612166288774,
+          "median": 19.89919350035052
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.25,
+            "median": 0.25
+          },
+          "ndcg@10": {
+            "mean": 0.43067655807339306,
+            "median": 0.43067655807339306
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        }
+      }
+    },
+    "single_generalist_model": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.3333333333333333,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.8333333333333334,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.5694444444444445,
+          "median": 0.5
+        },
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "median": 0.6309297535714575
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.846414999847184,
+          "median": 20.06353799970384
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.3333333333333333,
+            "median": 0.3333333333333333
+          },
+          "ndcg@10": {
+            "mean": 0.49356847033973983,
+            "median": 0.49356847033973983
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.75,
+            "median": 0.75
+          },
+          "ndcg@10": {
+            "mean": 0.8154648767857288,
+            "median": 0.8154648767857288
+          }
+        }
+      }
+    },
+    "uniform_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.28055555555555556,
+          "median": 0.225
+        },
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "median": 0.40876468265396737
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.138966833149123,
+          "median": 19.191168999896036
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "fixed_weighted_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.28055555555555556,
+          "median": 0.225
+        },
+        "ndcg@10": {
+          "mean": 0.4536941222247459,
+          "median": 0.40876468265396737
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 20.255095833211573,
+          "median": 19.61937549913273
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.225,
+            "median": 0.225
+          },
+          "ndcg@10": {
+            "mean": 0.40876468265396737,
+            "median": 0.40876468265396737
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.35,
+            "median": 0.35
+          },
+          "ndcg@10": {
+            "mean": 0.5088912804029996,
+            "median": 0.5088912804029996
+          }
+        }
+      }
+    },
+    "router_only_top1": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.3333333333333333,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.8333333333333334,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.5277777777777778,
+          "median": 0.375
+        },
+        "ndcg@10": {
+          "mean": 0.6414150094710442,
+          "median": 0.5308031558224253
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 22.21368183351539,
+          "median": 22.649151000223355
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.20833333333333331,
+            "median": 0.20833333333333331
+          },
+          "ndcg@10": {
+            "mean": 0.3934418725907076,
+            "median": 0.3934418725907076
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.75,
+            "median": 0.75
+          },
+          "ndcg@10": {
+            "mean": 0.8154648767857288,
+            "median": 0.8154648767857288
+          }
+        }
+      }
+    },
+    "router_only_topk_mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.31111111111111106,
+          "median": 0.29166666666666663
+        },
+        "ndcg@10": {
+          "mean": 0.4798559461587975,
+          "median": 0.46533827903669656
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 22.35145433345072,
+          "median": 22.719786999914504
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.375,
+            "median": 0.375
+          },
+          "ndcg@10": {
+            "mean": 0.5308031558224253,
+            "median": 0.5308031558224253
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.29166666666666663,
+            "median": 0.29166666666666663
+          },
+          "ndcg@10": {
+            "mean": 0.46533827903669656,
+            "median": 0.46533827903669656
+          }
+        }
+      }
+    },
+    "adaptive_route_or_fuse": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.31111111111111106,
+          "median": 0.29166666666666663
+        },
+        "ndcg@10": {
+          "mean": 0.4798559461587975,
+          "median": 0.46533827903669656
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 24.844215832975653,
+          "median": 24.825059499562485
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.26666666666666666,
+            "median": 0.26666666666666666
+          },
+          "ndcg@10": {
+            "mean": 0.4434264036172708,
+            "median": 0.4434264036172708
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.375,
+            "median": 0.375
+          },
+          "ndcg@10": {
+            "mean": 0.5308031558224253,
+            "median": 0.5308031558224253
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.29166666666666663,
+            "median": 0.29166666666666663
+          },
+          "ndcg@10": {
+            "mean": 0.46533827903669656,
+            "median": 0.46533827903669656
+          }
+        }
+      }
+    },
+    "learned_linear_combiner": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 6,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.3333333333333333,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.8333333333333334,
+          "median": 1.0
+        },
+        "recall@10": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "mrr": {
+          "mean": 0.5694444444444445,
+          "median": 0.5
+        },
+        "ndcg@10": {
+          "mean": 0.6747905420540551,
+          "median": 0.6309297535714575
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 19.582810833829473,
+          "median": 18.841584501387842
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "biomedical": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.625,
+            "median": 0.625
+          },
+          "ndcg@10": {
+            "mean": 0.7153382790366966,
+            "median": 0.7153382790366966
+          }
+        },
+        "finance": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.3333333333333333,
+            "median": 0.3333333333333333
+          },
+          "ndcg@10": {
+            "mean": 0.49356847033973983,
+            "median": 0.49356847033973983
+          }
+        },
+        "general_qa": {
+          "recall@1": {
+            "mean": 0.5,
+            "median": 0.5
+          },
+          "recall@5": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "recall@10": {
+            "mean": 1.0,
+            "median": 1.0
+          },
+          "mrr": {
+            "mean": 0.75,
+            "median": 0.75
+          },
+          "ndcg@10": {
+            "mean": 0.8154648767857288,
+            "median": 0.8154648767857288
+          }
+        }
+      }
+    }
+  },
+  "query_level": {
+    "details_json": "results/canonical_benchmark_v2/runner_details.json"
+  },
+  "comparison_table": [
+    {
+      "strategy": "single_generalist_model",
+      "mrr_mean": 0.5694444444444445,
+      "recall@1_mean": 0.3333333333333333,
+      "recall@5_mean": 0.8333333333333334,
+      "delta_vs_kalman_mrr": 0.16388888888888892
+    },
+    {
+      "strategy": "learned_linear_combiner",
+      "mrr_mean": 0.5694444444444445,
+      "recall@1_mean": 0.3333333333333333,
+      "recall@5_mean": 0.8333333333333334,
+      "delta_vs_kalman_mrr": 0.16388888888888892
+    },
+    {
+      "strategy": "router_only_top1",
+      "mrr_mean": 0.5277777777777778,
+      "recall@1_mean": 0.3333333333333333,
+      "recall@5_mean": 0.8333333333333334,
+      "delta_vs_kalman_mrr": 0.12222222222222218
+    },
+    {
+      "strategy": "kalman",
+      "mrr_mean": 0.4055555555555556,
+      "recall@1_mean": 0.16666666666666666,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "best_single_specialist",
+      "mrr_mean": 0.3666666666666667,
+      "recall@1_mean": 0.16666666666666666,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.03888888888888892
+    },
+    {
+      "strategy": "router_only_topk_mean",
+      "mrr_mean": 0.31111111111111106,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.09444444444444455
+    },
+    {
+      "strategy": "adaptive_route_or_fuse",
+      "mrr_mean": 0.31111111111111106,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.09444444444444455
+    },
+    {
+      "strategy": "mean",
+      "mrr_mean": 0.28055555555555556,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.12500000000000006
+    },
+    {
+      "strategy": "uniform_mean_fusion",
+      "mrr_mean": 0.28055555555555556,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.12500000000000006
+    },
+    {
+      "strategy": "fixed_weighted_mean_fusion",
+      "mrr_mean": 0.28055555555555556,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 1.0,
+      "delta_vs_kalman_mrr": -0.12500000000000006
+    }
+  ],
+  "kalman_guardrail": {
+    "primary_metric": "mrr",
+    "kalman_score": 0.4055555555555556,
+    "best_non_kalman_strategy": "single_generalist_model",
+    "best_non_kalman_score": 0.5694444444444445,
+    "kalman_minus_best_non_kalman": -0.16388888888888892
+  },
+  "delta_last_minus_first": {
+    "recall@1": 0.16666666666666666,
+    "recall@5": 0.0,
+    "recall@10": 0.0,
+    "mrr": 0.12500000000000006,
+    "ndcg@10": 0.09488724032110119
+  }
+}

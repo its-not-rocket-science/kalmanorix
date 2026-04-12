@@ -5,7 +5,7 @@ This page reports only what is currently supported by committed artifacts.
 ## Current Evidence State
 
 - **Canonical artifact paths:** `results/canonical_benchmark/` (v1) and `results/canonical_benchmark_v2/` (stronger protocol target).
-- **State:** v1 artifact committed (`summary.json`, `report.md`); v2 command path documented for regeneration.
+- **State:** v1 and v2 artifacts are committed (`summary.json`, `report.md`, and runner-level JSONs for v2).
 - **What this means:** canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.
 
 ## Demonstrated vs Planned
@@ -23,7 +23,11 @@ This page reports only what is currently supported by committed artifacts.
 ### Canonical Benchmark Artifact
 - `results/canonical_benchmark/summary.json`
 - `results/canonical_benchmark/report.md`
-- `results/canonical_benchmark_v2/README.md` (reproducible stronger-benchmark command)
+- `results/canonical_benchmark_v2/summary.json`
+- `results/canonical_benchmark_v2/report.md`
+- `results/canonical_benchmark_v2/runner_summary.json`
+- `results/canonical_benchmark_v2/runner_details.json`
+- `results/canonical_benchmark_v2/README.md` (regeneration command)
 
 Canonical v2 is produced with a two-step but fully reproducible command sequence:
 
