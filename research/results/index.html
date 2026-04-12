@@ -2589,7 +2589,7 @@
 <h2 id="current-evidence-state">Current Evidence State<a class="headerlink" href="#current-evidence-state" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Canonical artifact paths:</strong> <code>results/canonical_benchmark/</code> (v1) and <code>results/canonical_benchmark_v2/</code> (stronger protocol target).</li>
-<li><strong>State:</strong> v1 artifact committed (<code>summary.json</code>, <code>report.md</code>); v2 command path documented for regeneration.</li>
+<li><strong>State:</strong> v1 and v2 artifacts are committed (<code>summary.json</code>, <code>report.md</code>, and runner-level JSONs for v2).</li>
 <li><strong>What this means:</strong> canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.</li>
 </ul>
 <h2 id="demonstrated-vs-planned">Demonstrated vs Planned<a class="headerlink" href="#demonstrated-vs-planned" title="Permanent link">&para;</a></h2>
@@ -2608,7 +2608,11 @@
 <ul>
 <li><code>results/canonical_benchmark/summary.json</code></li>
 <li><code>results/canonical_benchmark/report.md</code></li>
-<li><code>results/canonical_benchmark_v2/README.md</code> (reproducible stronger-benchmark command)</li>
+<li><code>results/canonical_benchmark_v2/summary.json</code></li>
+<li><code>results/canonical_benchmark_v2/report.md</code></li>
+<li><code>results/canonical_benchmark_v2/runner_summary.json</code></li>
+<li><code>results/canonical_benchmark_v2/runner_details.json</code></li>
+<li><code>results/canonical_benchmark_v2/README.md</code> (regeneration command)</li>
 </ul>
 <p>Canonical v2 is produced with a two-step but fully reproducible command sequence:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>scripts/build_mixed_benchmark.py<span class="w"> </span><span class="se">\</span>
