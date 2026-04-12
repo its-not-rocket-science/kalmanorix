@@ -1,70 +1,72 @@
-# Post-Improvement Kalman Decision Report
+# Kalman Evidence-Upgrade Report (Stronger Benchmark Regime)
 
-## Scope and evidence posture
+## Scope and benchmark versions used
 
-This artifact consolidates **post-improvement** Kalman evidence from:
-- canonical benchmark rerun under the latency-optimized path,
-- latency microbenchmark,
-- learned-correction experiment,
-- prior-strength ablation,
-- covariance-family ablation,
-- uncertainty/calibration ablation,
-- bucketed error analysis.
+This guarded report aggregates only the requested evidence tracks:
+1. uncertainty calibration,
+2. uncertainty ablation,
+3. covariance ablation,
+4. correlation-aware fusion,
+5. canonical benchmark rerun,
+6. per-bucket analysis.
 
-All claims below are benchmark-conditional. No claim is promoted to product-wide truth without statistical and cost checks.
+### Explicit benchmark/version provenance
 
-## Demonstrated findings
+- **Uncertainty calibration:** internal calibration split artifact (`results/uncertainty_calibration/summary.json`), status `sufficient`, with validation/train/test split sizes 10/1/4.
+- **Uncertainty ablation:** `toy_mixed` + `synthetic_shifted_queries` ablation artifact (`results/uncertainty_ablation/summary.json`).
+- **Covariance ablation:** `kalman_covariance_ablation_v2_enlarged` (`results/kalman_covariance_ablation_v2/report.md`).
+- **Correlation-aware fusion:** strengthened synthetic correlated-expert split with `n_test=420`, 50/50 high/low-correlation buckets (`results/correlation_aware_fusion/summary.json`).
+- **Canonical benchmark baseline:** `benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet` (`results/canonical_benchmark/report.md`).
+- **Canonical benchmark rerun artifact actually containing metrics:** latency-optimized canonical rerun on the **same** `mixed_beir_v1.0.0` test split (`results/kalman_latency_optimization/canonical/summary.json`).
+- **Canonical v1.1.0/v1.2.0 stronger benchmark folders:** present as README-only placeholders without `summary.json` metrics (`results/canonical_benchmark_v2/README.md`, `results/canonical_benchmark_v3/README.md`).
+- **Per-bucket analysis:** query-bucketed report over 12 queries (`results/kalman_error_analysis/report.md`).
 
-- **Best quality gain achieved (point estimate):** `+0.125` MRR@10 for Kalman vs mean in the canonical post-optimization run; `+0.0949` NDCG@10 in the same run.
-- **Calibration improvement is real in controlled ablations:** Kalman variants reduce ECE vs mean in prior ablation (`0.1070 -> 0.0869`, and best prior `0.0807`).
-- **Latency optimization helped but did not close the gap:** optimized Kalman is `2.06x` faster than legacy in microbench, but remains `2.97x` slower than mean in microbench and `2.11x` slower in the canonical run.
-- **FLOPs cost in canonical is neutral vs mean:** both report `flops_proxy = 3.0` (ratio `1.0x`).
+## Rule-based evidence checks
 
-## Unresolved findings
+Decision rules for this report (strict):
 
-- **Statistical significance status is negative:** canonical paired testing reports adjusted p-value `1.0` for Kalman-vs-mean on NDCG@10 and MRR@10 (inconclusive despite positive deltas).
-- **Quality wins are not robust across variants:** covariance ablation shows no clear quality gain from richer covariance families; prior and learned-correction gains are benchmark-local and not yet independently replicated with powered significance tests.
-- **Calibration improvements have limited retrieval lift:** uncertainty ablation shows calibration movement, but retrieval metrics remain largely flat in that setup.
+1. **Technical upgrade rule:** PASS if a method change improves at least one target metric in its own benchmark and does not show immediate contradiction in that same artifact.
+2. **Empirical upgrade rule:** PASS only if canonical rerun evidence is both (a) positive on primary ranking metric and (b) statistically supported (adjusted p <= 0.05).
+3. **Null-preservation rule:** always record null/negative findings even when directional gains exist.
+4. **Centrality rule:**
+   - **central**: empirical upgrade PASS + cost gates pass + stable bucket evidence,
+   - **experimental**: directional gains but no statistical support and/or cost/bucket gates fail,
+   - **selective-only**: no global support, but at least one stable bucket passes minimum-size + consistency filters.
 
-## Query buckets where Kalman helps most (descriptive, non-promotional)
+## what improved technically
 
-From bucketed MRR@10 analysis, largest Kalman-minus-mean deltas were:
-- **multi-domain:** `+0.2500`
-- **ambiguous (proxy):** `+0.2500`
-- **router confidence: low:** `+0.2000`
-- **high uncertainty spread:** `+0.1667`
+- **Uncertainty calibration pipeline quality controls improved:** validation power checks are now explicitly satisfied and leakage checks are clean; calibration candidates are selected from validation-only evidence. **Rule 1: PASS (technical process).**
+- **Correlation-aware Kalman variant improved over baseline Kalman on the strengthened synthetic split:** best variant improved MRR@10 by `+0.0037` versus baseline Kalman. **Rule 1: PASS (small technical gain in synthetic stress setup).**
+- **Covariance-family expansion did not provide material additional gain over scalar Kalman:** structured/diagonal variants are near-tied with scalar Kalman, while latency is worse. **Rule 1: FAIL for “richer covariance is technically better.”**
 
-Important caveat: the same analysis reports **no bucket passed the consistency + minimum-size filter**, so these are hypotheses, not deployment-ready subgroup policies.
+## what improved empirically
 
-## Explicit decision rules
+- **Canonical rerun (available metric artifact) shows positive direction:** Kalman vs mean improved by `+0.0949` (nDCG@10) and `+0.1250` (MRR@10) on `mixed_beir_v1.0.0`.
+- **But empirical-upgrade gate fails:** adjusted p-values remain `1.0` for both nDCG@10 and MRR@10, so this is not decision-grade evidence.
+- **Therefore:** empirical evidence quality improved only in *directional signal*, not in *statistical confidence*.
 
-Promotion policy for Kalman as first-class must satisfy **all**:
-1. Primary quality delta (NDCG@10) >= `+0.02` vs mean.
-2. Adjusted p-value <= `0.05` on primary metric.
-3. Latency ratio vs mean <= `1.5x`.
-4. FLOPs ratio vs mean <= `1.1x`.
-5. At least one practically relevant bucket shows consistent benefit after minimum-size filtering.
+## what remained null
 
-If rules (1) passes but (2) fails, or if cost gates fail, Kalman remains experimental.
+- **Uncertainty calibration did not change benchmark delta:** pre/post Kalman-minus-mean MRR delta remains `0.0`.
+- **Uncertainty ablation shows calibration movement without retrieval lift:** on both datasets, recall@1 and MRR@10 are largely flat across sigma² methods.
+- **Canonical significance remains null/inconclusive:** Kalman-vs-mean adjusted p-values are still `1.0`.
+- **Bucket consistency remains null:** no bucket passed consistency + minimum-size filters.
+- **Covariance richness remains practically null for quality:** richer covariance does not clear practical gains over scalar Kalman while adding latency.
 
-## Rule check against current evidence
+## where Kalman helps, if anywhere
 
-- Rule 1 (effect size): **PASS** (`+0.0949` NDCG@10).
-- Rule 2 (significance): **FAIL** (adjusted p=`1.0`).
-- Rule 3 (latency): **FAIL** (`2.11x` in canonical; `2.97x` in microbench).
-- Rule 4 (FLOPs): **PASS** (`1.0x`).
-- Rule 5 (consistent bucket wins): **FAIL** (none passed consistency/min-size filters).
+- **Global (current evidence):** directional gain over mean appears in canonical v1.0.0 artifacts, but remains statistically unsupported.
+- **Synthetic correlated-expert regime:** Kalman helps over mean; correlation-aware inflation gives a small extra uplift over baseline Kalman.
+- **Exploratory buckets (non-promotional):** larger deltas appear in multi-domain, ambiguous-proxy, low router-confidence, and high uncertainty-spread buckets, but none are stable enough for policy.
 
-## Final recommendation
+## whether Kalman should remain central, experimental, or selective-only
 
-## **Keep Kalman experimental.**
+### Verdict: **experimental**
 
-Brutally honest read: we have encouraging directional quality and calibration signals, but **not decision-grade evidence**. Statistical support is absent, latency is still materially over budget, and subgroup wins are exploratory only. Promoting Kalman to first-class now would overstate certainty.
+Rule outcomes:
+- Technical upgrade rule: **mixed PASS** (better calibration controls; small synthetic correlation-aware gain).
+- Empirical upgrade rule: **FAIL** (directional improvement without statistical support).
+- Cost/stability support for centrality: **FAIL** (canonical significance unresolved; bucket stability unresolved; covariance complexity unattractive).
+- Selective-only gate: **FAIL** (no bucket passed stability/min-size filters).
 
-## Exit criteria to revisit this decision
-
-Re-open promotion only after all are met in a pre-registered rerun:
-- powered query count with adjusted p <= 0.05 on primary metric,
-- end-to-end latency ratio <= 1.5x,
-- at least one stable, minimum-size bucket with replicated Kalman lift,
-- no regression on calibration.
+**Final decision:** the stronger evaluation regime did **not materially upgrade** the case for Kalman to central status. It upgraded instrumentation and surfaced directional signals, but retained core nulls. Keep Kalman **experimental**, not central and not yet selective-only policy.
