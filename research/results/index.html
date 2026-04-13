@@ -1819,6 +1819,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#5-uncertainty-calibration-powered-validation-regime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Uncertainty calibration (powered validation regime)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2478,6 +2489,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#5-uncertainty-calibration-powered-validation-regime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Uncertainty calibration (powered validation regime)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2653,6 +2675,14 @@
 <p><strong>Evidence status:</strong> <strong>Unresolved.</strong></p>
 <ul>
 <li>No completed OOD benchmark artifact currently supports this claim.</li>
+</ul>
+<h3 id="5-uncertainty-calibration-powered-validation-regime">5) Uncertainty calibration (powered validation regime)<a class="headerlink" href="#5-uncertainty-calibration-powered-validation-regime" title="Permanent link">&para;</a></h3>
+<p><strong>Evidence status:</strong> <strong>Powered but currently null downstream impact.</strong></p>
+<ul>
+<li>Updated artifact: <code>results/uncertainty_calibration/summary.json</code> and <code>results/uncertainty_calibration/report.md</code>.</li>
+<li>The calibration split is now explicitly power-audited (<code>powered_for_calibration</code>, per-specialist support counts, threshold, fallback reason) and uses domain-stratified validation with query-bucket balancing.</li>
+<li>In this stronger run, non-identity calibrators are selected (no underpowered fallback), but downstream Kalman-vs-Mean delta change remains <code>0.0</code> on both validation and test.</li>
+<li>Interpretation: calibration is now empirically testable in this regime, but does not currently improve downstream retrieval quality.</li>
 </ul>
 <h2 id="next-empirical-phase-scaffold-post-canonical-closure">Next empirical phase scaffold (post-canonical closure)<a class="headerlink" href="#next-empirical-phase-scaffold-post-canonical-closure" title="Permanent link">&para;</a></h2>
 <p>The repository now includes stable scaffold directories for the next three unresolved tracks:
