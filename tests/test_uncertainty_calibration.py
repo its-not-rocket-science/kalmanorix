@@ -55,25 +55,32 @@ def test_fallback_for_too_small_calibration_data() -> None:
 def test_validation_powered_split_and_status(tmp_path) -> None:
     summary = run_uncertainty_calibration(tmp_path)
     assert summary["status"] == "sufficient"
+    assert summary["powered_for_calibration"] is True
     assert summary["validation_power"]["validation_count"] >= 8
     assert summary["validation_power"]["specialist_effective_support"]["tech"] >= 6
     assert summary["validation_power"]["specialist_effective_support"]["cook"] >= 6
+    assert "validation_by_query_bucket" in summary["validation_power"]
+    assert summary["minimum_support_threshold"] == 6
+    assert summary["per_specialist_support_counts"]["tech"] >= 6
 
 
 def test_underpowered_validation_emits_explicit_status(tmp_path) -> None:
     summary = run_uncertainty_calibration(
         tmp_path,
         power_config=ValidationPowerConfig(
-            min_validation_total=50,
-            min_validation_per_domain=20,
-            min_effective_support_per_specialist=20,
-            calibrator_min_samples=20,
+            min_validation_total=500,
+            min_validation_per_domain=220,
+            min_effective_support_per_specialist=260,
+            min_validation_per_query_bucket=260,
+            calibrator_min_samples=260,
         ),
     )
     assert summary["status"] == "underpowered_validation"
+    assert summary["powered_for_calibration"] is False
     assert summary["validation_power"]["failures"]
     assert summary["selected_calibrators"]["tech"]["fallback"] is True
     assert summary["selected_calibrators"]["tech"]["sufficiently_powered"] is False
+    assert summary["fallback_reason"] == "underpowered_validation"
 
 
 def test_objective_study_covers_required_objectives_and_uses_validation_selection(tmp_path) -> None:
@@ -90,3 +97,4 @@ def test_report_contains_bucket_outcomes_and_validation_test_deltas(tmp_path) ->
     assert "validation" in report["benchmark_delta"]
     assert "delta_change" in report["benchmark_delta"]["validation"]
     assert report["per_bucket_outcomes"]
+    assert (tmp_path / "report.md").exists()
