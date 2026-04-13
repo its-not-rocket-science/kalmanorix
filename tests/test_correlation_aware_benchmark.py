@@ -30,10 +30,10 @@ def test_correlation_aware_benchmark_emits_expected_artifacts(tmp_path: Path) ->
 
     on_disk = json.loads((out / "summary.json").read_text(encoding="utf-8"))
     assert set(on_disk["test_metrics"]) == {
-        "mean_fusion",
-        "baseline_kalman",
-        "corr_kalman_cov_inflation",
-        "corr_kalman_effective_sample_size",
+        "MeanFuser",
+        "KalmanorixFuser",
+        "CorrelationAwareKalmanFuser (covariance_inflation)",
+        "CorrelationAwareKalmanFuser (effective_sample_size)",
     }
     assert on_disk["validation_fit"]["residual_norm_shape"] == [80, 3]
     assert on_disk["test_split"]["buckets"]["low_correlation"] == 60
