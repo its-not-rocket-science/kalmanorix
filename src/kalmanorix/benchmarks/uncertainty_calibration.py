@@ -51,9 +51,12 @@ class ValidationPowerConfig:
     min_validation_total: int = 8
     min_validation_per_domain: int = 2
     min_effective_support_per_specialist: int = 6
+    min_validation_per_query_bucket: int = 2
     min_train_total: int = 1
     min_test_total: int = 3
     calibrator_min_samples: int = 8
+    balance_validation_query_buckets: bool = True
+    query_expansion_multiplier: int = 12
 
 
 _DOMAIN_KEYWORDS: dict[str, tuple[str, ...]] = {
@@ -120,11 +123,11 @@ def _expanded_query_set(
     multiplier: int = 5,
 ) -> tuple[list[str], list[int]]:
     prefixes = (
-        "user asks:",
-        "retrieval request:",
-        "need answer:",
-        "focus:",
-        "find guidance:",
+        "user asks",
+        "retrieval request",
+        "need answer",
+        "focus on",
+        "find guidance for",
     )
     suffixes = (
         "",
@@ -132,12 +135,14 @@ def _expanded_query_set(
         " include practical details",
         " with concise explanation",
         " in mixed-domain context",
+        " while contrasting alternatives",
     )
     expanded_q: list[str] = []
     expanded_t: list[int] = []
     for idx, (query, target) in enumerate(zip(queries, targets)):
         for m in range(multiplier):
-            variant = f"{prefixes[m % len(prefixes)]} {query}{suffixes[(idx + m) % len(suffixes)]}".strip()
+            separator = ":" if (m % 3 == 0) else ""
+            variant = f"{prefixes[m % len(prefixes)]}{separator} {query}{suffixes[(idx + m) % len(suffixes)]}".strip()
             expanded_q.append(variant)
             expanded_t.append(target)
     return expanded_q, expanded_t
@@ -190,7 +195,7 @@ def _infer_domain(query: str) -> str:
 
 def _infer_query_type(query: str) -> str:
     lower = query.lower()
-    if any(marker in lower for marker in (" like ", " unlike ", "—", ":", "(", ")")):
+    if any(marker in lower for marker in (" unlike ", " versus ", " vs ", "compare ", "contrasting", "mixed-domain")):
         return "cross_domain_compositional"
     if len(lower.split()) >= 9:
         return "long_form"
@@ -257,6 +262,10 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
         counts = Counter(labels[i]["domain"] for i in indices)
         return {k: int(v) for k, v in sorted(counts.items())}
 
+    def _bucket_counts(indices: list[int]) -> dict[str, int]:
+        counts = Counter(labels[i]["query_type"] for i in indices)
+        return {k: int(v) for k, v in sorted(counts.items())}
+
     def _move_to_validation(predicate: Callable[[int], bool], needed: int) -> int:
         moved = 0
         for src in ("train", "test"):
@@ -281,10 +290,20 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
         _move_to_validation(lambda _: True, cfg.min_validation_total - len(split["validation"]))
 
     existing_domains = sorted(set(l["domain"] for l in labels))
+    existing_query_buckets = sorted(set(l["query_type"] for l in labels))
     for domain in existing_domains:
         current = _domain_counts(split["validation"]).get(domain, 0)
         if current < cfg.min_validation_per_domain:
             _move_to_validation(lambda i, d=domain: labels[i]["domain"] == d, cfg.min_validation_per_domain - current)
+
+    if cfg.balance_validation_query_buckets:
+        for query_bucket in existing_query_buckets:
+            current = _bucket_counts(split["validation"]).get(query_bucket, 0)
+            if current < cfg.min_validation_per_query_bucket:
+                _move_to_validation(
+                    lambda i, qb=query_bucket: labels[i]["query_type"] == qb,
+                    cfg.min_validation_per_query_bucket - current,
+                )
 
     support = _specialist_support(split["validation"], labels)
     for specialist, current in support.items():
@@ -305,6 +324,11 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
     for domain in existing_domains:
         if val_domain_counts.get(domain, 0) < cfg.min_validation_per_domain:
             failures.append(f"min_validation_per_domain:{domain}")
+    val_query_bucket_counts = _bucket_counts(split["validation"])
+    if cfg.balance_validation_query_buckets:
+        for query_bucket in existing_query_buckets:
+            if val_query_bucket_counts.get(query_bucket, 0) < cfg.min_validation_per_query_bucket:
+                failures.append(f"min_validation_per_query_bucket:{query_bucket}")
     for specialist, count in effective_support.items():
         if count < cfg.min_effective_support_per_specialist:
             failures.append(f"min_effective_support_per_specialist:{specialist}")
@@ -314,6 +338,7 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
         "configured_minimums": asdict(cfg),
         "validation_count": len(split["validation"]),
         "validation_by_domain": val_domain_counts,
+        "validation_by_query_bucket": val_query_bucket_counts,
         "specialist_effective_support": effective_support,
         "strata_in_validation": dict(Counter(labels[i]["stratum"] for i in split["validation"])),
         "split_counts": {k: len(v) for k, v in split.items()},
@@ -454,7 +479,11 @@ def _run_single_objective(
     repo_root = Path(__file__).resolve().parents[3]
 
     village, queries, targets = _build_village(sigma2_method)
-    queries, targets = _expanded_query_set(queries, targets, multiplier=5)
+    queries, targets = _expanded_query_set(
+        queries,
+        targets,
+        multiplier=max(1, power_config.query_expansion_multiplier),
+    )
     docs = build_toy_corpus(british_spelling=False).docs
     split, power_report = _build_split_indices(queries, power_config)
     labels = power_report["labels"]
@@ -465,6 +494,7 @@ def _run_single_objective(
     fitted_by_module: dict[str, CalibrationFit] = {}
 
     sufficiently_powered = power_report["status"] == "sufficient"
+    fallback_reason = None if sufficiently_powered else "underpowered_validation"
 
     for module in village.modules:
         evals = _evaluate_specialist(module, queries, targets, docs)
@@ -600,6 +630,15 @@ def _run_single_objective(
                 "fallback": fit.used_fallback,
                 "sufficiently_powered": sufficiently_powered,
                 "effective_support": power_report["specialist_effective_support"].get(m, 0),
+                "fallback_reason": (
+                    "underpowered_validation"
+                    if not sufficiently_powered
+                    else (
+                        fit.calibrator.params.get("reason")
+                        if fit.used_fallback
+                        else None
+                    )
+                ),
             }
             for m, fit in fitted_by_module.items()
         },
@@ -617,6 +656,16 @@ def _run_single_objective(
         "per_bucket_outcomes": _bucketed_delta(
             village, calibrated_village, queries, targets, docs, test_idx, labels
         ),
+        "powered_for_calibration": sufficiently_powered,
+        "minimum_support_threshold": power_config.min_effective_support_per_specialist,
+        "per_specialist_support_counts": power_report["specialist_effective_support"],
+        "fallback_reason": fallback_reason,
+        "benchmark_profile": {
+            "name": "toy_corpus_expanded_stratified",
+            "query_count": len(queries),
+            "query_expansion_multiplier": power_config.query_expansion_multiplier,
+            "validation_query_bucket_balancing": power_config.balance_validation_query_buckets,
+        },
         "sigma2_path_audit": _audit_sigma2_paths(repo_root),
         "notes": "Calibration fit uses validation-only data with stratified splits and power checks.",
     }
@@ -671,6 +720,10 @@ def run_uncertainty_calibration_objective_study(
         "validation_transfer_scores": validation_transfer_scores,
         "objective_reports": reports,
         "selected_report": selected_report,
+        "powered_for_calibration": selected_report["powered_for_calibration"],
+        "minimum_support_threshold": selected_report["minimum_support_threshold"],
+        "per_specialist_support_counts": selected_report["per_specialist_support_counts"],
+        "fallback_reason": selected_report["fallback_reason"],
         "selection_is_validation_only": True,
         "observations": {
             "diagnostics_without_fusion_gain": [
@@ -686,7 +739,50 @@ def run_uncertainty_calibration_objective_study(
     }
 
     (output_dir / "summary.json").write_text(json.dumps(study, indent=2), encoding="utf-8")
+    (output_dir / "report.md").write_text(_render_report_md(study), encoding="utf-8")
     (output_dir / "sigma2_audit.json").write_text(
         json.dumps(selected_report["sigma2_path_audit"], indent=2), encoding="utf-8"
     )
     return study
+
+
+def _render_report_md(study: dict[str, Any]) -> str:
+    rep = study["selected_report"]
+    lines = [
+        "# Uncertainty calibration report",
+        "",
+        f"- Selected objective: `{study['selected_objective']}`",
+        f"- Selection rule: {study['selection_rule']}",
+        f"- Powered for calibration: `{rep['powered_for_calibration']}`",
+        f"- Minimum support threshold: `{rep['minimum_support_threshold']}`",
+        f"- Per-specialist support: `{rep['per_specialist_support_counts']}`",
+        f"- Fallback reason: `{rep['fallback_reason']}`",
+        "",
+        "## Split diagnostics",
+        "",
+        f"- Split counts: `{rep['validation_power']['split_counts']}`",
+        f"- Validation domains: `{rep['validation_power']['validation_by_domain']}`",
+        f"- Validation query buckets: `{rep['validation_power']['validation_by_query_bucket']}`",
+        "",
+        "## Selected calibrators",
+        "",
+    ]
+    for module, payload in sorted(rep["selected_calibrators"].items()):
+        lines.append(
+            f"- `{module}`: calibrator=`{payload['name']}`, fallback=`{payload['fallback']}`, "
+            f"mse=`{payload['mse']:.6f}`, support=`{payload['effective_support']}`"
+        )
+    bench = rep["benchmark_delta"]
+    lines.extend(
+        [
+            "",
+            "## Kalman-vs-Mean (calibrated sigma2)",
+            "",
+            f"- Validation delta change: `{bench['validation']['delta_change']:.6f}`",
+            f"- Test delta change: `{bench['delta_change']:.6f}`",
+            "",
+            "If delta change is non-positive, calibration did not improve the downstream benchmark under this powered regime.",
+            "",
+        ]
+    )
+    return "\n".join(lines)

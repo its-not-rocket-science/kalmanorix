@@ -77,6 +77,14 @@ Interpretation:
 
 - No completed OOD benchmark artifact currently supports this claim.
 
+### 5) Uncertainty calibration (powered validation regime)
+**Evidence status:** **Powered but currently null downstream impact.**
+
+- Updated artifact: `results/uncertainty_calibration/summary.json` and `results/uncertainty_calibration/report.md`.
+- The calibration split is now explicitly power-audited (`powered_for_calibration`, per-specialist support counts, threshold, fallback reason) and uses domain-stratified validation with query-bucket balancing.
+- In this stronger run, non-identity calibrators are selected (no underpowered fallback), but downstream Kalman-vs-Mean delta change remains `0.0` on both validation and test.
+- Interpretation: calibration is now empirically testable in this regime, but does not currently improve downstream retrieval quality.
+
 ## Next empirical phase scaffold (post-canonical closure)
 
 The repository now includes stable scaffold directories for the next three unresolved tracks:
