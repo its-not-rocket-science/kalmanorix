@@ -155,7 +155,7 @@ def _fit_on_validation(
 
 def _fuse_queries(
     *,
-    method: str,
+    method_key: str,
     observations: list[np.ndarray],
     sigma2: list[float],
     corr_submatrix: np.ndarray,
@@ -169,20 +169,20 @@ def _fuse_queries(
 
     for q_idx in range(n_q):
         embs = [obs[q_idx] for obs in observations]
-        if method == "mean_fusion":
+        if method_key == "mean_fusion":
             fused_vec = np.mean(np.stack(embs, axis=0), axis=0)
-        elif method == "baseline_kalman":
+        elif method_key == "baseline_kalman":
             covs = [np.full_like(embs[0], s, dtype=np.float64) for s in sigma2]
             fused_vec, _ = kalman_fuse_diagonal_ensemble(embs, covs)
-        elif method == "corr_kalman_cov_inflation":
+        elif method_key == "corr_kalman_cov_inflation":
             covs = [np.full_like(embs[0], s * inflation[i], dtype=np.float64) for i, s in enumerate(sigma2)]
             fused_vec, _ = kalman_fuse_diagonal_ensemble(embs, covs)
-        elif method == "corr_kalman_effective_sample_size":
+        elif method_key == "corr_kalman_effective_sample_size":
             safe_discount = max(ess_discount, 1.0 / len(sigma2))
             covs = [np.full_like(embs[0], s / safe_discount, dtype=np.float64) for s in sigma2]
             fused_vec, _ = kalman_fuse_diagonal_ensemble(embs, covs)
         else:
-            raise ValueError(f"Unknown method: {method}")
+            raise ValueError(f"Unknown method: {method_key}")
         fused.append(fused_vec)
 
     return np.asarray(fused, dtype=np.float64)
@@ -263,36 +263,39 @@ def run_correlation_aware_fusion_benchmark(
     )
     corr_sub = corr_profile.correlation_matrix
 
-    methods = [
-        "mean_fusion",
-        "baseline_kalman",
-        "corr_kalman_cov_inflation",
-        "corr_kalman_effective_sample_size",
+    method_specs = [
+        ("mean_fusion", "MeanFuser"),
+        ("baseline_kalman", "KalmanorixFuser"),
+        ("corr_kalman_cov_inflation", "CorrelationAwareKalmanFuser (covariance_inflation)"),
+        ("corr_kalman_effective_sample_size", "CorrelationAwareKalmanFuser (effective_sample_size)"),
     ]
     test_metrics: dict[str, dict[str, float]] = {}
     bucket_metrics: dict[str, dict[str, dict[str, float]]] = {}
 
-    for method in methods:
+    for method_key, method_name in method_specs:
         fused = _fuse_queries(
-            method=method,
+            method_key=method_key,
             observations=problem["test_obs"],
             sigma2=sigma2,
             corr_submatrix=corr_sub,
             inflation_alpha=cfg.inflation_alpha,
         )
-        test_metrics[method] = asdict(
+        test_metrics[method_name] = asdict(
             _retrieval_metrics(fused, problem["docs"], problem["test_targets"])
         )
-        bucket_metrics[method] = _bucket_metrics(
+        bucket_metrics[method_name] = _bucket_metrics(
             fused=fused,
             docs=problem["docs"],
             targets=problem["test_targets"],
             buckets=problem["test_buckets"],
         )
 
-    baseline = test_metrics["baseline_kalman"]["mrr_at_10"]
+    baseline = test_metrics["KalmanorixFuser"]["mrr_at_10"]
     best_corr_method = max(
-        ["corr_kalman_cov_inflation", "corr_kalman_effective_sample_size"],
+        [
+            "CorrelationAwareKalmanFuser (covariance_inflation)",
+            "CorrelationAwareKalmanFuser (effective_sample_size)",
+        ],
         key=lambda m: test_metrics[m]["mrr_at_10"],
     )
     best_corr = test_metrics[best_corr_method]["mrr_at_10"]
