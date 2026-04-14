@@ -1,0 +1,92 @@
+{
+  "assumptions": {
+    "python": "python3",
+    "dtype": "float64",
+    "n_queries": 200,
+    "n_specialists": 6,
+    "embedding_dim": 768,
+    "batch_size": 20,
+    "canonical_benchmark_path": "benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet",
+    "canonical_max_queries": 600,
+    "timer": "time.perf_counter",
+    "memory_proxy": "tracemalloc peak resident Python allocation (KiB)"
+  },
+  "single_query_strategies": {
+    "mean": {
+      "mean_ms": 0.31767625994689297,
+      "p50_ms": 0.3074015003221575,
+      "p95_ms": 0.3815063498223026,
+      "memory_peak_kib": 1514.1650390625
+    },
+    "kalman_legacy": {
+      "mean_ms": 1.6519150199474097,
+      "p50_ms": 1.599762500518409,
+      "p95_ms": 1.873919199260852,
+      "memory_peak_kib": 2855.3486328125
+    },
+    "kalman_optimized": {
+      "mean_ms": 0.8034227349980938,
+      "p50_ms": 0.7894930004113121,
+      "p95_ms": 0.929123448622704,
+      "memory_peak_kib": 2760.8828125
+    }
+  },
+  "batch_strategies": {
+    "mean": {
+      "mean_ms": 6.084609900244686,
+      "p50_ms": 4.958107000675227,
+      "p95_ms": 10.597014800714527,
+      "memory_peak_kib": 2932.609375,
+      "batch_size": 20.0,
+      "queries_per_batch": 20.0
+    },
+    "kalman_legacy": {
+      "mean_ms": 17.61544689998118,
+      "p50_ms": 16.993206500046654,
+      "p95_ms": 21.1251664505653,
+      "memory_peak_kib": 6107.0634765625,
+      "batch_size": 20.0,
+      "queries_per_batch": 20.0
+    },
+    "kalman_optimized": {
+      "mean_ms": 14.29607029986073,
+      "p50_ms": 13.340785499167396,
+      "p95_ms": 17.66724244971556,
+      "memory_peak_kib": 4673.890625,
+      "batch_size": 20.0,
+      "queries_per_batch": 20.0
+    }
+  },
+  "speedup_legacy_to_optimized": 2.0560969312765702,
+  "optimized_vs_mean_latency_ratio": 2.5290613001185696,
+  "batch_speedup_legacy_to_optimized": 1.2321880440216348,
+  "numerical_deviation_vs_legacy": {
+    "single_query": {
+      "vector_max_abs": 0.04294505722310164,
+      "vector_rms": 0.009030131278071708,
+      "weight_max_abs": 0.007383638557810573,
+      "covariance_max_abs": 0.003211286383505235
+    },
+    "batch": {
+      "vector_max_abs": 0.04324987779036202,
+      "vector_rms": 0.009063232199262075,
+      "weight_max_abs": 0.017314947938921826,
+      "covariance_max_abs": 0.002746425702566252
+    }
+  },
+  "profiling": {
+    "embed_calls": 12000,
+    "embed_seconds": 0.39398516603614553,
+    "sigma2_calls": 4800,
+    "sigma2_seconds": 0.2785222940492531
+  },
+  "canonical_rerun": {
+    "output_dir": "results/kalman_latency_optimization/canonical",
+    "decision_verdict": "inconclusive_underpowered",
+    "latency_ratio_vs_mean": 2.0079430424389733,
+    "latency_ratio_threshold": 1.5,
+    "latency_ratio_ok": false,
+    "primary_metric_delta": 0.09488724032110114,
+    "primary_metric_adjusted_p_value": 1.0
+  }
+}
