@@ -2775,8 +2775,8 @@
 <h3 id="planned-not-yet-demonstrated">Planned / Not yet demonstrated<a class="headerlink" href="#planned-not-yet-demonstrated" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Kalman fusion quality improvement over mean fusion (<strong>not demonstrated in the latest canonical artifact</strong>).</li>
-<li>Specialists-vs-monolith quality advantage at matched compute.</li>
-<li>OOD robustness gains from uncertainty-weighted fusion.</li>
+<li>Specialists-vs-monolith quality advantage at matched compute (<strong>track completed; current artifact verdict is mixed/inconclusive, not supportive</strong>).</li>
+<li>OOD robustness gains from uncertainty-weighted fusion (<strong>track completed; current artifact verdict is inconclusive with explicit null outcomes</strong>).</li>
 </ul>
 <hr />
 <h3 id="canonical-benchmark-artifact">Canonical Benchmark Artifact<a class="headerlink" href="#canonical-benchmark-artifact" title="Permanent link">&para;</a></h3>
@@ -2820,14 +2820,16 @@
 <li>The latest canonical run (<code>results/canonical_benchmark/report.md</code>) reports <strong>no statistically significant nDCG@10 improvement</strong> for Kalman vs mean under the configured setup; do not generalize beyond that benchmark configuration.</li>
 </ul>
 <h3 id="3-fused-specialists-outperform-monolith-at-equal-compute">3) Fused specialists outperform monolith at equal compute<a class="headerlink" href="#3-fused-specialists-outperform-monolith-at-equal-compute" title="Permanent link">&para;</a></h3>
-<p><strong>Evidence status:</strong> <strong>Unresolved.</strong></p>
+<p><strong>Evidence status:</strong> <strong>Track completed, superiority unresolved.</strong></p>
 <ul>
-<li>No completed matched-compute benchmark report is currently committed.</li>
+<li>Completed artifacts are now committed in <code>results/matched_compute/summary.json</code> and <code>results/matched_compute/report.md</code>.</li>
+<li>Outcome labels are mixed (<code>positive</code> fairness parity, <code>null</code> quality delta, <code>regression</code> inference compute), so superiority remains unproven.</li>
 </ul>
 <h3 id="4-uncertainty-weighting-improves-ood-robustness">4) Uncertainty weighting improves OOD robustness<a class="headerlink" href="#4-uncertainty-weighting-improves-ood-robustness" title="Permanent link">&para;</a></h3>
-<p><strong>Evidence status:</strong> <strong>Unresolved.</strong></p>
+<p><strong>Evidence status:</strong> <strong>Track completed, currently inconclusive.</strong></p>
 <ul>
-<li>No completed OOD benchmark artifact currently supports this claim.</li>
+<li>Completed artifacts are now committed in <code>results/ood_robustness/summary.json</code> and <code>results/ood_robustness/report.md</code>.</li>
+<li>Current guarded verdict includes <code>positive</code> reproducibility, <code>null</code> quality-gain evidence, and a <code>regression</code>-risk label for missing abstention policy; no supported OOD robustness gain is claimed.</li>
 </ul>
 <h3 id="5-uncertainty-calibration-powered-validation-regime">5) Uncertainty calibration (powered validation regime)<a class="headerlink" href="#5-uncertainty-calibration-powered-validation-regime" title="Permanent link">&para;</a></h3>
 <p><strong>Evidence status:</strong> <strong>Powered but currently null downstream impact.</strong></p>
@@ -2866,12 +2868,12 @@
 - <code>results/matched_compute/</code>
 - <code>results/uncertainty_ablation/</code>
 - <code>results/ood_robustness/</code></p>
-<p>Each scaffold includes <code>summary_template.json</code> and <code>report_template.md</code> with explicit outcome slots for:
+<p>Each track directory includes scaffold templates (<code>summary_template.json</code>, <code>report_template.md</code>) and can also contain completed artifacts (<code>summary.json</code>, <code>report.md</code>) with explicit outcome slots for:
 - <code>positive</code>
 - <code>null</code>
 - <code>inconclusive</code>
 - <code>regression</code></p>
-<p>These templates are structural only and must be replaced with real run artifacts before any claim status is upgraded.</p>
+<p>Templates are structural only; claim status upgrades must rely on completed artifacts with rule-based verdicts and guarded language.</p>
 <hr />
 <h2 id="synthetic-results-for-debugging-only">Synthetic Results (for debugging only)<a class="headerlink" href="#synthetic-results-for-debugging-only" title="Permanent link">&para;</a></h2>
 <p>Any outputs from toy/debug pipelines must be cited as <strong>Synthetic (not headline evidence)</strong>.</p>
