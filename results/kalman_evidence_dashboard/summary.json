@@ -1,0 +1,167 @@
+{
+  "artifact": "kalman_evidence_dashboard.v1",
+  "generated_from": [
+    "results/canonical_benchmark/summary.json",
+    "results/canonical_benchmark_v2/summary.json",
+    "results/uncertainty_calibration/summary.json",
+    "results/uncertainty_ablation/summary.json",
+    "results/kalman_covariance_ablation/summary.json",
+    "results/kalman_covariance_ablation_v2/summary.json",
+    "results/correlation_aware_fusion/summary.json",
+    "results/kalman_latency_optimization/summary.json",
+    "results/kalman_latency_optimization/canonical/summary.json",
+    "results/routing_eval/small_routing_eval_v1_report.json"
+  ],
+  "canonical": {
+    "v1": {
+      "kalman_ndcg10": 0.5247061435547001,
+      "mean_ndcg10": 0.4536941222247459,
+      "router_top1_ndcg10": 0.6414150094710442,
+      "kalman_mrr10": 0.375,
+      "mean_mrr10": 0.28055555555555556,
+      "kalman_latency_ms": 25.81189383333064,
+      "mean_latency_ms": 11.924944832874948,
+      "kalman_vs_mean_adjusted_p_value_ndcg10": 1.0
+    },
+    "v2": {
+      "kalman_ndcg10": 0.5485813625458471,
+      "mean_ndcg10": 0.4536941222247459,
+      "router_top1_ndcg10": 0.6414150094710442,
+      "kalman_mrr10": 0.4055555555555556,
+      "mean_mrr10": 0.28055555555555556,
+      "kalman_latency_ms": 40.57526400022956,
+      "mean_latency_ms": 19.74100200065247,
+      "decision_verdict": "inconclusive_underpowered",
+      "decision_observed": {
+        "primary_metric_delta_ndcg10": 0.09488724032110114,
+        "primary_metric_adjusted_p_value": 1.0,
+        "latency_ratio_vs_mean": 2.0553801675765238,
+        "flops_ratio_vs_mean": 1.0
+      },
+      "decision_checks": {
+        "effect_size_ok": true,
+        "adjusted_p_value_ok": false,
+        "latency_ratio_ok": false,
+        "flops_ratio_ok": true
+      }
+    }
+  },
+  "uncertainty_calibration": {
+    "selected_objective": "distance_to_relevant_doc_centroid",
+    "powered_for_calibration": true,
+    "per_specialist_support_counts": {
+      "tech": 43,
+      "cook": 31
+    },
+    "minimum_support_threshold": 24,
+    "validation_delta_change": 0.0,
+    "test_delta_change": 0.0,
+    "diagnostics_without_fusion_gain": [
+      "rank_error_proxy",
+      "topk_miss_indicator",
+      "top1_miss_indicator",
+      "distance_to_relevant_doc_centroid",
+      "specialist_vs_fused_residual_proxy",
+      "query_difficulty_proxy"
+    ]
+  },
+  "uncertainty_ablation": {
+    "answer": "Partially: calibration differences are visible, but retrieval gains from better uncertainty estimation are limited in this setup; constant uncertainty remains competitive.",
+    "toy_mixed_best_ece_method": "stochastic_forward_sigma2",
+    "toy_mixed_best_ece": 0.09090909297520633
+  },
+  "covariance_ablation": {
+    "v1_answer": "Richer covariance did not clearly beat simpler baselines in this benchmark setting.",
+    "v2_answer": "Richer covariance is not worth it in this setup: no global or bucket-level gain cleared practical thresholds.",
+    "v2_mrr10": {
+      "mean_fusion": 0.24670858134920637,
+      "scalar_kalman": 0.2806235119047619,
+      "diagonal_kalman": 0.28014037698412697,
+      "structured_kalman": 0.2809873511904762
+    },
+    "v2_latency_per_query_ms": {
+      "mean_fusion": 0.0491,
+      "scalar_kalman": 0.2671,
+      "diagonal_kalman": 0.2336,
+      "structured_kalman": 0.4927
+    }
+  },
+  "correlation_aware": {
+    "answer": "Correlation-aware Kalman improved over baseline Kalman (best: CorrelationAwareKalmanFuser (covariance_inflation), ΔMRR@10=0.0037).",
+    "test_mrr10": {
+      "MeanFuser": 0.4928817082388511,
+      "KalmanorixFuser": 0.5318376795162509,
+      "CorrelationAwareKalmanFuser (covariance_inflation)": 0.5355820105820106,
+      "CorrelationAwareKalmanFuser (effective_sample_size)": 0.5318376795162509
+    }
+  },
+  "latency_optimization": {
+    "single_query_speedup_legacy_to_optimized": 2.0560969312765702,
+    "batch_speedup_legacy_to_optimized": 1.2321880440216348,
+    "optimized_vs_mean_latency_ratio_microbenchmark": 2.5290613001185696,
+    "canonical_rerun_decision_verdict": "inconclusive_underpowered",
+    "canonical_rerun_latency_ratio_vs_mean": 2.0079430424389733
+  },
+  "routing_evidence": {
+    "single_run": {
+      "routing_precision": 0.638888888888889,
+      "routing_recall": 0.8333333333333334,
+      "routing_f1": 0.6944444444444445,
+      "avg_flops_savings_fraction": 0.4444444444444444,
+      "avg_latency_delta_ms": 6.083333333333333
+    },
+    "outcomes": {
+      "quality_preserving_routing_wins": 4,
+      "compute_only_wins": 1,
+      "failure_modes": 1,
+      "failure_quality_loss": 1
+    },
+    "threshold_robustness": {
+      "best_semantic_threshold_by_f1": 0.5,
+      "f1_range": 0.16666666666666674,
+      "recall_range": 0.41666666666666663,
+      "flops_savings_range": 0.3333333333333333
+    }
+  },
+  "per_bucket_findings": {
+    "canonical_v2": {
+      "consistent_kalman_gain_buckets": [],
+      "low_uncertainty_spread": {
+        "n_queries": 3,
+        "consistency_flag": "consistent_gain",
+        "kalman_ndcg10_delta_vs_mean": 0.18977448064220226,
+        "kalman_ndcg10_delta_vs_router_only_top1": 0.033323020684375426
+      },
+      "high_uncertainty_spread": {
+        "n_queries": 3,
+        "consistency_flag": "mixed_or_no_gain",
+        "kalman_ndcg10_delta_vs_mean": 0.0,
+        "kalman_ndcg10_delta_vs_router_only_top1": -0.21899031453476991
+      },
+      "high_specialist_disagreement": {
+        "n_queries": 3,
+        "consistency_flag": "mixed_or_no_gain",
+        "kalman_ndcg10_delta_vs_mean": 0.18977448064220226,
+        "kalman_ndcg10_delta_vs_router_only_top1": -0.09596689905858913
+      }
+    }
+  },
+  "verdict_rules": {
+    "implementation_quality": {
+      "rule": "If optimization and numeric-deviation instrumentation exist and ablations are reproducible, mark good. If canonical latency gate fails, do not mark fully hardened.",
+      "verdict": "good_but_not_fully_hardened"
+    },
+    "empirical_support": {
+      "rule": "If canonical decision is inconclusive_underpowered OR significance gate fails, and bucket consistency is absent, mark mixed_and_underpowered.",
+      "verdict": "mixed_and_underpowered"
+    },
+    "deployment_readiness": {
+      "rule": "Require canonical adjusted p-value pass AND latency ratio pass; otherwise not ready for default rollout.",
+      "verdict": "not_ready_for_default_rollout"
+    },
+    "program_status": {
+      "rule": "Use stable only if global gates pass and gains are consistent. Use selective-only when localized wins exist but global gates fail.",
+      "verdict": "selective-only"
+    }
+  }
+}
