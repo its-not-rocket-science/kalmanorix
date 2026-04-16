@@ -1,0 +1,19 @@
+{
+  "schema_version": "phase_eval.v1",
+  "track": "milestone_1_3",
+  "title": "Milestone 1.3",
+  "status": "placeholder_pending_run",
+  "objective": "Milestone 1.3 fusion benchmark and statistical report scaffolding.",
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md",
+    "readme": "README.md"
+  },
+  "reproducibility": {
+    "command": "python experiments/benchmark_fusion_methods.py && python experiments/compare_fusion_strategies.py"
+  },
+  "notes": [
+    "Created during release-quality documentation polish pass to keep artifact indexing schema-consistent.",
+    "Historical artifacts in this directory are preserved and unchanged."
+  ]
+}

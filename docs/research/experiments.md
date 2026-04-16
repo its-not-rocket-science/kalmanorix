@@ -62,10 +62,10 @@ This framework is intentionally conservative and prefers **inconclusive** over f
 **Evidence status:** **Unresolved** (no final statistical artifact proving improvement).
 
 ### Claim: fused specialists > monolith at equal compute
-**Evidence status:** **Unresolved** (no completed matched-compute benchmark report).
+**Evidence status:** **Evaluated, unresolved superiority** (completed artifact is mixed with null quality delta and regression on inference cost).
 
 ### Claim: uncertainty weighting improves OOD robustness
-**Evidence status:** **Unresolved** (no completed OOD report committed).
+**Evidence status:** **Evaluated, currently inconclusive** (completed guarded artifact includes explicit null and regression-risk outcomes).
 
 ---
 
@@ -89,18 +89,19 @@ Evaluate Kalman fusion against mean fusion on a mixed-domain benchmark with expl
 ### Build benchmark artifacts
 ```bash
 PYTHONPATH=src python scripts/build_mixed_benchmark.py \
-  --output-dir benchmarks/mixed_beir_v1.1.0 \
+  --output-dir benchmarks/mixed_beir_v1.2.0 \
   --seed 1337 \
   --max-candidates 80 \
-  --cross-domain-negative-ratio 0.45 \
-  --max-queries-per-domain 900 \
-  --max-test-queries-per-domain 180
+  --cross-domain-negative-ratio 0.60 \
+  --max-queries-per-domain 1800 \
+  --max-test-queries-per-domain 360 \
+  --hard-queries-per-category-per-domain 20
 ```
 
 ### Run primary benchmark
 ```bash
 PYTHONPATH=src python experiments/run_canonical_benchmark.py \
-  --benchmark-path benchmarks/mixed_beir_v1.1.0/mixed_benchmark.json \
+  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json \
   --split test \
   --max-queries 600 \
   --output-dir results/canonical_benchmark_v2

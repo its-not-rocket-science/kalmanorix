@@ -1,0 +1,19 @@
+{
+  "schema_version": "phase_eval.v1",
+  "track": "canonical_benchmark_v3",
+  "title": "Canonical Benchmark v3",
+  "status": "placeholder_pending_run",
+  "objective": "Run the stronger v1.2.0 canonical benchmark and publish claim-governing comparisons.",
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md",
+    "readme": "README.md"
+  },
+  "reproducibility": {
+    "command": "PYTHONPATH=src python experiments/run_canonical_benchmark.py --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json --split test --max-queries 1200 --output-dir results/canonical_benchmark_v3"
+  },
+  "notes": [
+    "Created during release-quality documentation polish pass to keep artifact indexing schema-consistent.",
+    "Historical artifacts in this directory are preserved and unchanged."
+  ]
+}

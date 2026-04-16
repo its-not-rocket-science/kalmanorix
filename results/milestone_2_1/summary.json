@@ -1,0 +1,19 @@
+{
+  "schema_version": "phase_eval.v1",
+  "track": "milestone_2_1",
+  "title": "Milestone 2.1",
+  "status": "placeholder_pending_run",
+  "objective": "Legacy milestone scaffold preserved for provenance; matched-compute evidence now lives in results/matched_compute/.",
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md",
+    "readme": "README.md"
+  },
+  "reproducibility": {
+    "command": "python experiments/run_milestone_2_1.py --config experiments/configs/milestone_2_1.yaml"
+  },
+  "notes": [
+    "Created during release-quality documentation polish pass to keep artifact indexing schema-consistent.",
+    "Historical artifacts in this directory are preserved and unchanged."
+  ]
+}

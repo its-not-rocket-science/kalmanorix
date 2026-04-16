@@ -7,7 +7,7 @@
 
 ## Current Evidence State
 
-- **Canonical artifact path:** `results/canonical_benchmark/`
+- **Canonical artifact paths:** `results/canonical_benchmark/` (historical v1), `results/canonical_benchmark_v2/` (current decision artifact), and `results/canonical_benchmark_v3/` (next stronger rerun target)
 - **State:** **Real artifact committed** (`summary.json` and `report.md` are present).
 - **Readout:** the committed canonical run is evidence, but it does **not** close the quality hypotheses (Kalman-vs-mean and specialists-vs-monolith remain unresolved).
 
@@ -128,6 +128,47 @@ kalmanorix-eval-routing \
 # Primary mixed-domain benchmark (quality validation path)
 python experiments/run_real_mixed_benchmark.py
 ```
+
+## Quickstart by Use Case
+
+### 1) Routing toolkit use (quality + efficiency diagnostics)
+
+```bash
+kalmanorix-eval-routing \
+  --dataset datasets/routing_eval/small_routing_eval_v1.json \
+  --output results/routing_eval/small_routing_eval_v1_report.json \
+  --markdown-output results/routing_eval/small_routing_eval_v1_report.md \
+  --mode semantic \
+  --semantic-threshold 0.7 \
+  --semantic-thresholds 0.5,0.6,0.7,0.8 \
+  --quality-tolerance 0.0
+```
+
+### 2) Canonical benchmark use (claim-governing quality track)
+
+```bash
+PYTHONPATH=src python experiments/run_canonical_benchmark.py \
+  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json \
+  --split test \
+  --max-queries 1200 \
+  --output-dir results/canonical_benchmark_v3
+```
+
+### 3) Kalman evidence inspection (artifact-first readout)
+
+```bash
+python -m json.tool results/canonical_benchmark_v2/summary.json | head -80
+python -m json.tool results/kalman_evidence_dashboard/summary.json | head -120
+```
+
+### 4) Extending with new specialists (contributor flow)
+
+```bash
+python experiments/train_specialists_st.py --config experiments/configs/milestone_2_1.yaml
+python experiments/run_real_mixed_benchmark.py --max-queries 150
+```
+
+Then document specialist behavior and expected uncertainty behavior in `docs/contributing/model-contributors.md`.
 
 ## Routing Toolkit Quickstart
 

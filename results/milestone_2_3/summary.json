@@ -1,0 +1,19 @@
+{
+  "schema_version": "phase_eval.v1",
+  "track": "milestone_2_3",
+  "title": "Milestone 2.3",
+  "status": "completed_data_dump",
+  "objective": "Semantic routing efficiency raw benchmark dump and analysis notebook.",
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md",
+    "readme": "README.md"
+  },
+  "reproducibility": {
+    "command": "PYTHONPATH=src python experiments/benchmark_efficiency.py"
+  },
+  "notes": [
+    "Created during release-quality documentation polish pass to keep artifact indexing schema-consistent.",
+    "Historical artifacts in this directory are preserved and unchanged."
+  ]
+}
