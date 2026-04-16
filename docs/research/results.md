@@ -8,6 +8,19 @@ This page reports only what is currently supported by committed artifacts.
 - **State:** v1 and v2 artifacts are committed (`summary.json`, `report.md`, and runner-level JSONs for v2).
 - **What this means:** canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.
 
+## Kalman Improvement Evidence Map (implemented + artifact-backed)
+
+This section consolidates the current Kalman-improvement work so readers can see status without cross-referencing multiple pages.
+
+| Workstream | Primary artifacts | Status |
+|---|---|---|
+| Uncertainty calibration | `results/uncertainty_calibration/report.md`, `results/uncertainty_calibration/summary.json` | Powered calibration regime now active (`powered_for_calibration=true`); selected calibrators are non-fallback isotonic, but downstream Kalman-vs-Mean delta change is `0.0` on validation and test. |
+| Uncertainty ablation | `results/uncertainty_ablation/report.md`, `results/uncertainty_ablation/summary.json` | Better-calibrated uncertainty methods are measurable, but retrieval metrics are mostly flat in this setup; report conclusion is partial/limited downstream gain. |
+| Covariance ablation | `results/kalman_covariance_ablation_v2/report.md`, `results/kalman_covariance_ablation_v2/summary.json` | Scalar/diagonal/structured variants evaluated; richer covariance is currently not justified by practical gain thresholds and increases latency vs mean fusion. |
+| Correlation-aware fusion | `results/correlation_aware_fusion/report.md`, `results/correlation_aware_fusion/summary.json` | Small positive uplift over baseline Kalman in a strengthened correlated split (best reported ΔMRR@10 `+0.0037`), treated as exploratory rather than claim-closing. |
+| Latency optimization | `results/kalman_latency_optimization/report.md`, `results/kalman_latency_optimization/summary.json` | Legacy-to-optimized Kalman speedup is real, but optimized Kalman remains above mean-latency ratio limits used by canonical decision rules. |
+| Canonical benchmark v2 | `results/canonical_benchmark_v2/report.md`, `results/canonical_benchmark_v2/summary.json` | Decision remains `inconclusive_underpowered`; positive observed quality deltas are not statistically reliable at current sample size and latency threshold still fails. |
+
 ## Demonstrated vs Planned
 
 ### Demonstrated
@@ -84,6 +97,30 @@ Interpretation:
 - The calibration split is now explicitly power-audited (`powered_for_calibration`, per-specialist support counts, threshold, fallback reason) and uses domain-stratified validation with query-bucket balancing.
 - In this stronger run, non-identity calibrators are selected (no underpowered fallback), but downstream Kalman-vs-Mean delta change remains `0.0` on both validation and test.
 - Interpretation: calibration is now empirically testable in this regime, but does not currently improve downstream retrieval quality.
+
+### 6) Uncertainty ablation
+**Evidence status:** **Implemented and evaluated; downstream gains limited in this setup.**
+
+- Artifacts: `results/uncertainty_ablation/summary.json`, `results/uncertainty_ablation/report.md`.
+- Interpretation: uncertainty estimators differ on calibration metrics, but retrieval outputs in this benchmark are largely unchanged; constant uncertainty remains competitive.
+
+### 7) Covariance ablation
+**Evidence status:** **Implemented and evaluated; richer covariance not yet justified.**
+
+- Artifacts: `results/kalman_covariance_ablation_v2/summary.json`, `results/kalman_covariance_ablation_v2/report.md`.
+- Interpretation: richer covariance variants do not clear practical effect thresholds in this setup and incur higher latency costs than mean fusion.
+
+### 8) Correlation-aware fusion
+**Evidence status:** **Preliminary positive signal; not claim-closing.**
+
+- Artifacts: `results/correlation_aware_fusion/summary.json`, `results/correlation_aware_fusion/report.md`.
+- Interpretation: the best correlation-aware configuration improves slightly over baseline Kalman on the strengthened correlated split (reported ΔMRR@10 `+0.0037`), but magnitude is small and requires larger-scale confirmation.
+
+### 9) Latency optimization
+**Evidence status:** **Engineering improvement demonstrated; canonical constraint still unmet.**
+
+- Artifacts: `results/kalman_latency_optimization/summary.json`, `results/kalman_latency_optimization/report.md`.
+- Interpretation: optimized Kalman improves over legacy implementation speed, but remains above the canonical Kalman/Mean latency ratio threshold.
 
 ## Next empirical phase scaffold (post-canonical closure)
 

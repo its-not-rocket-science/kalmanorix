@@ -37,6 +37,26 @@ For compatibility, experimental symbols remain temporarily importable from `kalm
 - **OOD robustness of uncertainty weighting:** pending completed benchmark report.
 - **Broader routing realism:** extend routing benchmarks with larger domain sets and production-like latency traces.
 
+## Kalman improvement work: implemented, tested, and current empirical status
+
+The Kalman-improvement line now has committed artifacts across implementation, ablations, and benchmark reruns. The evidence map below is the current repository source of truth.
+
+| Workstream | Artifact(s) | Current empirical status |
+|---|---|---|
+| Uncertainty calibration | `results/uncertainty_calibration/report.md`, `results/uncertainty_calibration/summary.json` | **Implemented + power-audited** calibration split; non-fallback isotonic calibrators selected, but downstream Kalman-vs-Mean delta change is `0.0` on validation and test in this run. |
+| Uncertainty ablation | `results/uncertainty_ablation/report.md`, `results/uncertainty_ablation/summary.json` | Multiple uncertainty estimators compared; calibration metrics differ, but retrieval metrics are largely unchanged in this setup (constant uncertainty remains competitive). |
+| Covariance ablation | `results/kalman_covariance_ablation_v2/report.md`, `results/kalman_covariance_ablation_v2/summary.json` | Scalar/diagonal/structured Kalman families benchmarked; richer covariance did not clear practical gain thresholds, while latency rose substantially vs mean. |
+| Correlation-aware fusion | `results/correlation_aware_fusion/report.md`, `results/correlation_aware_fusion/summary.json` | Correlation-aware variant shows a small positive delta vs baseline Kalman on strengthened correlated split (best reported ΔMRR@10 = `+0.0037`); currently exploratory and not yet a headline claim. |
+| Latency optimization | `results/kalman_latency_optimization/report.md`, `results/kalman_latency_optimization/summary.json` | Kalman hot path is faster than legacy (reported `~2.06x` single-query speedup), but optimized Kalman is still materially slower than mean and still fails canonical latency-ratio decision threshold. |
+| Canonical benchmark v2 | `results/canonical_benchmark_v2/report.md`, `results/canonical_benchmark_v2/summary.json` | Canonical decision remains `inconclusive_underpowered` for Kalman-vs-Mean; observed quality delta is positive but statistically non-significant with current sample size, and latency ratio check fails. |
+
+### What Kalman improvements changed empirically
+
+- **Implementation quality improved:** calibration is now power-audited; covariance and correlation-aware variants are benchmarked with explicit artifacted outcomes; latency-focused engineering reduced Kalman overhead vs legacy.
+- **Headline empirical outcome remains unresolved:** current canonical v2 evidence still does not establish a statistically reliable Kalman quality win over mean under decision-rule thresholds.
+- **Null/unchanged outcomes are explicit:** calibration and uncertainty-method improvements currently show limited or zero downstream retrieval gains in committed runs.
+- **Open questions next:** increase benchmark power, test whether small correlation-aware gains replicate on larger real splits, and determine whether further latency work can satisfy the canonical latency constraint without hurting quality.
+
 ---
 
 ## Core Claims and Evidence Status
