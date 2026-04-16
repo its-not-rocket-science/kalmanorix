@@ -11,6 +11,7 @@ jobs:
           python -m pip install -U pip
           pip install -e ".[dev]"
           python scripts/check_no_hardcoded_results.py
+          python scripts/check_packaging_metadata.py
           pytest
           mkdir -p test-results
           pytest tests/test_numerical_stability.py --junitxml=test-results/numerical_stability.xml

@@ -18,3 +18,5 @@ experiments/data/cache/
 .claude/settings.local.json
 .claude/
 site/
+
+*.egg-info/
