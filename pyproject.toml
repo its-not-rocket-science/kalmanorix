@@ -16,7 +16,7 @@ benchmark = [
     "ir-datasets==0.5.9",
     "pyarrow==15.0.2",
 ]
-dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0", "types-cachetools>=4.2", "pytest-benchmark>=4.0", "pytest-mock>=3.10"]
+dev = ["pytest>=8.0", "pylint>=3.0", "ruff>=0.6", "black>=24.0", "mypy>=1.8", "pre-commit>=3.6", "types-PyYAML>=6.0", "types-cachetools>=4.2", "pytest-benchmark>=4.0", "pytest-mock>=3.10", "build>=1.2"]
 viz = ["matplotlib>=3.7"]
 train = [
     "sentence-transformers>=3.0",
@@ -60,10 +60,11 @@ markers = [
 ]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = {"" = "src", "experiments" = "experiments"}
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "."]
+include = ["kalmanorix*", "experiments*"]
 
 [project.scripts]
 kalmanorix-build-mixed-benchmark = "kalmanorix.benchmarks.mixed_domain:main"
@@ -71,3 +72,5 @@ kalmanorix-run-benchmark = "experiments.registry.runner:main"
 kalmanorix-generate-report = "experiments.registry.reporting_runner:main"
 kalmanorix-run-canonical-benchmark = "experiments.run_canonical_benchmark:main"
 kalmanorix-eval-routing = "kalmanorix.benchmarks.routing_evaluation:main"
+kalmanorix-run-correlation-aware-fusion = "kalmanorix.benchmarks.cli:correlation_aware_fusion_main"
+kalmanorix-run-uncertainty-calibration = "kalmanorix.benchmarks.cli:uncertainty_calibration_main"
