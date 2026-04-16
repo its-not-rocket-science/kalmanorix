@@ -28,8 +28,8 @@ This section consolidates the current Kalman-improvement work so readers can see
 
 ### Planned / Not yet demonstrated
 - Kalman fusion quality improvement over mean fusion (**not demonstrated in the latest canonical artifact**).
-- Specialists-vs-monolith quality advantage at matched compute.
-- OOD robustness gains from uncertainty-weighted fusion.
+- Specialists-vs-monolith quality advantage at matched compute (**track completed; current artifact verdict is mixed/inconclusive, not supportive**).
+- OOD robustness gains from uncertainty-weighted fusion (**track completed; current artifact verdict is inconclusive with explicit null outcomes**).
 
 ---
 
@@ -81,14 +81,16 @@ Interpretation:
 - The latest canonical run (`results/canonical_benchmark/report.md`) reports **no statistically significant nDCG@10 improvement** for Kalman vs mean under the configured setup; do not generalize beyond that benchmark configuration.
 
 ### 3) Fused specialists outperform monolith at equal compute
-**Evidence status:** **Unresolved.**
+**Evidence status:** **Track completed, superiority unresolved.**
 
-- No completed matched-compute benchmark report is currently committed.
+- Completed artifacts are now committed in `results/matched_compute/summary.json` and `results/matched_compute/report.md`.
+- Outcome labels are mixed (`positive` fairness parity, `null` quality delta, `regression` inference compute), so superiority remains unproven.
 
 ### 4) Uncertainty weighting improves OOD robustness
-**Evidence status:** **Unresolved.**
+**Evidence status:** **Track completed, currently inconclusive.**
 
-- No completed OOD benchmark artifact currently supports this claim.
+- Completed artifacts are now committed in `results/ood_robustness/summary.json` and `results/ood_robustness/report.md`.
+- Current guarded verdict includes `positive` reproducibility, `null` quality-gain evidence, and a `regression`-risk label for missing abstention policy; no supported OOD robustness gain is claimed.
 
 ### 5) Uncertainty calibration (powered validation regime)
 **Evidence status:** **Powered but currently null downstream impact.**
@@ -129,13 +131,13 @@ The repository now includes stable scaffold directories for the next three unres
 - `results/uncertainty_ablation/`
 - `results/ood_robustness/`
 
-Each scaffold includes `summary_template.json` and `report_template.md` with explicit outcome slots for:
+Each track directory includes scaffold templates (`summary_template.json`, `report_template.md`) and can also contain completed artifacts (`summary.json`, `report.md`) with explicit outcome slots for:
 - `positive`
 - `null`
 - `inconclusive`
 - `regression`
 
-These templates are structural only and must be replaced with real run artifacts before any claim status is upgraded.
+Templates are structural only; claim status upgrades must rely on completed artifacts with rule-based verdicts and guarded language.
 
 ---
 
