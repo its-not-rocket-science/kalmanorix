@@ -1,0 +1,19 @@
+{
+  "schema_version": "phase_eval.v1",
+  "track": "kalman_post_improvement_decision",
+  "title": "Kalman Post-Improvement Decision",
+  "status": "completed_descriptive",
+  "objective": "Synthesize post-improvement artifacts into an evidence-gated decision summary.",
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md",
+    "readme": "README.md"
+  },
+  "reproducibility": {
+    "command": "python -m json.tool results/kalman_post_improvement_decision/summary.json"
+  },
+  "notes": [
+    "Created during release-quality documentation polish pass to keep artifact indexing schema-consistent.",
+    "Historical artifacts in this directory are preserved and unchanged."
+  ]
+}

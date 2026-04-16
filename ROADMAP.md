@@ -7,7 +7,7 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 
 ## Current Evidence State
 
-- **Canonical artifact path:** `results/canonical_benchmark/`
+- **Canonical artifact paths:** `results/canonical_benchmark/` (historical v1), `results/canonical_benchmark_v2/` (current decision artifact), `results/canonical_benchmark_v3/` (next rerun target)
 - **State:** **Real artifact committed** (`summary.json` and `report.md` exist).
 - **Implication:** benchmark machinery exists and has produced a canonical run, but core quality claims are still unresolved.
 
@@ -17,8 +17,8 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 |---|---|---|
 | Semantic routing reduces compute | **Supported** | Efficiency artifacts are committed in `results/`.
 | Kalman fusion beats mean fusion on quality | **Unresolved** | No final statistical artifact proving improvement yet.
-| Fused specialists beat monolith at matched compute | **Unresolved** | Benchmark track exists, final report pending.
-| Uncertainty weighting improves OOD robustness | **Unresolved** | Planned evaluations exist, but no completed evidence artifact yet.
+| Fused specialists beat monolith at matched compute | **Evaluated, unresolved superiority** | Completed artifact in `results/matched_compute/` is mixed (null quality delta and higher inference cost).
+| Uncertainty weighting improves OOD robustness | **Evaluated, inconclusive** | Completed guarded artifact in `results/ood_robustness/` includes explicit null and regression-risk outcomes.
 
 ## Demonstrated Work (completed)
 
@@ -67,16 +67,16 @@ This roadmap separates what has been **demonstrated** from what is still **plann
 **Threats to validity:** benchmark composition, covariance quality, and alignment assumptions may mask or inflate effects.
 
 ### 3) Specialists vs monolith
-**Status:** Unresolved  
-**Evidence:** no final committed matched-compute comparison report.  
+**Status:** Evaluated, unresolved superiority  
+**Evidence:** completed artifact in `results/matched_compute/{summary.json, report.md}` with mixed outcomes (`null` quality delta + `regression` inference compute).  
 **Threats to validity:** fairness of compute accounting, domain mixture realism, and training-data leakage risk.
 
 ### 4) OOD robustness via uncertainty
-**Status:** Unresolved  
-**Evidence:** no completed OOD report committed yet.  
+**Status:** Evaluated, currently inconclusive  
+**Evidence:** completed guarded artifact in `results/ood_robustness/{summary.json, report.md}` with explicit `positive/null/inconclusive/regression` slots.  
 **Threats to validity:** OOD definition choice, calibration drift, and sensitivity to query distribution shifts.
 
-**Next sequence after canonical benchmark closure:** scaffold now exists for `results/matched_compute/`, `results/uncertainty_ablation/`, and `results/ood_robustness/`; these remain pending until empirical artifacts replace templates.
+**Next sequence after canonical benchmark closure:** continue power and replication work for `results/canonical_benchmark_v3/`, then refresh matched-compute/OOD conclusions only if reruns materially change evidence state.
 
 
 ## API Surface Policy

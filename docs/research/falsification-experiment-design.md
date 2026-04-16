@@ -139,7 +139,7 @@ This makes it easy to fail and hard to "win by averaging".
 
 Add an explicit adversarial protocol config in the benchmark registry:
 
-- `experiments/configs/benchmark_registry/falsification_adversarial.yaml`
+- `experiments/configs/benchmark_registry/real_mixed_domain.yaml` (copy and extend into a dedicated adversarial config before running falsification experiments)
 
 Include:
 
