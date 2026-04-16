@@ -1,0 +1,85 @@
+{
+  "schema_version": "phase_eval.v1",
+  "track": "ood_robustness",
+  "title": "OOD Robustness",
+  "status": "completed",
+  "objective": "Evaluate robustness under distribution shift and distinguish supported effects from null/inconclusive/regression outcomes.",
+  "ood_definition": {
+    "query_shift": "OOD queries are sampled from an unseen domain and assigned true_doc_id=-1.",
+    "corpus_constraint": "Document corpus excludes the OOD domain entirely.",
+    "construction_api": "kalmanorix.ood_datasets.create_ood_test_set / create_synthetic_ood_test_set",
+    "reproducibility_controls": {
+      "seen_domains": [
+        "medical",
+        "legal"
+      ],
+      "ood_domain": "tech",
+      "ood_proportion": 0.5,
+      "seed": 42
+    }
+  },
+  "evidence_sources": {
+    "dataset_and_protocol_checks": [
+      "tests/test_ood_robustness.py",
+      "src/kalmanorix/ood_datasets.py"
+    ],
+    "downstream_calibration_and_ablation_runs": [
+      "results/uncertainty_calibration/summary.json",
+      "results/uncertainty_ablation/summary.json",
+      "results/uncertainty_ablation/report.md"
+    ]
+  },
+  "rule_based_verdict": {
+    "ood_definition_reproducibility_rule": "positive",
+    "ood_quality_gain_rule": "null",
+    "ood_uncertainty_weighting_advantage_rule": "inconclusive",
+    "ood_failure_mode_rule": "regression",
+    "overall": "inconclusive",
+    "logic": [
+      "Mark reproducibility as positive when OOD split construction is explicit, parameterized, and tested.",
+      "Mark OOD quality gain as null when committed calibration/ablation artifacts show no downstream Kalman-vs-mean gain.",
+      "Mark uncertainty-weighting advantage as inconclusive when no dedicated paired OOD significance table is committed yet.",
+      "Mark failure mode as regression when OOD query retrieval remains overconfident by construction (no explicit abstention gate in this artifact).",
+      "Overall remains inconclusive when positive reproducibility coexists with null gains and unresolved significance evidence."
+    ]
+  },
+  "outcome_slots": {
+    "positive": {
+      "supported": true,
+      "evidence": [
+        "OOD dataset generation is explicit and reproducible via create_ood_test_set/create_synthetic_ood_test_set with tested constraints."
+      ],
+      "notes": "Protocol and construction reproducibility are now artifacted."
+    },
+    "null": {
+      "supported": true,
+      "evidence": [
+        "Committed uncertainty-calibration and uncertainty-ablation artifacts report zero or limited downstream Kalman-vs-mean quality change."
+      ],
+      "notes": "No robust OOD quality uplift is currently demonstrated."
+    },
+    "inconclusive": {
+      "supported": true,
+      "evidence": [
+        "A dedicated paired OOD significance table for uncertainty-weighted fusion is not yet present in this artifact set."
+      ],
+      "notes": "Directionality is unresolved without direct OOD head-to-head significance outputs."
+    },
+    "regression": {
+      "supported": true,
+      "evidence": [
+        "OOD queries have true_doc_id=-1, but current pipeline artifacts do not include an abstain/reject decision rule; this is a robustness risk."
+      ],
+      "notes": "Failure-mode regression is tracked as overconfident retrieval risk under strict OOD."
+    }
+  },
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md"
+  },
+  "notes": [
+    "Null outcomes are intentionally preserved.",
+    "This track is completed as a guarded evidence synthesis with explicit OOD definitions and reproducibility controls.",
+    "Claim closure still requires a direct paired OOD benchmark significance artifact."
+  ]
+}

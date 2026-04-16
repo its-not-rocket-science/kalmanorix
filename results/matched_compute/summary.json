@@ -1,67 +1,21 @@
 {
-  "experiment": "matched_compute_specialists_vs_monolith",
-  "domains": [
-    "finance",
-    "legal",
-    "medical",
-    "science"
-  ],
-  "samples_per_domain": 1200,
-  "test_size": 600,
-  "assumptions": {
-    "n_specialists": 4,
-    "specialist_params_proxy": 12288,
-    "monolith_params_proxy": 12288,
-    "specialist_epochs": 1,
-    "monolith_epochs": 1,
-    "avg_tokens_per_sample": 12,
-    "training_flop_multiplier": 6,
-    "specialist_inference_flops_proxy": 442368,
-    "monolith_inference_flops_proxy": 442368,
-    "routing_overhead_all_proxy": 53084,
-    "routing_overhead_semantic_proxy": 88473,
-    "kalman_fusion_overhead_proxy": 44236,
-    "semantic_top_k": 2,
-    "parity_tolerance": 0.01
+  "schema_version": "phase_eval.v1",
+  "track": "matched_compute",
+  "title": "Matched Compute",
+  "status": "completed",
+  "objective": "Evaluate specialists vs monolith under explicit training/inference compute parity constraints with guarded interpretation.",
+  "run_metadata": {
+    "benchmark": "matched_compute_specialists_vs_monolith",
+    "seed": 7,
+    "domains": [
+      "finance",
+      "legal",
+      "medical",
+      "science"
+    ],
+    "samples_per_domain": 1200,
+    "test_size": 600
   },
-  "results": [
-    {
-      "strategy": "monolith_baseline",
-      "accuracy_at_1": 1.0,
-      "mrr": 1.0,
-      "training_budget_proxy": 4246732800,
-      "inference_flops_proxy_mean": 442368.0,
-      "active_specialists_mean": 1.0,
-      "routing_overhead_proxy": 0
-    },
-    {
-      "strategy": "specialists_all_routing",
-      "accuracy_at_1": 1.0,
-      "mrr": 1.0,
-      "training_budget_proxy": 4246732800,
-      "inference_flops_proxy_mean": 1822556.0,
-      "active_specialists_mean": 4.0,
-      "routing_overhead_proxy": 53084
-    },
-    {
-      "strategy": "specialists_semantic_routing",
-      "accuracy_at_1": 1.0,
-      "mrr": 1.0,
-      "training_budget_proxy": 4246732800,
-      "inference_flops_proxy_mean": 973209.0,
-      "active_specialists_mean": 2.0,
-      "routing_overhead_proxy": 88473
-    },
-    {
-      "strategy": "specialists_kalman_fusion",
-      "accuracy_at_1": 1.0,
-      "mrr": 1.0,
-      "training_budget_proxy": 4246732800,
-      "inference_flops_proxy_mean": 1017445.0,
-      "active_specialists_mean": 2.0,
-      "routing_overhead_proxy": 88473
-    }
-  ],
   "fairness_checks": {
     "training_compute_parity_achieved": true,
     "training_compute_ratio_specialists_over_monolith": 1.0,
@@ -74,6 +28,72 @@
       "specialists_kalman_fusion": 2.2999968352141202
     }
   },
-  "supports_strong_conclusion": false,
-  "conclusion_note": "Training parity was enforced, but inference-cost asymmetry remains material; this run does not support a strong conclusion about overall efficiency superiority."
+  "headline_metrics": {
+    "monolith_baseline": {
+      "accuracy_at_1": 1.0,
+      "mrr": 1.0,
+      "inference_flops_proxy_mean": 442368.0
+    },
+    "specialists_semantic_routing": {
+      "accuracy_at_1": 1.0,
+      "mrr": 1.0,
+      "inference_flops_proxy_mean": 973209.0
+    },
+    "specialists_kalman_fusion": {
+      "accuracy_at_1": 1.0,
+      "mrr": 1.0,
+      "inference_flops_proxy_mean": 1017445.0
+    }
+  },
+  "rule_based_verdict": {
+    "quality_delta_rule": "null",
+    "compute_parity_rule": "positive",
+    "end_to_end_efficiency_rule": "regression",
+    "overall": "inconclusive",
+    "logic": [
+      "quality_delta_rule = null when Acc@1 and MRR are tied with monolith within 1e-12.",
+      "compute_parity_rule = positive when training parity ratio is within tolerance.",
+      "end_to_end_efficiency_rule = regression when routed specialist inference FLOPs exceed 2.0x monolith.",
+      "overall = inconclusive when fairness parity passes but quality is null and inference-cost rule regresses."
+    ]
+  },
+  "outcome_slots": {
+    "positive": {
+      "supported": true,
+      "evidence": [
+        "Training compute parity achieved (ratio=1.0000 within tolerance=0.0100)."
+      ],
+      "notes": "Fairness guardrail passed."
+    },
+    "null": {
+      "supported": true,
+      "evidence": [
+        "Acc@1 and MRR are tied at 1.0000 for monolith, semantic routing, and Kalman fusion in this run."
+      ],
+      "notes": "No quality advantage is demonstrated under this benchmark slice."
+    },
+    "inconclusive": {
+      "supported": true,
+      "evidence": [
+        "Training parity is satisfied, but the run cannot support an overall superiority claim due to inference asymmetry."
+      ],
+      "notes": "Quality parity plus materially higher inference FLOPs prevents claim closure."
+    },
+    "regression": {
+      "supported": true,
+      "evidence": [
+        "Semantic routing and Kalman routing require 2.20x and 2.30x inference FLOPs proxy versus monolith."
+      ],
+      "notes": "Inference-cost regression relative to monolith remains unresolved."
+    }
+  },
+  "artifacts": {
+    "summary": "summary.json",
+    "report": "report.md"
+  },
+  "notes": [
+    "Outcome labels are rule-based and computed conservatively.",
+    "Null outcomes are preserved as first-class evidence.",
+    "This track is completed as an evidence artifact but does not close the specialists-vs-monolith superiority hypothesis."
+  ]
 }

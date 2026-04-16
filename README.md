@@ -3,7 +3,7 @@
 > **Research status (as of April 9, 2026):**
 > - ✅ Demonstrated: routing-related compute savings in controlled benchmark runs.
 > - ⚠️ Not yet demonstrated: statistically significant quality gains of Kalman fusion over simple mean fusion.
-> - ⚠️ Not yet demonstrated: specialists-vs-monolith quality advantage under matched compute.
+> - ⚠️ Specialists-vs-monolith track now has a completed matched-compute artifact, but current verdict is mixed (`null` quality delta + `regression` on inference compute), so superiority remains unproven.
 
 ## Current Evidence State
 
@@ -33,8 +33,8 @@ For compatibility, experimental symbols remain temporarily importable from `kalm
 
 ### Planned / In Progress
 - **Kalman vs mean fusion quality:** pending reproducible statistical result showing improvement.
-- **Specialists vs monolith (matched compute):** pending full benchmark artifact and analysis.
-- **OOD robustness of uncertainty weighting:** pending completed benchmark report.
+- **Specialists vs monolith (matched compute):** completed artifact now committed in `results/matched_compute/`, currently labeled mixed/inconclusive (no quality win and higher inference cost).
+- **OOD robustness of uncertainty weighting:** completed guarded artifact now committed in `results/ood_robustness/`, currently labeled inconclusive with explicit null and regression-risk outcomes.
 - **Broader routing realism:** extend routing benchmarks with larger domain sets and production-like latency traces.
 
 ## Kalman improvement work: implemented, tested, and current empirical status
@@ -75,14 +75,14 @@ The Kalman-improvement line now has committed artifacts across implementation, a
 - Prior synthetic/debug experiments exist but are not sufficient for headline claims.
 
 ### Claim C: Fused specialists outperform a monolith at equal compute
-**Evidence status:** **Unresolved (not demonstrated).**
+**Evidence status:** **Evaluated, but unresolved superiority.**
 
-- Current state: milestone is in progress; no final reproducible report is committed.
+- Current state: a completed matched-compute artifact is now committed (`results/matched_compute/summary.json`, `results/matched_compute/report.md`), but outcome labels are mixed (`positive` parity, `null` quality delta, `regression` inference cost), so superiority is not established.
 
 ### Claim D: Uncertainty-weighted fusion is more robust OOD
-**Evidence status:** **Unresolved (not demonstrated).**
+**Evidence status:** **Evaluated, currently inconclusive.**
 
-- Current state: planned benchmark track exists; final supporting artifact not yet published.
+- Current state: a completed guarded OOD artifact is committed (`results/ood_robustness/summary.json`, `results/ood_robustness/report.md`) with explicit `positive/null/inconclusive/regression` labeling; no supported OOD quality advantage is demonstrated yet.
 
 ---
 
