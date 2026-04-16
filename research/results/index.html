@@ -1714,6 +1714,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#kalman-improvement-evidence-map-implemented-artifact-backed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kalman Improvement Evidence Map (implemented + artifact-backed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#demonstrated-vs-planned" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1824,6 +1835,50 @@
     <span class="md-ellipsis">
       
         5) Uncertainty calibration (powered validation regime)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-uncertainty-ablation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Uncertainty ablation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-covariance-ablation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) Covariance ablation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-correlation-aware-fusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8) Correlation-aware fusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-latency-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9) Latency optimization
       
     </span>
   </a>
@@ -2384,6 +2439,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#kalman-improvement-evidence-map-implemented-artifact-backed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kalman Improvement Evidence Map (implemented + artifact-backed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#demonstrated-vs-planned" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2494,6 +2560,50 @@
     <span class="md-ellipsis">
       
         5) Uncertainty calibration (powered validation regime)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-uncertainty-ablation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Uncertainty ablation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-covariance-ablation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) Covariance ablation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-correlation-aware-fusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8) Correlation-aware fusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-latency-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9) Latency optimization
       
     </span>
   </a>
@@ -2614,6 +2724,49 @@
 <li><strong>State:</strong> v1 and v2 artifacts are committed (<code>summary.json</code>, <code>report.md</code>, and runner-level JSONs for v2).</li>
 <li><strong>What this means:</strong> canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.</li>
 </ul>
+<h2 id="kalman-improvement-evidence-map-implemented-artifact-backed">Kalman Improvement Evidence Map (implemented + artifact-backed)<a class="headerlink" href="#kalman-improvement-evidence-map-implemented-artifact-backed" title="Permanent link">&para;</a></h2>
+<p>This section consolidates the current Kalman-improvement work so readers can see status without cross-referencing multiple pages.</p>
+<table>
+<thead>
+<tr>
+<th>Workstream</th>
+<th>Primary artifacts</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uncertainty calibration</td>
+<td><code>results/uncertainty_calibration/report.md</code>, <code>results/uncertainty_calibration/summary.json</code></td>
+<td>Powered calibration regime now active (<code>powered_for_calibration=true</code>); selected calibrators are non-fallback isotonic, but downstream Kalman-vs-Mean delta change is <code>0.0</code> on validation and test.</td>
+</tr>
+<tr>
+<td>Uncertainty ablation</td>
+<td><code>results/uncertainty_ablation/report.md</code>, <code>results/uncertainty_ablation/summary.json</code></td>
+<td>Better-calibrated uncertainty methods are measurable, but retrieval metrics are mostly flat in this setup; report conclusion is partial/limited downstream gain.</td>
+</tr>
+<tr>
+<td>Covariance ablation</td>
+<td><code>results/kalman_covariance_ablation_v2/report.md</code>, <code>results/kalman_covariance_ablation_v2/summary.json</code></td>
+<td>Scalar/diagonal/structured variants evaluated; richer covariance is currently not justified by practical gain thresholds and increases latency vs mean fusion.</td>
+</tr>
+<tr>
+<td>Correlation-aware fusion</td>
+<td><code>results/correlation_aware_fusion/report.md</code>, <code>results/correlation_aware_fusion/summary.json</code></td>
+<td>Small positive uplift over baseline Kalman in a strengthened correlated split (best reported ΔMRR@10 <code>+0.0037</code>), treated as exploratory rather than claim-closing.</td>
+</tr>
+<tr>
+<td>Latency optimization</td>
+<td><code>results/kalman_latency_optimization/report.md</code>, <code>results/kalman_latency_optimization/summary.json</code></td>
+<td>Legacy-to-optimized Kalman speedup is real, but optimized Kalman remains above mean-latency ratio limits used by canonical decision rules.</td>
+</tr>
+<tr>
+<td>Canonical benchmark v2</td>
+<td><code>results/canonical_benchmark_v2/report.md</code>, <code>results/canonical_benchmark_v2/summary.json</code></td>
+<td>Decision remains <code>inconclusive_underpowered</code>; positive observed quality deltas are not statistically reliable at current sample size and latency threshold still fails.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="demonstrated-vs-planned">Demonstrated vs Planned<a class="headerlink" href="#demonstrated-vs-planned" title="Permanent link">&para;</a></h2>
 <h3 id="demonstrated">Demonstrated<a class="headerlink" href="#demonstrated" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2683,6 +2836,30 @@
 <li>The calibration split is now explicitly power-audited (<code>powered_for_calibration</code>, per-specialist support counts, threshold, fallback reason) and uses domain-stratified validation with query-bucket balancing.</li>
 <li>In this stronger run, non-identity calibrators are selected (no underpowered fallback), but downstream Kalman-vs-Mean delta change remains <code>0.0</code> on both validation and test.</li>
 <li>Interpretation: calibration is now empirically testable in this regime, but does not currently improve downstream retrieval quality.</li>
+</ul>
+<h3 id="6-uncertainty-ablation">6) Uncertainty ablation<a class="headerlink" href="#6-uncertainty-ablation" title="Permanent link">&para;</a></h3>
+<p><strong>Evidence status:</strong> <strong>Implemented and evaluated; downstream gains limited in this setup.</strong></p>
+<ul>
+<li>Artifacts: <code>results/uncertainty_ablation/summary.json</code>, <code>results/uncertainty_ablation/report.md</code>.</li>
+<li>Interpretation: uncertainty estimators differ on calibration metrics, but retrieval outputs in this benchmark are largely unchanged; constant uncertainty remains competitive.</li>
+</ul>
+<h3 id="7-covariance-ablation">7) Covariance ablation<a class="headerlink" href="#7-covariance-ablation" title="Permanent link">&para;</a></h3>
+<p><strong>Evidence status:</strong> <strong>Implemented and evaluated; richer covariance not yet justified.</strong></p>
+<ul>
+<li>Artifacts: <code>results/kalman_covariance_ablation_v2/summary.json</code>, <code>results/kalman_covariance_ablation_v2/report.md</code>.</li>
+<li>Interpretation: richer covariance variants do not clear practical effect thresholds in this setup and incur higher latency costs than mean fusion.</li>
+</ul>
+<h3 id="8-correlation-aware-fusion">8) Correlation-aware fusion<a class="headerlink" href="#8-correlation-aware-fusion" title="Permanent link">&para;</a></h3>
+<p><strong>Evidence status:</strong> <strong>Preliminary positive signal; not claim-closing.</strong></p>
+<ul>
+<li>Artifacts: <code>results/correlation_aware_fusion/summary.json</code>, <code>results/correlation_aware_fusion/report.md</code>.</li>
+<li>Interpretation: the best correlation-aware configuration improves slightly over baseline Kalman on the strengthened correlated split (reported ΔMRR@10 <code>+0.0037</code>), but magnitude is small and requires larger-scale confirmation.</li>
+</ul>
+<h3 id="9-latency-optimization">9) Latency optimization<a class="headerlink" href="#9-latency-optimization" title="Permanent link">&para;</a></h3>
+<p><strong>Evidence status:</strong> <strong>Engineering improvement demonstrated; canonical constraint still unmet.</strong></p>
+<ul>
+<li>Artifacts: <code>results/kalman_latency_optimization/summary.json</code>, <code>results/kalman_latency_optimization/report.md</code>.</li>
+<li>Interpretation: optimized Kalman improves over legacy implementation speed, but remains above the canonical Kalman/Mean latency ratio threshold.</li>
 </ul>
 <h2 id="next-empirical-phase-scaffold-post-canonical-closure">Next empirical phase scaffold (post-canonical closure)<a class="headerlink" href="#next-empirical-phase-scaffold-post-canonical-closure" title="Permanent link">&para;</a></h2>
 <p>The repository now includes stable scaffold directories for the next three unresolved tracks:

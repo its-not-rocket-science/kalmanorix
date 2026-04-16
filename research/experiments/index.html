@@ -1686,6 +1686,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#kalman-improvement-experiment-tracks-current-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kalman improvement experiment tracks (current map)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-demonstrated-evidence-as-of-april-9-2026" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1873,6 +1884,17 @@
     <span class="md-ellipsis">
       
         5) Threats to Validity (must be reported with results)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-kalman-improvements-changed-empirically-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Kalman improvements changed empirically (current)
       
     </span>
   </a>
@@ -2423,6 +2445,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#kalman-improvement-experiment-tracks-current-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kalman improvement experiment tracks (current map)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-demonstrated-evidence-as-of-april-9-2026" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2616,6 +2649,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#what-kalman-improvements-changed-empirically-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Kalman improvements changed empirically (current)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2688,10 +2732,53 @@
 <p>This document defines the experiment policy after the April 2026 audit: <strong>separate demonstrated evidence from planned work, and label synthetic results explicitly</strong>.</p>
 <h2 id="current-evidence-state">Current Evidence State<a class="headerlink" href="#current-evidence-state" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Canonical artifact path:</strong> <code>results/canonical_benchmark/</code></li>
-<li><strong>State:</strong> <strong>Real artifact committed</strong> (<code>summary.json</code>, <code>report.md</code>).</li>
-<li><strong>Status signal:</strong> this confirms the benchmark pipeline is active; it does not close the unresolved quality claims.</li>
+<li><strong>Canonical artifact paths:</strong> <code>results/canonical_benchmark/</code> (v1 provenance) and <code>results/canonical_benchmark_v2/</code> (current decision artifact).</li>
+<li><strong>State:</strong> <strong>Real artifacts committed</strong> (<code>summary.json</code>, <code>report.md</code>, and v2 runner summaries).</li>
+<li><strong>Status signal:</strong> benchmark pipelines are active and reproducible; unresolved quality claims remain unresolved under current evidence thresholds.</li>
 </ul>
+<h2 id="kalman-improvement-experiment-tracks-current-map">Kalman improvement experiment tracks (current map)<a class="headerlink" href="#kalman-improvement-experiment-tracks-current-map" title="Permanent link">&para;</a></h2>
+<p>This is the compact map of implemented Kalman-improvement tracks and how to interpret their current outputs.</p>
+<table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Artifacts</th>
+<th>Current interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Canonical benchmark v2</td>
+<td><code>results/canonical_benchmark_v2/summary.json</code>, <code>results/canonical_benchmark_v2/report.md</code></td>
+<td>Decision remains <code>inconclusive_underpowered</code>; do not claim Kalman&gt;Mean quality superiority from this run.</td>
+</tr>
+<tr>
+<td>Uncertainty calibration</td>
+<td><code>results/uncertainty_calibration/summary.json</code>, <code>results/uncertainty_calibration/report.md</code></td>
+<td>Powered calibration setup now exists, but downstream delta change is currently null (<code>0.0</code> validation/test).</td>
+</tr>
+<tr>
+<td>Uncertainty ablation</td>
+<td><code>results/uncertainty_ablation/summary.json</code>, <code>results/uncertainty_ablation/report.md</code></td>
+<td>Calibration proxies improve for some methods, while retrieval metrics are largely unchanged in this setup.</td>
+</tr>
+<tr>
+<td>Covariance ablation</td>
+<td><code>results/kalman_covariance_ablation_v2/summary.json</code>, <code>results/kalman_covariance_ablation_v2/report.md</code></td>
+<td>Richer covariance families are implemented and tested but not justified by practical gains here.</td>
+</tr>
+<tr>
+<td>Correlation-aware fusion</td>
+<td><code>results/correlation_aware_fusion/summary.json</code>, <code>results/correlation_aware_fusion/report.md</code></td>
+<td>Small positive signal vs baseline Kalman on correlated split; treat as exploratory pending replication.</td>
+</tr>
+<tr>
+<td>Latency optimization</td>
+<td><code>results/kalman_latency_optimization/summary.json</code>, <code>results/kalman_latency_optimization/report.md</code></td>
+<td>Legacy Kalman path is measurably faster after optimization, but canonical latency-ratio acceptance is still not met.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="1-demonstrated-evidence-as-of-april-9-2026">1) Demonstrated Evidence (as of April 9, 2026)<a class="headerlink" href="#1-demonstrated-evidence-as-of-april-9-2026" title="Permanent link">&para;</a></h2>
 <h3 id="demonstrated-claim">Demonstrated claim<a class="headerlink" href="#demonstrated-claim" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2744,14 +2831,20 @@
 <h3 id="benchmark-objective">Benchmark objective<a class="headerlink" href="#benchmark-objective" title="Permanent link">&para;</a></h3>
 <p>Evaluate Kalman fusion against mean fusion on a mixed-domain benchmark with explicit relevance labels.</p>
 <h3 id="build-benchmark-artifacts">Build benchmark artifacts<a class="headerlink" href="#build-benchmark-artifacts" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>scripts/build_mixed_benchmark.py
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>scripts/build_mixed_benchmark.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--output-dir<span class="w"> </span>benchmarks/mixed_beir_v1.1.0<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--seed<span class="w"> </span><span class="m">1337</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--max-candidates<span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--cross-domain-negative-ratio<span class="w"> </span><span class="m">0</span>.45<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--max-queries-per-domain<span class="w"> </span><span class="m">900</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--max-test-queries-per-domain<span class="w"> </span><span class="m">180</span>
 </span></code></pre></div>
 <h3 id="run-primary-benchmark">Run primary benchmark<a class="headerlink" href="#run-primary-benchmark" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>experiments/run_real_mixed_benchmark.py<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet<span class="w"> </span><span class="se">\</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>experiments/run_canonical_benchmark.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.1.0/mixed_benchmark.json<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>--split<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--output<span class="w"> </span>results/real_mixed_benchmark/real_benchmark_summary.json
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark_v2
 </span></code></pre></div>
 <h3 id="compatibility-entrypoints-real-mode-by-default">Compatibility entrypoints (real mode by default)<a class="headerlink" href="#compatibility-entrypoints-real-mode-by-default" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>experiments/validate_fusion.py
@@ -2766,6 +2859,13 @@
 <li><strong>Calibration quality:</strong> uncertainty quality directly affects Kalman weighting behavior.</li>
 <li><strong>Routing sensitivity:</strong> fixed thresholds may under-select or over-select specialists depending on query mix.</li>
 </ol>
+<hr />
+<h2 id="what-kalman-improvements-changed-empirically-current">What Kalman improvements changed empirically (current)<a class="headerlink" href="#what-kalman-improvements-changed-empirically-current" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Improved implementation and instrumentation:</strong> uncertainty calibration now has explicit power checks; covariance variants, correlation-aware fusion, and latency optimizations all have committed artifact trails.</li>
+<li><strong>Unchanged/null outcomes where observed:</strong> canonical Kalman-vs-Mean remains unresolved; uncertainty calibration and uncertainty ablation currently do not produce a robust downstream quality lift in committed runs.</li>
+<li><strong>Open questions:</strong> can small correlation-aware gains replicate at larger sample sizes, and can additional latency optimization meet canonical latency thresholds while preserving quality metrics.</li>
+</ul>
 
 
 
