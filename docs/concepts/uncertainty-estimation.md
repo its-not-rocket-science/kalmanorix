@@ -1,44 +1,60 @@
 # Uncertainty Estimation
 
-*TODO: Explain variance estimation and calibration for embedding models*
+In Kalmanorix, each specialist provides a scalar measurement variance `sigma2(query)`.
+Kalman fusion uses this variance to set how strongly each specialist influences the fused embedding.
 
-## Why Uncertainty Matters
+## Current sigma² estimation paths (audited)
 
-In Kalman fusion, the uncertainty (variance) of each embedding determines its influence on the fused result. A specialist that is very certain about a query should contribute more than one that is uncertain.
+The code currently supports these scalar uncertainty paths.
 
-## Types of Uncertainty
+1. **Constant** (`ConstantSigma2`)
+   - Fixed variance for all queries.
+   - Useful as baseline/ablation.
 
-### 1. Aleatoric Uncertainty
-- **Intrinsic noise** in the data (e.g., ambiguous queries).
-- Cannot be reduced with more training data.
-- Estimated via **empirical covariance** on a validation set.
+2. **Keyword based** (`KeywordSigma2`)
+   - Query contains domain keywords → lower variance.
+   - Otherwise higher variance.
+   - Cheap, interpretable fallback.
 
-### 2. Epistemic Uncertainty
-- **Model uncertainty** due to limited training data.
-- Can be reduced with more data or better architecture.
-- Estimated via **ensemble methods** or Monte‑Carlo dropout.
+3. **Centroid distance** (`CentroidDistanceSigma2`) **(current default query-dependent path in benchmarks)**
+   - Compute cosine distance between query embedding and specialist centroid.
+   - Distance is mapped with a softplus-style transform.
+   - Includes a small query-length term.
 
-Kalmanorix currently focuses on aleatoric uncertainty, treating epistemic uncertainty as future work.
+4. **Embedding norm diagnostic** (`EmbeddingNormSigma2`)
+   - Low embedding norm implies diffuse/weak representation.
+   - Increases variance as norm drops.
 
-## Estimation Strategies
+5. **Centroid similarity (linearized)** (`SimilarityToCentroidSigma2`)
+   - Simpler linear distance-to-centroid mapping.
 
-### Constant Uncertainty (`sigma2 = 0.1`)
-Simplest approach: assign a fixed variance to each specialist. Works when specialists are equally reliable across their domain.
+6. **Stochastic forward variance** (`StochasticForwardSigma2`)
+   - Monte-Carlo style dispersion over multiple stochastic passes.
+   - Uses average per-dimension variance as scalar uncertainty proxy.
 
-### Keyword‑Based Uncertainty (`KeywordSigma2`)
-Increase uncertainty when the query lacks domain‑specific keywords. Example: a medical specialist becomes uncertain for a query without medical terms.
+7. **Centroid + norm + peer disagreement** (`CentroidNormPeerSigma2`) **(improved query-dependent estimator)**
+   - Combines:
+     - distance to own centroid,
+     - embedding norm deficit relative to calibration norms,
+     - disagreement with peer specialists (peer centroid advantage),
+   - then applies a sigmoid-calibrated transform to produce bounded, smooth sigma².
 
-### Centroid‑Distance Uncertainty (`CentroidDistanceSigma2`)
-Compute the cosine distance between the query embedding and the specialist’s domain centroid. Higher distance → higher uncertainty.
+## Precomputed embedding support
 
-### Empirical Covariance (`EmpiricalCovariance`)
-Compute the per‑dimension variance of embedding errors on a held‑out validation set. Most accurate but requires labelled validation data.
+`SEF.sigma2_for(query, query_embedding=...)` now supports embedding-aware estimators.
+When fusion code already computed a specialist query embedding, sigma² can reuse it instead
+of calling the embedder a second time. Estimators that support this expose
+`estimate_with_embedding(query, embedding)`.
 
-### Heteroscedastic Uncertainty Network (HUN) *(planned)*
-A small neural network that takes query features (e.g., bag‑of‑words, length) and predicts per‑dimension variance.
+This is currently implemented for:
+- `CentroidDistanceSigma2`
+- `EmbeddingNormSigma2`
+- `SimilarityToCentroidSigma2`
+- `CentroidNormPeerSigma2`
 
-## Calibration
+## Why this matters for Kalman vs mean fusion
 
-Uncertainty estimates should be **calibrated**: a variance of 0.1 should correspond to a 68% confidence interval (± 0.3 standard deviation) around the true embedding. Calibration can be checked by measuring the empirical coverage on a validation set.
-
-*TODO: Add calibration plots, code examples for each strategy, and comparison table.*
+Kalman fusion only helps when relative uncertainty is informative.
+If sigma² is too flat, noisy, or mis-ranked across specialists, Kalman reduces to near-mean behavior.
+The improved estimator is designed to make confidence ranking more query-sensitive while remaining
+lightweight and model-free.

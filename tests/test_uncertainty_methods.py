@@ -6,6 +6,7 @@ import numpy as np
 
 from kalmanorix import SEF
 from kalmanorix.uncertainty import (
+    CentroidNormPeerSigma2,
     CentroidDistanceSigma2,
     ConstantSigma2,
     EmbeddingNormSigma2,
@@ -132,10 +133,16 @@ def test_common_uncertainty_factory_builds_expected_method_types() -> None:
         embed=_toy_embed,
         calibration_texts=calibration_texts,
     )
+    improved = create_uncertainty_method(
+        config=UncertaintyMethodConfig(method="centroid_norm_peer_sigma2"),
+        embed=_toy_embed,
+        calibration_texts=calibration_texts,
+    )
 
     assert isinstance(constant, ConstantSigma2)
     assert isinstance(keyword, KeywordSigma2)
     assert isinstance(centroid, CentroidDistanceSigma2)
+    assert isinstance(improved, CentroidNormPeerSigma2)
 
 
 def test_common_uncertainty_factory_requires_inputs_for_keyword_method() -> None:
@@ -148,3 +155,32 @@ def test_common_uncertainty_factory_requires_inputs_for_keyword_method() -> None
         assert False, "Expected ValueError"
     except ValueError as exc:
         assert "keywords" in str(exc) or "calibration_texts" in str(exc)
+
+
+def test_centroid_norm_peer_sigma2_tracks_peer_disagreement() -> None:
+    tech_sigma = CentroidNormPeerSigma2.from_calibration(
+        embed=_toy_embed,
+        calibration_texts=["tech strong", "tech"],
+        peer_centroids=[np.array([0.0, 1.0], dtype=np.float64)],
+        base_sigma2=0.2,
+    )
+    in_domain = tech_sigma("tech cpu")
+    cross_domain = tech_sigma("cook recipe")
+    assert in_domain > 0.0
+    assert cross_domain > in_domain
+
+
+def test_sigma2_for_can_use_precomputed_embedding_without_extra_embed_call() -> None:
+    calls = {"n": 0}
+
+    def counted_embed(text: str) -> np.ndarray:
+        calls["n"] += 1
+        return _toy_embed(text)
+
+    sigma2 = EmbeddingNormSigma2(embed=counted_embed, base_sigma2=0.2)
+    specialist = SEF(name="counted", embed=counted_embed, sigma2=sigma2)
+
+    precomputed = counted_embed("weak signal")
+    before = calls["n"]
+    _ = specialist.sigma2_for("weak signal", query_embedding=precomputed)
+    assert calls["n"] == before

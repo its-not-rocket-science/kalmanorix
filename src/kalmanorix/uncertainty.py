@@ -1,8 +1,19 @@
-"""
-Uncertainty models (sigma²) for Kalmanorix.
+"""Uncertainty models (sigma²) for Kalmanorix.
 
-Sigma² callables map (query: str) -> float variance.
-They are intentionally lightweight and deterministic for early phases.
+Audit of currently supported scalar sigma² estimation paths:
+1. ``ConstantSigma2``: fixed variance baseline/ablation.
+2. ``KeywordSigma2``: rule-based in-domain vs out-of-domain switch.
+3. ``CentroidDistanceSigma2``: distance-to-domain-centroid heuristic.
+4. ``EmbeddingNormSigma2``: low-norm embedding => higher uncertainty.
+5. ``SimilarityToCentroidSigma2``: linearized centroid-distance variant.
+6. ``StochasticForwardSigma2``: Monte-Carlo style variance over multiple passes.
+7. ``CentroidNormPeerSigma2``: stronger query-dependent estimator that combines
+   centroid distance, embedding norm diagnostics, and peer disagreement, then
+   applies a calibrated sigmoid transform.
+
+Sigma² callables map ``(query: str) -> float``.
+When precomputed query embeddings are available, estimators may also implement
+``estimate_with_embedding(query, embedding)`` to avoid repeated embedder calls.
 """
 
 from __future__ import annotations
@@ -36,6 +47,7 @@ class UncertaintyMethodConfig:
     keyword_in_domain_sigma2: float = 0.2
     keyword_out_domain_sigma2: float = 2.0
     stochastic_passes: int = 4
+    peer_centroids: Optional[List[np.ndarray]] = None
 
 
 @dataclass(frozen=True)
@@ -131,6 +143,11 @@ class CentroidDistanceSigma2:
 
     def __call__(self, query: str) -> float:
         z = self.embed(query)
+        return self.estimate_with_embedding(query=query, embedding=z)
+
+    def estimate_with_embedding(self, query: str, embedding: np.ndarray) -> float:
+        """Estimate sigma² from a precomputed embedding."""
+        z = np.asarray(embedding, dtype=np.float64)
         z = z / (np.linalg.norm(z) + 1e-12)
         sim = float(z @ self.centroid)
         distance = 1.0 - sim  # sim in [-1, 1] => distance in [0, 2]
@@ -236,6 +253,11 @@ class EmbeddingNormSigma2:
 
     def __call__(self, query: str) -> float:
         z = self.embed(query)
+        return self.estimate_with_embedding(query=query, embedding=z)
+
+    def estimate_with_embedding(self, query: str, embedding: np.ndarray) -> float:
+        """Estimate sigma² from a precomputed embedding."""
+        z = np.asarray(embedding, dtype=np.float64)
         norm = float(np.linalg.norm(z))
         safe_norm = max(norm, self.norm_floor)
         growth = np.log1p(self.alpha / safe_norm)
@@ -282,6 +304,11 @@ class SimilarityToCentroidSigma2:
 
     def __call__(self, query: str) -> float:
         z = self.embed(query)
+        return self.estimate_with_embedding(query=query, embedding=z)
+
+    def estimate_with_embedding(self, query: str, embedding: np.ndarray) -> float:
+        """Estimate sigma² from a precomputed embedding."""
+        z = np.asarray(embedding, dtype=np.float64)
         z = z / (np.linalg.norm(z) + 1e-12)
         sim = float(np.clip(z @ self.centroid, -1.0, 1.0))
         distance = 1.0 - sim
@@ -311,6 +338,93 @@ class StochasticForwardSigma2:
         scalar_var = float(np.mean(np.clip(per_dim_var, 0.0, None)))
         sigma2 = self.base_sigma2 * (1.0 + scalar_var)
         sigma2 = min(sigma2, self.base_sigma2 * self.max_multiplier)
+        return float(max(sigma2, 1e-12))
+
+
+@dataclass(frozen=True)
+class CentroidNormPeerSigma2:
+    """Stronger query-dependent sigma² using multiple lightweight signals.
+
+    Signals:
+    - Centroid distance to this specialist (primary confidence signal).
+    - Embedding norm diagnostic against calibration norm statistics.
+    - Peer disagreement: if query is relatively closer to peer centroids than to
+      this specialist centroid, raise uncertainty.
+
+    The combined score is mapped through a sigmoid for smooth calibration-like
+    behavior and bounded uncertainty scaling.
+    """
+
+    embed: EmbedderFn
+    centroid: np.ndarray
+    base_sigma2: float = 0.2
+    peer_centroids: Optional[List[np.ndarray]] = None
+    norm_reference_mean: float = 1.0
+    norm_reference_std: float = 1.0
+    distance_weight: float = 2.2
+    norm_weight: float = 0.5
+    disagreement_weight: float = 0.8
+    bias: float = -2.0
+    max_multiplier: float = 5.0
+
+    @classmethod
+    def from_calibration(
+        cls,
+        *,
+        embed: EmbedderFn,
+        calibration_texts: Iterable[str],
+        base_sigma2: float = 0.2,
+        peer_centroids: Optional[List[np.ndarray]] = None,
+        max_multiplier: float = 8.0,
+    ) -> "CentroidNormPeerSigma2":
+        embs = [np.asarray(embed(text), dtype=np.float64) for text in calibration_texts]
+        if not embs:
+            raise ValueError("calibration_texts must not be empty")
+        stack = np.stack(embs, axis=0)
+        centroid = np.mean(stack, axis=0)
+        centroid = centroid / (np.linalg.norm(centroid) + 1e-12)
+        norms = np.linalg.norm(stack, axis=1)
+        return cls(
+            embed=embed,
+            centroid=centroid,
+            base_sigma2=base_sigma2,
+            peer_centroids=peer_centroids or [],
+            norm_reference_mean=float(np.mean(norms)),
+            norm_reference_std=float(np.std(norms) + 1e-6),
+            max_multiplier=max_multiplier,
+        )
+
+    def __call__(self, query: str) -> float:
+        z = self.embed(query)
+        return self.estimate_with_embedding(query=query, embedding=z)
+
+    def estimate_with_embedding(self, query: str, embedding: np.ndarray) -> float:
+        """Estimate sigma² from a precomputed embedding."""
+        z = np.asarray(embedding, dtype=np.float64)
+        z_unit = z / (np.linalg.norm(z) + 1e-12)
+        own_sim = float(np.clip(z_unit @ self.centroid, -1.0, 1.0))
+        own_distance = 1.0 - own_sim
+
+        norm = float(np.linalg.norm(z))
+        norm_deficit = max(
+            0.0, (self.norm_reference_mean - norm) / self.norm_reference_std
+        )
+
+        peer_advantage = 0.0
+        if self.peer_centroids:
+            peer_sims = [
+                float(np.clip(z_unit @ c, -1.0, 1.0)) for c in self.peer_centroids
+            ]
+            peer_advantage = max(0.0, max(peer_sims) - own_sim)
+
+        score = (
+            self.bias
+            + self.distance_weight * own_distance
+            + self.norm_weight * norm_deficit
+            + self.disagreement_weight * peer_advantage
+        )
+        calibrated = 1.0 / (1.0 + np.exp(-score))
+        sigma2 = self.base_sigma2 * (1.0 + calibrated * (self.max_multiplier - 1.0))
         return float(max(sigma2, 1e-12))
 
 
@@ -392,6 +506,21 @@ def build_uncertainty_method(
         return StochasticForwardSigma2(embed_stochastic=embed, base_sigma2=base_sigma2)
     if normalized == "stochastic_forward_sigma2":
         return StochasticForwardSigma2(embed_stochastic=embed, base_sigma2=base_sigma2)
+    if normalized in (
+        "centroid_norm_peer",
+        "centroid_norm_peer_sigma2",
+        "improved_sigma2",
+    ):
+        texts = list(calibration_texts or [])
+        if not texts:
+            raise ValueError(
+                "centroid_norm_peer_sigma2 requires non-empty calibration_texts."
+            )
+        return CentroidNormPeerSigma2.from_calibration(
+            embed=embed,
+            calibration_texts=texts,
+            base_sigma2=base_sigma2,
+        )
     raise ValueError(f"Unknown uncertainty method: {method}")
 
 
@@ -432,6 +561,20 @@ def create_uncertainty_method(
             embed_stochastic=embed,
             base_sigma2=config.base_sigma2,
             n_passes=config.stochastic_passes,
+        )
+    if normalized in (
+        "centroid_norm_peer",
+        "centroid_norm_peer_sigma2",
+        "improved_sigma2",
+    ):
+        texts = list(calibration_texts or [])
+        if not texts:
+            raise ValueError("centroid_norm_peer_sigma2 requires calibration_texts.")
+        return CentroidNormPeerSigma2.from_calibration(
+            embed=embed,
+            calibration_texts=texts,
+            base_sigma2=config.base_sigma2,
+            peer_centroids=config.peer_centroids,
         )
     raise ValueError(f"Unknown uncertainty method: {config.method}")
 
