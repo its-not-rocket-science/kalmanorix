@@ -88,17 +88,30 @@ class SEF:
             "Set embedding_dimension explicitly or provide model/domain_centroid."
         )
 
-    def sigma2_for(self, query: str) -> float:
+    def sigma2_for(
+        self, query: str, query_embedding: Optional[np.ndarray] = None
+    ) -> float:
         """Return uncertainty (variance) for a given query.
 
         Args:
             query: Input text.
+            query_embedding: Optional precomputed embedding of ``query`` produced
+                by this same specialist. When provided, sigma² estimators that
+                support embedding-aware evaluation can reuse it to avoid an
+                extra embedder call.
 
         Returns:
             Variance (sigma²) value, guaranteed positive.
         """
         if callable(self.sigma2):
-            val = float(self.sigma2(query))
+            embedding_aware = getattr(self.sigma2, "estimate_with_embedding", None)
+            if query_embedding is not None and callable(embedding_aware):
+                try:
+                    val = float(embedding_aware(query, query_embedding))
+                except (TypeError, ValueError):
+                    val = float(self.sigma2(query))
+            else:
+                val = float(self.sigma2(query))
         else:
             val = float(self.sigma2)
 

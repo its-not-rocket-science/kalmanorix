@@ -210,7 +210,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
             emb = module.embed(query)
             if module.alignment_matrix is not None:
                 emb = module.alignment_matrix @ emb
-            sigma2 = module.sigma2_for(query)
+            sigma2 = module.sigma2_for(query, query_embedding=emb)
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
             embeddings.append(emb)
             covariances.append(cov)
@@ -251,7 +251,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
             if module.alignment_matrix is not None:
                 emb = module.alignment_matrix @ emb
             embeddings.append(np.asarray(emb, dtype=np.float64))
-            sigma2_values.append(float(module.sigma2_for(query)))
+            sigma2_values.append(float(module.sigma2_for(query, query_embedding=emb)))
 
         order = np.arange(len(modules))
         if self.sort_by_certainty and len(modules) > 1:
@@ -318,7 +318,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
                 if module.alignment_matrix is not None:
                     emb = module.alignment_matrix @ emb
                 module_embs.append(emb)
-                sigma2[i, j] = module.sigma2_for(query)
+                sigma2[i, j] = module.sigma2_for(query, query_embedding=emb)
             embeddings.append(np.stack(module_embs, axis=0))
         embeddings_arr = np.stack(embeddings, axis=0).astype(np.float64, copy=False)
 
@@ -415,7 +415,7 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
             # Apply alignment if available
             if module.alignment_matrix is not None:
                 emb = module.alignment_matrix @ emb
-            sigma2 = module.sigma2_for(query)
+            sigma2 = module.sigma2_for(query, query_embedding=emb)
             # Convert scalar variance to diagonal covariance vector
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
             embeddings.append(emb)
@@ -473,7 +473,7 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
                 emb = module.embed(query)
                 if module.alignment_matrix is not None:
                     emb = module.alignment_matrix @ emb
-                sigma2 = module.sigma2_for(query)
+                sigma2 = module.sigma2_for(query, query_embedding=emb)
                 cov = np.full(emb.shape, sigma2, dtype=np.float64)
                 module_embs.append(emb)
                 module_covs.append(cov)
@@ -560,7 +560,7 @@ class StructuredKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
             structured_cov = module.get_structured_covariance(query)
             if structured_cov is None:
                 # Fall back to diagonal covariance from sigma²
-                sigma2 = module.sigma2_for(query)
+                sigma2 = module.sigma2_for(query, query_embedding=emb)
                 diagonal = np.full(emb.shape, sigma2, dtype=np.float64)
                 structured_cov = StructuredCovariance.from_diagonal(diagonal)
 
@@ -634,7 +634,7 @@ class CorrelationAwareKalmanFuser(Fuser):  # pylint: disable=too-few-public-meth
             emb = module.embed(query)
             if module.alignment_matrix is not None:
                 emb = module.alignment_matrix @ emb
-            sigma2 = module.sigma2_for(query)
+            sigma2 = module.sigma2_for(query, query_embedding=emb)
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
             embeddings.append(emb)
             base_covariances.append(cov)
@@ -750,7 +750,7 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
             if m.alignment_matrix is not None:
                 emb = m.alignment_matrix @ emb
             z_by_name[m.name] = emb
-            r_by_name[m.name] = float(m.sigma2_for(query))
+            r_by_name[m.name] = float(m.sigma2_for(query, query_embedding=emb))
 
         order = [m.name for m in modules]
         if self.sort_by_sigma2:

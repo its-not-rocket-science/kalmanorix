@@ -20,6 +20,8 @@ from kalmanorix.panoramix import KalmanorixFuser, Panoramix
 from kalmanorix.scout import ScoutRouter
 from kalmanorix.toy_corpus import build_toy_corpus
 from kalmanorix.uncertainty import (
+    CentroidNormPeerSigma2,
+    SimilarityToCentroidSigma2,
     ScaledSigma2,
     UncertaintyMethodConfig,
     create_uncertainty_method,
@@ -140,16 +142,34 @@ def _build_specialists(docs: Sequence[str], method: str) -> Village:
         if any(k in d.lower() for k in ("braise", "simmer", "oven", "sauce", "stew"))
     ]
 
-    tech_sigma = create_uncertainty_method(
-        config=UncertaintyMethodConfig(method=method),
-        embed=tech_embed,
-        calibration_texts=tech_cal,
-    )
-    cook_sigma = create_uncertainty_method(
-        config=UncertaintyMethodConfig(method=method),
-        embed=cook_embed,
-        calibration_texts=cook_cal,
-    )
+    if method == "centroid_norm_peer_sigma2":
+        tech_centroid = SimilarityToCentroidSigma2.from_calibration(
+            embed=tech_embed, calibration_texts=tech_cal
+        ).centroid
+        cook_centroid = SimilarityToCentroidSigma2.from_calibration(
+            embed=cook_embed, calibration_texts=cook_cal
+        ).centroid
+        tech_sigma = CentroidNormPeerSigma2.from_calibration(
+            embed=tech_embed,
+            calibration_texts=tech_cal,
+            peer_centroids=[cook_centroid],
+        )
+        cook_sigma = CentroidNormPeerSigma2.from_calibration(
+            embed=cook_embed,
+            calibration_texts=cook_cal,
+            peer_centroids=[tech_centroid],
+        )
+    else:
+        tech_sigma = create_uncertainty_method(
+            config=UncertaintyMethodConfig(method=method),
+            embed=tech_embed,
+            calibration_texts=tech_cal,
+        )
+        cook_sigma = create_uncertainty_method(
+            config=UncertaintyMethodConfig(method=method),
+            embed=cook_embed,
+            calibration_texts=cook_cal,
+        )
 
     modules = [
         SEF(
@@ -285,12 +305,12 @@ def summarize_scale_sensitivity(
 def run_uncertainty_ablation(output_dir: Path) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # Focused comparison requested for Kalman-fusion usefulness:
+    # constant baseline vs current default query-dependent method vs improved method.
     methods = [
         "constant_sigma2",
-        "keyword_based_sigma2",
         "centroid_distance_sigma2",
-        "embedding_norm_sigma2",
-        "stochastic_forward_sigma2",
+        "centroid_norm_peer_sigma2",
     ]
     datasets = build_ablation_datasets()
 
@@ -364,7 +384,7 @@ def _render_report(summary: dict[str, Any]) -> str:
         "# Uncertainty Ablation Report",
         "",
         "## Scope",
-        "- Methods evaluated uniformly: constant, keyword-based, centroid-distance, embedding-norm, stochastic-forward.",
+        "- Methods evaluated uniformly: constant, centroid-distance (current default), centroid+norm+peer (improved).",
         "- Datasets include one real toy-mixed split and one clearly-labeled synthetic split.",
         "",
         "## Results Snapshot",
@@ -377,6 +397,34 @@ def _render_report(summary: dict[str, Any]) -> str:
             f"- dataset={row['dataset']} {label}, method={row['method']}: "
             f"recall@1={m['recall_at_1']:.3f}, recall@5={m['recall_at_5']:.3f}, "
             f"mrr@10={m['mrr_at_10']:.3f}, ece={m['ece']:.3f}, brier={m['brier_score']:.3f}"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Focused Delta vs Constant Baseline",
+        ]
+    )
+    by_dataset_and_method = {
+        (row["dataset"], row["method"]): row for row in summary["results"]
+    }
+    for dataset in summary["datasets"]:
+        dataset_name = dataset["name"]
+        base = by_dataset_and_method.get((dataset_name, "constant_sigma2"))
+        default = by_dataset_and_method.get((dataset_name, "centroid_distance_sigma2"))
+        improved = by_dataset_and_method.get(
+            (dataset_name, "centroid_norm_peer_sigma2")
+        )
+        if not base or not default or not improved:
+            continue
+        base_r1 = float(base["metrics"]["recall_at_1"])
+        base_ece = float(base["metrics"]["ece"])
+        lines.append(
+            f"- {dataset_name}: "
+            f"default Δrecall@1={float(default['metrics']['recall_at_1']) - base_r1:+.3f}, "
+            f"default ΔECE={float(default['metrics']['ece']) - base_ece:+.3f}; "
+            f"improved Δrecall@1={float(improved['metrics']['recall_at_1']) - base_r1:+.3f}, "
+            f"improved ΔECE={float(improved['metrics']['ece']) - base_ece:+.3f}"
         )
 
     lines.extend(
