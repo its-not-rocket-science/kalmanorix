@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from kalmanorix import KalmanorixFuser, SEF
+from kalmanorix import KalmanorixFuser, MeanFuser, Panoramix, ScoutRouter, SEF, Village
 
 
 def _make_modules(n: int = 4, d: int = 64) -> list[SEF]:
@@ -71,3 +71,78 @@ def test_optimized_kalman_matches_legacy_batch() -> None:
         )
         for key in wl:
             assert np.isclose(wf[key], wl[key], rtol=1e-12, atol=1e-12)
+
+
+def test_shared_embedding_path_preserves_mean_and_kalman_outputs() -> None:
+    modules = _make_modules(n=4, d=64)
+    village = Village(modules=modules)
+    scout = ScoutRouter(mode="all")
+    query = "shared embedding path should preserve numerical outputs"
+
+    old_mean = Panoramix(fuser=MeanFuser(), use_shared_embedding_path=False)
+    new_mean = Panoramix(fuser=MeanFuser(), use_shared_embedding_path=True)
+    old_kalman = Panoramix(
+        fuser=KalmanorixFuser(use_fast_scalar_path=True),
+        use_shared_embedding_path=False,
+    )
+    new_kalman = Panoramix(
+        fuser=KalmanorixFuser(use_fast_scalar_path=True),
+        use_shared_embedding_path=True,
+    )
+
+    old_mean_p = old_mean.brew(query, village=village, scout=scout)
+    new_mean_p = new_mean.brew(query, village=village, scout=scout)
+    old_kalman_p = old_kalman.brew(query, village=village, scout=scout)
+    new_kalman_p = new_kalman.brew(query, village=village, scout=scout)
+
+    assert np.allclose(new_mean_p.vector, old_mean_p.vector, rtol=1e-12, atol=1e-12)
+    assert np.allclose(new_kalman_p.vector, old_kalman_p.vector, rtol=1e-12, atol=1e-12)
+    assert np.allclose(
+        np.asarray(new_kalman_p.meta["fused_covariance"], dtype=np.float64),
+        np.asarray(old_kalman_p.meta["fused_covariance"], dtype=np.float64),
+        rtol=1e-12,
+        atol=1e-12,
+    )
+
+
+def test_kalman_fuser_reuses_precomputed_embeddings_without_reembedding() -> None:
+    class CountingEmbed:
+        def __init__(self, seed: int):
+            self.rng = np.random.default_rng(seed)
+            self.calls = 0
+            self.direction = self.rng.normal(size=(32,))
+
+        def __call__(self, query: str) -> np.ndarray:
+            self.calls += 1
+            scale = max(len(query.split()), 1)
+            vec = self.direction * (scale / 10.0)
+            return vec.astype(np.float64)
+
+    class EmbeddingAwareSigma2:
+        def __call__(self, query: str) -> float:
+            raise AssertionError("estimate_with_embedding should be used")
+
+        def estimate_with_embedding(self, query: str, embedding: np.ndarray) -> float:
+            return float(0.1 + np.linalg.norm(embedding) * 0.01 + len(query) * 1e-5)
+
+    embeds = [CountingEmbed(1), CountingEmbed(2), CountingEmbed(3)]
+    modules = [
+        SEF(name=f"m{i}", embed=embeds[i], sigma2=EmbeddingAwareSigma2())
+        for i in range(3)
+    ]
+    query = "uncertainty heavy query for duplicate embed regression"
+    fuser = KalmanorixFuser(use_fast_scalar_path=True)
+
+    _ = fuser.fuse(query, modules)
+    baseline_calls = [e.calls for e in embeds]
+
+    precomputed = [m.embed(query) for m in modules]
+
+    for e in embeds:
+        e.calls = 0
+
+    _ = fuser.fuse(query, modules, precomputed_embeddings=precomputed)
+    reused_calls = [e.calls for e in embeds]
+
+    assert baseline_calls == [1, 1, 1]
+    assert reused_calls == [0, 0, 0]
