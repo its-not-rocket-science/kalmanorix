@@ -40,6 +40,32 @@ from .kalman_engine.correlation import (
 logger = logging.getLogger(__name__)
 
 
+def _aligned_embedding(module: SEF, query: str) -> np.ndarray:
+    """Compute one specialist embedding in shared aligned space."""
+    emb = np.asarray(module.embed(query), dtype=np.float64)
+    if module.alignment_matrix is not None:
+        emb = np.asarray(module.alignment_matrix @ emb, dtype=np.float64)
+    return emb
+
+
+def _aligned_embeddings_for_query(modules: List[SEF], query: str) -> List[np.ndarray]:
+    """Compute aligned embeddings once for all modules for a single query."""
+    return [_aligned_embedding(module, query) for module in modules]
+
+
+def _aligned_embeddings_for_batch(modules: List[SEF], queries: List[str]) -> np.ndarray:
+    """Compute aligned embeddings once for all modules and queries.
+
+    Returns:
+        Array with shape (n_modules, n_queries, d).
+    """
+    embeddings = []
+    for module in modules:
+        module_embs = [_aligned_embedding(module, query) for query in queries]
+        embeddings.append(np.stack(module_embs, axis=0))
+    return np.stack(embeddings, axis=0).astype(np.float64, copy=False)
+
+
 @dataclass(frozen=True)
 class Potion:  # pylint: disable=too-few-public-methods
     """Result of a fusion operation.
@@ -68,12 +94,17 @@ class Fuser(ABC):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         """Fuse embeddings from the given modules.
 
         Args:
             query: Input text query.
             modules: List of selected specialist modules.
+            precomputed_embeddings: Optional aligned embeddings (same order as
+                ``modules``). If provided, fusers should reuse these vectors
+                rather than re-embedding the query.
 
         Returns:
             vector: Fused embedding.
@@ -86,6 +117,8 @@ class Fuser(ABC):  # pylint: disable=too-few-public-methods
         self,
         queries: List[str],
         modules: List[SEF],
+        *,
+        precomputed_batch_embeddings: Optional[np.ndarray] = None,
     ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
         """Fuse embeddings for a batch of queries.
 
@@ -95,6 +128,8 @@ class Fuser(ABC):  # pylint: disable=too-few-public-methods
         Args:
             queries: List of input text queries.
             modules: List of selected specialist modules.
+            precomputed_batch_embeddings: Optional aligned batch embeddings with
+                shape ``(n_modules, n_queries, d)``.
 
         Returns:
             vectors: List of fused embeddings.
@@ -104,8 +139,18 @@ class Fuser(ABC):  # pylint: disable=too-few-public-methods
         vectors = []
         weights_list = []
         meta_list = []
-        for query in queries:
-            vec, w, m = self.fuse(query, modules)
+        for i, query in enumerate(queries):
+            precomputed = (
+                [
+                    np.asarray(
+                        precomputed_batch_embeddings[module_idx, i], dtype=np.float64
+                    )
+                    for module_idx in range(precomputed_batch_embeddings.shape[0])
+                ]
+                if precomputed_batch_embeddings is not None
+                else None
+            )
+            vec, w, m = self.fuse(query, modules, precomputed_embeddings=precomputed)
             vectors.append(vec)
             weights_list.append(w)
             meta_list.append(m if m is not None else {})
@@ -126,13 +171,14 @@ class MeanFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
-        embeddings = []
-        for m in modules:
-            emb = m.embed(query)
-            if m.alignment_matrix is not None:
-                emb = m.alignment_matrix @ emb
-            embeddings.append(emb)
+        embeddings = (
+            precomputed_embeddings
+            if precomputed_embeddings is not None
+            else _aligned_embeddings_for_query(modules, query)
+        )
         z = np.stack(embeddings, axis=0)
         w = {m.name: 1.0 / len(modules) for m in modules}
         return z.mean(axis=0), w, None
@@ -141,6 +187,8 @@ class MeanFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         queries: List[str],
         modules: List[SEF],
+        *,
+        precomputed_batch_embeddings: Optional[np.ndarray] = None,
     ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
         """Batch fusion for MeanFuser."""
         n = len(modules)
@@ -150,19 +198,11 @@ class MeanFuser(Fuser):  # pylint: disable=too-few-public-methods
         if b == 0:
             return [], [], None
         # Collect embeddings: shape (n, b, d)
-        embeddings = []
-        for module in modules:
-            module_embs = []
-            for query in queries:
-                emb = module.embed(query)
-                if module.alignment_matrix is not None:
-                    emb = module.alignment_matrix @ emb
-                module_embs.append(emb)
-            # Stack across queries: (b, d)
-            module_emb_array = np.stack(module_embs, axis=0)
-            embeddings.append(module_emb_array)
-        # Stack across modules: (n, b, d)
-        embeddings_stack = np.stack(embeddings, axis=0)
+        embeddings_stack = (
+            precomputed_batch_embeddings
+            if precomputed_batch_embeddings is not None
+            else _aligned_embeddings_for_batch(modules, queries)
+        )
         # Mean across modules: (b, d)
         fused = np.mean(embeddings_stack, axis=0)
         # Uniform weights per query
@@ -202,14 +242,18 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         """Reference implementation retained for regression benchmarking."""
         embeddings = []
         covariances = []
-        for module in modules:
-            emb = module.embed(query)
-            if module.alignment_matrix is not None:
-                emb = module.alignment_matrix @ emb
+        aligned = (
+            precomputed_embeddings
+            if precomputed_embeddings is not None
+            else _aligned_embeddings_for_query(modules, query)
+        )
+        for module, emb in zip(modules, aligned):
             sigma2 = module.sigma2_for(query, query_embedding=emb)
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
             embeddings.append(emb)
@@ -242,14 +286,18 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         """Optimized implementation equivalent to sigma²*I covariance fusion."""
         embeddings = []
         sigma2_values = []
-        for module in modules:
-            emb = module.embed(query)
-            if module.alignment_matrix is not None:
-                emb = module.alignment_matrix @ emb
+        aligned = (
+            precomputed_embeddings
+            if precomputed_embeddings is not None
+            else _aligned_embeddings_for_query(modules, query)
+        )
+        for module, emb in zip(modules, aligned):
             embeddings.append(np.asarray(emb, dtype=np.float64))
             sigma2_values.append(float(module.sigma2_for(query, query_embedding=emb)))
 
@@ -287,18 +335,30 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         if not modules:
             raise ValueError("KalmanorixFuser requires at least one module")
 
         if self.use_fast_scalar_path:
-            return self._fuse_scalar_sigma2(query=query, modules=modules)
-        return self._fuse_legacy(query=query, modules=modules)
+            return self._fuse_scalar_sigma2(
+                query=query,
+                modules=modules,
+                precomputed_embeddings=precomputed_embeddings,
+            )
+        return self._fuse_legacy(
+            query=query,
+            modules=modules,
+            precomputed_embeddings=precomputed_embeddings,
+        )
 
     def fuse_batch(
         self,
         queries: List[str],
         modules: List[SEF],
+        *,
+        precomputed_batch_embeddings: Optional[np.ndarray] = None,
     ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
         """Batch fusion for KalmanorixFuser."""
         n = len(modules)
@@ -311,12 +371,15 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         # Build arrays: embeddings (n, b, d), sigma² values (n, b)
         embeddings = []
         sigma2 = np.empty((n, b), dtype=np.float64)
+        embeddings_arr = (
+            precomputed_batch_embeddings
+            if precomputed_batch_embeddings is not None
+            else _aligned_embeddings_for_batch(modules, queries)
+        )
         for i, module in enumerate(modules):
             module_embs = []
             for j, query in enumerate(queries):
-                emb = module.embed(query)
-                if module.alignment_matrix is not None:
-                    emb = module.alignment_matrix @ emb
+                emb = embeddings_arr[i, j]
                 module_embs.append(emb)
                 sigma2[i, j] = module.sigma2_for(query, query_embedding=emb)
             embeddings.append(np.stack(module_embs, axis=0))
@@ -402,6 +465,8 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         if not modules:
             raise ValueError("EnsembleKalmanFuser requires at least one module")
@@ -410,11 +475,12 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         embeddings = []
         covariances = []
 
-        for module in modules:
-            emb = module.embed(query)
-            # Apply alignment if available
-            if module.alignment_matrix is not None:
-                emb = module.alignment_matrix @ emb
+        aligned = (
+            precomputed_embeddings
+            if precomputed_embeddings is not None
+            else _aligned_embeddings_for_query(modules, query)
+        )
+        for module, emb in zip(modules, aligned):
             sigma2 = module.sigma2_for(query, query_embedding=emb)
             # Convert scalar variance to diagonal covariance vector
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
@@ -454,6 +520,8 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         queries: List[str],
         modules: List[SEF],
+        *,
+        precomputed_batch_embeddings: Optional[np.ndarray] = None,
     ) -> Tuple[List[Vec], List[Dict[str, float]], Optional[List[Dict[str, object]]]]:
         """Batch fusion for EnsembleKalmanFuser."""
         n = len(modules)
@@ -466,13 +534,16 @@ class EnsembleKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         # Build arrays: embeddings (n, b, d), covariances (n, b, d)
         embeddings_list = []
         covariances_list = []
-        for module in modules:
+        embeddings_arr = (
+            precomputed_batch_embeddings
+            if precomputed_batch_embeddings is not None
+            else _aligned_embeddings_for_batch(modules, queries)
+        )
+        for i, module in enumerate(modules):
             module_embs = []
             module_covs = []
-            for query in queries:
-                emb = module.embed(query)
-                if module.alignment_matrix is not None:
-                    emb = module.alignment_matrix @ emb
+            for j, query in enumerate(queries):
+                emb = embeddings_arr[i, j]
                 sigma2 = module.sigma2_for(query, query_embedding=emb)
                 cov = np.full(emb.shape, sigma2, dtype=np.float64)
                 module_embs.append(emb)
@@ -543,6 +614,8 @@ class StructuredKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         if not modules:
             raise ValueError("StructuredKalmanFuser requires at least one module")
@@ -550,12 +623,12 @@ class StructuredKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         embeddings = []
         structured_covs = []
 
-        for module in modules:
-            emb = module.embed(query)
-            # Apply alignment if available
-            if module.alignment_matrix is not None:
-                emb = module.alignment_matrix @ emb
-
+        aligned = (
+            precomputed_embeddings
+            if precomputed_embeddings is not None
+            else _aligned_embeddings_for_query(modules, query)
+        )
+        for module, emb in zip(modules, aligned):
             # Try to get structured covariance
             structured_cov = module.get_structured_covariance(query)
             if structured_cov is None:
@@ -623,6 +696,8 @@ class CorrelationAwareKalmanFuser(Fuser):  # pylint: disable=too-few-public-meth
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         if not modules:
             raise ValueError("CorrelationAwareKalmanFuser requires at least one module")
@@ -630,10 +705,12 @@ class CorrelationAwareKalmanFuser(Fuser):  # pylint: disable=too-few-public-meth
         embeddings = []
         base_covariances = []
         module_names = []
-        for module in modules:
-            emb = module.embed(query)
-            if module.alignment_matrix is not None:
-                emb = module.alignment_matrix @ emb
+        aligned = (
+            precomputed_embeddings
+            if precomputed_embeddings is not None
+            else _aligned_embeddings_for_query(modules, query)
+        )
+        for module, emb in zip(modules, aligned):
             sigma2 = module.sigma2_for(query, query_embedding=emb)
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
             embeddings.append(emb)
@@ -730,6 +807,8 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         """Fuse embeddings using diagonal Kalman filter with scalar prior variance.
 
@@ -745,10 +824,12 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
 
         z_by_name: Dict[str, Vec] = {}
         r_by_name: Dict[str, float] = {}
-        for m in modules:
-            emb = m.embed(query)
-            if m.alignment_matrix is not None:
-                emb = m.alignment_matrix @ emb
+        aligned = (
+            precomputed_embeddings
+            if precomputed_embeddings is not None
+            else _aligned_embeddings_for_query(modules, query)
+        )
+        for m, emb in zip(modules, aligned):
             z_by_name[m.name] = emb
             r_by_name[m.name] = float(m.sigma2_for(query, query_embedding=emb))
 
@@ -892,6 +973,8 @@ class LearnedGateFuser(Fuser):
         self,
         query: str,
         modules: List[SEF],
+        *,
+        precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         """Fuse two modules using learned gating weight α(query).
 
@@ -915,8 +998,15 @@ class LearnedGateFuser(Fuser):
         a = by_name[self.module_a]
         b = by_name[self.module_b]
 
-        z_a = a.embed(query)
-        z_b = b.embed(query)
+        if precomputed_embeddings is not None:
+            by_name_emb = {
+                m.name: emb for m, emb in zip(modules, precomputed_embeddings)
+            }
+            z_a = by_name_emb[a.name]
+            z_b = by_name_emb[b.name]
+        else:
+            z_a = _aligned_embedding(a, query)
+            z_b = _aligned_embedding(b, query)
 
         alpha = self.predict_alpha(query)
         x = (alpha * z_a) + ((1.0 - alpha) * z_b)
@@ -942,6 +1032,7 @@ class Panoramix:  # pylint: disable=too-few-public-methods
     """
 
     fuser: Fuser
+    use_shared_embedding_path: bool = True
     enable_nonlinear_alignment_fallback: bool = False
     procrustes_failure_similarity_threshold: float = 0.5
 
@@ -971,7 +1062,16 @@ class Panoramix:  # pylint: disable=too-few-public-methods
             Potion: The fused embedding and diagnostics.
         """
         chosen = scout.select(query, village)
-        vec, weights, fuser_meta = self.fuser.fuse(query, chosen)
+        precomputed_embeddings = (
+            _aligned_embeddings_for_query(chosen, query)
+            if self.use_shared_embedding_path
+            else None
+        )
+        vec, weights, fuser_meta = self.fuser.fuse(
+            query,
+            chosen,
+            precomputed_embeddings=precomputed_embeddings,
+        )
         meta: Dict[str, object] = {"selected_modules": [m.name for m in chosen]}
         if fuser_meta is not None:
             meta.update(fuser_meta)
@@ -1004,8 +1104,15 @@ class Panoramix:  # pylint: disable=too-few-public-methods
         )
         if all_same:
             # Use batch fusion for efficiency
+            precomputed_batch_embeddings = (
+                _aligned_embeddings_for_batch(first_chosen, queries)
+                if self.use_shared_embedding_path
+                else None
+            )
             vectors, weights_list, meta_list = self.fuser.fuse_batch(
-                queries, first_chosen
+                queries,
+                first_chosen,
+                precomputed_batch_embeddings=precomputed_batch_embeddings,
             )
             potions = []
             for i, query in enumerate(queries):
