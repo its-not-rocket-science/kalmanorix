@@ -24,7 +24,17 @@ CANONICAL_METHOD_ALIASES = {
     "KalmanorixFuser": "kalman",
     "hard routing baseline": "router_only_top1",
     "all-routing + mean baseline": "uniform_mean_fusion",
+    "tuned weighted mean baseline": "tuned_weighted_mean_fusion",
+    "learned linear combiner": "learned_linear_combiner",
     "LearnedGateFuser": "learned_gate_fuser",
+}
+CANONICAL_METHOD_KEY_ALIASES = {
+    "fixed_weighted_mean_fusion": "tuned_weighted_mean_fusion",
+}
+CLAIM_READY_REQUIRED_BASELINES = {
+    "uniform_mean_fusion",
+    "tuned_weighted_mean_fusion",
+    "learned_linear_combiner",
 }
 
 CANONICAL_DECISION_RULES = {
@@ -55,6 +65,19 @@ CONFIRMATORY_SLICE_CHOICES = (
     "nontrivial_routing_case",
     "intersection_of_above",
 )
+
+
+def _canonical_method_key(method_key: str) -> str:
+    return CANONICAL_METHOD_KEY_ALIASES.get(method_key, method_key)
+
+
+def _merge_methods_with_canonical_keys(methods: dict[str, Any]) -> dict[str, Any]:
+    merged: dict[str, Any] = {}
+    for method_key, payload in methods.items():
+        merged[method_key] = payload
+        canonical_key = _canonical_method_key(method_key)
+        merged[canonical_key] = payload
+    return merged
 
 
 def _quantile(values: list[float], q: float) -> float:
@@ -361,9 +384,12 @@ def _build_confirmatory_slice_results(
     }
 
 
-def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
+def _classify_kalman_vs_baseline(
+    summary: dict[str, Any], *, baseline_key: str
+) -> dict[str, Any]:
     rules = CANONICAL_DECISION_RULES
-    stats = summary["paired_statistics"]["kalman_vs_mean"]["overall"]
+    comparison_key = f"kalman_vs_{baseline_key}"
+    stats = summary["paired_statistics"][comparison_key]["overall"]
     methods = summary["methods"]
     primary_metric = rules["primary_metric"]
     primary_stats = stats[primary_metric]
@@ -372,11 +398,11 @@ def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
     adjusted_p_value = float(primary_stats["adjusted_p_value"])
     latency_ratio = float(
         methods["kalman"]["metrics"]["latency_ms"]["mean"]
-        / methods["mean"]["metrics"]["latency_ms"]["mean"]
+        / methods[baseline_key]["metrics"]["latency_ms"]["mean"]
     )
     flops_ratio = float(
         methods["kalman"]["metrics"]["flops_proxy"]["mean"]
-        / methods["mean"]["metrics"]["flops_proxy"]["mean"]
+        / methods[baseline_key]["metrics"]["flops_proxy"]["mean"]
     )
 
     checks = {
@@ -387,7 +413,7 @@ def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
         "flops_ratio_ok": flops_ratio <= float(rules["max_flops_ratio_vs_mean"]),
     }
 
-    power_diag = summary["power_diagnostics"]["kalman_vs_mean"]
+    power_diag = summary["power_diagnostics"][comparison_key]
     sufficiently_powered = bool(power_diag["is_sufficiently_powered_for_target_effect"])
 
     if all(checks.values()):
@@ -407,8 +433,8 @@ def _classify_kalman_vs_mean(summary: dict[str, Any]) -> dict[str, Any]:
         "observed": {
             "primary_metric_delta": effect_delta,
             "primary_metric_adjusted_p_value": adjusted_p_value,
-            "latency_ratio_vs_mean": latency_ratio,
-            "flops_ratio_vs_mean": flops_ratio,
+            f"latency_ratio_vs_{baseline_key}": latency_ratio,
+            f"flops_ratio_vs_{baseline_key}": flops_ratio,
         },
         "checks": checks,
     }
@@ -611,9 +637,44 @@ def _render_report(summary: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "## Kalman vs simple and learned weighting baselines",
+            "",
+            "| Comparison | Δ nDCG@10 (Kalman-baseline) | 95% CI | Holm-adjusted p | Decision |",
+            "|---|---:|---|---:|---|",
+        ]
+    )
+    for comparison_key, decision_key in [
+        ("kalman_vs_mean", "kalman_vs_mean"),
+        ("kalman_vs_tuned_weighted_mean_fusion", "kalman_vs_weighted_mean"),
+        (
+            "kalman_vs_learned_linear_combiner",
+            "kalman_vs_learned_linear_combiner",
+        ),
+    ]:
+        if comparison_key not in summary["paired_statistics"]:
+            continue
+        entry = summary["paired_statistics"][comparison_key]["overall"]["ndcg@10"]
+        lines.append(
+            "| {label} | {delta:.6f} | [{low:.6f}, {high:.6f}] | {padj:.6f} | {decision} |".format(
+                label=comparison_key,
+                delta=entry["mean_difference"],
+                low=entry["ci95_low"],
+                high=entry["ci95_high"],
+                padj=entry["adjusted_p_value"],
+                decision=summary["decision"]
+                .get(decision_key, {})
+                .get("verdict", "not_evaluated"),
+            )
+        )
+
+    lines.extend(
+        [
+            "",
             "## Verdict",
             "",
             f"- **kalman_vs_mean:** `{verdict}`",
+            f"- **kalman_vs_weighted_mean:** `{summary['decision']['kalman_vs_weighted_mean']['verdict']}`",
+            f"- **kalman_vs_learned_linear_combiner:** `{summary['decision']['kalman_vs_learned_linear_combiner']['verdict']}`",
             "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
         ]
     )
@@ -803,9 +864,9 @@ def run_canonical_benchmark(
     flops_proxy = query_level["specialist_count_selected"]
     query_metadata = query_level.get("query_metadata", {})
 
-    methods: dict[str, Any] = {}
+    raw_methods: dict[str, Any] = {}
     for method_key in sorted(rankings):
-        methods[method_key] = aggregate_strategy_metrics(
+        raw_methods[method_key] = aggregate_strategy_metrics(
             rankings=rankings[method_key],
             ground_truth=ground_truth,
             latency_ms=latencies[method_key],
@@ -813,20 +874,31 @@ def run_canonical_benchmark(
             seed=seed,
             num_resamples=num_resamples,
         )
+    methods = _merge_methods_with_canonical_keys(raw_methods)
 
     required_methods = {
         "mean",
         "kalman",
-        "router_only_top1",
-        "router_only_topk_mean",
         "uniform_mean_fusion",
+        *CLAIM_READY_REQUIRED_BASELINES,
     }
+    structurally_applicable_gate = len(DEFAULT_REAL_SPECIALISTS) == 2
+    if structurally_applicable_gate:
+        required_methods.add("learned_gate_fuser")
+    operational_required_methods = {"router_only_top1", "router_only_topk_mean"}
     missing_required = sorted(required_methods.difference(methods))
     if missing_required:
         raise ValueError(
-            "Canonical benchmark requires MeanFuser, KalmanorixFuser, hard-routing, "
-            "top-k-mean routing baseline, and all-routing+mean baselines. "
+            "Canonical benchmark requires MeanFuser, KalmanorixFuser, uniform mean "
+            "fusion, tuned weighted mean fusion, learned linear combiner, and "
+            "LearnedGateFuser when structurally applicable. "
             f"Missing strategies: {missing_required}"
+        )
+    missing_operational = sorted(operational_required_methods.difference(methods))
+    if missing_operational:
+        raise ValueError(
+            "Canonical benchmark requires hard-routing and top-k-mean routing "
+            f"baselines for subgroup diagnostics. Missing strategies: {missing_operational}"
         )
 
     ordered_qids = sorted(rankings["kalman"])
@@ -836,76 +908,91 @@ def run_canonical_benchmark(
         per_domain_test_counts[domain] = per_domain_test_counts.get(domain, 0) + 1
 
     kalman_metrics = methods["kalman"]["query_level"]
-    mean_metrics = methods["mean"]["query_level"]
     kalman_domain = {
         metric: _by_domain(ordered_qids, values, domains)
         for metric, values in kalman_metrics.items()
     }
-    mean_domain = {
-        metric: _by_domain(ordered_qids, values, domains)
-        for metric, values in mean_metrics.items()
-    }
+    primary_metric = CANONICAL_DECISION_RULES["primary_metric"]
+    paired_statistics: dict[str, Any] = {}
+    power_diagnostics: dict[str, Any] = {}
 
-    paired = generate_statistical_report(
-        reference_method="kalman",
-        candidate_method="mean",
-        reference_metrics=kalman_metrics,
-        candidate_metrics=mean_metrics,
-        reference_metrics_by_domain=kalman_domain,
-        candidate_metrics_by_domain=mean_domain,
-        seed=seed,
-        num_resamples=num_resamples,
-        config={
-            "benchmark": str(benchmark_path),
-            "evaluated_split": split,
-        },
-    )
-
-    paired_summary = {
-        "overall": {
-            metric: {
-                "mean_difference": entry.mean_difference,
-                "ci95_low": entry.confidence_interval.lower,
-                "ci95_high": entry.confidence_interval.upper,
-                "p_value": entry.p_value,
-                "adjusted_p_value": entry.adjusted_p_value,
-                "cohen_dz": entry.effect_size.cohen_dz,
-                "rank_biserial": entry.effect_size.rank_biserial,
-                "n_pairs": entry.n_pairs,
+    for baseline_key, include_domains in [
+        ("mean", True),
+        ("tuned_weighted_mean_fusion", False),
+        ("learned_linear_combiner", False),
+    ]:
+        baseline_metrics = methods[baseline_key]["query_level"]
+        baseline_domain = (
+            {
+                metric: _by_domain(ordered_qids, values, domains)
+                for metric, values in baseline_metrics.items()
             }
-            for metric, entry in paired.comparisons.items()
-        },
-        "domains": {
-            domain: {
+            if include_domains
+            else None
+        )
+        paired = generate_statistical_report(
+            reference_method="kalman",
+            candidate_method=baseline_key,
+            reference_metrics=kalman_metrics,
+            candidate_metrics=baseline_metrics,
+            reference_metrics_by_domain=kalman_domain if include_domains else None,
+            candidate_metrics_by_domain=baseline_domain,
+            seed=seed,
+            num_resamples=num_resamples,
+            config={
+                "benchmark": str(benchmark_path),
+                "evaluated_split": split,
+                "baseline": baseline_key,
+            },
+        )
+        comparison_key = f"kalman_vs_{baseline_key}"
+        paired_statistics[comparison_key] = {
+            "overall": {
                 metric: {
                     "mean_difference": entry.mean_difference,
                     "ci95_low": entry.confidence_interval.lower,
                     "ci95_high": entry.confidence_interval.upper,
                     "p_value": entry.p_value,
                     "adjusted_p_value": entry.adjusted_p_value,
+                    "cohen_dz": entry.effect_size.cohen_dz,
+                    "rank_biserial": entry.effect_size.rank_biserial,
                     "n_pairs": entry.n_pairs,
                 }
-                for metric, entry in domain_report.metrics.items()
-            }
-            for domain, domain_report in paired.domains.items()
-            if domain != "overall"
-        },
-        "configuration_hash": paired.configuration_hash,
-    }
-    primary_metric = CANONICAL_DECISION_RULES["primary_metric"]
-    primary_stats = paired_summary["overall"][primary_metric]
-    primary_deltas = np.asarray(
-        kalman_metrics[primary_metric], dtype=float
-    ) - np.asarray(mean_metrics[primary_metric], dtype=float)
-    n_test = int(len(primary_deltas))
-    std_delta = float(np.std(primary_deltas, ddof=1)) if n_test > 1 else 0.0
-    detectable_threshold = (
-        float((1.96 + 0.84) * (std_delta / np.sqrt(n_test)))
-        if n_test > 1
-        else float("inf")
-    )
-    power_diagnostics = {
-        "kalman_vs_mean": {
+                for metric, entry in paired.comparisons.items()
+            },
+            "domains": (
+                {
+                    domain: {
+                        metric: {
+                            "mean_difference": entry.mean_difference,
+                            "ci95_low": entry.confidence_interval.lower,
+                            "ci95_high": entry.confidence_interval.upper,
+                            "p_value": entry.p_value,
+                            "adjusted_p_value": entry.adjusted_p_value,
+                            "n_pairs": entry.n_pairs,
+                        }
+                        for metric, entry in domain_report.metrics.items()
+                    }
+                    for domain, domain_report in paired.domains.items()
+                    if domain != "overall"
+                }
+                if include_domains
+                else {}
+            ),
+            "configuration_hash": paired.configuration_hash,
+        }
+        primary_stats = paired_statistics[comparison_key]["overall"][primary_metric]
+        primary_deltas = np.asarray(
+            kalman_metrics[primary_metric], dtype=float
+        ) - np.asarray(baseline_metrics[primary_metric], dtype=float)
+        n_test = int(len(primary_deltas))
+        std_delta = float(np.std(primary_deltas, ddof=1)) if n_test > 1 else 0.0
+        detectable_threshold = (
+            float((1.96 + 0.84) * (std_delta / np.sqrt(n_test)))
+            if n_test > 1
+            else float("inf")
+        )
+        power_diagnostics[comparison_key] = {
             "num_test_queries": n_test,
             "per_domain_test_counts": dict(sorted(per_domain_test_counts.items())),
             "observed_effect_size": float(primary_stats["mean_difference"]),
@@ -920,7 +1007,7 @@ def run_canonical_benchmark(
                 <= float(CANONICAL_DECISION_RULES["minimum_effect_size"])
             ),
         }
-    }
+    n_test = int(len(kalman_metrics[primary_metric]))
 
     min_domain_count = (
         min(per_domain_test_counts.values()) if per_domain_test_counts else 0
@@ -1030,13 +1117,21 @@ def run_canonical_benchmark(
             for name, key in CANONICAL_METHOD_ALIASES.items()
         },
         "methods": methods,
-        "paired_statistics": {"kalman_vs_mean": paired_summary},
+        "paired_statistics": paired_statistics,
         "power_diagnostics": power_diagnostics,
         "sample_size_adequacy": sample_size_adequacy,
         "bucket_analysis": bucket_analysis,
         "confirmatory_slice_results": confirmatory_slice_results,
     }
-    summary["decision"] = {"kalman_vs_mean": _classify_kalman_vs_mean(summary)}
+    summary["decision"] = {
+        "kalman_vs_mean": _classify_kalman_vs_baseline(summary, baseline_key="mean"),
+        "kalman_vs_weighted_mean": _classify_kalman_vs_baseline(
+            summary, baseline_key="tuned_weighted_mean_fusion"
+        ),
+        "kalman_vs_learned_linear_combiner": _classify_kalman_vs_baseline(
+            summary, baseline_key="learned_linear_combiner"
+        ),
+    }
 
     (output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
