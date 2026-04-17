@@ -39,6 +39,16 @@ def _fake_details() -> dict[str, object]:
                     "q2": ["d2", "d3"],
                     "q3": ["d3", "d1"],
                 },
+                "fixed_weighted_mean_fusion": {
+                    "q1": ["d1", "d4"],
+                    "q2": ["d2", "d3"],
+                    "q3": ["d3", "d1"],
+                },
+                "learned_linear_combiner": {
+                    "q1": ["d1", "d4"],
+                    "q2": ["d2", "d3"],
+                    "q3": ["d3", "d1"],
+                },
             },
             "latency_ms": {
                 "mean": {"q1": 1.0, "q2": 1.2, "q3": 1.1},
@@ -46,6 +56,8 @@ def _fake_details() -> dict[str, object]:
                 "router_only_top1": {"q1": 0.8, "q2": 0.9, "q3": 0.85},
                 "router_only_topk_mean": {"q1": 0.9, "q2": 1.0, "q3": 0.95},
                 "uniform_mean_fusion": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
+                "fixed_weighted_mean_fusion": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
+                "learned_linear_combiner": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
             },
             "confidence_proxy": {
                 "router_only_top1": {"q1": 0.65, "q2": 0.55, "q3": 0.75}
@@ -56,6 +68,8 @@ def _fake_details() -> dict[str, object]:
                 "router_only_top1": {"q1": 1.0, "q2": 1.0, "q3": 1.0},
                 "router_only_topk_mean": {"q1": 2.0, "q2": 2.0, "q3": 2.0},
                 "uniform_mean_fusion": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
+                "fixed_weighted_mean_fusion": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
+                "learned_linear_combiner": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
             },
             "query_metadata": {
                 "q1": {
@@ -124,10 +138,34 @@ def test_canonical_benchmark_writes_artifacts(
         "router_only_top1",
         "router_only_topk_mean",
         "uniform_mean_fusion",
+        "tuned_weighted_mean_fusion",
+        "learned_linear_combiner",
     }
     assert "ndcg@10" in on_disk["paired_statistics"]["kalman_vs_mean"]["overall"]
+    assert (
+        "ndcg@10"
+        in on_disk["paired_statistics"]["kalman_vs_tuned_weighted_mean_fusion"][
+            "overall"
+        ]
+    )
+    assert (
+        "ndcg@10"
+        in on_disk["paired_statistics"]["kalman_vs_learned_linear_combiner"]["overall"]
+    )
     assert "bucket_analysis" in on_disk
     assert on_disk["decision"]["kalman_vs_mean"]["verdict"] in {
+        "supported",
+        "unsupported",
+        "inconclusive_underpowered",
+        "inconclusive_sufficiently_powered",
+    }
+    assert on_disk["decision"]["kalman_vs_weighted_mean"]["verdict"] in {
+        "supported",
+        "unsupported",
+        "inconclusive_underpowered",
+        "inconclusive_sufficiently_powered",
+    }
+    assert on_disk["decision"]["kalman_vs_learned_linear_combiner"]["verdict"] in {
         "supported",
         "unsupported",
         "inconclusive_underpowered",
@@ -158,6 +196,40 @@ def test_canonical_benchmark_requires_core_baselines(
     monkeypatch.setattr(canonical, "run_experiment", lambda cfg: payload)
 
     with pytest.raises(ValueError, match="Missing strategies"):
+        canonical.run_canonical_benchmark(
+            benchmark_path=tmp_path / "dummy.parquet",
+            output_dir=tmp_path / "results",
+            split="test",
+            max_queries=3,
+            device="cpu",
+            seed=7,
+            num_resamples=100,
+        )
+
+
+def test_canonical_benchmark_requires_claim_ready_weighting_baselines(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    payload = _fake_details()
+    del payload["query_level"]["rankings"]["learned_linear_combiner"]  # type: ignore[index]
+    del payload["query_level"]["latency_ms"]["learned_linear_combiner"]  # type: ignore[index]
+    del payload["query_level"]["specialist_count_selected"]["learned_linear_combiner"]  # type: ignore[index]
+
+    monkeypatch.setattr(
+        canonical,
+        "_load_split_counts",
+        lambda _: {"train": 8, "validation": 4, "test": 3},
+    )
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
+    )
+    monkeypatch.setattr(canonical, "run_experiment", lambda cfg: payload)
+
+    with pytest.raises(
+        ValueError, match=r"Missing strategies: \['learned_linear_combiner'\]"
+    ):
         canonical.run_canonical_benchmark(
             benchmark_path=tmp_path / "dummy.parquet",
             output_dir=tmp_path / "results",
@@ -237,6 +309,7 @@ def test_canonical_report_includes_paired_statistics_section(
         "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |"
         in report_text
     )
+    assert "## Kalman vs simple and learned weighting baselines" in report_text
     assert "top1_success" in report_text
     assert "## Method Ranking Snapshot" in report_text
     assert "## Verdict" in report_text
