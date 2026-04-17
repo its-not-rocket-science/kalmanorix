@@ -83,8 +83,14 @@ _EXPERIMENTAL_SHIMS: dict[str, tuple[str, str]] = {
         "create_azure_openai_sef_with_calibration",
     ),
     "threshold_top_k": ("kalmanorix.experimental", "threshold_top_k"),
-    "threshold_relative_to_max": ("kalmanorix.experimental", "threshold_relative_to_max"),
-    "threshold_adaptive_spread": ("kalmanorix.experimental", "threshold_adaptive_spread"),
+    "threshold_relative_to_max": (
+        "kalmanorix.experimental",
+        "threshold_relative_to_max",
+    ),
+    "threshold_adaptive_spread": (
+        "kalmanorix.experimental",
+        "threshold_adaptive_spread",
+    ),
     "threshold_query_length_adaptive": (
         "kalmanorix.experimental",
         "threshold_query_length_adaptive",
@@ -107,7 +113,10 @@ _EXPERIMENTAL_SHIMS: dict[str, tuple[str, str]] = {
         "CorrelationAwareKalmanFuser",
     ),
     "LearnedGateFuser": ("kalmanorix.experimental", "LearnedGateFuser"),
-    "create_procrustes_alignment": ("kalmanorix.internal", "create_procrustes_alignment"),
+    "create_procrustes_alignment": (
+        "kalmanorix.internal",
+        "create_procrustes_alignment",
+    ),
 }
 
 

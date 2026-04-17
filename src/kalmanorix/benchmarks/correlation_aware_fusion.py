@@ -51,7 +51,9 @@ def _l2_normalize(x: np.ndarray) -> np.ndarray:
     return x / (np.linalg.norm(x, axis=1, keepdims=True) + 1e-12)
 
 
-def _retrieval_metrics(queries: np.ndarray, docs: np.ndarray, targets: np.ndarray) -> RetrievalMetrics:
+def _retrieval_metrics(
+    queries: np.ndarray, docs: np.ndarray, targets: np.ndarray
+) -> RetrievalMetrics:
     scores = _l2_normalize(queries) @ _l2_normalize(docs).T
     ranked = np.argsort(-scores, axis=1)
     hit1 = np.mean(ranked[:, 0] == targets)
@@ -122,7 +124,9 @@ def _synthesize_problem(cfg: CorrelationAwareFusionConfig) -> dict[str, Any]:
     )
     test_obs = [np.vstack([a, b]) for a, b in zip(test_obs_low, test_obs_high)]
 
-    test_buckets = np.array(["low_correlation"] * half + ["high_correlation"] * (cfg.n_test - half))
+    test_buckets = np.array(
+        ["low_correlation"] * half + ["high_correlation"] * (cfg.n_test - half)
+    )
 
     return {
         "docs": docs,
@@ -148,7 +152,9 @@ def _fit_on_validation(
     sigma2 = [float(max(np.mean(r**2), variance_floor)) for r in residuals]
 
     # Correlation profile is estimated from scalar residual magnitudes on validation only.
-    residual_norms = np.column_stack([np.linalg.norm(r, axis=1) for r in residuals]).astype(np.float64)
+    residual_norms = np.column_stack(
+        [np.linalg.norm(r, axis=1) for r in residuals]
+    ).astype(np.float64)
     profile = estimate_residual_correlation_profile(model_names, residual_norms)
     return sigma2, residual_norms, profile
 
@@ -175,11 +181,17 @@ def _fuse_queries(
             covs = [np.full_like(embs[0], s, dtype=np.float64) for s in sigma2]
             fused_vec, _ = kalman_fuse_diagonal_ensemble(embs, covs)
         elif method_key == "corr_kalman_cov_inflation":
-            covs = [np.full_like(embs[0], s * inflation[i], dtype=np.float64) for i, s in enumerate(sigma2)]
+            covs = [
+                np.full_like(embs[0], s * inflation[i], dtype=np.float64)
+                for i, s in enumerate(sigma2)
+            ]
             fused_vec, _ = kalman_fuse_diagonal_ensemble(embs, covs)
         elif method_key == "corr_kalman_effective_sample_size":
             safe_discount = max(ess_discount, 1.0 / len(sigma2))
-            covs = [np.full_like(embs[0], s / safe_discount, dtype=np.float64) for s in sigma2]
+            covs = [
+                np.full_like(embs[0], s / safe_discount, dtype=np.float64)
+                for s in sigma2
+            ]
             fused_vec, _ = kalman_fuse_diagonal_ensemble(embs, covs)
         else:
             raise ValueError(f"Unknown method: {method_key}")
@@ -266,8 +278,14 @@ def run_correlation_aware_fusion_benchmark(
     method_specs = [
         ("mean_fusion", "MeanFuser"),
         ("baseline_kalman", "KalmanorixFuser"),
-        ("corr_kalman_cov_inflation", "CorrelationAwareKalmanFuser (covariance_inflation)"),
-        ("corr_kalman_effective_sample_size", "CorrelationAwareKalmanFuser (effective_sample_size)"),
+        (
+            "corr_kalman_cov_inflation",
+            "CorrelationAwareKalmanFuser (covariance_inflation)",
+        ),
+        (
+            "corr_kalman_effective_sample_size",
+            "CorrelationAwareKalmanFuser (effective_sample_size)",
+        ),
     ]
     test_metrics: dict[str, dict[str, float]] = {}
     bucket_metrics: dict[str, dict[str, dict[str, float]]] = {}
@@ -327,8 +345,12 @@ def run_correlation_aware_fusion_benchmark(
         "test_split": {
             "n_queries": cfg.n_test,
             "buckets": {
-                "low_correlation": int(np.sum(problem["test_buckets"] == "low_correlation")),
-                "high_correlation": int(np.sum(problem["test_buckets"] == "high_correlation")),
+                "low_correlation": int(
+                    np.sum(problem["test_buckets"] == "low_correlation")
+                ),
+                "high_correlation": int(
+                    np.sum(problem["test_buckets"] == "high_correlation")
+                ),
             },
         },
         "test_metrics": test_metrics,
@@ -337,6 +359,8 @@ def run_correlation_aware_fusion_benchmark(
     }
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     (output_dir / "report.md").write_text(_render_report(summary), encoding="utf-8")
     return summary

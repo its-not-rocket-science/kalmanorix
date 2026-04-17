@@ -48,7 +48,9 @@ def test_shrinkage_behavior_reduces_offdiagonal_energy() -> None:
     low_off = low_shrink.to_full() - np.diag(np.diag(low_shrink.to_full()))
     high_off = high_shrink.to_full() - np.diag(np.diag(high_shrink.to_full()))
 
-    assert np.linalg.norm(high_off, ord="fro") <= np.linalg.norm(low_off, ord="fro") + 1e-8
+    assert (
+        np.linalg.norm(high_off, ord="fro") <= np.linalg.norm(low_off, ord="fro") + 1e-8
+    )
 
 
 def test_rank_zero_falls_back_to_diagonal() -> None:

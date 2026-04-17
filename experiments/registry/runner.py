@@ -182,16 +182,21 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     for row in rows:
         query_text = row["query_text"]
         sigma2_by_specialist = {
-            module.name: float(module.sigma2_for(query_text)) for module in village.modules
+            module.name: float(module.sigma2_for(query_text))
+            for module in village.modules
         }
         precision_by_specialist = {
             name: float(1.0 / max(value, 1e-8))
             for name, value in sigma2_by_specialist.items()
         }
-        precision_values = np.asarray(list(precision_by_specialist.values()), dtype=float)
+        precision_values = np.asarray(
+            list(precision_by_specialist.values()), dtype=float
+        )
         sorted_precision = np.sort(precision_values)[::-1]
         top_precision = float(sorted_precision[0]) if len(sorted_precision) else 0.0
-        second_precision = float(sorted_precision[1]) if len(sorted_precision) > 1 else 0.0
+        second_precision = (
+            float(sorted_precision[1]) if len(sorted_precision) > 1 else 0.0
+        )
         precision_sum = float(np.sum(precision_values))
         if precision_sum > 0.0:
             precision_probs = precision_values / precision_sum

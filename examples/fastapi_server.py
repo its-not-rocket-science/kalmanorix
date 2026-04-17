@@ -629,7 +629,9 @@ def recommend_sentences_for_user(
     return target, selected
 
 
-def update_progression(user_knowledge: UserKnowledge, selected: List[RecommendedSentence]) -> None:
+def update_progression(
+    user_knowledge: UserKnowledge, selected: List[RecommendedSentence]
+) -> None:
     """Update user model based on shown recommendations."""
     observed_tokens = set()
     for item in selected:

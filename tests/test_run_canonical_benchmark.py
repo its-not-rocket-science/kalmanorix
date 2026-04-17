@@ -189,9 +189,7 @@ def test_canonical_benchmark_fails_loudly_when_mean_is_missing(
     )
     monkeypatch.setattr(canonical, "run_experiment", lambda cfg: payload)
 
-    with pytest.raises(
-        ValueError, match=r"Missing strategies: \['mean'\]"
-    ) as exc_info:
+    with pytest.raises(ValueError, match=r"Missing strategies: \['mean'\]") as exc_info:
         canonical.run_canonical_benchmark(
             benchmark_path=tmp_path / "dummy.parquet",
             output_dir=tmp_path / "results",
@@ -235,7 +233,10 @@ def test_canonical_report_includes_paired_statistics_section(
     assert "## Paired Statistical Test: KalmanorixFuser vs MeanFuser" in report_text
     assert "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)" in report_text
     assert "## Sample Size Adequacy Checks" in report_text
-    assert "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |" in report_text
+    assert (
+        "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |"
+        in report_text
+    )
     assert "top1_success" in report_text
     assert "## Method Ranking Snapshot" in report_text
     assert "## Verdict" in report_text
@@ -377,4 +378,7 @@ def test_canonical_benchmark_writes_confirmatory_slice_section(
     report_text = (output_dir / "report.md").read_text(encoding="utf-8")
     assert "## Confirmatory Slice (Kalman-vs-Mean)" in report_text
     assert "Confirmatory paired statistical test" not in report_text
-    assert "## Bucketed Analysis (Exploratory unless significance criteria are met)" in report_text
+    assert (
+        "## Bucketed Analysis (Exploratory unless significance criteria are met)"
+        in report_text
+    )

@@ -83,7 +83,9 @@ def test_underpowered_validation_emits_explicit_status(tmp_path) -> None:
     assert summary["fallback_reason"] == "underpowered_validation"
 
 
-def test_objective_study_covers_required_objectives_and_uses_validation_selection(tmp_path) -> None:
+def test_objective_study_covers_required_objectives_and_uses_validation_selection(
+    tmp_path,
+) -> None:
     study = run_uncertainty_calibration_objective_study(tmp_path)
     assert study["selection_is_validation_only"] is True
     assert set(CALIBRATION_OBJECTIVES).issubset(study["objective_reports"])

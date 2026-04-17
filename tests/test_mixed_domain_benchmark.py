@@ -105,8 +105,18 @@ def test_augment_hard_queries_adds_required_categories_and_metadata() -> None:
         },
     ]
     qrels_rows = [
-        {"query_id": "nq:q1", "doc_id": "nq:d1", "relevance": 1, "source_dataset": "beir_nq"},
-        {"query_id": "fiqa:q1", "doc_id": "fiqa:d1", "relevance": 1, "source_dataset": "beir_fiqa"},
+        {
+            "query_id": "nq:q1",
+            "doc_id": "nq:d1",
+            "relevance": 1,
+            "source_dataset": "beir_nq",
+        },
+        {
+            "query_id": "fiqa:q1",
+            "doc_id": "fiqa:d1",
+            "relevance": 1,
+            "source_dataset": "beir_fiqa",
+        },
     ]
     split_map = {"nq:q1": "test", "fiqa:q1": "test"}
 
@@ -125,7 +135,11 @@ def test_augment_hard_queries_adds_required_categories_and_metadata() -> None:
     assert "misleading_lexical_overlap" in categories
     assert "mixed_intent" in categories
     assert "adversarial_near_miss" in categories
-    assert all(row.get("provenance_note", "").startswith("synthetic") for row in synthetic)
+    assert all(
+        row.get("provenance_note", "").startswith("synthetic") for row in synthetic
+    )
     assert all(augmented_split_map[row["query_id"]] == "test" for row in synthetic)
-    synthetic_qrels = {row["query_id"] for row in augmented_qrels if row["query_id"].startswith("syn:")}
+    synthetic_qrels = {
+        row["query_id"] for row in augmented_qrels if row["query_id"].startswith("syn:")
+    }
     assert synthetic_qrels

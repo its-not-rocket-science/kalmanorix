@@ -321,9 +321,12 @@ def _build_query_records(
         )
         in_domain_needed = max(0, needed_negatives - cross_domain_needed)
 
-        sampled_in_domain = rng.sample(negatives, k=min(in_domain_needed, len(negatives)))
+        sampled_in_domain = rng.sample(
+            negatives, k=min(in_domain_needed, len(negatives))
+        )
         sampled_cross_domain = rng.sample(
-            cross_domain_negatives, k=min(cross_domain_needed, len(cross_domain_negatives))
+            cross_domain_negatives,
+            k=min(cross_domain_needed, len(cross_domain_negatives)),
         )
         sampled_negatives = sampled_in_domain + sampled_cross_domain
 
@@ -356,7 +359,9 @@ def _build_query_records(
                 "query_category": row.get("query_category", "original"),
                 "ambiguity_category": ambiguity_category,
                 "ambiguity_score": float(
-                    row.get("ambiguity_score", 0.0 if ambiguity_category == "none" else 0.5)
+                    row.get(
+                        "ambiguity_score", 0.0 if ambiguity_category == "none" else 0.5
+                    )
                 ),
                 "fusion_usefulness_bucket": row.get("fusion_usefulness_bucket", "low"),
                 "is_synthetic": bool(row.get("is_synthetic", False)),
@@ -421,7 +426,9 @@ def _augment_hard_queries(
     new_splits: dict[str, str] = {}
     category_counts: dict[str, int] = {}
 
-    def _clone_row(base: dict[str, Any], *, query_id: str, query_text: str) -> dict[str, Any]:
+    def _clone_row(
+        base: dict[str, Any], *, query_id: str, query_text: str
+    ) -> dict[str, Any]:
         return {
             **base,
             "query_id": query_id,
@@ -474,9 +481,18 @@ def _augment_hard_queries(
             )
             new_queries.append(row)
             for doc_id in sorted(set(base_pos + partner_pos)):
-                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+                new_qrels.append(
+                    {
+                        "query_id": qid,
+                        "doc_id": doc_id,
+                        "relevance": 1,
+                        "source_dataset": row["source_dataset"],
+                    }
+                )
             new_splits[qid] = "test"
-            category_counts["ambiguous_cross_domain"] = category_counts.get("ambiguous_cross_domain", 0) + 1
+            category_counts["ambiguous_cross_domain"] = (
+                category_counts.get("ambiguous_cross_domain", 0) + 1
+            )
 
             # 2) misleading lexical overlap
             qid = f"syn:lexical:{base['query_id']}:{partner['query_id']}"
@@ -497,9 +513,18 @@ def _augment_hard_queries(
             )
             new_queries.append(row)
             for doc_id in base_pos:
-                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+                new_qrels.append(
+                    {
+                        "query_id": qid,
+                        "doc_id": doc_id,
+                        "relevance": 1,
+                        "source_dataset": row["source_dataset"],
+                    }
+                )
             new_splits[qid] = "test"
-            category_counts["misleading_lexical_overlap"] = category_counts.get("misleading_lexical_overlap", 0) + 1
+            category_counts["misleading_lexical_overlap"] = (
+                category_counts.get("misleading_lexical_overlap", 0) + 1
+            )
 
             # 3) mixed-intent
             qid = f"syn:mixed_intent:{base['query_id']}:{partner['query_id']}"
@@ -520,7 +545,14 @@ def _augment_hard_queries(
             )
             new_queries.append(row)
             for doc_id in sorted(set(base_pos + partner_pos)):
-                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+                new_qrels.append(
+                    {
+                        "query_id": qid,
+                        "doc_id": doc_id,
+                        "relevance": 1,
+                        "source_dataset": row["source_dataset"],
+                    }
+                )
             new_splits[qid] = "test"
             category_counts["mixed_intent"] = category_counts.get("mixed_intent", 0) + 1
 
@@ -543,9 +575,18 @@ def _augment_hard_queries(
             )
             new_queries.append(row)
             for doc_id in base_pos:
-                new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+                new_qrels.append(
+                    {
+                        "query_id": qid,
+                        "doc_id": doc_id,
+                        "relevance": 1,
+                        "source_dataset": row["source_dataset"],
+                    }
+                )
             new_splits[qid] = "test"
-            category_counts["adversarial_near_miss"] = category_counts.get("adversarial_near_miss", 0) + 1
+            category_counts["adversarial_near_miss"] = (
+                category_counts.get("adversarial_near_miss", 0) + 1
+            )
 
             # 5) long-tail domain terms (if detected)
             rare_terms = [
@@ -574,9 +615,18 @@ def _augment_hard_queries(
                 )
                 new_queries.append(row)
                 for doc_id in base_pos:
-                    new_qrels.append({"query_id": qid, "doc_id": doc_id, "relevance": 1, "source_dataset": row["source_dataset"]})
+                    new_qrels.append(
+                        {
+                            "query_id": qid,
+                            "doc_id": doc_id,
+                            "relevance": 1,
+                            "source_dataset": row["source_dataset"],
+                        }
+                    )
                 new_splits[qid] = "test"
-                category_counts["long_tail_domain_terms"] = category_counts.get("long_tail_domain_terms", 0) + 1
+                category_counts["long_tail_domain_terms"] = (
+                    category_counts.get("long_tail_domain_terms", 0) + 1
+                )
 
     augmented_queries = query_rows + new_queries
     augmented_qrels = qrels_rows + new_qrels
@@ -802,7 +852,9 @@ def build_mixed_domain_benchmark(
             "documents": len(all_docs),
             "duplicates_removed": len(duplicate_map),
             "all_queries_have_relevant": True,
-            "synthetic_queries": sum(1 for row in query_rows if row.get("is_synthetic")),
+            "synthetic_queries": sum(
+                1 for row in query_rows if row.get("is_synthetic")
+            ),
         },
     }
 

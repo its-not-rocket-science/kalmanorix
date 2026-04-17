@@ -17,8 +17,12 @@ from .uncertainty_calibration import (
 
 def correlation_aware_fusion_main() -> None:
     """Run the correlation-aware fusion benchmark and emit report artifacts."""
-    parser = argparse.ArgumentParser(description="Run the correlation-aware Kalman fusion benchmark.")
-    parser.add_argument("--output-dir", type=Path, default=Path("results/correlation_aware_fusion"))
+    parser = argparse.ArgumentParser(
+        description="Run the correlation-aware Kalman fusion benchmark."
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, default=Path("results/correlation_aware_fusion")
+    )
     parser.add_argument("--seed", type=int, default=13)
     args = parser.parse_args()
 
@@ -28,8 +32,12 @@ def correlation_aware_fusion_main() -> None:
 
 def uncertainty_calibration_main() -> None:
     """Run uncertainty calibration study and emit report artifacts."""
-    parser = argparse.ArgumentParser(description="Run uncertainty calibration benchmark.")
-    parser.add_argument("--output-dir", type=Path, default=Path("results/uncertainty_calibration"))
+    parser = argparse.ArgumentParser(
+        description="Run uncertainty calibration benchmark."
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, default=Path("results/uncertainty_calibration")
+    )
     parser.add_argument("--objective", type=str, default="rank_error_proxy")
     parser.add_argument("--sigma2-method", type=str, default="centroid_distance_sigma2")
     parser.add_argument("--min-validation-total", type=int, default=24)

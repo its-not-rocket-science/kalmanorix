@@ -13,7 +13,9 @@ from experiments import run_uncertainty_calibration as unc_cli
 
 
 @pytest.mark.e2e
-def test_cli_correlation_aware_fusion_writes_artifacts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cli_correlation_aware_fusion_writes_artifacts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     out = tmp_path / "corr"
     monkeypatch.setattr(sys, "argv", ["prog", "--output-dir", str(out), "--seed", "17"])
     corr_cli.main()
@@ -25,7 +27,9 @@ def test_cli_correlation_aware_fusion_writes_artifacts(tmp_path: Path, monkeypat
 
 
 @pytest.mark.e2e
-def test_cli_uncertainty_calibration_writes_artifacts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cli_uncertainty_calibration_writes_artifacts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     out = tmp_path / "unc"
     monkeypatch.setattr(
         sys,
@@ -55,7 +59,9 @@ def test_cli_uncertainty_calibration_writes_artifacts(tmp_path: Path, monkeypatc
 
 
 @pytest.mark.e2e
-def test_cli_canonical_benchmark_v2_writes_artifacts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cli_canonical_benchmark_v2_writes_artifacts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     out = tmp_path / "canonical"
     benchmark_path = Path("benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet")
     monkeypatch.setattr(
@@ -89,7 +95,9 @@ def test_cli_canonical_benchmark_v2_writes_artifacts(tmp_path: Path, monkeypatch
 
 
 @pytest.mark.e2e
-def test_cli_latency_benchmark_writes_artifacts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cli_latency_benchmark_writes_artifacts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     out = tmp_path / "latency"
     benchmark_path = Path("benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet")
     monkeypatch.setattr(
@@ -118,4 +126,7 @@ def test_cli_latency_benchmark_writes_artifacts(tmp_path: Path, monkeypatch: pyt
     assert (out / "summary.json").exists()
     assert (out / "report.md").exists()
     payload = json.loads((out / "summary.json").read_text(encoding="utf-8"))
-    assert payload["numerical_deviation_vs_legacy"]["single_query"]["vector_max_abs"] >= 0.0
+    assert (
+        payload["numerical_deviation_vs_legacy"]["single_query"]["vector_max_abs"]
+        >= 0.0
+    )

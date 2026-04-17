@@ -50,9 +50,13 @@ def _ambiguity_bucket(raw: Any) -> str:
     return value
 
 
-def _signals_for_query(row: dict[str, Any], modules: list[Any]) -> dict[str, float | int | str]:
+def _signals_for_query(
+    row: dict[str, Any], modules: list[Any]
+) -> dict[str, float | int | str]:
     query_text = row["query_text"]
-    sigma2 = np.asarray([float(module.sigma2_for(query_text)) for module in modules], dtype=np.float64)
+    sigma2 = np.asarray(
+        [float(module.sigma2_for(query_text)) for module in modules], dtype=np.float64
+    )
     router_scores = 1.0 / np.clip(sigma2, 1e-8, None)
     order = np.argsort(-router_scores)
 
@@ -84,8 +88,12 @@ def _signals_for_query(row: dict[str, Any], modules: list[Any]) -> dict[str, flo
     }
 
 
-def _mode_weights(mode: str, query_text: str, modules: list[Any], top_k: int) -> np.ndarray:
-    sigma2 = np.asarray([float(module.sigma2_for(query_text)) for module in modules], dtype=np.float64)
+def _mode_weights(
+    mode: str, query_text: str, modules: list[Any], top_k: int
+) -> np.ndarray:
+    sigma2 = np.asarray(
+        [float(module.sigma2_for(query_text)) for module in modules], dtype=np.float64
+    )
     router_scores = 1.0 / np.clip(sigma2, 1e-8, None)
     order = np.argsort(-router_scores)
     w = np.zeros(len(modules), dtype=np.float64)
@@ -167,7 +175,9 @@ def _fit_policy(
     top_k: int,
     min_kalman_frac: float,
 ) -> tuple[PolicyConfig, dict[str, Any]]:
-    feature_map = {row["query_id"]: _signals_for_query(row, modules) for row in val_rows}
+    feature_map = {
+        row["query_id"]: _signals_for_query(row, modules) for row in val_rows
+    }
     ranking_map: dict[str, dict[str, list[str]]] = {mode: {} for mode in MODES}
     rr_map: dict[str, dict[str, float]] = {mode: {} for mode in MODES}
 
@@ -267,9 +277,13 @@ def _evaluate(
 
         adaptive_mode = _select_mode(signals, cfg)
         adaptive_ranked = rankings[adaptive_mode][qid].doc_ids
-        rankings["adaptive_fusion_selector"][qid] = QueryRanking(doc_ids=tuple(adaptive_ranked))
+        rankings["adaptive_fusion_selector"][qid] = QueryRanking(
+            doc_ids=tuple(adaptive_ranked)
+        )
         latencies["adaptive_fusion_selector"][qid] = 0.0
-        specialist_counts["adaptive_fusion_selector"][qid] = specialist_counts[adaptive_mode][qid]
+        specialist_counts["adaptive_fusion_selector"][qid] = specialist_counts[
+            adaptive_mode
+        ][qid]
 
         rr = _reciprocal_rank(list(adaptive_ranked), gt)
         hit1 = 1.0 if adaptive_ranked and adaptive_ranked[0] in gt else 0.0
@@ -365,7 +379,9 @@ def main() -> None:
         top_k=args.top_k,
         min_kalman_frac=args.min_kalman_fraction,
     )
-    test_eval = _evaluate(rows=test_rows, modules=village.modules, top_k=args.top_k, cfg=cfg)
+    test_eval = _evaluate(
+        rows=test_rows, modules=village.modules, top_k=args.top_k, cfg=cfg
+    )
 
     summary = {
         "benchmark": {
@@ -385,7 +401,9 @@ def main() -> None:
     }
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (args.output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
 
     lines = [
         "# Adaptive Fusion-Selection Benchmark",
@@ -418,7 +436,9 @@ def main() -> None:
             f"- {bucket}: n={payload['count']}, mrr={payload['mrr']:.4f}, recall@1={payload['recall_at_1']:.4f}, mode_usage={payload['mode_usage']}"
         )
 
-    (args.output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (args.output_dir / "report.md").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
     print(json.dumps(test_eval["policy_usage_frequency"], indent=2))
 
 

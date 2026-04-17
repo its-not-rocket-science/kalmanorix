@@ -106,7 +106,9 @@ def _bucket_query_ids(
         meta = query_metadata.get(qid, {})
         disagreement = float(meta.get("specialist_disagreement", 0.0))
         uncertainty = float(meta.get("uncertainty_spread", 0.0))
-        router_conf = float(meta.get("router_confidence", confidence_proxy.get(qid, 0.0)))
+        router_conf = float(
+            meta.get("router_confidence", confidence_proxy.get(qid, 0.0))
+        )
         is_multi = bool(meta.get("is_multi_domain", False))
         if not is_multi and float(specialist_counts.get(qid, 1.0)) > 1.0:
             is_multi = True
@@ -150,7 +152,9 @@ def _build_bucket_report(
             metrics = methods[method]["query_level"]
             per_method_metrics[method] = {
                 metric: (
-                    float(np.mean([metrics[metric][idx] for idx in idxs])) if idxs else 0.0
+                    float(np.mean([metrics[metric][idx] for idx in idxs]))
+                    if idxs
+                    else 0.0
                 )
                 for metric in REPORT_METRICS
             }
@@ -215,9 +219,7 @@ def _build_bucket_report(
             "kalman_ndcg10_deltas": deltas,
             "comparisons": comparisons,
             "consistency_flag": (
-                "consistent_gain"
-                if is_consistent_gain
-                else "mixed_or_no_gain"
+                "consistent_gain" if is_consistent_gain else "mixed_or_no_gain"
             ),
             "exploratory_only": n_pairs < BUCKET_SIGNIFICANCE_MIN_PAIRS,
         }
@@ -251,7 +253,9 @@ def _resolve_confirmatory_slice_ids(
     router_low = set(bucket_to_qids.get("router_low_confidence", []))
     for qid in query_ids:
         meta = query_metadata.get(qid, {})
-        router_conf = float(meta.get("router_confidence", confidence_proxy.get(qid, 0.0)))
+        router_conf = float(
+            meta.get("router_confidence", confidence_proxy.get(qid, 0.0))
+        )
         selected_count = float(specialist_counts.get(qid, 1.0))
         is_nontrivial = (
             qid in multi_domain
@@ -268,7 +272,9 @@ def _resolve_confirmatory_slice_ids(
         return nontrivial_routing_case
     if slice_name == "intersection_of_above":
         nontrivial = set(nontrivial_routing_case)
-        return sorted(high_disagreement.intersection(high_uncertainty).intersection(nontrivial))
+        return sorted(
+            high_disagreement.intersection(high_uncertainty).intersection(nontrivial)
+        )
     raise ValueError(
         "Unknown confirmatory slice name: "
         f"{slice_name}. Expected one of {list(CONFIRMATORY_SLICE_CHOICES)}."
@@ -304,7 +310,9 @@ def _build_confirmatory_slice_results(
         method_qlevel = methods[method]["query_level"]
         method_metrics[method] = {
             metric: (
-                float(np.mean([method_qlevel[metric][idx] for idx in idxs])) if idxs else 0.0
+                float(np.mean([method_qlevel[metric][idx] for idx in idxs]))
+                if idxs
+                else 0.0
             )
             for metric in REPORT_METRICS
         }
@@ -518,7 +526,9 @@ def _render_report(summary: dict[str, Any]) -> str:
             "## Method Ranking Snapshot",
             "",
             "- Ranking by nDCG@10 (higher is better): "
-            + " > ".join(f"`{name}` ({score:.4f})" for name, score in ranking_by_ndcg10),
+            + " > ".join(
+                f"`{name}` ({score:.4f})" for name, score in ranking_by_ndcg10
+            ),
             "",
             "## Decision Framework: KalmanorixFuser vs MeanFuser",
             "",
@@ -567,7 +577,9 @@ def _render_report(summary: dict[str, Any]) -> str:
             "| Paired significance testing (test split) | {avail} | {minimum} | {ok} | {note} |".format(
                 avail=adequacy["paired_significance_testing"]["available_queries"],
                 minimum=adequacy["paired_significance_testing"]["minimum_required"],
-                ok="yes" if adequacy["paired_significance_testing"]["adequate"] else "no",
+                ok="yes"
+                if adequacy["paired_significance_testing"]["adequate"]
+                else "no",
                 note=adequacy["paired_significance_testing"]["note"],
             ),
             "| Per-domain analysis (min test queries in any domain) | {avail} | {minimum} | {ok} | {note} |".format(
@@ -694,7 +706,9 @@ def _render_report(summary: dict[str, Any]) -> str:
         if buckets:
             lines.extend([f"- `{bucket}`" for bucket in buckets])
         else:
-            lines.append("- None met the consistency + inferential significance criteria in this run.")
+            lines.append(
+                "- None met the consistency + inferential significance criteria in this run."
+            )
         lines.append(
             "- These subgroup findings are secondary and must not be promoted to headline claims without dedicated confirmatory evaluation."
         )
@@ -880,9 +894,9 @@ def run_canonical_benchmark(
     }
     primary_metric = CANONICAL_DECISION_RULES["primary_metric"]
     primary_stats = paired_summary["overall"][primary_metric]
-    primary_deltas = np.asarray(kalman_metrics[primary_metric], dtype=float) - np.asarray(
-        mean_metrics[primary_metric], dtype=float
-    )
+    primary_deltas = np.asarray(
+        kalman_metrics[primary_metric], dtype=float
+    ) - np.asarray(mean_metrics[primary_metric], dtype=float)
     n_test = int(len(primary_deltas))
     std_delta = float(np.std(primary_deltas, ddof=1)) if n_test > 1 else 0.0
     detectable_threshold = (
@@ -895,7 +909,9 @@ def run_canonical_benchmark(
             "num_test_queries": n_test,
             "per_domain_test_counts": dict(sorted(per_domain_test_counts.items())),
             "observed_effect_size": float(primary_stats["mean_difference"]),
-            "target_effect_size": float(CANONICAL_DECISION_RULES["minimum_effect_size"]),
+            "target_effect_size": float(
+                CANONICAL_DECISION_RULES["minimum_effect_size"]
+            ),
             "detectable_effect_threshold_estimate": detectable_threshold,
             "paired_delta_stddev": std_delta,
             "power_approximation": "detectable_effect ≈ (1.96+0.84)*std(delta)/sqrt(n)",
@@ -906,12 +922,16 @@ def run_canonical_benchmark(
         }
     }
 
-    min_domain_count = min(per_domain_test_counts.values()) if per_domain_test_counts else 0
+    min_domain_count = (
+        min(per_domain_test_counts.values()) if per_domain_test_counts else 0
+    )
     sample_size_adequacy = {
         "uncertainty_calibration": {
             "available_queries": int(split_counts["validation"]),
             "minimum_required": CALIBRATION_MIN_VALIDATION_QUERIES,
-            "adequate": bool(split_counts["validation"] >= CALIBRATION_MIN_VALIDATION_QUERIES),
+            "adequate": bool(
+                split_counts["validation"] >= CALIBRATION_MIN_VALIDATION_QUERIES
+            ),
             "note": "Validation split size governs stability of uncertainty calibration.",
         },
         "paired_significance_testing": {

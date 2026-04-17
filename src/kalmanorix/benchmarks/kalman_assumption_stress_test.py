@@ -48,7 +48,9 @@ def _l2_normalize(x: np.ndarray) -> np.ndarray:
     return x / norms
 
 
-def _retrieval_metrics(queries: np.ndarray, docs: np.ndarray, targets: np.ndarray) -> dict[str, float]:
+def _retrieval_metrics(
+    queries: np.ndarray, docs: np.ndarray, targets: np.ndarray
+) -> dict[str, float]:
     scores = _l2_normalize(queries) @ _l2_normalize(docs).T
     ranked = np.argsort(-scores, axis=1)
     hit1 = float(np.mean(ranked[:, 0] == targets))
@@ -140,12 +142,18 @@ def _sample_case_type(
         if case_type == "low_redundancy_complementary":
             block_size = d // n_specialists
             start = specialist_idx * block_size
-            stop = d if specialist_idx == n_specialists - 1 else (specialist_idx + 1) * block_size
+            stop = (
+                d
+                if specialist_idx == n_specialists - 1
+                else (specialist_idx + 1) * block_size
+            )
             obs[:, start:stop] += 0.10 * rng.normal(size=(n_q, stop - start))
 
         observations.append(_l2_normalize(obs))
 
-        router_scores[:, specialist_idx] = 1.0 / (scales[dominant, specialist_idx] + 1e-6)
+        router_scores[:, specialist_idx] = 1.0 / (
+            scales[dominant, specialist_idx] + 1e-6
+        )
 
     router_scores += 0.2 * rng.normal(size=router_scores.shape)
     return observations, router_scores, rationale
@@ -160,7 +168,9 @@ def _fit_validation_sigma_and_corr(
 ) -> tuple[list[float], np.ndarray]:
     residuals = [obs - val_true for obs in val_observations]
     sigma2 = [float(max(np.mean(r**2), variance_floor)) for r in residuals]
-    residual_norms = np.column_stack([np.linalg.norm(r, axis=1) for r in residuals]).astype(np.float64)
+    residual_norms = np.column_stack(
+        [np.linalg.norm(r, axis=1) for r in residuals]
+    ).astype(np.float64)
     corr_profile = estimate_residual_correlation_profile(model_names, residual_norms)
     return sigma2, corr_profile.correlation_matrix
 
@@ -188,7 +198,10 @@ def _fuse_query(
 
     if method == "correlation_aware_kalman":
         inflation = correlation_inflation_factors(corr_matrix, alpha=inflation_alpha)
-        covs = [np.full_like(embs[0], s * inflation[i], dtype=np.float64) for i, s in enumerate(sigma2)]
+        covs = [
+            np.full_like(embs[0], s * inflation[i], dtype=np.float64)
+            for i, s in enumerate(sigma2)
+        ]
         fused, _ = kalman_fuse_diagonal_ensemble(embs, covs)
         return fused
 
@@ -288,8 +301,12 @@ def run_kalman_assumption_stress_test(
         val_targets = np.argmax(val_true @ docs.T, axis=1)
         test_targets = np.argmax(test_true @ docs.T, axis=1)
 
-        val_obs, _, rationale = _sample_case_type(case_type=case_type, true_queries=val_true, rng=rng)
-        test_obs, test_router_scores, _ = _sample_case_type(case_type=case_type, true_queries=test_true, rng=rng)
+        val_obs, _, rationale = _sample_case_type(
+            case_type=case_type, true_queries=val_true, rng=rng
+        )
+        test_obs, test_router_scores, _ = _sample_case_type(
+            case_type=case_type, true_queries=test_true, rng=rng
+        )
 
         sigma2, corr_matrix = _fit_validation_sigma_and_corr(
             val_true=val_true,
@@ -364,7 +381,9 @@ def run_kalman_assumption_stress_test(
     }
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     (output_dir / "case_tags.jsonl").write_text(
         "\n".join(json.dumps(asdict(case_tag)) for case_tag in all_case_tags) + "\n",
         encoding="utf-8",

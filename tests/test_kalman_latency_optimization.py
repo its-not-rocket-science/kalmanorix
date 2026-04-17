@@ -40,7 +40,9 @@ def test_optimized_kalman_matches_legacy_single_query() -> None:
     x_fast, w_fast, m_fast = fast.fuse(query, modules)
 
     assert np.allclose(x_fast, x_legacy, rtol=1e-10, atol=1e-12)
-    assert np.allclose(m_fast["fused_covariance"], m_legacy["fused_covariance"], rtol=1e-10, atol=1e-12)
+    assert np.allclose(
+        m_fast["fused_covariance"], m_legacy["fused_covariance"], rtol=1e-10, atol=1e-12
+    )
     for key in w_legacy:
         assert np.isclose(w_fast[key], w_legacy[key], rtol=1e-12, atol=1e-12)
 
@@ -60,8 +62,12 @@ def test_optimized_kalman_matches_legacy_batch() -> None:
     x_legacy, w_legacy, m_legacy = legacy.fuse_batch(queries, modules)
     x_fast, w_fast, m_fast = fast.fuse_batch(queries, modules)
 
-    for xl, xf, ml, mf, wl, wf in zip(x_legacy, x_fast, m_legacy, m_fast, w_legacy, w_fast):
+    for xl, xf, ml, mf, wl, wf in zip(
+        x_legacy, x_fast, m_legacy, m_fast, w_legacy, w_fast
+    ):
         assert np.allclose(xf, xl, rtol=1e-10, atol=1e-12)
-        assert np.allclose(mf["fused_covariance"], ml["fused_covariance"], rtol=1e-10, atol=1e-12)
+        assert np.allclose(
+            mf["fused_covariance"], ml["fused_covariance"], rtol=1e-10, atol=1e-12
+        )
         for key in wl:
             assert np.isclose(wf[key], wl[key], rtol=1e-12, atol=1e-12)

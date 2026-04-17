@@ -19,9 +19,17 @@ This file is intentionally dependency-light and fully deterministic.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
+import sys
 from typing import Set
 
 import numpy as np
+
+if __package__ is None or __package__ == "":
+    repo_root = Path(__file__).resolve().parents[1]
+    src_root = repo_root / "src"
+    if str(src_root) not in sys.path:
+        sys.path.insert(0, str(src_root))
 
 from kalmanorix import (
     SEF,

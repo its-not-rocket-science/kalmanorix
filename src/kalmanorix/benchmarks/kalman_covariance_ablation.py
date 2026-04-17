@@ -78,7 +78,9 @@ def fit_scalar_variance(residuals: np.ndarray, diagonal_floor: float = 1e-6) -> 
     return float(max(np.mean(sq), diagonal_floor))
 
 
-def fit_diagonal_variance(residuals: np.ndarray, diagonal_floor: float = 1e-6) -> np.ndarray:
+def fit_diagonal_variance(
+    residuals: np.ndarray, diagonal_floor: float = 1e-6
+) -> np.ndarray:
     var = np.var(np.asarray(residuals, dtype=np.float64), axis=0, ddof=1)
     return _stable_diagonal(var, diagonal_floor)
 
@@ -140,7 +142,9 @@ def fit_structured_covariance(
     return StructuredCovariance.from_lowrank(diagonal=diagonal, lowrank_factor=lowrank)
 
 
-def _make_ground_truth_covariances(cfg: AblationConfig, rng: np.random.Generator) -> list[np.ndarray]:
+def _make_ground_truth_covariances(
+    cfg: AblationConfig, rng: np.random.Generator
+) -> list[np.ndarray]:
     covs: list[np.ndarray] = []
     d = cfg.dimension
     base_scales = np.linspace(0.03, 0.12, cfg.n_specialists)
@@ -194,24 +198,33 @@ def _sample_problem(cfg: AblationConfig) -> dict[str, Any]:
     test_targets = np.argmax(test_true @ docs.T, axis=1)
 
     true_covs = _make_ground_truth_covariances(cfg, rng)
-    query_noise_scale_val = rng.lognormal(mean=0.0, sigma=0.3, size=(cfg.n_val, cfg.n_specialists))
-    query_noise_scale_test = rng.lognormal(mean=0.0, sigma=0.45, size=(cfg.n_test, cfg.n_specialists))
+    query_noise_scale_val = rng.lognormal(
+        mean=0.0, sigma=0.3, size=(cfg.n_val, cfg.n_specialists)
+    )
+    query_noise_scale_test = rng.lognormal(
+        mean=0.0, sigma=0.45, size=(cfg.n_test, cfg.n_specialists)
+    )
 
     val_obs: list[np.ndarray] = []
     test_obs: list[np.ndarray] = []
     for idx, cov in enumerate(true_covs):
         val_noise = rng.multivariate_normal(np.zeros(d), cov, size=cfg.n_val)
         test_noise = rng.multivariate_normal(np.zeros(d), cov, size=cfg.n_test)
-        val_obs.append(_l2_normalize(val_true + query_noise_scale_val[:, [idx]] * val_noise))
-        test_obs.append(_l2_normalize(test_true + query_noise_scale_test[:, [idx]] * test_noise))
+        val_obs.append(
+            _l2_normalize(val_true + query_noise_scale_val[:, [idx]] * val_noise)
+        )
+        test_obs.append(
+            _l2_normalize(test_true + query_noise_scale_test[:, [idx]] * test_noise)
+        )
 
-    specialist_top1 = np.stack([np.argmax(obs @ docs.T, axis=1) for obs in test_obs], axis=1)
-    disagreement = np.array([len(set(preds.tolist())) for preds in specialist_top1], dtype=np.float64) / float(
-        cfg.n_specialists
+    specialist_top1 = np.stack(
+        [np.argmax(obs @ docs.T, axis=1) for obs in test_obs], axis=1
     )
-    skew = (
-        np.max(query_noise_scale_test, axis=1)
-        / (np.min(query_noise_scale_test, axis=1) + 1e-12)
+    disagreement = np.array(
+        [len(set(preds.tolist())) for preds in specialist_top1], dtype=np.float64
+    ) / float(cfg.n_specialists)
+    skew = np.max(query_noise_scale_test, axis=1) / (
+        np.min(query_noise_scale_test, axis=1) + 1e-12
     )
     disagreement_thr = float(np.quantile(disagreement, cfg.disagreement_quantile))
     skew_thr = float(np.quantile(skew, cfg.uncertainty_skew_quantile))
@@ -238,7 +251,9 @@ def _sample_problem(cfg: AblationConfig) -> dict[str, Any]:
     }
 
 
-def _retrieval_metrics(queries: np.ndarray, docs: np.ndarray, targets: np.ndarray) -> RetrievalMetrics:
+def _retrieval_metrics(
+    queries: np.ndarray, docs: np.ndarray, targets: np.ndarray
+) -> RetrievalMetrics:
     if queries.shape[0] == 0 or targets.shape[0] == 0:
         return RetrievalMetrics(0.0, 0.0, 0.0)
     scores = _l2_normalize(queries) @ _l2_normalize(docs).T
@@ -376,18 +391,27 @@ def run_kalman_covariance_ablation(
     }
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     (output_dir / "report.md").write_text(_render_report(summary), encoding="utf-8")
 
     return summary
 
 
-def _answer(metrics: dict[str, dict[str, float]], bucket_metrics: dict[str, dict[str, dict[str, float]]]) -> str:
+def _answer(
+    metrics: dict[str, dict[str, float]],
+    bucket_metrics: dict[str, dict[str, dict[str, float]]],
+) -> str:
     baseline_global = metrics["scalar_kalman"]["recall_at_1"]
-    richer_global = max(metrics["diagonal_kalman"]["recall_at_1"], metrics["structured_kalman"]["recall_at_1"])
+    richer_global = max(
+        metrics["diagonal_kalman"]["recall_at_1"],
+        metrics["structured_kalman"]["recall_at_1"],
+    )
     global_gain = richer_global - baseline_global
     local_gain = max(
-        bucket_metrics["diagonal_kalman"][bucket]["recall_at_1"] - bucket_metrics["scalar_kalman"][bucket]["recall_at_1"]
+        bucket_metrics["diagonal_kalman"][bucket]["recall_at_1"]
+        - bucket_metrics["scalar_kalman"][bucket]["recall_at_1"]
         for bucket in ["high_disagreement", "multi_domain", "uncertainty_skewed"]
     )
     local_gain = max(

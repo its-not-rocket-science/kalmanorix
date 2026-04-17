@@ -235,7 +235,9 @@ class AdaptiveRouteOrFuseStrategy(RetrievalFusionStrategy):
         self._centroids: dict[str, np.ndarray] = {}
 
     def _signals(self, query_text: str, modules: list[Any]) -> dict[str, Any]:
-        sigma2 = np.asarray([float(module.sigma2_for(query_text)) for module in modules])
+        sigma2 = np.asarray(
+            [float(module.sigma2_for(query_text)) for module in modules]
+        )
         router_scores = 1.0 / np.clip(sigma2, 1e-8, None)
         order = np.argsort(-router_scores)
         top = router_scores[order[0]]
@@ -246,7 +248,9 @@ class AdaptiveRouteOrFuseStrategy(RetrievalFusionStrategy):
         if selected.size == 0:
             selected = np.asarray([int(order[0])])
 
-        query_vecs = [_normalize(_resolve_embedding(module, query_text)) for module in modules]
+        query_vecs = [
+            _normalize(_resolve_embedding(module, query_text)) for module in modules
+        ]
         disagreement_values: list[float] = []
         for i, left in enumerate(selected):
             for right in selected[i + 1 :]:
@@ -302,7 +306,9 @@ class AdaptiveRouteOrFuseStrategy(RetrievalFusionStrategy):
             dtype=np.float64,
         )
 
-    def _weights_for_mode(self, mode: str, signals: dict[str, Any], n_modules: int) -> np.ndarray:
+    def _weights_for_mode(
+        self, mode: str, signals: dict[str, Any], n_modules: int
+    ) -> np.ndarray:
         order = np.asarray(signals["router_order"])
         sigma2 = np.asarray(signals["sigma2"], dtype=np.float64)
         weights = np.zeros(n_modules, dtype=np.float64)
@@ -330,7 +336,9 @@ class AdaptiveRouteOrFuseStrategy(RetrievalFusionStrategy):
             feature = self._feature_vector(signals)
             best_mode = min(
                 self._centroids,
-                key=lambda label: float(np.linalg.norm(feature - self._centroids[label])),
+                key=lambda label: float(
+                    np.linalg.norm(feature - self._centroids[label])
+                ),
             )
             return best_mode
         return self._rule_mode(signals)
@@ -348,10 +356,14 @@ class AdaptiveRouteOrFuseStrategy(RetrievalFusionStrategy):
         for row in rows:
             modules = village.modules
             signals = self._signals(row["query_text"], modules)
-            query_vecs = [_resolve_embedding(module, row["query_text"]) for module in modules]
+            query_vecs = [
+                _resolve_embedding(module, row["query_text"]) for module in modules
+            ]
             doc_vecs: list[list[np.ndarray]] = [[] for _ in modules]
             for candidate in row["candidate_documents"]:
-                doc_text = f"{candidate.get('title', '')} {candidate.get('text', '')}".strip()
+                doc_text = (
+                    f"{candidate.get('title', '')} {candidate.get('text', '')}".strip()
+                )
                 for idx, module in enumerate(modules):
                     doc_vecs[idx].append(_resolve_embedding(module, doc_text))
             rr_by_mode: dict[str, float] = {}

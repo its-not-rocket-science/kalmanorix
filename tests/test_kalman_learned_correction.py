@@ -25,7 +25,9 @@ def test_corrected_weights_are_normalized() -> None:
     kalman_w = _precision_weights(sigma2)
     oracle = np.full((n, k), 1.0 / k)
 
-    model = KalmanLearnedCorrection(LearnedCorrectionConfig(model_type="linear", n_specialists=k))
+    model = KalmanLearnedCorrection(
+        LearnedCorrectionConfig(model_type="linear", n_specialists=k)
+    )
     model.fit(features, kalman_w, oracle)
     corrected = model.predict_weights(features, kalman_w)
 
@@ -46,7 +48,9 @@ def test_degenerate_equal_uncertainty_is_stable() -> None:
     kalman_w = _precision_weights(sigma2)
     oracle = np.full((n, k), 1.0 / k)
 
-    model = KalmanLearnedCorrection(LearnedCorrectionConfig(model_type="linear", n_specialists=k, kalman_anchor=0.9))
+    model = KalmanLearnedCorrection(
+        LearnedCorrectionConfig(model_type="linear", n_specialists=k, kalman_anchor=0.9)
+    )
     model.fit(features, kalman_w, oracle)
     corrected = model.predict_weights(features, kalman_w)
 

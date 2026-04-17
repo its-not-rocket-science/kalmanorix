@@ -39,9 +39,7 @@ def test_guarded_findings_markdown_snapshot() -> None:
         ],
     )
     expected = (
-        Path(__file__).parent
-        / "snapshots"
-        / "guarded_findings_markdown_expected.md"
+        Path(__file__).parent / "snapshots" / "guarded_findings_markdown_expected.md"
     ).read_text(encoding="utf-8")
     assert markdown.strip() == expected.strip()
 
@@ -74,7 +72,9 @@ def test_guarded_findings_null_result_wording() -> None:
             }
         ]
     )
-    assert "Null result: no statistically reliable difference is demonstrated" in markdown
+    assert (
+        "Null result: no statistically reliable difference is demonstrated" in markdown
+    )
     assert "mrr@10" in markdown
 
 

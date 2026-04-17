@@ -211,7 +211,9 @@ def test_sentence_difficulty_scoring_components():
         sentence_difficulty_score,
     )
 
-    user = UserKnowledge(user_id="u1", known_vocabulary={"the", "battery", "is", "good"})
+    user = UserKnowledge(
+        user_id="u1", known_vocabulary={"the", "battery", "is", "good"}
+    )
     sentence = "Although the battery is good, the processor throttles unexpectedly."
     score, components, unknown = sentence_difficulty_score(sentence, user)
 

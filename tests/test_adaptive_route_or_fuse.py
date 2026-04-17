@@ -11,10 +11,34 @@ def test_adaptive_route_or_fuse_writes_policy_artifacts(
 ) -> None:
     details = {
         "results": {
-            "router_only_top1": {"global_primary": {"mrr": {"mean": 0.4}, "recall@1": {"mean": 0.2}, "recall@5": {"mean": 0.6}}},
-            "uniform_mean_fusion": {"global_primary": {"mrr": {"mean": 0.5}, "recall@1": {"mean": 0.3}, "recall@5": {"mean": 0.7}}},
-            "kalman": {"global_primary": {"mrr": {"mean": 0.52}, "recall@1": {"mean": 0.32}, "recall@5": {"mean": 0.72}}},
-            "adaptive_route_or_fuse": {"global_primary": {"mrr": {"mean": 0.55}, "recall@1": {"mean": 0.4}, "recall@5": {"mean": 0.75}}},
+            "router_only_top1": {
+                "global_primary": {
+                    "mrr": {"mean": 0.4},
+                    "recall@1": {"mean": 0.2},
+                    "recall@5": {"mean": 0.6},
+                }
+            },
+            "uniform_mean_fusion": {
+                "global_primary": {
+                    "mrr": {"mean": 0.5},
+                    "recall@1": {"mean": 0.3},
+                    "recall@5": {"mean": 0.7},
+                }
+            },
+            "kalman": {
+                "global_primary": {
+                    "mrr": {"mean": 0.52},
+                    "recall@1": {"mean": 0.32},
+                    "recall@5": {"mean": 0.72},
+                }
+            },
+            "adaptive_route_or_fuse": {
+                "global_primary": {
+                    "mrr": {"mean": 0.55},
+                    "recall@1": {"mean": 0.4},
+                    "recall@5": {"mean": 0.75},
+                }
+            },
         },
         "query_level": {
             "ground_truth": {"q1": ["d1"], "q2": ["d2"]},
@@ -49,5 +73,7 @@ def test_adaptive_route_or_fuse_writes_policy_artifacts(
     assert output_dir.joinpath("summary.json").exists()
     assert output_dir.joinpath("report.md").exists()
 
-    on_disk = json.loads(output_dir.joinpath("summary.json").read_text(encoding="utf-8"))
+    on_disk = json.loads(
+        output_dir.joinpath("summary.json").read_text(encoding="utf-8")
+    )
     assert "per_mode_outcomes" in on_disk

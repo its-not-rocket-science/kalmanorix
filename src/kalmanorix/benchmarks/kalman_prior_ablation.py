@@ -170,14 +170,24 @@ def _sample_problem(cfg: PriorAblationConfig) -> dict[str, Any]:
     for idx in range(k):
         domain_bias = rng.normal(scale=0.03 * (idx + 1), size=(d,))
         noise_scale = 0.08 + 0.05 * idx
-        obs = _l2_normalize(truth + domain_bias[None, :] + rng.normal(scale=noise_scale, size=(n_total, d)))
+        obs = _l2_normalize(
+            truth
+            + domain_bias[None, :]
+            + rng.normal(scale=noise_scale, size=(n_total, d))
+        )
         specialist.append(obs)
-        router_scores.append(-np.linalg.norm(obs - truth, axis=1) + rng.normal(scale=0.02, size=n_total))
+        router_scores.append(
+            -np.linalg.norm(obs - truth, axis=1) + rng.normal(scale=0.02, size=n_total)
+        )
 
     specialist_arr = np.stack(specialist, axis=1)  # (n, k, d)
     router_arr = np.stack(router_scores, axis=1)  # (n, k)
 
-    split_labels = (["train"] * cfg.n_train) + (["validation"] * cfg.n_validation) + (["test"] * cfg.n_test)
+    split_labels = (
+        (["train"] * cfg.n_train)
+        + (["validation"] * cfg.n_validation)
+        + (["test"] * cfg.n_test)
+    )
     return {
         "truth": truth,
         "generalist": generalist,
@@ -200,7 +210,9 @@ def _fit_diag_covariances(problem: dict[str, Any]) -> list[np.ndarray]:
     return covs
 
 
-def _error_and_calibration(errors: np.ndarray, uncertainties: np.ndarray) -> dict[str, float]:
+def _error_and_calibration(
+    errors: np.ndarray, uncertainties: np.ndarray
+) -> dict[str, float]:
     confidence = np.exp(-uncertainties)
     observed = np.exp(-errors)
     bins = np.linspace(0.0, 1.0, 11)
@@ -209,7 +221,9 @@ def _error_and_calibration(errors: np.ndarray, uncertainties: np.ndarray) -> dic
         mask = (confidence >= lo) & (confidence < hi)
         if not np.any(mask):
             continue
-        ece += float(np.mean(mask)) * abs(float(np.mean(confidence[mask]) - np.mean(observed[mask])))
+        ece += float(np.mean(mask)) * abs(
+            float(np.mean(confidence[mask]) - np.mean(observed[mask]))
+        )
     return {
         "mean_error": float(np.mean(errors)),
         "calibration_ece": float(ece),
@@ -229,15 +243,23 @@ def run_kalman_prior_ablation(
     split_labels = problem["split_labels"]
 
     covariances = _fit_diag_covariances(problem)
-    learned_w, fit_meta = fit_learned_linear_prior(specialist, truth, split_labels, fit_split="train")
+    learned_w, fit_meta = fit_learned_linear_prior(
+        specialist, truth, split_labels, fit_split="train"
+    )
 
     test_idx = [i for i, s in enumerate(split_labels) if s == "test"]
 
     methods = {
         "mean_fusion": {"prior_mode": "zero", "residual_mode": False},
         "kalman_current": {"prior_mode": "current_default", "residual_mode": False},
-        "kalman_generalist_prior": {"prior_mode": "single_generalist", "residual_mode": False},
-        "kalman_learned_linear_prior": {"prior_mode": "learned_linear_combiner", "residual_mode": False},
+        "kalman_generalist_prior": {
+            "prior_mode": "single_generalist",
+            "residual_mode": False,
+        },
+        "kalman_learned_linear_prior": {
+            "prior_mode": "learned_linear_combiner",
+            "residual_mode": False,
+        },
         "kalman_residuals": {"prior_mode": "single_generalist", "residual_mode": True},
     }
 
@@ -253,7 +275,10 @@ def run_kalman_prior_ablation(
             if name == "mean_fusion":
                 fused = np.mean(np.stack(embs, axis=0), axis=0)
                 fused_cov = np.mean(np.stack(covs, axis=0), axis=0)
-                latency = cfg.latency_base_ms + cfg.n_specialists * cfg.latency_per_specialist_ms
+                latency = (
+                    cfg.latency_base_ms
+                    + cfg.n_specialists * cfg.latency_per_specialist_ms
+                )
             else:
                 fused, fused_cov = kalman_fuse_with_prior_modes(
                     embs,
@@ -264,9 +289,16 @@ def run_kalman_prior_ablation(
                     router_scores=router_scores[q_idx],
                     residual_mode=mode["residual_mode"],
                 )
-                latency = cfg.latency_base_ms + cfg.n_specialists * cfg.latency_per_specialist_ms + cfg.latency_kalman_overhead_ms
+                latency = (
+                    cfg.latency_base_ms
+                    + cfg.n_specialists * cfg.latency_per_specialist_ms
+                    + cfg.latency_kalman_overhead_ms
+                )
 
-            e = 1.0 - float(np.dot(fused, truth[q_idx]) / ((np.linalg.norm(fused) * np.linalg.norm(truth[q_idx])) + 1e-12))
+            e = 1.0 - float(
+                np.dot(fused, truth[q_idx])
+                / ((np.linalg.norm(fused) * np.linalg.norm(truth[q_idx])) + 1e-12)
+            )
             errs.append(e)
             unc.append(float(np.mean(fused_cov)))
             lat.append(latency)
@@ -292,7 +324,9 @@ def run_kalman_prior_ablation(
     }
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     (output_dir / "report.md").write_text(_render_report(summary), encoding="utf-8")
     return summary
 
