@@ -45,7 +45,9 @@ class TimedSigma2:
         return out
 
 
-def _make_village(n_specialists: int, d: int) -> tuple[Village, list[TimedEmbedder], list[TimedSigma2]]:
+def _make_village(
+    n_specialists: int, d: int
+) -> tuple[Village, list[TimedEmbedder], list[TimedSigma2]]:
     rng = np.random.default_rng(42)
     modules: list[SEF] = []
     embeds: list[TimedEmbedder] = []
@@ -80,7 +82,14 @@ def _make_village(n_specialists: int, d: int) -> tuple[Village, list[TimedEmbedd
         timed_sigma2 = TimedSigma2(make_sigma2(timed_embed, centroid))
         embeds.append(timed_embed)
         sigmas.append(timed_sigma2)
-        modules.append(SEF(name=f"s{i}", embed=timed_embed, sigma2=timed_sigma2, domain_centroid=centroid))
+        modules.append(
+            SEF(
+                name=f"s{i}",
+                embed=timed_embed,
+                sigma2=timed_sigma2,
+                domain_centroid=centroid,
+            )
+        )
 
     return Village(modules=modules), embeds, sigmas
 
@@ -89,7 +98,12 @@ def _benchmark_strategy(
     queries: list[str],
     village: Village,
     strategy: str,
-) -> tuple[dict[str, float], list[np.ndarray], list[dict[str, float]], list[dict[str, object] | None]]:
+) -> tuple[
+    dict[str, float],
+    list[np.ndarray],
+    list[dict[str, float]],
+    list[dict[str, object] | None],
+]:
     router = ScoutRouter(mode="all")
     if strategy == "mean":
         fuser = MeanFuser()
@@ -133,7 +147,9 @@ def _benchmark_batch_strategy(
     modules: list[SEF],
     strategy: str,
     batch_size: int,
-) -> tuple[dict[str, float], list[np.ndarray], list[dict[str, float]], list[dict[str, object]]]:
+) -> tuple[
+    dict[str, float], list[np.ndarray], list[dict[str, float]], list[dict[str, object]]
+]:
     if strategy == "mean":
         fuser = MeanFuser()
     elif strategy == "kalman_legacy":
@@ -212,7 +228,12 @@ def _numerical_deviation(
         n_total += int(ref.size)
         for key, v_ref in w_ref.items():
             weight_abs = max(weight_abs, abs(float(w_cand[key]) - float(v_ref)))
-        if m_ref and m_cand and "fused_covariance" in m_ref and "fused_covariance" in m_cand:
+        if (
+            m_ref
+            and m_cand
+            and "fused_covariance" in m_ref
+            and "fused_covariance" in m_cand
+        ):
             ref_cov = np.asarray(m_ref["fused_covariance"], dtype=np.float64)
             cand_cov = np.asarray(m_cand["fused_covariance"], dtype=np.float64)
             cov_abs = max(cov_abs, float(np.max(np.abs(cand_cov - ref_cov))))
@@ -224,7 +245,9 @@ def _numerical_deviation(
     }
 
 
-def _run_canonical_benchmark(out_dir: Path, benchmark_path: Path, max_queries: int) -> dict[str, object]:
+def _run_canonical_benchmark(
+    out_dir: Path, benchmark_path: Path, max_queries: int
+) -> dict[str, object]:
     canonical_out = out_dir / "canonical"
     cmd = [
         "python",
@@ -241,23 +264,31 @@ def _run_canonical_benchmark(out_dir: Path, benchmark_path: Path, max_queries: i
     env = os.environ.copy()
     env["PYTHONPATH"] = ".:src"
     subprocess.run(cmd, check=True, env=env)
-    canonical_summary = json.loads((canonical_out / "summary.json").read_text(encoding="utf-8"))
+    canonical_summary = json.loads(
+        (canonical_out / "summary.json").read_text(encoding="utf-8")
+    )
     decision = canonical_summary["decision"]["kalman_vs_mean"]
     observed = decision["observed"]
     return {
         "output_dir": str(canonical_out),
         "decision_verdict": decision["verdict"],
         "latency_ratio_vs_mean": float(observed["latency_ratio_vs_mean"]),
-        "latency_ratio_threshold": float(decision["rules"]["max_latency_ratio_vs_mean"]),
+        "latency_ratio_threshold": float(
+            decision["rules"]["max_latency_ratio_vs_mean"]
+        ),
         "latency_ratio_ok": bool(decision["checks"]["latency_ratio_ok"]),
         "primary_metric_delta": float(observed["primary_metric_delta"]),
-        "primary_metric_adjusted_p_value": float(observed["primary_metric_adjusted_p_value"]),
+        "primary_metric_adjusted_p_value": float(
+            observed["primary_metric_adjusted_p_value"]
+        ),
     }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output-dir", type=Path, default=Path("results/kalman_latency_optimization"))
+    parser.add_argument(
+        "--output-dir", type=Path, default=Path("results/kalman_latency_optimization")
+    )
     parser.add_argument("--n-queries", type=int, default=200)
     parser.add_argument("--n-specialists", type=int, default=6)
     parser.add_argument("--dim", type=int, default=768)
@@ -274,7 +305,9 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
 
     village, embeds, sigmas = _make_village(args.n_specialists, args.dim)
-    queries = [f"query {i} mixed domain latency benchmark" for i in range(args.n_queries)]
+    queries = [
+        f"query {i} mixed domain latency benchmark" for i in range(args.n_queries)
+    ]
 
     strategy_metrics = {}
     strategy_outputs = {}
@@ -308,9 +341,18 @@ def main() -> None:
     sigma_calls = sum(s.calls for s in sigmas)
     sigma_seconds = sum(s.seconds for s in sigmas)
 
-    speedup = strategy_metrics["kalman_legacy"]["mean_ms"] / strategy_metrics["kalman_optimized"]["mean_ms"]
-    ratio_vs_mean = strategy_metrics["kalman_optimized"]["mean_ms"] / strategy_metrics["mean"]["mean_ms"]
-    batch_speedup = batch_metrics["kalman_legacy"]["mean_ms"] / batch_metrics["kalman_optimized"]["mean_ms"]
+    speedup = (
+        strategy_metrics["kalman_legacy"]["mean_ms"]
+        / strategy_metrics["kalman_optimized"]["mean_ms"]
+    )
+    ratio_vs_mean = (
+        strategy_metrics["kalman_optimized"]["mean_ms"]
+        / strategy_metrics["mean"]["mean_ms"]
+    )
+    batch_speedup = (
+        batch_metrics["kalman_legacy"]["mean_ms"]
+        / batch_metrics["kalman_optimized"]["mean_ms"]
+    )
 
     deviation_scalar = _numerical_deviation(
         strategy_outputs["kalman_legacy"]["vectors"],

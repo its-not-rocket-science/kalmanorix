@@ -114,8 +114,12 @@ class SimpleMultinomialNB:
         vocab_size = max(len(self.vocab_), 1)
 
         for class_name in self.classes_:
-            self.class_log_prior_[class_name] = math.log(class_counts[class_name] / total)
-            in_vocab_count = sum(token_counts[class_name][token] for token in self.vocab_)
+            self.class_log_prior_[class_name] = math.log(
+                class_counts[class_name] / total
+            )
+            in_vocab_count = sum(
+                token_counts[class_name][token] for token in self.vocab_
+            )
             denom = in_vocab_count + self.alpha * vocab_size
             self.feature_log_prob_[class_name] = {}
             for token in self.vocab_:
@@ -170,11 +174,17 @@ def _generate_domain_samples(
         distractor_domain = rng.choice([d for d in all_domains if d != domain])
         tokens += rng.choices(DOMAIN_DEFS[distractor_domain]["core"], k=2)
         rng.shuffle(tokens)
-        out.append(Sample(text=" ".join(tokens), label=_build_label(domain, intent), domain=domain))
+        out.append(
+            Sample(
+                text=" ".join(tokens), label=_build_label(domain, intent), domain=domain
+            )
+        )
     return out
 
 
-def _generate_mixed_test_set(domains: Sequence[str], n_total: int, rng: random.Random) -> list[Sample]:
+def _generate_mixed_test_set(
+    domains: Sequence[str], n_total: int, rng: random.Random
+) -> list[Sample]:
     samples: list[Sample] = []
     for _ in range(n_total):
         domain = rng.choice(list(domains))
@@ -186,7 +196,11 @@ def _generate_mixed_test_set(domains: Sequence[str], n_total: int, rng: random.R
         other = rng.choice([d for d in domains if d != domain])
         tokens += rng.choices(DOMAIN_DEFS[other]["core"], k=4)
         rng.shuffle(tokens)
-        samples.append(Sample(text=" ".join(tokens), label=_build_label(domain, intent), domain=domain))
+        samples.append(
+            Sample(
+                text=" ".join(tokens), label=_build_label(domain, intent), domain=domain
+            )
+        )
     return samples
 
 
@@ -247,7 +261,9 @@ def _kalman_fuse_probabilities(
     specialist_probs: Sequence[np.ndarray],
     sigma2s: Sequence[float],
 ) -> np.ndarray:
-    precisions = np.array([1.0 / max(sigma2, 1e-6) for sigma2 in sigma2s], dtype=np.float64)
+    precisions = np.array(
+        [1.0 / max(sigma2, 1e-6) for sigma2 in sigma2s], dtype=np.float64
+    )
     normalized = precisions / (float(np.sum(precisions)) + 1e-12)
     fused = np.sum(np.stack(specialist_probs, axis=0) * normalized[:, None], axis=0)
     fused = np.maximum(fused, 0.0)
@@ -395,7 +411,11 @@ def run_matched_compute_benchmark(
     strategies: dict[str, dict[str, Any]] = {
         "monolith_baseline": {"probs": [], "inference_flops": [], "active": []},
         "specialists_all_routing": {"probs": [], "inference_flops": [], "active": []},
-        "specialists_semantic_routing": {"probs": [], "inference_flops": [], "active": []},
+        "specialists_semantic_routing": {
+            "probs": [],
+            "inference_flops": [],
+            "active": [],
+        },
         "specialists_kalman_fusion": {"probs": [], "inference_flops": [], "active": []},
     }
 
@@ -419,7 +439,9 @@ def run_matched_compute_benchmark(
             assumptions.routing_overhead_all_proxy
             + assumptions.n_specialists * assumptions.specialist_inference_flops_proxy
         )
-        strategies["specialists_all_routing"]["active"].append(assumptions.n_specialists)
+        strategies["specialists_all_routing"]["active"].append(
+            assumptions.n_specialists
+        )
 
         ranked_domains = sorted(
             domains,
@@ -433,7 +455,9 @@ def run_matched_compute_benchmark(
             assumptions.routing_overhead_semantic_proxy
             + assumptions.semantic_top_k * assumptions.specialist_inference_flops_proxy
         )
-        strategies["specialists_semantic_routing"]["active"].append(assumptions.semantic_top_k)
+        strategies["specialists_semantic_routing"]["active"].append(
+            assumptions.semantic_top_k
+        )
 
         sigma2s = []
         for domain in selected_domains:
@@ -448,7 +472,9 @@ def run_matched_compute_benchmark(
             + assumptions.kalman_fusion_overhead_proxy
             + assumptions.semantic_top_k * assumptions.specialist_inference_flops_proxy
         )
-        strategies["specialists_kalman_fusion"]["active"].append(assumptions.semantic_top_k)
+        strategies["specialists_kalman_fusion"]["active"].append(
+            assumptions.semantic_top_k
+        )
 
     rows: list[dict[str, Any]] = []
     for strategy_name, payload in strategies.items():
@@ -485,12 +511,14 @@ def run_matched_compute_benchmark(
         if row["strategy"] == "monolith_baseline"
     )
     fairness_checks = {
-        "training_compute_parity_achieved": abs(1.0 - train_ratio) <= assumptions.parity_tolerance,
+        "training_compute_parity_achieved": abs(1.0 - train_ratio)
+        <= assumptions.parity_tolerance,
         "training_compute_ratio_specialists_over_monolith": train_ratio,
         "parity_tolerance": assumptions.parity_tolerance,
         "assumption_validation_passed": True,
         "inference_ratio_vs_monolith": {
-            row["strategy"]: row["inference_flops_proxy_mean"] / max(monolith_infer, 1.0)
+            row["strategy"]: row["inference_flops_proxy_mean"]
+            / max(monolith_infer, 1.0)
             for row in rows
         },
     }
@@ -499,7 +527,9 @@ def run_matched_compute_benchmark(
         fairness_checks["training_compute_parity_achieved"]
         and all(
             ratio <= 2.0
-            for strategy, ratio in fairness_checks["inference_ratio_vs_monolith"].items()
+            for strategy, ratio in fairness_checks[
+                "inference_ratio_vs_monolith"
+            ].items()
             if strategy != "specialists_all_routing"
         )
     )
@@ -546,7 +576,9 @@ def run_matched_compute_benchmark(
     for row in rows:
         report_lines.append(
             "| {strategy} | {accuracy_at_1:.4f} | {mrr:.4f} | {training_budget_proxy} | "
-            "{inference_flops_proxy_mean:.1f} | {active_specialists_mean:.2f} |".format(**row)
+            "{inference_flops_proxy_mean:.1f} | {active_specialists_mean:.2f} |".format(
+                **row
+            )
         )
 
     report_lines.extend(

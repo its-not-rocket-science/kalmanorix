@@ -90,9 +90,7 @@ def run_adaptive_route_or_fuse(
 
     query_level = details["query_level"]
     rankings = query_level["rankings"]
-    ground_truth = {
-        qid: set(ids) for qid, ids in query_level["ground_truth"].items()
-    }
+    ground_truth = {qid: set(ids) for qid, ids in query_level["ground_truth"].items()}
     adaptive_usage = query_level["policy_usage"].get("adaptive_route_or_fuse", {})
 
     if not adaptive_usage:
@@ -107,7 +105,9 @@ def run_adaptive_route_or_fuse(
     query_ids = sorted(rankings["adaptive_route_or_fuse"])
     frequencies: dict[str, int] = {}
     for qid in query_ids:
-        frequencies[adaptive_usage[qid]["mode"]] = frequencies.get(adaptive_usage[qid]["mode"], 0) + 1
+        frequencies[adaptive_usage[qid]["mode"]] = (
+            frequencies.get(adaptive_usage[qid]["mode"], 0) + 1
+        )
 
     summary = {
         "benchmark": {
@@ -156,8 +156,12 @@ def run_adaptive_route_or_fuse(
             f"- {name}: mrr={metrics['mrr']['mean']:.4f}, recall@1={metrics['recall@1']['mean']:.4f}, recall@5={metrics['recall@5']['mean']:.4f}"
         )
 
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    (output_dir / "report.md").write_text("\n".join(report_lines) + "\n", encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
+    (output_dir / "report.md").write_text(
+        "\n".join(report_lines) + "\n", encoding="utf-8"
+    )
     return summary
 
 
@@ -172,7 +176,9 @@ def main() -> None:
     parser.add_argument("--max-queries", type=int, default=600)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--selector-type", type=str, default="rule", choices=["rule", "learned"])
+    parser.add_argument(
+        "--selector-type", type=str, default="rule", choices=["rule", "learned"]
+    )
     parser.add_argument(
         "--output-dir", type=Path, default=Path("results/adaptive_route_or_fuse")
     )

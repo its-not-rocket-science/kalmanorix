@@ -113,9 +113,17 @@ def fit_scalar_calibrator(
     if x.size < min_samples:
         cal = ScalarCalibrator(
             name="identity",
-            params={"reason": f"too_few_samples:{x.size}", "min_samples": float(min_samples)},
+            params={
+                "reason": f"too_few_samples:{x.size}",
+                "min_samples": float(min_samples),
+            },
         )
-        return CalibrationFit(calibrator=cal, n_train=int(x.size), used_fallback=True, objective_mse=float(np.mean((x - y) ** 2)) if x.size else 0.0)
+        return CalibrationFit(
+            calibrator=cal,
+            n_train=int(x.size),
+            used_fallback=True,
+            objective_mse=float(np.mean((x - y) ** 2)) if x.size else 0.0,
+        )
 
     order = np.argsort(x)
     xs = x[order]

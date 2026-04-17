@@ -128,12 +128,20 @@ def test_adaptive_policy_chooses_hard_routing_for_high_confidence_query() -> Non
             _FakeModule(
                 "dominant",
                 0.1,
-                {"q": np.array([1.0, 0.0]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+                {
+                    "q": np.array([1.0, 0.0]),
+                    "d1": np.array([1.0, 0.0]),
+                    "d2": np.array([0.0, 1.0]),
+                },
             ),
             _FakeModule(
                 "backup",
                 0.5,
-                {"q": np.array([0.95, 0.05]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+                {
+                    "q": np.array([0.95, 0.05]),
+                    "d1": np.array([1.0, 0.0]),
+                    "d2": np.array([0.0, 1.0]),
+                },
             ),
         ]
     )
@@ -191,12 +199,20 @@ def test_adaptive_policy_fallback_stays_stable_with_degenerate_sigma2() -> None:
             _FakeModule(
                 "s1",
                 0.0,
-                {"q": np.array([1.0, 0.0]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+                {
+                    "q": np.array([1.0, 0.0]),
+                    "d1": np.array([1.0, 0.0]),
+                    "d2": np.array([0.0, 1.0]),
+                },
             ),
             _FakeModule(
                 "s2",
                 0.0,
-                {"q": np.array([1.0, 0.0]), "d1": np.array([1.0, 0.0]), "d2": np.array([0.0, 1.0])},
+                {
+                    "q": np.array([1.0, 0.0]),
+                    "d1": np.array([1.0, 0.0]),
+                    "d2": np.array([0.0, 1.0]),
+                },
             ),
         ]
     )

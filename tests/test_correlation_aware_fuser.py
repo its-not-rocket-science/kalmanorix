@@ -28,7 +28,9 @@ def test_identical_specialist_edge_case_inflates_posterior_variance() -> None:
     village = _make_two_module_village()
     scout = ScoutRouter(mode="all")
 
-    baseline = Panoramix(fuser=KalmanorixFuser()).brew("q", village=village, scout=scout)
+    baseline = Panoramix(fuser=KalmanorixFuser()).brew(
+        "q", village=village, scout=scout
+    )
     baseline_var = float(np.mean(baseline.meta["fused_covariance"]))  # type: ignore[index]
 
     profile = ResidualCorrelationProfile(
@@ -68,7 +70,9 @@ def test_independence_reduces_to_baseline_behavior() -> None:
     village = _make_two_module_village()
     scout = ScoutRouter(mode="all")
 
-    baseline = Panoramix(fuser=KalmanorixFuser()).brew("q", village=village, scout=scout)
+    baseline = Panoramix(fuser=KalmanorixFuser()).brew(
+        "q", village=village, scout=scout
+    )
 
     profile = ResidualCorrelationProfile(
         module_names=["a", "b"],
@@ -82,8 +86,11 @@ def test_independence_reduces_to_baseline_behavior() -> None:
 
     assert np.allclose(aware.vector, baseline.vector, atol=1e-12)
     assert np.allclose(
-        aware.meta["fused_covariance"], baseline.meta["fused_covariance"], atol=1e-12  # type: ignore[index]
+        aware.meta["fused_covariance"],
+        baseline.meta["fused_covariance"],
+        atol=1e-12,  # type: ignore[index]
     )
+
 
 def test_numerical_stability_for_discount_and_inflation() -> None:
     corr = np.array(

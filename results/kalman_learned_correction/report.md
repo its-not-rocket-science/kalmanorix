@@ -8,7 +8,7 @@ Can task-aware learned correction recover Kalman fusion quality without abandoni
 
 | Method | Recall@1 | Recall@5 | MRR |
 | --- | ---: | ---: | ---: |
-| mean | 0.6136 | 0.8182 | 0.7173 |
-| kalman_precision | 0.6364 | 0.8318 | 0.7350 |
-| learned_linear_combiner | 0.6091 | 0.8318 | 0.7131 |
-| kalman_learned_correction | 0.6682 | 0.8500 | 0.7599 |
+| mean | 0.4909 | 0.7864 | 0.6245 |
+| kalman_precision | 0.5136 | 0.8136 | 0.6492 |
+| learned_linear_combiner | 0.5364 | 0.8000 | 0.6565 |
+| kalman_learned_correction | 0.6000 | 0.8364 | 0.7077 |

@@ -70,7 +70,9 @@ class KalmanLearnedCorrection:
         self._w2: Array | None = None
         self._b2: float = 0.0
 
-    def fit(self, features: Array, kalman_weights: Array, oracle_weights: Array) -> None:
+    def fit(
+        self, features: Array, kalman_weights: Array, oracle_weights: Array
+    ) -> None:
         n_queries, n_specialists, feature_dim = features.shape
         self._feature_dim = feature_dim
         target = np.log(oracle_weights + 1e-12) - np.log(kalman_weights + 1e-12)
@@ -143,7 +145,9 @@ class KalmanLearnedCorrection:
             feature_dim=int(self._feature_dim or 0),
             n_specialists=self.cfg.n_specialists,
             kalman_anchor=self.cfg.kalman_anchor,
-            linear_weights=(None if self._w_linear is None else self._w_linear.tolist()),
+            linear_weights=(
+                None if self._w_linear is None else self._w_linear.tolist()
+            ),
             linear_bias=(None if self._w_linear is None else self._b_linear),
             mlp_w1=(None if self._w1 is None else self._w1.tolist()),
             mlp_b1=(None if self._b1 is None else self._b1.tolist()),
@@ -152,7 +156,9 @@ class KalmanLearnedCorrection:
         )
 
     @classmethod
-    def from_checkpoint(cls, checkpoint: CorrectionCheckpoint) -> "KalmanLearnedCorrection":
+    def from_checkpoint(
+        cls, checkpoint: CorrectionCheckpoint
+    ) -> "KalmanLearnedCorrection":
         cfg = LearnedCorrectionConfig(
             model_type=checkpoint.model_type,  # type: ignore[arg-type]
             n_specialists=checkpoint.n_specialists,
@@ -224,7 +230,9 @@ def _build_features(
 def _oracle_weights(specialist_embeddings: Array, true_docs: Array) -> Array:
     sims = np.einsum(
         "nkd,nd->nk",
-        _l2_normalize(specialist_embeddings.reshape(-1, specialist_embeddings.shape[-1])).reshape(specialist_embeddings.shape),
+        _l2_normalize(
+            specialist_embeddings.reshape(-1, specialist_embeddings.shape[-1])
+        ).reshape(specialist_embeddings.shape),
         _l2_normalize(true_docs),
     )
     return _softmax(6.0 * sims, axis=1)
@@ -245,7 +253,9 @@ def _fit_global_linear_combiner(
     return w / (np.sum(w) + 1e-12)
 
 
-def _recall_mrr(fused_queries: Array, docs: Array, relevant_doc_ids: Array) -> dict[str, float]:
+def _recall_mrr(
+    fused_queries: Array, docs: Array, relevant_doc_ids: Array
+) -> dict[str, float]:
     q = _l2_normalize(fused_queries)
     d = _l2_normalize(docs)
     scores = q @ d.T
@@ -274,7 +284,9 @@ def _synthesize_problem(cfg: LearnedCorrectionConfig) -> dict[str, Any]:
     k = cfg.n_specialists
 
     latent_queries = _l2_normalize(rng.normal(size=(n_total, d)))
-    true_docs = _l2_normalize(latent_queries + rng.normal(scale=0.18, size=(n_total, d)))
+    true_docs = _l2_normalize(
+        latent_queries + rng.normal(scale=0.18, size=(n_total, d))
+    )
     specialists = []
     sigma2_cols = []
     router_cols = []
@@ -289,7 +301,9 @@ def _synthesize_problem(cfg: LearnedCorrectionConfig) -> dict[str, Any]:
             None,
         )
         obs = _l2_normalize(
-            latent_queries + bias[None, :] + rng.normal(scale=np.sqrt(sigma2)[:, None], size=(n_total, d))
+            latent_queries
+            + bias[None, :]
+            + rng.normal(scale=np.sqrt(sigma2)[:, None], size=(n_total, d))
         )
         router = (
             np.einsum("nd,nd->n", obs, latent_queries)
@@ -306,7 +320,8 @@ def _synthesize_problem(cfg: LearnedCorrectionConfig) -> dict[str, Any]:
 
     hard_negative_idx = rng.integers(0, n_total, size=cfg.n_noise_docs)
     hard_negatives = _l2_normalize(
-        true_docs[hard_negative_idx] + rng.normal(scale=0.22, size=(cfg.n_noise_docs, d))
+        true_docs[hard_negative_idx]
+        + rng.normal(scale=0.22, size=(cfg.n_noise_docs, d))
     )
     docs = np.concatenate([true_docs, hard_negatives], axis=0)
     relevant_doc_ids = np.arange(n_total, dtype=int)
@@ -391,7 +406,9 @@ def run_kalman_learned_correction(
     }
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     (output_dir / "report.md").write_text(_render_report(summary), encoding="utf-8")
     return summary
 

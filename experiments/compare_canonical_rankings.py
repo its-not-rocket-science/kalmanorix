@@ -52,10 +52,19 @@ def main() -> None:
         new_pos = _pos_map(new_rank)
         methods = sorted(set(old_pos).intersection(new_pos))
 
-        lines.extend([f"## {metric}", "", "| Method | Old rank | New rank | Shift |", "|---|---:|---:|---:|"])
+        lines.extend(
+            [
+                f"## {metric}",
+                "",
+                "| Method | Old rank | New rank | Shift |",
+                "|---|---:|---:|---:|",
+            ]
+        )
         for method in methods:
             shift = old_pos[method] - new_pos[method]
-            lines.append(f"| {method} | {old_pos[method]} | {new_pos[method]} | {shift:+d} |")
+            lines.append(
+                f"| {method} | {old_pos[method]} | {new_pos[method]} | {shift:+d} |"
+            )
         lines.append("")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

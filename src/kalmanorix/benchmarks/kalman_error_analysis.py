@@ -63,7 +63,9 @@ def build_query_records(details: Mapping[str, Any]) -> list[QueryRecord]:
     mean_conf = confidence.get("mean", {})
     kalman_conf = confidence.get("kalman", {})
 
-    specialist_counts = ql.get("specialist_count_selected", {}).get("router_only_top1", {})
+    specialist_counts = ql.get("specialist_count_selected", {}).get(
+        "router_only_top1", {}
+    )
 
     records: list[QueryRecord] = []
     for qid in sorted(ground_truth):
@@ -138,26 +140,57 @@ def generate_bucket_summaries(records: list[QueryRecord]) -> list[dict[str, Any]
     buckets: list[tuple[str, Iterable[QueryRecord]]] = [
         ("single-domain", [r for r in records if r.specialist_count <= 1.0]),
         ("multi-domain", [r for r in records if r.specialist_count > 1.0]),
-        ("high specialist agreement", [r for r in records if r.agreement_proxy >= high_agreement]),
-        ("specialist disagreement", [r for r in records if r.agreement_proxy < high_agreement]),
-        ("high uncertainty spread", [r for r in records if r.uncertainty_spread >= high_uncertainty]),
-        ("low uncertainty spread", [r for r in records if r.uncertainty_spread < high_uncertainty]),
-        ("router confidence: low", [r for r in records if r.router_confidence <= low_conf]),
-        ("router confidence: mid", [r for r in records if low_conf < r.router_confidence <= high_conf]),
-        ("router confidence: high", [r for r in records if r.router_confidence > high_conf]),
+        (
+            "high specialist agreement",
+            [r for r in records if r.agreement_proxy >= high_agreement],
+        ),
+        (
+            "specialist disagreement",
+            [r for r in records if r.agreement_proxy < high_agreement],
+        ),
+        (
+            "high uncertainty spread",
+            [r for r in records if r.uncertainty_spread >= high_uncertainty],
+        ),
+        (
+            "low uncertainty spread",
+            [r for r in records if r.uncertainty_spread < high_uncertainty],
+        ),
+        (
+            "router confidence: low",
+            [r for r in records if r.router_confidence <= low_conf],
+        ),
+        (
+            "router confidence: mid",
+            [r for r in records if low_conf < r.router_confidence <= high_conf],
+        ),
+        (
+            "router confidence: high",
+            [r for r in records if r.router_confidence > high_conf],
+        ),
         (
             "in-domain (proxy)",
-            [r for r in records if r.specialist_count <= 1.0 and r.router_confidence > high_conf],
+            [
+                r
+                for r in records
+                if r.specialist_count <= 1.0 and r.router_confidence > high_conf
+            ],
         ),
         (
             "ambiguous (proxy)",
-            [r for r in records if r.specialist_count > 1.0 or r.router_confidence <= low_conf],
+            [
+                r
+                for r in records
+                if r.specialist_count > 1.0 or r.router_confidence <= low_conf
+            ],
         ),
     ]
     return [_summarize_bucket(name, list(rows)) for name, rows in buckets]
 
 
-def render_markdown_report(*, bucket_summaries: list[dict[str, Any]], total_queries: int) -> str:
+def render_markdown_report(
+    *, bucket_summaries: list[dict[str, Any]], total_queries: int
+) -> str:
     lines = [
         "# Kalman Bucketed Error Analysis",
         "",
@@ -188,17 +221,37 @@ def render_markdown_report(*, bucket_summaries: list[dict[str, Any]], total_quer
 
     helps = [r for r in bucket_summaries if r["consistency"] == "helps" and r["n"] >= 3]
     hurts = [r for r in bucket_summaries if r["consistency"] == "hurts" and r["n"] >= 3]
-    redundant = [r for r in bucket_summaries if r["consistency"] == "redundant" and r["n"] >= 3]
+    redundant = [
+        r for r in bucket_summaries if r["consistency"] == "redundant" and r["n"] >= 3
+    ]
 
     lines.extend(["", "## Empirical patterns", ""])
     lines.append("### Buckets where Kalman consistently helps")
-    lines.extend([f"- {r['bucket']} (n={r['n']}, Δ={r['delta_kalman_vs_mean']:.4f})" for r in helps] or ["- None met the consistency and minimum-size filter in this run."])
+    lines.extend(
+        [
+            f"- {r['bucket']} (n={r['n']}, Δ={r['delta_kalman_vs_mean']:.4f})"
+            for r in helps
+        ]
+        or ["- None met the consistency and minimum-size filter in this run."]
+    )
     lines.append("")
     lines.append("### Buckets where Kalman hurts")
-    lines.extend([f"- {r['bucket']} (n={r['n']}, Δ={r['delta_kalman_vs_mean']:.4f})" for r in hurts] or ["- None met the consistency and minimum-size filter in this run."])
+    lines.extend(
+        [
+            f"- {r['bucket']} (n={r['n']}, Δ={r['delta_kalman_vs_mean']:.4f})"
+            for r in hurts
+        ]
+        or ["- None met the consistency and minimum-size filter in this run."]
+    )
     lines.append("")
     lines.append("### Buckets where Kalman appears redundant")
-    lines.extend([f"- {r['bucket']} (n={r['n']}, mean |Δ|={r['mean_abs_delta']:.4f})" for r in redundant] or ["- None met the redundancy and minimum-size filter in this run."])
+    lines.extend(
+        [
+            f"- {r['bucket']} (n={r['n']}, mean |Δ|={r['mean_abs_delta']:.4f})"
+            for r in redundant
+        ]
+        or ["- None met the redundancy and minimum-size filter in this run."]
+    )
 
     lines.extend(
         [
@@ -214,7 +267,9 @@ def render_markdown_report(*, bucket_summaries: list[dict[str, Any]], total_quer
     return "\n".join(lines) + "\n"
 
 
-def generate_kalman_error_analysis_report(details: Mapping[str, Any], output_path: Path) -> str:
+def generate_kalman_error_analysis_report(
+    details: Mapping[str, Any], output_path: Path
+) -> str:
     records = build_query_records(details)
     bucket_summaries = generate_bucket_summaries(records)
     report = render_markdown_report(

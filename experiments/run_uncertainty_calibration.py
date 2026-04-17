@@ -5,7 +5,10 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from kalmanorix.benchmarks.uncertainty_calibration import ValidationPowerConfig, run_uncertainty_calibration
+from kalmanorix.benchmarks.uncertainty_calibration import (
+    ValidationPowerConfig,
+    run_uncertainty_calibration,
+)
 
 
 def main() -> None:

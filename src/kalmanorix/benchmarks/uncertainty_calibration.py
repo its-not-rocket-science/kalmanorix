@@ -60,12 +60,41 @@ class ValidationPowerConfig:
 
 
 _DOMAIN_KEYWORDS: dict[str, tuple[str, ...]] = {
-    "tech": ("battery", "charging", "charger", "cpu", "gpu", "camera", "usb", "thermal", "power", "smartphone", "driver", "pipeline", "pd", "cable"),
-    "cook": ("braise", "simmer", "sauce", "oven", "stew", "cook", "recipe", "saute", "food processor", "tender", "vegetables"),
+    "tech": (
+        "battery",
+        "charging",
+        "charger",
+        "cpu",
+        "gpu",
+        "camera",
+        "usb",
+        "thermal",
+        "power",
+        "smartphone",
+        "driver",
+        "pipeline",
+        "pd",
+        "cable",
+    ),
+    "cook": (
+        "braise",
+        "simmer",
+        "sauce",
+        "oven",
+        "stew",
+        "cook",
+        "recipe",
+        "saute",
+        "food processor",
+        "tender",
+        "vegetables",
+    ),
 }
 
 
-def _token_embedder(vocab: list[str], boost: tuple[str, str]) -> Callable[[str], np.ndarray]:
+def _token_embedder(
+    vocab: list[str], boost: tuple[str, str]
+) -> Callable[[str], np.ndarray]:
     to_idx = {w: i for i, w in enumerate(vocab)}
     boost_tokens = set(boost)
 
@@ -92,26 +121,60 @@ def _build_village(method: str) -> tuple[Village, list[str], list[int]]:
     targets = [t for _, t in corpus.queries]
 
     vocab = [
-        "battery", "charging", "cpu", "gpu", "camera", "usb", "thermal",
-        "braise", "simmer", "sauce", "oven", "stew", "cook", "recipe",
+        "battery",
+        "charging",
+        "cpu",
+        "gpu",
+        "camera",
+        "usb",
+        "thermal",
+        "braise",
+        "simmer",
+        "sauce",
+        "oven",
+        "stew",
+        "cook",
+        "recipe",
     ]
     tech_embed = _token_embedder(vocab, ("battery", "gpu"))
     cook_embed = _token_embedder(vocab, ("braise", "simmer"))
 
-    tech_cal = [d for d in docs if any(k in d.lower() for k in ("battery", "gpu", "cpu", "camera", "usb"))]
-    cook_cal = [d for d in docs if any(k in d.lower() for k in ("braise", "simmer", "oven", "sauce", "stew"))]
+    tech_cal = [
+        d
+        for d in docs
+        if any(k in d.lower() for k in ("battery", "gpu", "cpu", "camera", "usb"))
+    ]
+    cook_cal = [
+        d
+        for d in docs
+        if any(k in d.lower() for k in ("braise", "simmer", "oven", "sauce", "stew"))
+    ]
 
     tech_sigma = create_uncertainty_method(
-        config=UncertaintyMethodConfig(method=method), embed=tech_embed, calibration_texts=tech_cal
+        config=UncertaintyMethodConfig(method=method),
+        embed=tech_embed,
+        calibration_texts=tech_cal,
     )
     cook_sigma = create_uncertainty_method(
-        config=UncertaintyMethodConfig(method=method), embed=cook_embed, calibration_texts=cook_cal
+        config=UncertaintyMethodConfig(method=method),
+        embed=cook_embed,
+        calibration_texts=cook_cal,
     )
 
     village = Village(
         [
-            SEF(name="tech", embed=tech_embed, sigma2=tech_sigma, embedding_dimension=len(vocab)),
-            SEF(name="cook", embed=cook_embed, sigma2=cook_sigma, embedding_dimension=len(vocab)),
+            SEF(
+                name="tech",
+                embed=tech_embed,
+                sigma2=tech_sigma,
+                embedding_dimension=len(vocab),
+            ),
+            SEF(
+                name="cook",
+                embed=cook_embed,
+                sigma2=cook_sigma,
+                embedding_dimension=len(vocab),
+            ),
         ]
     )
     return village, queries, targets
@@ -148,7 +211,9 @@ def _expanded_query_set(
     return expanded_q, expanded_t
 
 
-def _evaluate_specialist(module: SEF, queries: list[str], targets: list[int], docs: list[str]) -> list[QueryEvaluation]:
+def _evaluate_specialist(
+    module: SEF, queries: list[str], targets: list[int], docs: list[str]
+) -> list[QueryEvaluation]:
     doc_embs = np.stack([module.embed(d) for d in docs], axis=0)
     results: list[QueryEvaluation] = []
     for q, target in zip(queries, targets):
@@ -160,7 +225,9 @@ def _evaluate_specialist(module: SEF, queries: list[str], targets: list[int], do
         hit5 = 1.0 if target in ranked[:5] else 0.0
         rel_dist = float(np.linalg.norm(q_emb - doc_embs[target]))
         rel_score = float(scores[target])
-        results.append(QueryEvaluation(q, int(target), rank, rr, hit5, rel_dist, rel_score))
+        results.append(
+            QueryEvaluation(q, int(target), rank, rr, hit5, rel_dist, rel_score)
+        )
     return results
 
 
@@ -195,7 +262,17 @@ def _infer_domain(query: str) -> str:
 
 def _infer_query_type(query: str) -> str:
     lower = query.lower()
-    if any(marker in lower for marker in (" unlike ", " versus ", " vs ", "compare ", "contrasting", "mixed-domain")):
+    if any(
+        marker in lower
+        for marker in (
+            " unlike ",
+            " versus ",
+            " vs ",
+            "compare ",
+            "contrasting",
+            "mixed-domain",
+        )
+    ):
         return "cross_domain_compositional"
     if len(lower.split()) >= 9:
         return "long_form"
@@ -207,7 +284,13 @@ def _make_strata(queries: list[str]) -> list[dict[str, str]]:
     for query in queries:
         domain = _infer_domain(query)
         query_type = _infer_query_type(query)
-        labels.append({"domain": domain, "query_type": query_type, "stratum": f"{domain}:{query_type}"})
+        labels.append(
+            {
+                "domain": domain,
+                "query_type": query_type,
+                "stratum": f"{domain}:{query_type}",
+            }
+        )
     return labels
 
 
@@ -224,7 +307,9 @@ def _difficulty_proxy(label: dict[str, str]) -> float:
     return float(min(score, 1.0))
 
 
-def _specialist_support(split: list[int], labels: list[dict[str, str]]) -> dict[str, int]:
+def _specialist_support(
+    split: list[int], labels: list[dict[str, str]]
+) -> dict[str, int]:
     support = {"tech": 0, "cook": 0}
     for idx in split:
         domain = labels[idx]["domain"]
@@ -235,7 +320,9 @@ def _specialist_support(split: list[int], labels: list[dict[str, str]]) -> dict[
     return support
 
 
-def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tuple[dict[str, list[int]], dict[str, Any]]:
+def _build_split_indices(
+    queries: list[str], cfg: ValidationPowerConfig
+) -> tuple[dict[str, list[int]], dict[str, Any]]:
     n = len(queries)
     labels = _make_strata(queries)
     by_stratum: dict[str, list[int]] = defaultdict(list)
@@ -287,14 +374,19 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
         return moved
 
     if len(split["validation"]) < cfg.min_validation_total:
-        _move_to_validation(lambda _: True, cfg.min_validation_total - len(split["validation"]))
+        _move_to_validation(
+            lambda _: True, cfg.min_validation_total - len(split["validation"])
+        )
 
     existing_domains = sorted(set(l["domain"] for l in labels))
     existing_query_buckets = sorted(set(l["query_type"] for l in labels))
     for domain in existing_domains:
         current = _domain_counts(split["validation"]).get(domain, 0)
         if current < cfg.min_validation_per_domain:
-            _move_to_validation(lambda i, d=domain: labels[i]["domain"] == d, cfg.min_validation_per_domain - current)
+            _move_to_validation(
+                lambda i, d=domain: labels[i]["domain"] == d,
+                cfg.min_validation_per_domain - current,
+            )
 
     if cfg.balance_validation_query_buckets:
         for query_bucket in existing_query_buckets:
@@ -312,7 +404,9 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
                 predicate = lambda i: labels[i]["domain"] in {"tech", "mixed"}
             else:
                 predicate = lambda i: labels[i]["domain"] in {"cook", "mixed"}
-            _move_to_validation(predicate, cfg.min_effective_support_per_specialist - current)
+            _move_to_validation(
+                predicate, cfg.min_effective_support_per_specialist - current
+            )
 
     split = {k: sorted(v) for k, v in split.items()}
     val_domain_counts = _domain_counts(split["validation"])
@@ -327,7 +421,10 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
     val_query_bucket_counts = _bucket_counts(split["validation"])
     if cfg.balance_validation_query_buckets:
         for query_bucket in existing_query_buckets:
-            if val_query_bucket_counts.get(query_bucket, 0) < cfg.min_validation_per_query_bucket:
+            if (
+                val_query_bucket_counts.get(query_bucket, 0)
+                < cfg.min_validation_per_query_bucket
+            ):
                 failures.append(f"min_validation_per_query_bucket:{query_bucket}")
     for specialist, count in effective_support.items():
         if count < cfg.min_effective_support_per_specialist:
@@ -340,7 +437,9 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
         "validation_by_domain": val_domain_counts,
         "validation_by_query_bucket": val_query_bucket_counts,
         "specialist_effective_support": effective_support,
-        "strata_in_validation": dict(Counter(labels[i]["stratum"] for i in split["validation"])),
+        "strata_in_validation": dict(
+            Counter(labels[i]["stratum"] for i in split["validation"])
+        ),
         "split_counts": {k: len(v) for k, v in split.items()},
         "split_by_domain": {
             "train": _domain_counts(split["train"]),
@@ -348,13 +447,20 @@ def _build_split_indices(queries: list[str], cfg: ValidationPowerConfig) -> tupl
             "test": _domain_counts(split["test"]),
         },
         "failures": failures,
-        "auto_enlarged_validation": len(split["validation"]) > max(1, int(round(0.25 * n))),
+        "auto_enlarged_validation": len(split["validation"])
+        > max(1, int(round(0.25 * n))),
         "labels": labels,
     }
     return split, power_report
 
 
-def _eval_fusers(village: Village, queries: list[str], targets: list[int], docs: list[str], split: list[int]) -> dict[str, float]:
+def _eval_fusers(
+    village: Village,
+    queries: list[str],
+    targets: list[int],
+    docs: list[str],
+    split: list[int],
+) -> dict[str, float]:
     scout = ScoutRouter(mode="all")
     kalman = Panoramix(fuser=KalmanorixFuser())
     mean = Panoramix(fuser=MeanFuser())
@@ -371,10 +477,16 @@ def _eval_fusers(village: Village, queries: list[str], targets: list[int], docs:
 
     kalman_mrr = _mrr(kalman)
     mean_mrr = _mrr(mean)
-    return {"kalman_mrr": kalman_mrr, "mean_mrr": mean_mrr, "delta": kalman_mrr - mean_mrr}
+    return {
+        "kalman_mrr": kalman_mrr,
+        "mean_mrr": mean_mrr,
+        "delta": kalman_mrr - mean_mrr,
+    }
 
 
-def _fused_target_scores(village: Village, queries: list[str], targets: list[int], docs: list[str]) -> np.ndarray:
+def _fused_target_scores(
+    village: Village, queries: list[str], targets: list[int], docs: list[str]
+) -> np.ndarray:
     scout = ScoutRouter(mode="all")
     mean = Panoramix(fuser=MeanFuser())
     doc_emb = np.stack([village.modules[0].embed(d) for d in docs], axis=0)
@@ -394,13 +506,21 @@ def _objective_target_array(
     fused_target_scores: np.ndarray,
 ) -> np.ndarray:
     if objective == "query_difficulty_proxy":
-        return np.array([_difficulty_proxy(labels[i]) for i in indices], dtype=np.float64)
+        return np.array(
+            [_difficulty_proxy(labels[i]) for i in indices], dtype=np.float64
+        )
     if objective == "specialist_vs_fused_residual_proxy":
         return np.array(
-            [abs(evals[i].relevant_score - float(fused_target_scores[i])) for i in indices],
+            [
+                abs(evals[i].relevant_score - float(fused_target_scores[i]))
+                for i in indices
+            ],
             dtype=np.float64,
         )
-    return np.array([_target_from_eval(evals[i], objective, max_rank) for i in indices], dtype=np.float64)
+    return np.array(
+        [_target_from_eval(evals[i], objective, max_rank) for i in indices],
+        dtype=np.float64,
+    )
 
 
 def _audit_sigma2_paths(repo_root: Path) -> dict[str, list[str]]:
@@ -501,7 +621,9 @@ def _run_single_objective(
         max_rank = len(docs)
 
         val_idx = split["validation"]
-        val_sigma = np.array([module.sigma2_for(queries[i]) for i in val_idx], dtype=np.float64)
+        val_sigma = np.array(
+            [module.sigma2_for(queries[i]) for i in val_idx], dtype=np.float64
+        )
         val_target = _objective_target_array(
             objective,
             evals,
@@ -524,11 +646,16 @@ def _run_single_objective(
             fit = CalibrationFit(
                 calibrator=ScalarCalibrator(
                     name="identity",
-                    params={"reason": "underpowered_validation", "failures": power_report["failures"]},
+                    params={
+                        "reason": "underpowered_validation",
+                        "failures": power_report["failures"],
+                    },
                 ),
                 n_train=int(len(val_idx)),
                 used_fallback=True,
-                objective_mse=float(np.mean((val_sigma - val_target) ** 2)) if len(val_idx) else 0.0,
+                objective_mse=float(np.mean((val_sigma - val_target) ** 2))
+                if len(val_idx)
+                else 0.0,
             )
             cal_records.append(
                 {
@@ -585,7 +712,9 @@ def _run_single_objective(
 
         evals = _evaluate_specialist(module, queries, targets, docs)
         max_rank = len(docs)
-        raw = np.array([module.sigma2_for(queries[i]) for i in test_idx], dtype=np.float64)
+        raw = np.array(
+            [module.sigma2_for(queries[i]) for i in test_idx], dtype=np.float64
+        )
         target = _objective_target_array(
             objective,
             evals,
@@ -610,7 +739,9 @@ def _run_single_objective(
     calibrated_village = Village(calibrated_modules)
     post_bench = _eval_fusers(calibrated_village, queries, targets, docs, test_idx)
     val_pre_bench = _eval_fusers(village, queries, targets, docs, split["validation"])
-    val_post_bench = _eval_fusers(calibrated_village, queries, targets, docs, split["validation"])
+    val_post_bench = _eval_fusers(
+        calibrated_village, queries, targets, docs, split["validation"]
+    )
 
     summary = {
         "status": power_report["status"],
@@ -629,7 +760,9 @@ def _run_single_objective(
                 "mse": fit.objective_mse,
                 "fallback": fit.used_fallback,
                 "sufficiently_powered": sufficiently_powered,
-                "effective_support": power_report["specialist_effective_support"].get(m, 0),
+                "effective_support": power_report["specialist_effective_support"].get(
+                    m, 0
+                ),
                 "fallback_reason": (
                     "underpowered_validation"
                     if not sufficiently_powered
@@ -709,9 +842,13 @@ def run_uncertainty_calibration_objective_study(
         diag_improvement = diag_improvement / max(count, 1)
         validation_delta_change = rep["benchmark_delta"]["validation"]["delta_change"]
         # Strictly validation-driven rule: objective must improve diagnostics and not hurt validation fusion delta.
-        validation_transfer_scores[objective] = float(diag_improvement + validation_delta_change)
+        validation_transfer_scores[objective] = float(
+            diag_improvement + validation_delta_change
+        )
 
-    selected_objective = max(validation_transfer_scores, key=validation_transfer_scores.get)
+    selected_objective = max(
+        validation_transfer_scores, key=validation_transfer_scores.get
+    )
     selected_report = reports[selected_objective]
 
     study = {
@@ -722,7 +859,9 @@ def run_uncertainty_calibration_objective_study(
         "selected_report": selected_report,
         "powered_for_calibration": selected_report["powered_for_calibration"],
         "minimum_support_threshold": selected_report["minimum_support_threshold"],
-        "per_specialist_support_counts": selected_report["per_specialist_support_counts"],
+        "per_specialist_support_counts": selected_report[
+            "per_specialist_support_counts"
+        ],
         "fallback_reason": selected_report["fallback_reason"],
         "selection_is_validation_only": True,
         "observations": {
@@ -738,7 +877,9 @@ def run_uncertainty_calibration_objective_study(
         },
     }
 
-    (output_dir / "summary.json").write_text(json.dumps(study, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(study, indent=2), encoding="utf-8"
+    )
     (output_dir / "report.md").write_text(_render_report_md(study), encoding="utf-8")
     (output_dir / "sigma2_audit.json").write_text(
         json.dumps(selected_report["sigma2_path_audit"], indent=2), encoding="utf-8"

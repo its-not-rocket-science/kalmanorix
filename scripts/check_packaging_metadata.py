@@ -43,14 +43,24 @@ def _assert_no_committed_egg_info() -> None:
 
 def _build_dist(dist_dir: Path) -> tuple[Path, Path]:
     subprocess.run(
-        [sys.executable, "-m", "build", "--sdist", "--wheel", "--outdir", str(dist_dir)],
+        [
+            sys.executable,
+            "-m",
+            "build",
+            "--sdist",
+            "--wheel",
+            "--outdir",
+            str(dist_dir),
+        ],
         cwd=REPO_ROOT,
         check=True,
     )
     sdists = sorted(dist_dir.glob("*.tar.gz"))
     wheels = sorted(dist_dir.glob("*.whl"))
     if len(sdists) != 1 or len(wheels) != 1:
-        raise RuntimeError(f"Expected exactly one sdist and one wheel, got sdists={sdists}, wheels={wheels}")
+        raise RuntimeError(
+            f"Expected exactly one sdist and one wheel, got sdists={sdists}, wheels={wheels}"
+        )
     return sdists[0], wheels[0]
 
 
@@ -69,14 +79,21 @@ def _assert_wheel_contains_markers_and_entrypoints(wheel: Path) -> None:
         if missing:
             raise RuntimeError(f"wheel missing expected package files: {missing}")
 
-        entrypoints_path = next((name for name in names if name.endswith(".dist-info/entry_points.txt")), None)
+        entrypoints_path = next(
+            (name for name in names if name.endswith(".dist-info/entry_points.txt")),
+            None,
+        )
         if entrypoints_path is None:
             raise RuntimeError("wheel is missing .dist-info/entry_points.txt")
 
         entrypoints = zf.read(entrypoints_path).decode("utf-8")
-        missing_entrypoints = [ep for ep in EXPECTED_ENTRYPOINTS if f"{ep} =" not in entrypoints]
+        missing_entrypoints = [
+            ep for ep in EXPECTED_ENTRYPOINTS if f"{ep} =" not in entrypoints
+        ]
         if missing_entrypoints:
-            raise RuntimeError(f"wheel missing expected console scripts: {missing_entrypoints}")
+            raise RuntimeError(
+                f"wheel missing expected console scripts: {missing_entrypoints}"
+            )
 
 
 def main() -> None:
