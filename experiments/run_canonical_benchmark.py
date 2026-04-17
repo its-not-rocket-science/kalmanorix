@@ -48,6 +48,13 @@ BUCKET_SIGNIFICANCE_MIN_PAIRS = 20
 CALIBRATION_MIN_VALIDATION_QUERIES = 100
 PAIRED_TEST_MIN_TEST_QUERIES = 50
 PER_DOMAIN_MIN_QUERIES = 20
+CONFIRMATORY_SLICE_MIN_PAIRS = PAIRED_TEST_MIN_TEST_QUERIES
+CONFIRMATORY_SLICE_CHOICES = (
+    "high_specialist_disagreement",
+    "high_uncertainty_spread",
+    "nontrivial_routing_case",
+    "intersection_of_above",
+)
 
 
 def _quantile(values: list[float], q: float) -> float:
@@ -219,6 +226,130 @@ def _build_bucket_report(
         "minimum_pairs_for_significance": BUCKET_SIGNIFICANCE_MIN_PAIRS,
         "buckets": bucket_payload,
         "consistent_kalman_gain_buckets": consistent_gain_buckets,
+    }
+
+
+def _resolve_confirmatory_slice_ids(
+    *,
+    slice_name: str,
+    query_ids: list[str],
+    query_metadata: dict[str, dict[str, Any]],
+    specialist_counts: dict[str, float],
+    confidence_proxy: dict[str, float],
+    bucket_to_qids: dict[str, list[str]],
+    bucket_thresholds: dict[str, float],
+) -> list[str]:
+    if slice_name == "high_specialist_disagreement":
+        return list(bucket_to_qids.get("high_specialist_disagreement", []))
+    if slice_name == "high_uncertainty_spread":
+        return list(bucket_to_qids.get("high_uncertainty_spread", []))
+
+    nontrivial_routing_case: list[str] = []
+    high_disagreement = set(bucket_to_qids.get("high_specialist_disagreement", []))
+    high_uncertainty = set(bucket_to_qids.get("high_uncertainty_spread", []))
+    multi_domain = set(bucket_to_qids.get("true_multi_domain_queries", []))
+    router_low = set(bucket_to_qids.get("router_low_confidence", []))
+    for qid in query_ids:
+        meta = query_metadata.get(qid, {})
+        router_conf = float(meta.get("router_confidence", confidence_proxy.get(qid, 0.0)))
+        selected_count = float(specialist_counts.get(qid, 1.0))
+        is_nontrivial = (
+            qid in multi_domain
+            or qid in router_low
+            or qid in high_disagreement
+            or qid in high_uncertainty
+            or selected_count > 1.0
+            or router_conf <= float(bucket_thresholds["router_confidence_low"])
+        )
+        if is_nontrivial:
+            nontrivial_routing_case.append(qid)
+
+    if slice_name == "nontrivial_routing_case":
+        return nontrivial_routing_case
+    if slice_name == "intersection_of_above":
+        nontrivial = set(nontrivial_routing_case)
+        return sorted(high_disagreement.intersection(high_uncertainty).intersection(nontrivial))
+    raise ValueError(
+        "Unknown confirmatory slice name: "
+        f"{slice_name}. Expected one of {list(CONFIRMATORY_SLICE_CHOICES)}."
+    )
+
+
+def _build_confirmatory_slice_results(
+    *,
+    slice_name: str,
+    methods: dict[str, Any],
+    query_ids: list[str],
+    selected_qids: list[str],
+    seed: int,
+    num_resamples: int,
+) -> dict[str, Any]:
+    qid_to_idx = {qid: idx for idx, qid in enumerate(query_ids)}
+    idxs = [qid_to_idx[qid] for qid in selected_qids if qid in qid_to_idx]
+    n_pairs = len(idxs)
+    warnings: list[str] = []
+    if n_pairs == 0:
+        warnings.append(
+            "Confirmatory slice contains zero paired queries; inferential testing is skipped."
+        )
+    elif n_pairs < CONFIRMATORY_SLICE_MIN_PAIRS:
+        warnings.append(
+            "Confirmatory slice is underpowered for inferential claims "
+            f"(n_pairs={n_pairs} < {CONFIRMATORY_SLICE_MIN_PAIRS})."
+        )
+
+    method_keys = ["mean", "kalman", "router_only_top1", "router_only_topk_mean"]
+    method_metrics: dict[str, dict[str, float]] = {}
+    for method in method_keys:
+        method_qlevel = methods[method]["query_level"]
+        method_metrics[method] = {
+            metric: (
+                float(np.mean([method_qlevel[metric][idx] for idx in idxs])) if idxs else 0.0
+            )
+            for metric in REPORT_METRICS
+        }
+
+    paired_statistics: dict[str, Any] | None = None
+    if n_pairs >= CONFIRMATORY_SLICE_MIN_PAIRS:
+        kalman_subset = {
+            metric: [methods["kalman"]["query_level"][metric][idx] for idx in idxs]
+            for metric in REPORT_METRICS
+        }
+        mean_subset = {
+            metric: [methods["mean"]["query_level"][metric][idx] for idx in idxs]
+            for metric in REPORT_METRICS
+        }
+        stats = generate_statistical_report(
+            reference_method="kalman",
+            candidate_method="mean",
+            reference_metrics=kalman_subset,
+            candidate_metrics=mean_subset,
+            seed=seed,
+            num_resamples=num_resamples,
+            config={"confirmatory_slice": slice_name},
+        )
+        paired_statistics = {
+            metric: {
+                "mean_difference": entry.mean_difference,
+                "ci95_low": entry.confidence_interval.lower,
+                "ci95_high": entry.confidence_interval.upper,
+                "p_value": entry.p_value,
+                "adjusted_p_value": entry.adjusted_p_value,
+                "cohen_dz": entry.effect_size.cohen_dz,
+                "rank_biserial": entry.effect_size.rank_biserial,
+                "n_pairs": entry.n_pairs,
+            }
+            for metric, entry in stats.comparisons.items()
+        }
+
+    return {
+        "slice_name": slice_name,
+        "n_pairs": n_pairs,
+        "minimum_pairs_for_inference": CONFIRMATORY_SLICE_MIN_PAIRS,
+        "warning_count": len(warnings),
+        "warnings": warnings,
+        "method_metrics": method_metrics,
+        "paired_statistics_kalman_vs_mean": paired_statistics,
     }
 
 
@@ -474,6 +605,59 @@ def _render_report(summary: dict[str, Any]) -> str:
             "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
         ]
     )
+    confirmatory = summary.get("confirmatory_slice_results")
+    if confirmatory is not None:
+        lines.extend(
+            [
+                "",
+                "## Confirmatory Slice (Kalman-vs-Mean)",
+                "",
+                f"- Slice name: `{confirmatory['slice_name']}`",
+                f"- Paired query count: `{confirmatory['n_pairs']}`",
+                f"- Minimum paired queries for inferential claims: `{confirmatory['minimum_pairs_for_inference']}`",
+            ]
+        )
+        if confirmatory["warnings"]:
+            lines.append("- Warnings:")
+            lines.extend(f"  - {warning}" for warning in confirmatory["warnings"])
+        lines.extend(
+            [
+                "",
+                "| Method | nDCG@10 |",
+                "|---|---:|",
+            ]
+        )
+        for method in ["mean", "kalman", "router_only_top1", "router_only_topk_mean"]:
+            value = confirmatory["method_metrics"][method]["ndcg@10"]
+            lines.append(f"| {method} | {value:.4f} |")
+
+        slice_stats = confirmatory.get("paired_statistics_kalman_vs_mean")
+        if slice_stats is None:
+            lines.append(
+                "- Inferential paired testing was not run for the confirmatory slice due to insufficient paired queries."
+            )
+        else:
+            lines.extend(
+                [
+                    "",
+                    "### Confirmatory paired statistical test: KalmanorixFuser vs MeanFuser",
+                    "",
+                    "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |",
+                    "|---|---:|---|---:|---:|",
+                ]
+            )
+            for metric in REPORT_METRICS:
+                payload = slice_stats[metric]
+                lines.append(
+                    "| {metric} | {delta:.6f} | [{low:.6f}, {high:.6f}] | {p:.6f} | {padj:.6f} |".format(
+                        metric=metric,
+                        delta=payload["mean_difference"],
+                        low=payload["ci95_low"],
+                        high=payload["ci95_high"],
+                        p=payload["p_value"],
+                        padj=payload["adjusted_p_value"],
+                    )
+                )
     bucket_analysis = summary.get("bucket_analysis", {})
     if bucket_analysis:
         lines.extend(
@@ -555,6 +739,7 @@ def run_canonical_benchmark(
     device: str,
     seed: int,
     num_resamples: int,
+    confirmatory_slice: str | None = None,
 ) -> dict[str, Any]:
     split_counts = _load_split_counts(benchmark_path)
 
@@ -773,6 +958,30 @@ def run_canonical_benchmark(
     }
     bucket_analysis["thresholds"] = bucket_thresholds
 
+    confirmatory_slice_results: dict[str, Any] | None = None
+    if confirmatory_slice is not None:
+        selected_qids = _resolve_confirmatory_slice_ids(
+            slice_name=confirmatory_slice,
+            query_ids=ordered_qids,
+            query_metadata=query_metadata,
+            specialist_counts=query_level.get("specialist_count_selected", {}).get(
+                "router_only_top1", {}
+            ),
+            confidence_proxy=query_level.get("confidence_proxy", {}).get(
+                "router_only_top1", {}
+            ),
+            bucket_to_qids=bucket_to_qids,
+            bucket_thresholds=bucket_thresholds,
+        )
+        confirmatory_slice_results = _build_confirmatory_slice_results(
+            slice_name=confirmatory_slice,
+            methods=methods,
+            query_ids=ordered_qids,
+            selected_qids=selected_qids,
+            seed=seed + 20_000,
+            num_resamples=num_resamples,
+        )
+
     summary = {
         "benchmark": {
             "path": str(benchmark_path),
@@ -805,6 +1014,7 @@ def run_canonical_benchmark(
         "power_diagnostics": power_diagnostics,
         "sample_size_adequacy": sample_size_adequacy,
         "bucket_analysis": bucket_analysis,
+        "confirmatory_slice_results": confirmatory_slice_results,
     }
     summary["decision"] = {"kalman_vs_mean": _classify_kalman_vs_mean(summary)}
 
@@ -830,6 +1040,13 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-resamples", type=int, default=5000)
     parser.add_argument(
+        "--confirmatory-slice",
+        type=str,
+        choices=CONFIRMATORY_SLICE_CHOICES,
+        default=None,
+        help="Named confirmatory evaluation slice for Kalman-vs-mean testing.",
+    )
+    parser.add_argument(
         "--output-dir", type=Path, default=Path("results/canonical_benchmark_v2")
     )
     args = parser.parse_args()
@@ -842,6 +1059,7 @@ def main() -> None:
         device=args.device,
         seed=args.seed,
         num_resamples=args.num_resamples,
+        confirmatory_slice=args.confirmatory_slice,
     )
     print(
         json.dumps(

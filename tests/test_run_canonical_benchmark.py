@@ -241,3 +241,140 @@ def test_canonical_report_includes_paired_statistics_section(
     assert "## Verdict" in report_text
     assert "## Demonstrated findings" in report_text
     assert "## Bucketed Analysis" in report_text
+
+
+def test_confirmatory_slice_selection_filters_are_supported() -> None:
+    details = _fake_details()
+    query_level = details["query_level"]  # type: ignore[index]
+    rankings = query_level["rankings"]  # type: ignore[index]
+    query_ids = sorted(rankings["kalman"])  # type: ignore[index]
+    bucket_to_qids, thresholds = canonical._bucket_query_ids(
+        query_ids=query_ids,
+        query_metadata=query_level["query_metadata"],  # type: ignore[index]
+        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
+        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
+    )
+
+    high_disagreement = canonical._resolve_confirmatory_slice_ids(
+        slice_name="high_specialist_disagreement",
+        query_ids=query_ids,
+        query_metadata=query_level["query_metadata"],  # type: ignore[index]
+        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
+        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
+        bucket_to_qids=bucket_to_qids,
+        bucket_thresholds=thresholds,
+    )
+    high_uncertainty = canonical._resolve_confirmatory_slice_ids(
+        slice_name="high_uncertainty_spread",
+        query_ids=query_ids,
+        query_metadata=query_level["query_metadata"],  # type: ignore[index]
+        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
+        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
+        bucket_to_qids=bucket_to_qids,
+        bucket_thresholds=thresholds,
+    )
+    nontrivial = canonical._resolve_confirmatory_slice_ids(
+        slice_name="nontrivial_routing_case",
+        query_ids=query_ids,
+        query_metadata=query_level["query_metadata"],  # type: ignore[index]
+        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
+        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
+        bucket_to_qids=bucket_to_qids,
+        bucket_thresholds=thresholds,
+    )
+    intersection = canonical._resolve_confirmatory_slice_ids(
+        slice_name="intersection_of_above",
+        query_ids=query_ids,
+        query_metadata=query_level["query_metadata"],  # type: ignore[index]
+        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
+        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
+        bucket_to_qids=bucket_to_qids,
+        bucket_thresholds=thresholds,
+    )
+
+    assert high_disagreement == ["q2", "q3"]
+    assert high_uncertainty == ["q2", "q3"]
+    assert nontrivial == ["q2", "q3"]
+    assert intersection == ["q2", "q3"]
+
+
+def test_confirmatory_slice_empty_and_underpowered_emit_warnings() -> None:
+    details = _fake_details()
+    query_level = details["query_level"]  # type: ignore[index]
+    methods = {}
+    for method in query_level["rankings"]:  # type: ignore[index]
+        methods[method] = canonical.aggregate_strategy_metrics(
+            rankings=query_level["rankings"][method],  # type: ignore[index]
+            ground_truth={  # type: ignore[index]
+                qid: set(doc_ids)
+                for qid, doc_ids in query_level["ground_truth"].items()  # type: ignore[index]
+            },
+            latency_ms=query_level["latency_ms"][method],  # type: ignore[index]
+            flops_proxy=query_level["specialist_count_selected"][method],  # type: ignore[index]
+            seed=5,
+            num_resamples=10,
+        )
+
+    query_ids = sorted(query_level["rankings"]["kalman"])  # type: ignore[index]
+    empty = canonical._build_confirmatory_slice_results(
+        slice_name="intersection_of_above",
+        methods=methods,
+        query_ids=query_ids,
+        selected_qids=[],
+        seed=11,
+        num_resamples=50,
+    )
+    underpowered = canonical._build_confirmatory_slice_results(
+        slice_name="high_specialist_disagreement",
+        methods=methods,
+        query_ids=query_ids,
+        selected_qids=["q2"],
+        seed=11,
+        num_resamples=50,
+    )
+
+    assert empty["warning_count"] == 1
+    assert "zero paired queries" in empty["warnings"][0]
+    assert empty["paired_statistics_kalman_vs_mean"] is None
+    assert underpowered["warning_count"] == 1
+    assert "underpowered" in underpowered["warnings"][0]
+    assert underpowered["paired_statistics_kalman_vs_mean"] is None
+
+
+def test_canonical_benchmark_writes_confirmatory_slice_section(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(
+        canonical,
+        "_load_split_counts",
+        lambda _: {"train": 8, "validation": 4, "test": 3},
+    )
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
+    )
+    monkeypatch.setattr(canonical, "run_experiment", lambda cfg: _fake_details())
+
+    output_dir = tmp_path / "results"
+    canonical.run_canonical_benchmark(
+        benchmark_path=tmp_path / "dummy.parquet",
+        output_dir=output_dir,
+        split="test",
+        max_queries=3,
+        device="cpu",
+        seed=7,
+        num_resamples=100,
+        confirmatory_slice="intersection_of_above",
+    )
+
+    summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
+    confirmatory = summary["confirmatory_slice_results"]
+    assert confirmatory["slice_name"] == "intersection_of_above"
+    assert confirmatory["warning_count"] == 1
+    assert confirmatory["paired_statistics_kalman_vs_mean"] is None
+
+    report_text = (output_dir / "report.md").read_text(encoding="utf-8")
+    assert "## Confirmatory Slice (Kalman-vs-Mean)" in report_text
+    assert "Confirmatory paired statistical test" not in report_text
+    assert "## Bucketed Analysis (Exploratory unless significance criteria are met)" in report_text
