@@ -59,6 +59,13 @@ CALIBRATION_MIN_VALIDATION_QUERIES = 100
 PAIRED_TEST_MIN_TEST_QUERIES = 50
 PER_DOMAIN_MIN_QUERIES = 20
 CONFIRMATORY_SLICE_MIN_PAIRS = PAIRED_TEST_MIN_TEST_QUERIES
+TOY_TEST_QUERY_THRESHOLD = max(10, PAIRED_TEST_MIN_TEST_QUERIES // 2)
+TOY_PER_DOMAIN_THRESHOLD = max(5, PER_DOMAIN_MIN_QUERIES // 2)
+TOY_VALIDATION_THRESHOLD = max(20, CALIBRATION_MIN_VALIDATION_QUERIES // 2)
+CLAIM_READY_TEST_QUERY_THRESHOLD = PAIRED_TEST_MIN_TEST_QUERIES * 2
+CLAIM_READY_PER_DOMAIN_THRESHOLD = PER_DOMAIN_MIN_QUERIES * 2
+CLAIM_READY_VALIDATION_THRESHOLD = CALIBRATION_MIN_VALIDATION_QUERIES * 2
+CLAIM_READY_DETECTABLE_EFFECT_RATIO = 0.75
 CONFIRMATORY_SLICE_CHOICES = (
     "high_specialist_disagreement",
     "high_uncertainty_spread",
@@ -440,6 +447,109 @@ def _classify_kalman_vs_baseline(
     }
 
 
+def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
+    adequacy = summary["sample_size_adequacy"]
+    power_diag = summary["power_diagnostics"]["kalman_vs_mean"]
+    test_count = int(power_diag["num_test_queries"])
+    min_domain_count = int(adequacy["per_domain_analysis"]["minimum_domain_count"])
+    validation_count = int(adequacy["uncertainty_calibration"]["available_queries"])
+    detectable_effect = float(power_diag["detectable_effect_threshold_estimate"])
+    target_effect = float(power_diag["target_effect_size"])
+    detectable_ratio = (
+        float(detectable_effect / target_effect)
+        if np.isfinite(detectable_effect) and target_effect > 0.0
+        else float("inf")
+    )
+
+    toy_reasons: list[str] = []
+    if test_count < TOY_TEST_QUERY_THRESHOLD:
+        toy_reasons.append(
+            f"test_query_count={test_count} < {TOY_TEST_QUERY_THRESHOLD}"
+        )
+    if min_domain_count < TOY_PER_DOMAIN_THRESHOLD:
+        toy_reasons.append(
+            f"min_domain_test_count={min_domain_count} < {TOY_PER_DOMAIN_THRESHOLD}"
+        )
+    if validation_count < TOY_VALIDATION_THRESHOLD:
+        toy_reasons.append(
+            f"validation_query_count={validation_count} < {TOY_VALIDATION_THRESHOLD}"
+        )
+
+    if toy_reasons:
+        status = "toy"
+        status_note = "Sample is toy-scale for Kalman-vs-mean claims; treat outcomes as smoke-test signals only."
+    else:
+        minimally_powered_checks = {
+            "test_query_count_ok": bool(test_count >= PAIRED_TEST_MIN_TEST_QUERIES),
+            "per_domain_min_count_ok": bool(min_domain_count >= PER_DOMAIN_MIN_QUERIES),
+            "validation_count_ok": bool(
+                validation_count >= CALIBRATION_MIN_VALIDATION_QUERIES
+            ),
+            "detectable_effect_ok": bool(detectable_effect <= target_effect),
+        }
+        if all(minimally_powered_checks.values()):
+            claim_ready_checks = {
+                "test_query_count_claim_ready": bool(
+                    test_count >= CLAIM_READY_TEST_QUERY_THRESHOLD
+                ),
+                "per_domain_min_count_claim_ready": bool(
+                    min_domain_count >= CLAIM_READY_PER_DOMAIN_THRESHOLD
+                ),
+                "validation_count_claim_ready": bool(
+                    validation_count >= CLAIM_READY_VALIDATION_THRESHOLD
+                ),
+                "detectable_effect_claim_ready": bool(
+                    detectable_effect
+                    <= (target_effect * CLAIM_READY_DETECTABLE_EFFECT_RATIO)
+                ),
+            }
+            if all(claim_ready_checks.values()):
+                status = "claim_ready"
+                status_note = "Counts and detectable-effect headroom satisfy stricter claim-readiness thresholds."
+            else:
+                status = "minimally_powered"
+                status_note = (
+                    "Meets minimum power/coverage checks, but lacks claim-ready margin."
+                )
+        else:
+            status = "underpowered"
+            status_note = (
+                "Above toy-scale, but misses at least one minimum power/coverage check."
+            )
+
+    return {
+        "status": status,
+        "status_note": status_note,
+        "inputs": {
+            "test_query_count": test_count,
+            "minimum_per_domain_test_count": min_domain_count,
+            "validation_query_count": validation_count,
+            "detectable_effect_threshold_estimate": detectable_effect,
+            "target_effect_size": target_effect,
+            "detectable_effect_to_target_ratio": detectable_ratio,
+        },
+        "thresholds": {
+            "toy": {
+                "test_query_count_lt": TOY_TEST_QUERY_THRESHOLD,
+                "minimum_per_domain_test_count_lt": TOY_PER_DOMAIN_THRESHOLD,
+                "validation_query_count_lt": TOY_VALIDATION_THRESHOLD,
+            },
+            "minimally_powered": {
+                "test_query_count_gte": PAIRED_TEST_MIN_TEST_QUERIES,
+                "minimum_per_domain_test_count_gte": PER_DOMAIN_MIN_QUERIES,
+                "validation_query_count_gte": CALIBRATION_MIN_VALIDATION_QUERIES,
+                "detectable_effect_threshold_lte_target_effect": True,
+            },
+            "claim_ready": {
+                "test_query_count_gte": CLAIM_READY_TEST_QUERY_THRESHOLD,
+                "minimum_per_domain_test_count_gte": CLAIM_READY_PER_DOMAIN_THRESHOLD,
+                "validation_query_count_gte": CLAIM_READY_VALIDATION_THRESHOLD,
+                "detectable_effect_threshold_lte_target_effect_ratio": CLAIM_READY_DETECTABLE_EFFECT_RATIO,
+            },
+        },
+    }
+
+
 def _load_split_counts(benchmark_path: Path) -> dict[str, int]:
     pyarrow_available = importlib.util.find_spec("pyarrow") is not None
     if pyarrow_available:
@@ -474,6 +584,7 @@ def _render_report(summary: dict[str, Any]) -> str:
     methods = summary["methods"]
     stats = summary["paired_statistics"]["kalman_vs_mean"]
     decision = summary["decision"]["kalman_vs_mean"]
+    benchmark_status = summary["benchmark_status"]
     rules = decision["rules"]
     observed = decision["observed"]
     checks = decision["checks"]
@@ -488,6 +599,7 @@ def _render_report(summary: dict[str, Any]) -> str:
         f"- Benchmark: `{summary['benchmark']['path']}`",
         f"- Split evaluated: `{summary['benchmark']['evaluated_split']}`",
         f"- Available split counts: {summary['benchmark']['split_counts']}",
+        f"- **Benchmark status:** `{benchmark_status['status']}` — {benchmark_status['status_note']}",
         f"- Specialists: {', '.join(summary['specialists'])}",
         f"- LearnedGateFuser included: `{summary['comparisons']['LearnedGateFuser']['included']}`",
         "",
@@ -672,9 +784,11 @@ def _render_report(summary: dict[str, Any]) -> str:
             "",
             "## Verdict",
             "",
+            f"- **benchmark_status:** `{benchmark_status['status']}`",
             f"- **kalman_vs_mean:** `{verdict}`",
             f"- **kalman_vs_weighted_mean:** `{summary['decision']['kalman_vs_weighted_mean']['verdict']}`",
             f"- **kalman_vs_learned_linear_combiner:** `{summary['decision']['kalman_vs_learned_linear_combiner']['verdict']}`",
+            "- Interpretation: `benchmark_status` grades evidence readiness (`toy`, `underpowered`, `minimally_powered`, `claim_ready`) while verdict preserves the existing Kalman-vs-baseline decision rule.",
             "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
         ]
     )
@@ -1132,6 +1246,7 @@ def run_canonical_benchmark(
             summary, baseline_key="learned_linear_combiner"
         ),
     }
+    summary["benchmark_status"] = _classify_benchmark_status(summary)
 
     (output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"

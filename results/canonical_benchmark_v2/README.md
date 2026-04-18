@@ -35,3 +35,14 @@ PYTHONPATH=src python experiments/run_canonical_benchmark.py \
 - `report.md`
 - `runner_summary.json`
 - `runner_details.json`
+
+## How to interpret `summary.json` and `report.md`
+
+- Read both the existing decision `verdict` **and** `benchmark_status`.
+- `verdict` keeps the original Kalman-vs-baseline decision rule.
+- `benchmark_status` classifies evidence readiness:
+  - `toy`
+  - `underpowered`
+  - `minimally_powered`
+  - `claim_ready`
+- Do not treat a positive/inconclusive verdict from `toy` or `underpowered` runs as proof-level evidence.
