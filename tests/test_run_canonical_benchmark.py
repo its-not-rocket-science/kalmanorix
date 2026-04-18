@@ -541,6 +541,38 @@ def test_confirmatory_slice_empty_and_underpowered_emit_warnings() -> None:
         underpowered["verdicts"]["kalman_vs_router_only_top1"]["status"]
         == "underpowered"
     )
+    assert empty["decision"]["verdict"] == "inconclusive_underpowered"
+    assert underpowered["decision"]["verdict"] == "inconclusive_underpowered"
+
+
+def test_confirmatory_slice_decision_supported_when_all_baselines_pass() -> None:
+    verdicts = {
+        "kalman_vs_mean": {"status": "supported"},
+        "kalman_vs_weighted_mean": {"status": "supported"},
+        "kalman_vs_router_only_top1": {"status": "supported"},
+    }
+    decision = canonical._classify_confirmatory_slice_decision(
+        n_pairs=60,
+        minimum_pairs=canonical.CONFIRMATORY_SLICE_MIN_PAIRS,
+        verdicts=verdicts,
+        required_comparisons=canonical.CONFIRMATORY_REQUIRED_BASELINE_COMPARISONS,
+    )
+    assert decision["verdict"] == "supported"
+
+
+def test_confirmatory_slice_decision_unsupported_when_one_baseline_fails() -> None:
+    verdicts = {
+        "kalman_vs_mean": {"status": "supported"},
+        "kalman_vs_weighted_mean": {"status": "not_supported"},
+        "kalman_vs_router_only_top1": {"status": "supported"},
+    }
+    decision = canonical._classify_confirmatory_slice_decision(
+        n_pairs=60,
+        minimum_pairs=canonical.CONFIRMATORY_SLICE_MIN_PAIRS,
+        verdicts=verdicts,
+        required_comparisons=canonical.CONFIRMATORY_REQUIRED_BASELINE_COMPARISONS,
+    )
+    assert decision["verdict"] == "unsupported"
 
 
 def test_canonical_benchmark_writes_confirmatory_slice_section(
