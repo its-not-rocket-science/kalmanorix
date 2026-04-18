@@ -1,4 +1,5 @@
 {
+  "label": "synthetic_narrowed_hypothesis_regime",
   "config": {
     "random_seed": 13,
     "dimension": 32,
@@ -7,14 +8,16 @@
     "n_test": 420,
     "n_specialists": 4,
     "inflation_alpha": 1.0,
-    "variance_floor": 1e-06
+    "variance_floor": 1e-06,
+    "ridge_lambda": 0.001,
+    "correlated_query_threshold": 0.7
   },
   "validation_fit": {
     "sigma2": [
-      0.007928811173031782,
+      0.006640496055830757,
       0.012526018993660092,
-      0.0169064171381449,
-      0.020970174284138495
+      0.018181679247695367,
+      0.023228664941691304
     ],
     "residual_norm_shape": [
       280,
@@ -23,26 +26,26 @@
     "correlation_matrix": [
       [
         1.0,
-        0.15600412643572387,
-        0.30582789652888637,
-        0.30004314321641007
+        0.14501746858543857,
+        0.2898868564360015,
+        0.2913599163189082
       ],
       [
-        0.15600412643572387,
+        0.14501746858543857,
         1.0,
-        0.27500210784888607,
-        0.3136856104845183
+        0.27759419739710367,
+        0.31350763734389236
       ],
       [
-        0.30582789652888637,
-        0.27500210784888607,
+        0.28988685643600154,
+        0.27759419739710367,
         1.0,
-        0.39210952463052706
+        0.39887648285082555
       ],
       [
-        0.3000431432164101,
-        0.3136856104845183,
-        0.3921095246305271,
+        0.2913599163189082,
+        0.31350763734389236,
+        0.39887648285082555,
         1.0
       ]
     ],
@@ -51,7 +54,25 @@
       "specialist_1",
       "specialist_2",
       "specialist_3"
+    ],
+    "weighted_mean_weights": [
+      0.458454543760525,
+      0.24304334770371402,
+      0.1674413869117918,
+      0.13106072162396915
+    ],
+    "learned_linear_combiner_weights": [
+      0.7911067946783917,
+      0.20712204714530577,
+      0.0017711581763023988,
+      0.0
     ]
+  },
+  "correlated_definition": {
+    "query_score": "norm(mean(residual_vectors))/mean(norm(residual_vectors_i))",
+    "threshold": 0.7,
+    "n_correlated_test_queries": 287,
+    "mean_query_score": 0.816819663445119
   },
   "test_split": {
     "n_queries": 420,
@@ -62,75 +83,166 @@
   },
   "test_metrics": {
     "MeanFuser": {
-      "recall_at_1": 0.35,
-      "recall_at_5": 0.6833333333333333,
-      "mrr_at_10": 0.4928817082388511
+      "recall_at_1": 0.3380952380952381,
+      "recall_at_5": 0.6761904761904762,
+      "mrr_at_10": 0.48175359032501885
     },
     "KalmanorixFuser": {
-      "recall_at_1": 0.39285714285714285,
-      "recall_at_5": 0.7214285714285714,
-      "mrr_at_10": 0.5318376795162509
+      "recall_at_1": 0.40476190476190477,
+      "recall_at_5": 0.7476190476190476,
+      "mrr_at_10": 0.5511866969009827
     },
-    "CorrelationAwareKalmanFuser (covariance_inflation)": {
-      "recall_at_1": 0.3952380952380952,
-      "recall_at_5": 0.7261904761904762,
-      "mrr_at_10": 0.5355820105820106
+    "CorrelationAwareKalmanFuser": {
+      "recall_at_1": 0.40476190476190477,
+      "recall_at_5": 0.75,
+      "mrr_at_10": 0.5516430461073318
     },
-    "CorrelationAwareKalmanFuser (effective_sample_size)": {
-      "recall_at_1": 0.39285714285714285,
-      "recall_at_5": 0.7214285714285714,
-      "mrr_at_10": 0.5318376795162509
+    "WeightedMeanFuser": {
+      "recall_at_1": 0.40476190476190477,
+      "recall_at_5": 0.7476190476190476,
+      "mrr_at_10": 0.5511866969009827
+    },
+    "LearnedLinearCombiner": {
+      "recall_at_1": 0.44285714285714284,
+      "recall_at_5": 0.8095238095238095,
+      "mrr_at_10": 0.5964446334089192
     }
   },
   "bucket_metrics": {
     "MeanFuser": {
       "high_correlation": {
         "recall_at_1": 0.28095238095238095,
-        "recall_at_5": 0.6238095238095238,
-        "mrr_at_10": 0.42053287981859416
+        "recall_at_5": 0.6142857142857143,
+        "mrr_at_10": 0.41582955404383976
       },
       "low_correlation": {
-        "recall_at_1": 0.41904761904761906,
-        "recall_at_5": 0.7428571428571429,
-        "mrr_at_10": 0.565230536659108
+        "recall_at_1": 0.3952380952380952,
+        "recall_at_5": 0.7380952380952381,
+        "mrr_at_10": 0.547677626606198
       }
     },
     "KalmanorixFuser": {
       "high_correlation": {
-        "recall_at_1": 0.3238095238095238,
-        "recall_at_5": 0.6476190476190476,
-        "mrr_at_10": 0.46367535903250184
+        "recall_at_1": 0.3380952380952381,
+        "recall_at_5": 0.6761904761904762,
+        "mrr_at_10": 0.4849489795918367
       },
       "low_correlation": {
-        "recall_at_1": 0.46190476190476193,
-        "recall_at_5": 0.7952380952380952,
-        "mrr_at_10": 0.6
+        "recall_at_1": 0.4714285714285714,
+        "recall_at_5": 0.819047619047619,
+        "mrr_at_10": 0.6174244142101284
       }
     },
-    "CorrelationAwareKalmanFuser (covariance_inflation)": {
+    "CorrelationAwareKalmanFuser": {
       "high_correlation": {
-        "recall_at_1": 0.3238095238095238,
-        "recall_at_5": 0.6476190476190476,
-        "mrr_at_10": 0.4645219198790628
+        "recall_at_1": 0.3380952380952381,
+        "recall_at_5": 0.6761904761904762,
+        "mrr_at_10": 0.4866553287981859
       },
       "low_correlation": {
-        "recall_at_1": 0.4666666666666667,
-        "recall_at_5": 0.8047619047619048,
-        "mrr_at_10": 0.6066421012849584
+        "recall_at_1": 0.4714285714285714,
+        "recall_at_5": 0.8238095238095238,
+        "mrr_at_10": 0.6166307634164777
       }
     },
-    "CorrelationAwareKalmanFuser (effective_sample_size)": {
+    "WeightedMeanFuser": {
       "high_correlation": {
-        "recall_at_1": 0.3238095238095238,
-        "recall_at_5": 0.6476190476190476,
-        "mrr_at_10": 0.46367535903250184
+        "recall_at_1": 0.3380952380952381,
+        "recall_at_5": 0.6761904761904762,
+        "mrr_at_10": 0.4849489795918367
       },
       "low_correlation": {
-        "recall_at_1": 0.46190476190476193,
-        "recall_at_5": 0.7952380952380952,
-        "mrr_at_10": 0.6
+        "recall_at_1": 0.4714285714285714,
+        "recall_at_5": 0.819047619047619,
+        "mrr_at_10": 0.6174244142101284
+      }
+    },
+    "LearnedLinearCombiner": {
+      "high_correlation": {
+        "recall_at_1": 0.40476190476190477,
+        "recall_at_5": 0.7904761904761904,
+        "mrr_at_10": 0.5574981103552532
+      },
+      "low_correlation": {
+        "recall_at_1": 0.48095238095238096,
+        "recall_at_5": 0.8285714285714286,
+        "mrr_at_10": 0.6353911564625851
       }
     }
   },
-  "answer": "Correlation-aware Kalman improved over baseline Kalman (best: CorrelationAwareKalmanFuser (covariance_inflation), \u0394MRR@10=0.0037)."
+  "primary_metric_deltas_vs_kalman": {
+    "MeanFuser": -0.0694331065759638,
+    "CorrelationAwareKalmanFuser": 0.0004563492063491825,
+    "WeightedMeanFuser": 0.0,
+    "LearnedLinearCombiner": 0.045257936507936525
+  },
+  "paired_stats_vs_kalman": {
+    "MeanFuser": {
+      "delta_mean": -0.06943310657596373,
+      "bootstrap_ci95": [
+        -0.08572588340891912,
+        -0.053120228647014364
+      ],
+      "wilcoxon_p": 1.4047210830777533e-18,
+      "cohen_dz": -0.40682177013495985,
+      "rank_biserial": -0.7468272620446533
+    },
+    "CorrelationAwareKalmanFuser": {
+      "delta_mean": 0.0004563492063492061,
+      "bootstrap_ci95": [
+        -0.000959160052910052,
+        0.0018915343915343911
+      ],
+      "wilcoxon_p": 0.2922869621254035,
+      "cohen_dz": 0.031034302022539435,
+      "rank_biserial": 0.32967032967032966
+    },
+    "WeightedMeanFuser": {
+      "delta_mean": 0.0,
+      "bootstrap_ci95": [
+        0.0,
+        0.0
+      ],
+      "wilcoxon_p": 1.0,
+      "cohen_dz": 0.0,
+      "rank_biserial": 0.0
+    },
+    "LearnedLinearCombiner": {
+      "delta_mean": 0.045257936507936504,
+      "bootstrap_ci95": [
+        0.02543268140589569,
+        0.06500111016628873
+      ],
+      "wilcoxon_p": 9.557928858856782e-08,
+      "cohen_dz": 0.22002765627479492,
+      "rank_biserial": 0.4756201881950385
+    }
+  },
+  "latency_ms": {
+    "MeanFuser": {
+      "mean_ms": 0.02050416904759394,
+      "p95_ms": 0.024022849629545748
+    },
+    "KalmanorixFuser": {
+      "mean_ms": 0.13687181666834172,
+      "p95_ms": 0.13528930001029948
+    },
+    "CorrelationAwareKalmanFuser": {
+      "mean_ms": 0.1992867880928662,
+      "p95_ms": 0.13955400029317383
+    },
+    "WeightedMeanFuser": {
+      "mean_ms": 0.020091047612627984,
+      "p95_ms": 0.021114050150572425
+    },
+    "LearnedLinearCombiner": {
+      "mean_ms": 0.02064192143236488,
+      "p95_ms": 0.028306949889156382
+    }
+  },
+  "interpretation": {
+    "scope": "narrowed_hypothesis_regime",
+    "synthetic_policy": "Synthetic outcomes are explicitly exploratory and do not count as headline proof."
+  },
+  "answer": "In this synthetic narrowed regime, LearnedLinearCombiner outperformed baseline Kalman (\u0394MRR@10=+0.0453). Treat as exploratory only."
 }

@@ -1,50 +1,50 @@
-# Correlation-Aware Fusion Benchmark
+# Correlated Experts Benchmark Slice (Synthetic, Narrow Hypothesis)
 
-Question: does correlation adjustment improve Kalman fusion on a strengthened correlated-expert test split?
+**Label:** Synthetic-to-real bridge. Synthetic outputs are exploratory only and are not headline proof.
 
-**Answer:** Correlation-aware Kalman improved over baseline Kalman (best: CorrelationAwareKalmanFuser (covariance_inflation), ΔMRR@10=0.0037).
+Question: under partially correlated experts with non-identical uncertainty quality, does correlation-aware Kalman improve over baseline Kalman?
 
-## Test metrics (strengthened split)
+**Answer:** In this synthetic narrowed regime, LearnedLinearCombiner outperformed baseline Kalman (ΔMRR@10=+0.0453). Treat as exploratory only.
+
+## Test metrics
 
 | Method | Recall@1 | Recall@5 | MRR@10 |
 | --- | ---: | ---: | ---: |
-| MeanFuser | 0.3500 | 0.6833 | 0.4929 |
-| KalmanorixFuser | 0.3929 | 0.7214 | 0.5318 |
-| CorrelationAwareKalmanFuser (covariance_inflation) | 0.3952 | 0.7262 | 0.5356 |
-| CorrelationAwareKalmanFuser (effective_sample_size) | 0.3929 | 0.7214 | 0.5318 |
+| MeanFuser | 0.3381 | 0.6762 | 0.4818 |
+| KalmanorixFuser | 0.4048 | 0.7476 | 0.5512 |
+| CorrelationAwareKalmanFuser | 0.4048 | 0.7500 | 0.5516 |
+| WeightedMeanFuser | 0.4048 | 0.7476 | 0.5512 |
+| LearnedLinearCombiner | 0.4429 | 0.8095 | 0.5964 |
 
-## Per-bucket metrics
+## Primary metric deltas vs baseline Kalman
 
-### MeanFuser
+| Method | ΔMRR@10 |
+| --- | ---: |
+| MeanFuser | -0.0694 |
+| CorrelationAwareKalmanFuser | +0.0005 |
+| WeightedMeanFuser | +0.0000 |
+| LearnedLinearCombiner | +0.0453 |
 
-| Bucket | Recall@1 | Recall@5 | MRR@10 |
-| --- | ---: | ---: | ---: |
-| high_correlation | 0.2810 | 0.6238 | 0.4205 |
-| low_correlation | 0.4190 | 0.7429 | 0.5652 |
+## Paired statistics vs baseline Kalman (MRR@10 per query)
 
-### KalmanorixFuser
+| Method | ΔMean | 95% bootstrap CI | Wilcoxon p | Cohen dz | Rank-biserial |
+| --- | ---: | --- | ---: | ---: | ---: |
+| MeanFuser | -0.0694 | [-0.0857, -0.0531] | 1.405e-18 | -0.407 | -0.747 |
+| CorrelationAwareKalmanFuser | +0.0005 | [-0.0010, +0.0019] | 0.2923 | +0.031 | +0.330 |
+| WeightedMeanFuser | +0.0000 | [+0.0000, +0.0000] | 1 | +0.000 | +0.000 |
+| LearnedLinearCombiner | +0.0453 | [+0.0254, +0.0650] | 9.558e-08 | +0.220 | +0.476 |
 
-| Bucket | Recall@1 | Recall@5 | MRR@10 |
-| --- | ---: | ---: | ---: |
-| high_correlation | 0.3238 | 0.6476 | 0.4637 |
-| low_correlation | 0.4619 | 0.7952 | 0.6000 |
+## Fusion latency
 
-### CorrelationAwareKalmanFuser (covariance_inflation)
+- Latency metrics are recorded in `summary.json` under `latency_ms` (mean and p95 ms/query).
 
-| Bucket | Recall@1 | Recall@5 | MRR@10 |
-| --- | ---: | ---: | ---: |
-| high_correlation | 0.3238 | 0.6476 | 0.4645 |
-| low_correlation | 0.4667 | 0.8048 | 0.6066 |
+## Correlated slice definition
 
-### CorrelationAwareKalmanFuser (effective_sample_size)
+- Query-level correlated score: `||mean(residuals)|| / mean(||residual_i||)`.
+- Correlated if score ≥ `0.70`.
+- Correlated queries on test: `287` / `420`.
 
-| Bucket | Recall@1 | Recall@5 | MRR@10 |
-| --- | ---: | ---: | ---: |
-| high_correlation | 0.3238 | 0.6476 | 0.4637 |
-| low_correlation | 0.4619 | 0.7952 | 0.6000 |
+## Interpretation
 
-## Notes
-
-- Correlation profile was estimated only from validation residuals.
-- Test split is strengthened by including a high-correlation half (ρ=0.85).
-- Null/negative outcomes are reported directly; no optimistic retuning on test.
+- This is a narrowed hypothesis regime, not a broad claim about general retrieval settings.
+- Any synthetic win is treated as directional evidence only; it does not close the headline Kalman-vs-mean claim.

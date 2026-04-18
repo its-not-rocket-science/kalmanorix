@@ -18,7 +18,7 @@ This is the compact map of implemented Kalman-improvement tracks and how to inte
 | Uncertainty calibration | `results/uncertainty_calibration/summary.json`, `results/uncertainty_calibration/report.md` | Powered calibration setup now exists, but downstream delta change is currently null (`0.0` validation/test). |
 | Uncertainty ablation | `results/uncertainty_ablation/summary.json`, `results/uncertainty_ablation/report.md` | Calibration proxies improve for some methods, while retrieval metrics are largely unchanged in this setup. |
 | Covariance ablation | `results/kalman_covariance_ablation_v2/summary.json`, `results/kalman_covariance_ablation_v2/report.md` | Richer covariance families are implemented and tested but not justified by practical gains here. |
-| Correlation-aware fusion | `results/correlation_aware_fusion/summary.json`, `results/correlation_aware_fusion/report.md` | Small positive signal vs baseline Kalman on correlated split; treat as exploratory pending replication. |
+| Correlation-aware fusion | `results/correlation_aware_fusion/summary.json`, `results/correlation_aware_fusion/report.md` | Narrowed-hypothesis synthetic correlated-experts regime with paired stats/latency; exploratory only and explicitly non-headline. |
 | Latency optimization | `results/kalman_latency_optimization/summary.json`, `results/kalman_latency_optimization/report.md` | Legacy Kalman path is measurably faster after optimization, but canonical latency-ratio acceptance is still not met. |
 
 ## 1) Demonstrated Evidence (as of April 9, 2026)
