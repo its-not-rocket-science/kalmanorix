@@ -792,6 +792,46 @@ def _render_report(summary: dict[str, Any]) -> str:
             "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
         ]
     )
+    replication = summary.get("replication")
+    if replication is not None:
+        lines.extend(
+            [
+                "",
+                "## Replication Evidence",
+                "",
+                f"- Replication runs: `{replication['num_runs']}`",
+                f"- Positive nDCG@10 deltas (Kalman-Mean): `{replication['fraction_positive_deltas']:.3f}`",
+                f"- Statistically significant runs (Holm-adjusted p <= 0.05 on nDCG@10): `{replication['fraction_significant_runs']:.3f}`",
+                f"- Median latency ratio (Kalman/Mean): `{replication['median_latency_ratio']:.3f}`",
+                f"- Direction consistency: `{replication['direction_consistency']}`",
+                "- Note: pooled summaries below are descriptive across replications and are not a formal meta-analytic significance test.",
+                "",
+                "| Run | Seed | Verdict | Δ nDCG@10 | Holm-adjusted p | Latency ratio |",
+                "|---|---:|---|---:|---:|---:|",
+            ]
+        )
+        for run in replication["per_run_verdicts"]:
+            lines.append(
+                "| {run_id} | {seed} | {verdict} | {delta:.6f} | {padj:.6f} | {latency:.3f} |".format(
+                    run_id=run["run_id"],
+                    seed=run["seed"],
+                    verdict=run["verdict"],
+                    delta=run["primary_delta_ndcg10"],
+                    padj=run["primary_adjusted_p_value_ndcg10"],
+                    latency=run["latency_ratio_vs_mean"],
+                )
+            )
+        pooled = replication["pooled_effect_summaries"]
+        lines.extend(
+            [
+                "",
+                "| Pooled descriptor | Value |",
+                "|---|---:|",
+                f"| Query-count weighted mean Δ nDCG@10 | {pooled['weighted_mean_delta_ndcg10']:.6f} |",
+                f"| Median run-level Δ nDCG@10 | {pooled['median_delta_ndcg10']:.6f} |",
+                f"| Median run-level Holm-adjusted p | {pooled['median_adjusted_p_value_ndcg10']:.6f} |",
+            ]
+        )
     confirmatory = summary.get("confirmatory_slice_results")
     if confirmatory is not None:
         lines.extend(
@@ -917,6 +957,91 @@ def _render_report(summary: dict[str, Any]) -> str:
         ]
     )
     return "\n".join(lines) + "\n"
+
+
+def _build_replication_summary(run_summaries: list[dict[str, Any]]) -> dict[str, Any]:
+    if not run_summaries:
+        raise ValueError("Replication summary requires at least one run summary.")
+
+    per_run_verdicts: list[dict[str, Any]] = []
+    positive_count = 0
+    significant_count = 0
+    deltas: list[float] = []
+    latency_ratios: list[float] = []
+    weighted_delta_num = 0.0
+    weighted_delta_den = 0
+
+    for idx, summary in enumerate(run_summaries, start=1):
+        comparison = summary["paired_statistics"]["kalman_vs_mean"]["overall"][
+            "ndcg@10"
+        ]
+        delta = float(comparison["mean_difference"])
+        padj = float(comparison["adjusted_p_value"])
+        n_pairs = int(comparison["n_pairs"])
+        latency_ratio = float(
+            summary["decision"]["kalman_vs_mean"]["observed"]["latency_ratio_vs_mean"]
+        )
+        verdict = str(summary["decision"]["kalman_vs_mean"]["verdict"])
+        seed = int(summary["seed"])
+        run_id = f"run_{idx:03d}"
+
+        if delta > 0.0:
+            positive_count += 1
+        if padj <= 0.05:
+            significant_count += 1
+
+        deltas.append(delta)
+        latency_ratios.append(latency_ratio)
+        weighted_delta_num += delta * n_pairs
+        weighted_delta_den += n_pairs
+
+        per_run_verdicts.append(
+            {
+                "run_id": run_id,
+                "seed": seed,
+                "verdict": verdict,
+                "primary_delta_ndcg10": delta,
+                "primary_adjusted_p_value_ndcg10": padj,
+                "n_pairs": n_pairs,
+                "latency_ratio_vs_mean": latency_ratio,
+            }
+        )
+
+    num_runs = len(run_summaries)
+    return {
+        "num_runs": num_runs,
+        "per_run_verdicts": per_run_verdicts,
+        "fraction_positive_deltas": float(positive_count / num_runs),
+        "fraction_significant_runs": float(significant_count / num_runs),
+        "median_latency_ratio": float(
+            np.median(np.asarray(latency_ratios, dtype=float))
+        ),
+        "direction_consistency": (
+            "all_positive"
+            if positive_count == num_runs
+            else ("all_negative_or_zero" if positive_count == 0 else "mixed")
+        ),
+        "pooled_effect_summaries": {
+            "weighted_mean_delta_ndcg10": (
+                float(weighted_delta_num / weighted_delta_den)
+                if weighted_delta_den > 0
+                else 0.0
+            ),
+            "median_delta_ndcg10": float(np.median(np.asarray(deltas, dtype=float))),
+            "median_adjusted_p_value_ndcg10": float(
+                np.median(
+                    np.asarray(
+                        [
+                            run["primary_adjusted_p_value_ndcg10"]
+                            for run in per_run_verdicts
+                        ],
+                        dtype=float,
+                    )
+                )
+            ),
+            "note": "Descriptive pooling only; no formal pooled significance test is computed.",
+        },
+    }
 
 
 def run_canonical_benchmark(
@@ -1255,6 +1380,20 @@ def run_canonical_benchmark(
     return summary
 
 
+def _resolve_replication_seeds(
+    *, seed: int, replication_seeds: str, replication_runs: int
+) -> list[int]:
+    if replication_seeds.strip():
+        return [
+            int(token.strip())
+            for token in replication_seeds.split(",")
+            if token.strip()
+        ]
+    if replication_runs <= 1:
+        return [seed]
+    return [seed + idx for idx in range(replication_runs)]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run canonical benchmark and generate report artifacts"
@@ -1270,6 +1409,18 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-resamples", type=int, default=5000)
     parser.add_argument(
+        "--replication-runs",
+        type=int,
+        default=1,
+        help="Number of repeated benchmark builds to run using derived seeds.",
+    )
+    parser.add_argument(
+        "--replication-seeds",
+        type=str,
+        default="",
+        help="Comma-separated explicit replication seeds. Overrides --replication-runs when provided.",
+    )
+    parser.add_argument(
         "--confirmatory-slice",
         type=str,
         choices=CONFIRMATORY_SLICE_CHOICES,
@@ -1281,16 +1432,50 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    summary = run_canonical_benchmark(
-        benchmark_path=args.benchmark_path,
-        output_dir=args.output_dir,
-        split=args.split,
-        max_queries=args.max_queries,
-        device=args.device,
+    seeds = _resolve_replication_seeds(
         seed=args.seed,
-        num_resamples=args.num_resamples,
-        confirmatory_slice=args.confirmatory_slice,
+        replication_seeds=args.replication_seeds,
+        replication_runs=args.replication_runs,
     )
+    run_summaries: list[dict[str, Any]] = []
+    if len(seeds) == 1:
+        summary = run_canonical_benchmark(
+            benchmark_path=args.benchmark_path,
+            output_dir=args.output_dir,
+            split=args.split,
+            max_queries=args.max_queries,
+            device=args.device,
+            seed=seeds[0],
+            num_resamples=args.num_resamples,
+            confirmatory_slice=args.confirmatory_slice,
+        )
+    else:
+        runs_dir = args.output_dir / "replication_runs"
+        for idx, run_seed in enumerate(seeds, start=1):
+            run_output_dir = runs_dir / f"run_{idx:03d}_seed_{run_seed}"
+            run_summary = run_canonical_benchmark(
+                benchmark_path=args.benchmark_path,
+                output_dir=run_output_dir,
+                split=args.split,
+                max_queries=args.max_queries,
+                device=args.device,
+                seed=run_seed,
+                num_resamples=args.num_resamples,
+                confirmatory_slice=args.confirmatory_slice,
+            )
+            run_summaries.append(run_summary)
+        summary = run_summaries[0]
+        summary["replication"] = _build_replication_summary(run_summaries)
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+        (args.output_dir / "summary.json").write_text(
+            json.dumps(summary, indent=2), encoding="utf-8"
+        )
+        (args.output_dir / "replication_summary.json").write_text(
+            json.dumps(summary["replication"], indent=2), encoding="utf-8"
+        )
+        (args.output_dir / "report.md").write_text(
+            _render_report(summary), encoding="utf-8"
+        )
     print(
         json.dumps(
             {
