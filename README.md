@@ -24,6 +24,7 @@ The canonical artifact now reports a `benchmark_status` field in addition to the
 - Use them together:
   - treat `verdict` as the decision output,
   - treat `benchmark_status` as a guardrail against over-interpreting weakly powered runs.
+  - treat any run with `benchmark_status != "claim_ready"` as **non-claim-ready**: it is not proof of Kalman-vs-mean superiority.
 
 Kalmanorix is an experimental framework for combining specialist embedding models with uncertainty-aware fusion and semantic routing. The project can also be used as a standalone **routing-and-efficiency toolkit** even if fusion-quality hypotheses remain unresolved.
 
