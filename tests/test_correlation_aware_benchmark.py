@@ -32,9 +32,12 @@ def test_correlation_aware_benchmark_emits_expected_artifacts(tmp_path: Path) ->
     assert set(on_disk["test_metrics"]) == {
         "MeanFuser",
         "KalmanorixFuser",
-        "CorrelationAwareKalmanFuser (covariance_inflation)",
-        "CorrelationAwareKalmanFuser (effective_sample_size)",
+        "CorrelationAwareKalmanFuser",
+        "WeightedMeanFuser",
+        "LearnedLinearCombiner",
     }
+    assert "paired_stats_vs_kalman" in on_disk
+    assert "latency_ms" in on_disk
     assert on_disk["validation_fit"]["residual_norm_shape"] == [80, 3]
     assert on_disk["test_split"]["buckets"]["low_correlation"] == 60
     assert on_disk["test_split"]["buckets"]["high_correlation"] == 60
