@@ -614,6 +614,19 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
     if toy_reasons:
         status = "toy"
         status_note = "Sample is toy-scale for Kalman-vs-mean claims; treat outcomes as smoke-test signals only."
+        minimally_powered_checks = {
+            "test_query_count_ok": False,
+            "per_domain_min_count_ok": False,
+            "validation_count_ok": False,
+            "detectable_effect_ok": False,
+        }
+        claim_ready_checks = {
+            "test_query_count_claim_ready": False,
+            "per_domain_min_count_claim_ready": False,
+            "validation_count_claim_ready": False,
+            "detectable_effect_claim_ready": False,
+        }
+        failed_checks = toy_reasons
     else:
         minimally_powered_checks = {
             "test_query_count_ok": bool(test_count >= PAIRED_TEST_MIN_TEST_QUERIES),
@@ -623,22 +636,39 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
             ),
             "detectable_effect_ok": bool(detectable_effect <= target_effect),
         }
+        failed_checks = []
+        if not minimally_powered_checks["test_query_count_ok"]:
+            failed_checks.append(
+                "test_query_count is below the paired-significance minimum."
+            )
+        if not minimally_powered_checks["validation_count_ok"]:
+            failed_checks.append(
+                "validation_query_count is below the calibration minimum."
+            )
+        if not minimally_powered_checks["per_domain_min_count_ok"]:
+            failed_checks.append(
+                "minimum_per_domain_test_count is below the per-domain minimum."
+            )
+        if not minimally_powered_checks["detectable_effect_ok"]:
+            failed_checks.append(
+                "detectable_effect_threshold_estimate is above the target_effect_size."
+            )
+        claim_ready_checks = {
+            "test_query_count_claim_ready": bool(
+                test_count >= CLAIM_READY_TEST_QUERY_THRESHOLD
+            ),
+            "per_domain_min_count_claim_ready": bool(
+                min_domain_count >= CLAIM_READY_PER_DOMAIN_THRESHOLD
+            ),
+            "validation_count_claim_ready": bool(
+                validation_count >= CLAIM_READY_VALIDATION_THRESHOLD
+            ),
+            "detectable_effect_claim_ready": bool(
+                detectable_effect
+                <= (target_effect * CLAIM_READY_DETECTABLE_EFFECT_RATIO)
+            ),
+        }
         if all(minimally_powered_checks.values()):
-            claim_ready_checks = {
-                "test_query_count_claim_ready": bool(
-                    test_count >= CLAIM_READY_TEST_QUERY_THRESHOLD
-                ),
-                "per_domain_min_count_claim_ready": bool(
-                    min_domain_count >= CLAIM_READY_PER_DOMAIN_THRESHOLD
-                ),
-                "validation_count_claim_ready": bool(
-                    validation_count >= CLAIM_READY_VALIDATION_THRESHOLD
-                ),
-                "detectable_effect_claim_ready": bool(
-                    detectable_effect
-                    <= (target_effect * CLAIM_READY_DETECTABLE_EFFECT_RATIO)
-                ),
-            }
             if all(claim_ready_checks.values()):
                 status = "claim_ready"
                 status_note = "Counts and detectable-effect headroom satisfy stricter claim-readiness thresholds."
@@ -647,6 +677,22 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
                 status_note = (
                     "Meets minimum power/coverage checks, but lacks claim-ready margin."
                 )
+                if not claim_ready_checks["test_query_count_claim_ready"]:
+                    failed_checks.append(
+                        "test_query_count does not clear claim-ready threshold."
+                    )
+                if not claim_ready_checks["validation_count_claim_ready"]:
+                    failed_checks.append(
+                        "validation_query_count does not clear claim-ready threshold."
+                    )
+                if not claim_ready_checks["per_domain_min_count_claim_ready"]:
+                    failed_checks.append(
+                        "minimum_per_domain_test_count does not clear claim-ready threshold."
+                    )
+                if not claim_ready_checks["detectable_effect_claim_ready"]:
+                    failed_checks.append(
+                        "detectable_effect_threshold_estimate lacks claim-ready headroom versus target_effect_size."
+                    )
         else:
             status = "underpowered"
             status_note = (
@@ -656,6 +702,11 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
     return {
         "status": status,
         "status_note": status_note,
+        "criteria": {
+            "minimally_powered_checks": minimally_powered_checks,
+            "claim_ready_checks": claim_ready_checks,
+            "failed_checks": failed_checks,
+        },
         "inputs": {
             "test_query_count": test_count,
             "minimum_per_domain_test_count": min_domain_count,
@@ -774,23 +825,37 @@ def _render_report(summary: dict[str, Any]) -> str:
     verdict = decision["verdict"]
     power_diag = summary["power_diagnostics"]["kalman_vs_mean"]
     adequacy = summary["sample_size_adequacy"]
+    status_criteria = benchmark_status.get("criteria", {})
+    failed_checks = list(status_criteria.get("failed_checks", []))
+    non_claim_ready = benchmark_status["status"] != "claim_ready"
 
     lines = [
         "# Canonical Benchmark Report",
         "",
-        "## Setup",
-        f"- Benchmark: `{summary['benchmark']['path']}`",
-        f"- Split evaluated: `{summary['benchmark']['evaluated_split']}`",
-        f"- Available split counts: {summary['benchmark']['split_counts']}",
-        f"- **Benchmark status:** `{benchmark_status['status']}` — {benchmark_status['status_note']}",
-        f"- Specialists: {', '.join(summary['specialists'])}",
-        f"- LearnedGateFuser included: `{summary['comparisons']['LearnedGateFuser']['included']}`",
-        "",
-        "## Aggregate Metrics (mean with 95% bootstrap CI)",
-        "",
-        "| Method | nDCG@5 | nDCG@10 | MRR@5 | MRR@10 | Recall@1 | Recall@5 | Recall@10 | Top-1 success | Latency (ms) | FLOPs proxy |",
-        "|---|---|---|---|---|---|---|---|---|---|",
     ]
+    if non_claim_ready:
+        lines.extend(
+            [
+                "> ⚠️ **Do not interpret this artifact as proof of Kalman-vs-mean superiority.**",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "## Setup",
+            f"- Benchmark: `{summary['benchmark']['path']}`",
+            f"- Split evaluated: `{summary['benchmark']['evaluated_split']}`",
+            f"- Available split counts: {summary['benchmark']['split_counts']}",
+            f"- **Benchmark status:** `{benchmark_status['status']}` — {benchmark_status['status_note']}",
+            f"- Specialists: {', '.join(summary['specialists'])}",
+            f"- LearnedGateFuser included: `{summary['comparisons']['LearnedGateFuser']['included']}`",
+            "",
+            "## Aggregate Metrics (mean with 95% bootstrap CI)",
+            "",
+            "| Method | nDCG@5 | nDCG@10 | MRR@5 | MRR@10 | Recall@1 | Recall@5 | Recall@10 | Top-1 success | Latency (ms) | FLOPs proxy |",
+            "|---|---|---|---|---|---|---|---|---|---|",
+        ]
+    )
 
     ranking_by_ndcg10 = sorted(
         (
@@ -909,6 +974,25 @@ def _render_report(summary: dict[str, Any]) -> str:
                 ok="yes" if adequacy["per_domain_analysis"]["adequate"] else "no",
                 note=adequacy["per_domain_analysis"]["note"],
             ),
+        ]
+    )
+    if not adequacy["paired_significance_testing"]["adequate"]:
+        lines.append(
+            "- ⚠️ WARNING: test query count is too small for reliable paired significance claims."
+        )
+    if not adequacy["uncertainty_calibration"]["adequate"]:
+        lines.append(
+            "- ⚠️ WARNING: validation split is too small for stable calibration claims."
+        )
+    if not adequacy["per_domain_analysis"]["adequate"]:
+        lines.append(
+            "- ⚠️ WARNING: per-domain test coverage is too thin for domain-level inference."
+        )
+    if failed_checks:
+        lines.append("- ⚠️ benchmark_status guardrail failures:")
+        lines.extend(f"  - {message}" for message in failed_checks)
+    lines.extend(
+        [
             "",
             "## Paired Statistical Test: KalmanorixFuser vs MeanFuser",
             "",
@@ -1042,6 +1126,10 @@ def _render_report(summary: dict[str, Any]) -> str:
         if confirmatory["warnings"]:
             lines.append("- Warnings:")
             lines.extend(f"  - {warning}" for warning in confirmatory["warnings"])
+        if confirmatory["n_queries"] < confirmatory["minimum_pairs_for_inference"]:
+            lines.append(
+                "- ⚠️ WARNING: confirmatory slice is underpowered; do not use this slice for inferential superiority claims."
+            )
         lines.extend(
             [
                 "",
