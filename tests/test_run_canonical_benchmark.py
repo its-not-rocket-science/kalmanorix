@@ -450,7 +450,7 @@ def test_classify_benchmark_status_covers_all_statuses(
     assert status_payload["status"] == expected_status
 
 
-def test_confirmatory_slice_selection_filters_are_supported() -> None:
+def test_confirmatory_slice_selection_is_locked_to_predeclared_definition() -> None:
     details = _fake_details()
     query_level = details["query_level"]  # type: ignore[index]
     rankings = query_level["rankings"]  # type: ignore[index]
@@ -462,35 +462,8 @@ def test_confirmatory_slice_selection_filters_are_supported() -> None:
         confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
     )
 
-    high_disagreement = canonical._resolve_confirmatory_slice_ids(
-        slice_name="high_specialist_disagreement",
-        query_ids=query_ids,
-        query_metadata=query_level["query_metadata"],  # type: ignore[index]
-        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
-        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
-        bucket_to_qids=bucket_to_qids,
-        bucket_thresholds=thresholds,
-    )
-    high_uncertainty = canonical._resolve_confirmatory_slice_ids(
-        slice_name="high_uncertainty_spread",
-        query_ids=query_ids,
-        query_metadata=query_level["query_metadata"],  # type: ignore[index]
-        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
-        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
-        bucket_to_qids=bucket_to_qids,
-        bucket_thresholds=thresholds,
-    )
-    nontrivial = canonical._resolve_confirmatory_slice_ids(
-        slice_name="nontrivial_routing_case",
-        query_ids=query_ids,
-        query_metadata=query_level["query_metadata"],  # type: ignore[index]
-        specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
-        confidence_proxy=query_level["confidence_proxy"]["router_only_top1"],  # type: ignore[index]
-        bucket_to_qids=bucket_to_qids,
-        bucket_thresholds=thresholds,
-    )
-    intersection = canonical._resolve_confirmatory_slice_ids(
-        slice_name="intersection_of_above",
+    selected = canonical._resolve_confirmatory_slice_ids(
+        slice_name=canonical.CONFIRMATORY_SLICE_NAME,
         query_ids=query_ids,
         query_metadata=query_level["query_metadata"],  # type: ignore[index]
         specialist_counts=query_level["specialist_count_selected"]["router_only_top1"],  # type: ignore[index]
@@ -499,10 +472,7 @@ def test_confirmatory_slice_selection_filters_are_supported() -> None:
         bucket_thresholds=thresholds,
     )
 
-    assert high_disagreement == ["q2", "q3"]
-    assert high_uncertainty == ["q2", "q3"]
-    assert nontrivial == ["q2", "q3"]
-    assert intersection == ["q2", "q3"]
+    assert selected == ["q2"]
 
 
 def test_confirmatory_slice_empty_and_underpowered_emit_warnings() -> None:
@@ -524,7 +494,7 @@ def test_confirmatory_slice_empty_and_underpowered_emit_warnings() -> None:
 
     query_ids = sorted(query_level["rankings"]["kalman"])  # type: ignore[index]
     empty = canonical._build_confirmatory_slice_results(
-        slice_name="intersection_of_above",
+        slice_name=canonical.CONFIRMATORY_SLICE_NAME,
         methods=methods,
         query_ids=query_ids,
         selected_qids=[],
@@ -532,7 +502,7 @@ def test_confirmatory_slice_empty_and_underpowered_emit_warnings() -> None:
         num_resamples=50,
     )
     underpowered = canonical._build_confirmatory_slice_results(
-        slice_name="high_specialist_disagreement",
+        slice_name=canonical.CONFIRMATORY_SLICE_NAME,
         methods=methods,
         query_ids=query_ids,
         selected_qids=["q2"],
@@ -542,10 +512,15 @@ def test_confirmatory_slice_empty_and_underpowered_emit_warnings() -> None:
 
     assert empty["warning_count"] == 1
     assert "zero paired queries" in empty["warnings"][0]
-    assert empty["paired_statistics_kalman_vs_mean"] is None
+    assert empty["paired_statistics"] is None
+    assert empty["verdicts"]["kalman_vs_mean"]["status"] == "underpowered"
     assert underpowered["warning_count"] == 1
     assert "underpowered" in underpowered["warnings"][0]
-    assert underpowered["paired_statistics_kalman_vs_mean"] is None
+    assert underpowered["paired_statistics"] is None
+    assert (
+        underpowered["verdicts"]["kalman_vs_router_only_top1"]["status"]
+        == "underpowered"
+    )
 
 
 def test_canonical_benchmark_writes_confirmatory_slice_section(
@@ -572,17 +547,23 @@ def test_canonical_benchmark_writes_confirmatory_slice_section(
         device="cpu",
         seed=7,
         num_resamples=100,
-        confirmatory_slice="intersection_of_above",
+        confirmatory_slice=canonical.CONFIRMATORY_SLICE_NAME,
     )
 
     summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
     confirmatory = summary["confirmatory_slice_results"]
-    assert confirmatory["slice_name"] == "intersection_of_above"
+    assert confirmatory["slice_name"] == canonical.CONFIRMATORY_SLICE_NAME
     assert confirmatory["warning_count"] == 1
-    assert confirmatory["paired_statistics_kalman_vs_mean"] is None
+    assert confirmatory["paired_statistics"] is None
+    assert (
+        confirmatory["verdicts"]["kalman_vs_weighted_mean"]["status"] == "underpowered"
+    )
     report_text = (output_dir / "report.md").read_text(encoding="utf-8")
-    assert "## Confirmatory Slice (Kalman-vs-Mean)" in report_text
-    assert "Confirmatory paired statistical test" not in report_text
+    assert "## Confirmatory Slice (Pre-declared)" in report_text
+    assert (
+        "Confirmatory paired statistical tests (Kalman vs baselines)" not in report_text
+    )
+    assert "Underpowered: inferential paired testing was not run" in report_text
     assert (
         "## Bucketed Analysis (Exploratory unless significance criteria are met)"
         in report_text
