@@ -175,6 +175,10 @@ python -m json.tool results/canonical_benchmark_v2/summary.json | head -80
 python -m json.tool results/kalman_evidence_dashboard/summary.json | head -120
 ```
 
+Dashboard (traffic-light + compact evidence table):
+- `results/kalman_evidence_dashboard/report.md`
+- `results/kalman_evidence_dashboard/summary.json`
+
 ### 4) Extending with new specialists (contributor flow)
 
 ```bash
