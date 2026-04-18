@@ -11,6 +11,20 @@
 - **State:** **Real artifact committed** (`summary.json` and `report.md` are present).
 - **Readout:** the committed canonical run is evidence, but it does **not** close the quality hypotheses (Kalman-vs-mean and specialists-vs-monolith remain unresolved).
 
+### Canonical artifact interpretation guide (`summary.json` + `report.md`)
+
+The canonical artifact now reports a `benchmark_status` field in addition to the existing Kalman-vs-baseline `verdict`.
+
+- `benchmark_status` rates **evidence readiness** from sample-size/power signals:
+  - `toy`: too small for meaningful Kalman-vs-mean conclusions.
+  - `underpowered`: above toy scale but still below minimum confidence for claims.
+  - `minimally_powered`: minimum thresholds met; interpret results cautiously.
+  - `claim_ready`: stricter coverage/power margin met; suitable for stronger claim interpretation.
+- `verdict` remains the existing decision-rule outcome (`supported`, `unsupported`, `inconclusive_*`).
+- Use them together:
+  - treat `verdict` as the decision output,
+  - treat `benchmark_status` as a guardrail against over-interpreting weakly powered runs.
+
 Kalmanorix is an experimental framework for combining specialist embedding models with uncertainty-aware fusion and semantic routing. The project can also be used as a standalone **routing-and-efficiency toolkit** even if fusion-quality hypotheses remain unresolved.
 
 ## API Maturity Tiers

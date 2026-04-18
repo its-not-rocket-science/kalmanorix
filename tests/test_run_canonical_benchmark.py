@@ -173,6 +173,7 @@ def test_canonical_benchmark_writes_artifacts(
     }
     assert "power_diagnostics" in on_disk
     assert "sample_size_adequacy" in on_disk
+    assert on_disk["benchmark_status"]["status"] == "toy"
     assert summary["comparisons"]["LearnedGateFuser"]["included"] is False
     assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
 
@@ -313,8 +314,77 @@ def test_canonical_report_includes_paired_statistics_section(
     assert "top1_success" in report_text
     assert "## Method Ranking Snapshot" in report_text
     assert "## Verdict" in report_text
+    assert "**Benchmark status:** `toy`" in report_text
+    assert "**benchmark_status:** `toy`" in report_text
     assert "## Demonstrated findings" in report_text
     assert "## Bucketed Analysis" in report_text
+
+
+@pytest.mark.parametrize(
+    ("sample_size_adequacy", "power_diag", "expected_status"),
+    [
+        (
+            {
+                "uncertainty_calibration": {"available_queries": 40},
+                "per_domain_analysis": {"minimum_domain_count": 9},
+            },
+            {
+                "num_test_queries": 24,
+                "detectable_effect_threshold_estimate": 0.03,
+                "target_effect_size": 0.02,
+            },
+            "toy",
+        ),
+        (
+            {
+                "uncertainty_calibration": {"available_queries": 120},
+                "per_domain_analysis": {"minimum_domain_count": 20},
+            },
+            {
+                "num_test_queries": 60,
+                "detectable_effect_threshold_estimate": 0.03,
+                "target_effect_size": 0.02,
+            },
+            "underpowered",
+        ),
+        (
+            {
+                "uncertainty_calibration": {"available_queries": 140},
+                "per_domain_analysis": {"minimum_domain_count": 22},
+            },
+            {
+                "num_test_queries": 70,
+                "detectable_effect_threshold_estimate": 0.018,
+                "target_effect_size": 0.02,
+            },
+            "minimally_powered",
+        ),
+        (
+            {
+                "uncertainty_calibration": {"available_queries": 240},
+                "per_domain_analysis": {"minimum_domain_count": 45},
+            },
+            {
+                "num_test_queries": 140,
+                "detectable_effect_threshold_estimate": 0.012,
+                "target_effect_size": 0.02,
+            },
+            "claim_ready",
+        ),
+    ],
+)
+def test_classify_benchmark_status_covers_all_statuses(
+    sample_size_adequacy: dict[str, dict[str, int]],
+    power_diag: dict[str, float],
+    expected_status: str,
+) -> None:
+    summary = {
+        "sample_size_adequacy": sample_size_adequacy,
+        "power_diagnostics": {"kalman_vs_mean": power_diag},
+    }
+
+    status_payload = canonical._classify_benchmark_status(summary)
+    assert status_payload["status"] == expected_status
 
 
 def test_confirmatory_slice_selection_filters_are_supported() -> None:
