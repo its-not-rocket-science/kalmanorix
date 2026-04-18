@@ -107,6 +107,14 @@ PYTHONPATH=src python experiments/run_canonical_benchmark.py \
   --output-dir results/canonical_benchmark_v3
 ```
 
+### Run hostile credibility-layer benchmark (does not replace canonical)
+```bash
+PYTHONPATH=src python experiments/run_hostile_benchmark.py \
+  --config experiments/configs/kalman_hostile_benchmark_v1.json
+```
+
+Hostile artifacts are written to `results/kalman_hostile_benchmark_v1/` by default and must be interpreted as an additional falsification-oriented stress layer. The canonical benchmark remains the primary evidence track.
+
 ### Compatibility entrypoints (real mode by default)
 ```bash
 python experiments/validate_fusion.py

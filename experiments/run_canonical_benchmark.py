@@ -92,6 +92,19 @@ CONFIRMATORY_REQUIRED_BASELINE_COMPARISONS = (
     "kalman_vs_weighted_mean",
     "kalman_vs_router_only_top1",
 )
+HOSTILE_SLICE_NAME = "hostile_disagreement_calibration_routing_ambiguity"
+HOSTILE_SLICE_REASON = (
+    "Adversarial slice intersects high disagreement, low router confidence, and "
+    "high uncertainty spread to stress disagreement, routing ambiguity, and "
+    "calibration error proxies together."
+)
+HOSTILE_MIN_PAIRS_FOR_INFERENCE = CONFIRMATORY_SLICE_MIN_PAIRS
+HOSTILE_REQUIRED_BASELINE_ORDER = (
+    ("kalman_vs_mean", "mean"),
+    ("kalman_vs_weighted_mean", "fixed_weighted_mean_fusion"),
+    ("kalman_vs_router_only_top1", "router_only_top1"),
+    ("kalman_vs_learned_linear_combiner", "learned_linear_combiner"),
+)
 
 
 def _canonical_method_key(method_key: str) -> str:
@@ -474,6 +487,211 @@ def _build_confirmatory_slice_results(
         "paired_statistics": paired_statistics,
         "verdicts": verdicts,
         "decision": overall_decision,
+    }
+
+
+def _resolve_hostile_slice_ids(*, bucket_to_qids: dict[str, list[str]]) -> list[str]:
+    high_disagreement = set(bucket_to_qids.get("high_specialist_disagreement", []))
+    high_uncertainty_spread = set(bucket_to_qids.get("high_uncertainty_spread", []))
+    router_low_confidence = set(bucket_to_qids.get("router_low_confidence", []))
+    return sorted(
+        high_disagreement.intersection(high_uncertainty_spread).intersection(
+            router_low_confidence
+        )
+    )
+
+
+def _build_hostile_slice_results(
+    *,
+    methods: dict[str, Any],
+    query_ids: list[str],
+    selected_qids: list[str],
+    seed: int,
+    num_resamples: int,
+) -> dict[str, Any]:
+    qid_to_idx = {qid: idx for idx, qid in enumerate(query_ids)}
+    idxs = [qid_to_idx[qid] for qid in selected_qids if qid in qid_to_idx]
+    n_pairs = len(idxs)
+    warnings: list[str] = []
+    if n_pairs == 0:
+        warnings.append(
+            "Hostile slice contains zero paired queries; inferential testing is skipped."
+        )
+    elif n_pairs < HOSTILE_MIN_PAIRS_FOR_INFERENCE:
+        warnings.append(
+            "Hostile slice is underpowered for inferential claims "
+            f"(n_pairs={n_pairs} < {HOSTILE_MIN_PAIRS_FOR_INFERENCE})."
+        )
+
+    method_metrics: dict[str, dict[str, float]] = {}
+    for method_key in [
+        "mean",
+        "kalman",
+        "fixed_weighted_mean_fusion",
+        "router_only_top1",
+        "learned_linear_combiner",
+    ]:
+        if method_key not in methods:
+            continue
+        method_qlevel = methods[method_key]["query_level"]
+        method_metrics[method_key] = {
+            metric: (
+                float(np.mean([method_qlevel[metric][idx] for idx in idxs]))
+                if idxs
+                else 0.0
+            )
+            for metric in REPORT_METRICS
+        }
+
+    adjusted_p_value_threshold = float(
+        CANONICAL_DECISION_RULES["adjusted_p_value_threshold"]
+    )
+    practical_effect_size_floor = float(CANONICAL_DECISION_RULES["minimum_effect_size"])
+
+    paired_statistics: dict[str, Any] = {}
+    verdicts: dict[str, dict[str, Any]] = {}
+    include_comparisons: list[str] = []
+    if n_pairs >= HOSTILE_MIN_PAIRS_FOR_INFERENCE:
+        kalman_subset = {
+            metric: [methods["kalman"]["query_level"][metric][idx] for idx in idxs]
+            for metric in REPORT_METRICS
+        }
+        for comparison_key, baseline_method in HOSTILE_REQUIRED_BASELINE_ORDER:
+            if baseline_method not in methods:
+                verdicts[comparison_key] = {
+                    "status": "not_available",
+                    "primary_metric": "ndcg@10",
+                    "reason": f"baseline_not_emitted:{baseline_method}",
+                }
+                continue
+            include_comparisons.append(comparison_key)
+            baseline_subset = {
+                metric: [
+                    methods[baseline_method]["query_level"][metric][idx] for idx in idxs
+                ]
+                for metric in REPORT_METRICS
+            }
+            stats = generate_statistical_report(
+                reference_method="kalman",
+                candidate_method=baseline_method,
+                reference_metrics=kalman_subset,
+                candidate_metrics=baseline_subset,
+                seed=seed,
+                num_resamples=num_resamples,
+                config={
+                    "hostile_slice": HOSTILE_SLICE_NAME,
+                    "comparison": comparison_key,
+                },
+            )
+            paired_statistics[comparison_key] = {
+                metric: {
+                    "mean_difference": entry.mean_difference,
+                    "ci95_low": entry.confidence_interval.lower,
+                    "ci95_high": entry.confidence_interval.upper,
+                    "p_value": entry.p_value,
+                    "adjusted_p_value": entry.adjusted_p_value,
+                    "cohen_dz": entry.effect_size.cohen_dz,
+                    "rank_biserial": entry.effect_size.rank_biserial,
+                    "n_pairs": entry.n_pairs,
+                }
+                for metric, entry in stats.comparisons.items()
+            }
+            ndcg10_entry = paired_statistics[comparison_key]["ndcg@10"]
+            mean_difference = float(ndcg10_entry["mean_difference"])
+            ci95_low = float(ndcg10_entry["ci95_low"])
+            ci95_high = float(ndcg10_entry["ci95_high"])
+            adjusted_p_value = float(ndcg10_entry["adjusted_p_value"])
+            checks = {
+                "positive_delta": mean_difference > 0.0,
+                "adjusted_p_value_ok": adjusted_p_value <= adjusted_p_value_threshold,
+                "ci_excludes_zero": ci95_low > 0.0 and ci95_high > 0.0,
+                "practical_effect_size_ok": mean_difference
+                >= practical_effect_size_floor,
+            }
+            verdicts[comparison_key] = {
+                "status": "supported" if all(checks.values()) else "not_supported",
+                "primary_metric": "ndcg@10",
+                "requires_positive_delta": True,
+                "requires_adjusted_p_value_lte": adjusted_p_value_threshold,
+                "requires_ci_excluding_zero": True,
+                "requires_practical_effect_size_gte": practical_effect_size_floor,
+                "checks": checks,
+                "observed": {
+                    "mean_difference": mean_difference,
+                    "ci95_low": ci95_low,
+                    "ci95_high": ci95_high,
+                    "adjusted_p_value": adjusted_p_value,
+                },
+            }
+    else:
+        for comparison_key, baseline_method in HOSTILE_REQUIRED_BASELINE_ORDER:
+            if baseline_method not in methods:
+                verdicts[comparison_key] = {
+                    "status": "not_available",
+                    "primary_metric": "ndcg@10",
+                    "reason": f"baseline_not_emitted:{baseline_method}",
+                }
+                continue
+            include_comparisons.append(comparison_key)
+            verdicts[comparison_key] = {
+                "status": "underpowered",
+                "primary_metric": "ndcg@10",
+                "reason": (
+                    "insufficient_paired_queries "
+                    f"(n_pairs={n_pairs} < {HOSTILE_MIN_PAIRS_FOR_INFERENCE})"
+                ),
+            }
+    available_supported = (
+        all(verdicts[key]["status"] == "supported" for key in include_comparisons)
+        if include_comparisons
+        else False
+    )
+    decision = {
+        "verdict": (
+            "supported"
+            if available_supported
+            else (
+                "inconclusive_underpowered"
+                if n_pairs < HOSTILE_MIN_PAIRS_FOR_INFERENCE
+                else "unsupported"
+            )
+        ),
+        "required_comparisons": include_comparisons,
+    }
+    if n_pairs < HOSTILE_MIN_PAIRS_FOR_INFERENCE:
+        decision["reason"] = (
+            f"n_pairs={n_pairs} < minimum_pairs={HOSTILE_MIN_PAIRS_FOR_INFERENCE}"
+        )
+
+    return {
+        "slice_name": HOSTILE_SLICE_NAME,
+        "slice_definition": {
+            "name": HOSTILE_SLICE_NAME,
+            "description": (
+                "high_specialist_disagreement AND low_router_confidence AND "
+                "high_uncertainty_spread"
+            ),
+            "reason": HOSTILE_SLICE_REASON,
+            "fields": [
+                "specialist_disagreement",
+                "router_confidence",
+                "uncertainty_spread",
+            ],
+            "thresholds": {
+                "specialist_disagreement": ">= median on evaluated test queries",
+                "router_confidence": "<= 33rd percentile on evaluated test queries",
+                "uncertainty_spread": ">= median on evaluated test queries",
+            },
+        },
+        "n_queries": n_pairs,
+        "n_pairs": n_pairs,
+        "minimum_pairs_for_inference": HOSTILE_MIN_PAIRS_FOR_INFERENCE,
+        "warning_count": len(warnings),
+        "warnings": warnings,
+        "method_metrics": method_metrics,
+        "paired_statistics": paired_statistics if paired_statistics else None,
+        "verdicts": verdicts,
+        "decision": decision,
     }
 
 
@@ -1192,6 +1410,101 @@ def _render_report(summary: dict[str, Any]) -> str:
                             padj=payload["adjusted_p_value"],
                         )
                     )
+    hostile = summary.get("hostile_slice_results")
+    if hostile is not None:
+        lines.extend(
+            [
+                "",
+                "## Hostile Falsification Slice (Credibility Layer; does not replace canonical benchmark)",
+                "",
+                f"- Slice name: `{hostile['slice_name']}`",
+                f"- Slice definition: `{hostile['slice_definition']['description']}`",
+                f"- Why this is hostile: {hostile['slice_definition']['reason']}",
+                f"- Query count: `{hostile['n_queries']}`",
+                f"- Minimum paired queries for inferential claims: `{hostile['minimum_pairs_for_inference']}`",
+            ]
+        )
+        if hostile["warnings"]:
+            lines.append("- Warnings:")
+            lines.extend(f"  - {warning}" for warning in hostile["warnings"])
+        lines.extend(["", "| Method | nDCG@10 |", "|---|---:|"])
+        for method in [
+            "kalman",
+            "mean",
+            "fixed_weighted_mean_fusion",
+            "router_only_top1",
+            "learned_linear_combiner",
+        ]:
+            if method not in hostile["method_metrics"]:
+                continue
+            value = hostile["method_metrics"][method]["ndcg@10"]
+            lines.append(f"| {method} | {value:.4f} |")
+
+        lines.extend(["", "### Where Kalman wins", ""])
+        win_lines = []
+        lose_lines = []
+        unavailable_lines = []
+        for comparison_key, baseline_method in HOSTILE_REQUIRED_BASELINE_ORDER:
+            verdict = hostile["verdicts"].get(comparison_key, {})
+            status = verdict.get("status", "not_evaluated")
+            label = f"{comparison_key} (baseline={baseline_method})"
+            if status == "supported":
+                win_lines.append(f"- `{label}`")
+            elif status in {"not_supported", "underpowered"}:
+                lose_lines.append(f"- `{label}` → `{status}`")
+            else:
+                unavailable_lines.append(f"- `{label}` → `{status}`")
+        if win_lines:
+            lines.extend(win_lines)
+        else:
+            lines.append("- None.")
+
+        lines.extend(["", "### Where Kalman loses", ""])
+        if lose_lines:
+            lines.extend(lose_lines)
+        else:
+            lines.append("- None.")
+        if unavailable_lines:
+            lines.extend(["", "### Unavailable hostile comparisons", ""])
+            lines.extend(unavailable_lines)
+
+        lines.extend(
+            [
+                "",
+                "### Confirmatory-slice survival under hostile conditions",
+                "",
+                f"- Confirmatory slice verdict: `{summary['confirmatory_slice_results']['decision']['verdict']}`.",
+                f"- Hostile slice verdict: `{hostile['decision']['verdict']}`.",
+                "- Survival criterion for this credibility layer: confirmatory slice should remain `supported` and hostile slice should not degrade to `unsupported` for required available baselines.",
+            ]
+        )
+        hostile_stats = hostile.get("paired_statistics")
+        if hostile_stats:
+            lines.extend(
+                [
+                    "",
+                    "### Hostile paired statistical tests (Kalman vs baselines)",
+                    "",
+                    "| Comparison | Metric | Δ mean (Kalman-Baseline) | 95% CI | p | Holm-adjusted p |",
+                    "|---|---|---:|---|---:|---:|",
+                ]
+            )
+            for comparison_key in hostile["decision"]["required_comparisons"]:
+                if comparison_key not in hostile_stats:
+                    continue
+                for metric in REPORT_METRICS:
+                    payload = hostile_stats[comparison_key][metric]
+                    lines.append(
+                        "| {comparison} | {metric} | {delta:.6f} | [{low:.6f}, {high:.6f}] | {p:.6f} | {padj:.6f} |".format(
+                            comparison=comparison_key,
+                            metric=metric,
+                            delta=payload["mean_difference"],
+                            low=payload["ci95_low"],
+                            high=payload["ci95_high"],
+                            p=payload["p_value"],
+                            padj=payload["adjusted_p_value"],
+                        )
+                    )
     bucket_analysis = summary.get("bucket_analysis", {})
     if bucket_analysis:
         lines.extend(
@@ -1630,6 +1943,14 @@ def run_canonical_benchmark(
         seed=seed + 20_000,
         num_resamples=num_resamples,
     )
+    hostile_qids = _resolve_hostile_slice_ids(bucket_to_qids=bucket_to_qids)
+    hostile_slice_results = _build_hostile_slice_results(
+        methods=methods,
+        query_ids=ordered_qids,
+        selected_qids=hostile_qids,
+        seed=seed + 30_000,
+        num_resamples=num_resamples,
+    )
 
     summary = {
         "benchmark": {
@@ -1664,6 +1985,7 @@ def run_canonical_benchmark(
         "sample_size_adequacy": sample_size_adequacy,
         "bucket_analysis": bucket_analysis,
         "confirmatory_slice_results": confirmatory_slice_results,
+        "hostile_slice_results": hostile_slice_results,
     }
     summary["decision"] = {
         "kalman_vs_mean": _classify_kalman_vs_baseline(summary, baseline_key="mean"),
