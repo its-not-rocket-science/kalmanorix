@@ -173,6 +173,12 @@ def test_canonical_benchmark_writes_artifacts(
     }
     assert "power_diagnostics" in on_disk
     assert "sample_size_adequacy" in on_disk
+    assert set(on_disk["sample_size_adequacy"]) == {
+        "uncertainty_calibration",
+        "paired_significance_testing",
+        "per_domain_analysis",
+    }
+    assert "kalman_vs_mean" in on_disk["decision"]
     assert on_disk["benchmark_status"]["status"] == "toy"
     assert summary["comparisons"]["LearnedGateFuser"]["included"] is False
     assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
@@ -318,6 +324,63 @@ def test_canonical_report_includes_paired_statistics_section(
     assert "**benchmark_status:** `toy`" in report_text
     assert "## Demonstrated findings" in report_text
     assert "## Bucketed Analysis" in report_text
+
+
+def test_validate_summary_contract_requires_claim_ready_blocks() -> None:
+    summary = {
+        "methods": {
+            "uniform_mean_fusion": {},
+            "tuned_weighted_mean_fusion": {},
+            "learned_linear_combiner": {},
+        },
+        "decision": {
+            "kalman_vs_mean": {},
+            "kalman_vs_weighted_mean": {},
+            "kalman_vs_learned_linear_combiner": {},
+        },
+        "sample_size_adequacy": {
+            "uncertainty_calibration": {},
+            "paired_significance_testing": {},
+            "per_domain_analysis": {},
+        },
+        "benchmark_status": {"status": "toy"},
+    }
+    canonical._validate_summary_contract(summary)
+
+    missing_status = dict(summary)
+    del missing_status["benchmark_status"]
+    with pytest.raises(ValueError, match="benchmark_status"):
+        canonical._validate_summary_contract(missing_status)
+
+    missing_decision = dict(summary)
+    missing_decision["decision"] = {"kalman_vs_weighted_mean": {}}
+    with pytest.raises(ValueError, match="decision blocks"):
+        canonical._validate_summary_contract(missing_decision)
+
+    missing_baseline = dict(summary)
+    missing_baseline["methods"] = {"uniform_mean_fusion": {}}
+    with pytest.raises(ValueError, match="required baselines"):
+        canonical._validate_summary_contract(missing_baseline)
+
+    missing_adequacy = dict(summary)
+    missing_adequacy["sample_size_adequacy"] = {"uncertainty_calibration": {}}
+    with pytest.raises(ValueError, match="sample size adequacy"):
+        canonical._validate_summary_contract(missing_adequacy)
+
+
+def test_validate_report_contract_requires_required_sections() -> None:
+    valid_report = "\n".join(
+        [
+            "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)",
+            "## Sample Size Adequacy Checks",
+            "## Kalman vs simple and learned weighting baselines",
+            "## Verdict",
+        ]
+    )
+    canonical._validate_report_contract(valid_report)
+
+    with pytest.raises(ValueError, match="missing required sections"):
+        canonical._validate_report_contract("## Verdict\n")
 
 
 @pytest.mark.parametrize(

@@ -95,6 +95,33 @@ def test_cli_canonical_benchmark_v2_writes_artifacts(
 
 
 @pytest.mark.e2e
+def test_cli_canonical_benchmark_v3_defaults(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: dict[str, object] = {}
+
+    def _fake_run_canonical_benchmark(**kwargs: object) -> dict[str, object]:
+        captured.update(kwargs)
+        return {
+            "paired_statistics": {"kalman_vs_mean": {"overall": {}}},
+            "decision": {"kalman_vs_mean": {"verdict": "inconclusive_underpowered"}},
+        }
+
+    monkeypatch.setattr(
+        canonical_cli, "run_canonical_benchmark", _fake_run_canonical_benchmark
+    )
+    monkeypatch.setattr(
+        sys, "argv", ["prog", "--output-dir", str(tmp_path / "override")]
+    )
+    canonical_cli.main()
+
+    assert captured["benchmark_path"] == Path(
+        "benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet"
+    )
+    assert captured["max_queries"] == 1200
+
+
+@pytest.mark.e2e
 def test_cli_latency_benchmark_writes_artifacts(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

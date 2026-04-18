@@ -36,6 +36,16 @@ CLAIM_READY_REQUIRED_BASELINES = {
     "tuned_weighted_mean_fusion",
     "learned_linear_combiner",
 }
+REQUIRED_SAMPLE_SIZE_BLOCKS = {
+    "uncertainty_calibration",
+    "paired_significance_testing",
+    "per_domain_analysis",
+}
+REQUIRED_DECISION_KEYS = {
+    "kalman_vs_mean",
+    "kalman_vs_weighted_mean",
+    "kalman_vs_learned_linear_combiner",
+}
 
 CANONICAL_DECISION_RULES = {
     "primary_metric": "ndcg@10",
@@ -548,6 +558,48 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
             },
         },
     }
+
+
+def _validate_summary_contract(summary: dict[str, Any]) -> None:
+    if "benchmark_status" not in summary:
+        raise ValueError("Canonical summary is missing required `benchmark_status`.")
+    decision = summary.get("decision", {})
+    missing_decisions = sorted(REQUIRED_DECISION_KEYS.difference(decision))
+    if missing_decisions:
+        raise ValueError(
+            "Canonical summary is missing required decision blocks: "
+            f"{missing_decisions}"
+        )
+    methods = summary.get("methods", {})
+    missing_baselines = sorted(CLAIM_READY_REQUIRED_BASELINES.difference(methods))
+    if missing_baselines:
+        raise ValueError(
+            "Canonical summary is missing required baselines for claim-readiness: "
+            f"{missing_baselines}"
+        )
+    adequacy = summary.get("sample_size_adequacy", {})
+    missing_adequacy = sorted(REQUIRED_SAMPLE_SIZE_BLOCKS.difference(adequacy))
+    if missing_adequacy:
+        raise ValueError(
+            "Canonical summary is missing sample size adequacy blocks: "
+            f"{missing_adequacy}"
+        )
+
+
+def _validate_report_contract(report_text: str) -> None:
+    required_sections = (
+        "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)",
+        "## Sample Size Adequacy Checks",
+        "## Kalman vs simple and learned weighting baselines",
+        "## Verdict",
+    )
+    missing_sections = [
+        section for section in required_sections if section not in report_text
+    ]
+    if missing_sections:
+        raise ValueError(
+            f"Canonical report is missing required sections: {missing_sections}"
+        )
 
 
 def _load_split_counts(benchmark_path: Path) -> dict[str, int]:
@@ -1372,11 +1424,14 @@ def run_canonical_benchmark(
         ),
     }
     summary["benchmark_status"] = _classify_benchmark_status(summary)
+    _validate_summary_contract(summary)
+    report_text = _render_report(summary)
+    _validate_report_contract(report_text)
 
     (output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
     )
-    (output_dir / "report.md").write_text(_render_report(summary), encoding="utf-8")
+    (output_dir / "report.md").write_text(report_text, encoding="utf-8")
     return summary
 
 
@@ -1401,10 +1456,16 @@ def main() -> None:
     parser.add_argument(
         "--benchmark-path",
         type=Path,
-        default=Path("benchmarks/mixed_beir_v1.1.0/mixed_benchmark.json"),
+        default=Path("benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet"),
+        help="Benchmark path (canonical v3 default: benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet).",
     )
     parser.add_argument("--split", type=str, default="test")
-    parser.add_argument("--max-queries", type=int, default=600)
+    parser.add_argument(
+        "--max-queries",
+        type=int,
+        default=1200,
+        help="Maximum evaluated queries (canonical v3 default: 1200).",
+    )
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-resamples", type=int, default=5000)
@@ -1428,7 +1489,10 @@ def main() -> None:
         help="Named confirmatory evaluation slice for Kalman-vs-mean testing.",
     )
     parser.add_argument(
-        "--output-dir", type=Path, default=Path("results/canonical_benchmark_v2")
+        "--output-dir",
+        type=Path,
+        default=Path("results/canonical_benchmark_v3"),
+        help="Output artifact directory (canonical v3 default: results/canonical_benchmark_v3).",
     )
     args = parser.parse_args()
 
