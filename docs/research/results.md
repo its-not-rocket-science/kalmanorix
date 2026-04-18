@@ -7,6 +7,7 @@ This page reports only what is currently supported by committed artifacts.
 - **Canonical artifact paths:** `results/canonical_benchmark/` (v1) and `results/canonical_benchmark_v2/` (stronger protocol target).
 - **State:** v1 and v2 artifacts are committed (`summary.json`, `report.md`, and runner-level JSONs for v2).
 - **What this means:** canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.
+- **Kalman-vs-mean dashboard:** `results/kalman_evidence_dashboard/report.md` (human-readable) and `results/kalman_evidence_dashboard/summary.json` (artifact-sourced compact summary).
 
 ## Kalman Improvement Evidence Map (implemented + artifact-backed)
 
