@@ -24,16 +24,19 @@ CANONICAL_METHOD_ALIASES = {
     "KalmanorixFuser": "kalman",
     "hard routing baseline": "router_only_top1",
     "all-routing + mean baseline": "uniform_mean_fusion",
-    "tuned weighted mean baseline": "tuned_weighted_mean_fusion",
+    "fixed weighted mean baseline": "fixed_weighted_mean_fusion",
     "learned linear combiner": "learned_linear_combiner",
+    "single generalist model": "single_generalist_model",
     "LearnedGateFuser": "learned_gate_fuser",
 }
 CANONICAL_METHOD_KEY_ALIASES = {
-    "fixed_weighted_mean_fusion": "tuned_weighted_mean_fusion",
+    "tuned_weighted_mean_fusion": "fixed_weighted_mean_fusion",
 }
 CLAIM_READY_REQUIRED_BASELINES = {
-    "uniform_mean_fusion",
-    "tuned_weighted_mean_fusion",
+    "mean",
+    "fixed_weighted_mean_fusion",
+    "router_only_top1",
+    "router_only_topk_mean",
     "learned_linear_combiner",
 }
 REQUIRED_SAMPLE_SIZE_BLOCKS = {
@@ -44,6 +47,7 @@ REQUIRED_SAMPLE_SIZE_BLOCKS = {
 REQUIRED_DECISION_KEYS = {
     "kalman_vs_mean",
     "kalman_vs_weighted_mean",
+    "kalman_vs_router_only_top1",
     "kalman_vs_learned_linear_combiner",
 }
 
@@ -89,13 +93,12 @@ def _canonical_method_key(method_key: str) -> str:
     return CANONICAL_METHOD_KEY_ALIASES.get(method_key, method_key)
 
 
-def _merge_methods_with_canonical_keys(methods: dict[str, Any]) -> dict[str, Any]:
-    merged: dict[str, Any] = {}
+def _normalize_methods_with_canonical_keys(methods: dict[str, Any]) -> dict[str, Any]:
+    normalized: dict[str, Any] = {}
     for method_key, payload in methods.items():
-        merged[method_key] = payload
         canonical_key = _canonical_method_key(method_key)
-        merged[canonical_key] = payload
-    return merged
+        normalized[canonical_key] = payload
+    return normalized
 
 
 def _quantile(values: list[float], q: float) -> float:
@@ -315,7 +318,7 @@ def _build_confirmatory_slice_results(
             f"(n_pairs={n_pairs} < {CONFIRMATORY_SLICE_MIN_PAIRS})."
         )
 
-    method_keys = ["mean", "kalman", "tuned_weighted_mean_fusion", "router_only_top1"]
+    method_keys = ["mean", "kalman", "fixed_weighted_mean_fusion", "router_only_top1"]
     method_metrics: dict[str, dict[str, float]] = {}
     for method_key in method_keys:
         resolved_method = method_key
@@ -324,7 +327,7 @@ def _build_confirmatory_slice_results(
             resolved_method = canonical_method
         if (
             resolved_method not in methods
-            and method_key == "tuned_weighted_mean_fusion"
+            and method_key == "fixed_weighted_mean_fusion"
             and "fixed_weighted_mean_fusion" in methods
         ):
             resolved_method = "fixed_weighted_mean_fusion"
@@ -340,7 +343,7 @@ def _build_confirmatory_slice_results(
 
     comparison_candidates = {
         "kalman_vs_mean": "mean",
-        "kalman_vs_weighted_mean": "tuned_weighted_mean_fusion",
+        "kalman_vs_weighted_mean": "fixed_weighted_mean_fusion",
         "kalman_vs_router_only_top1": "router_only_top1",
     }
     paired_statistics: dict[str, Any] | None = None
@@ -357,7 +360,7 @@ def _build_confirmatory_slice_results(
                 baseline_method = canonical_baseline
             if (
                 baseline_method not in methods
-                and baseline_method == "tuned_weighted_mean_fusion"
+                and baseline_method == "fixed_weighted_mean_fusion"
                 and "fixed_weighted_mean_fusion" in methods
             ):
                 baseline_method = "fixed_weighted_mean_fusion"
@@ -607,6 +610,7 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
 def _validate_summary_contract(summary: dict[str, Any]) -> None:
     if "benchmark_status" not in summary:
         raise ValueError("Canonical summary is missing required `benchmark_status`.")
+    benchmark_status = summary["benchmark_status"].get("status")
     decision = summary.get("decision", {})
     missing_decisions = sorted(REQUIRED_DECISION_KEYS.difference(decision))
     if missing_decisions:
@@ -615,10 +619,13 @@ def _validate_summary_contract(summary: dict[str, Any]) -> None:
             f"{missing_decisions}"
         )
     methods = summary.get("methods", {})
-    missing_baselines = sorted(CLAIM_READY_REQUIRED_BASELINES.difference(methods))
-    if missing_baselines:
+    required_baselines = set(CLAIM_READY_REQUIRED_BASELINES)
+    if "single_generalist_model" in methods:
+        required_baselines.add("single_generalist_model")
+    missing_baselines = sorted(required_baselines.difference(methods))
+    if benchmark_status == "claim_ready" and missing_baselines:
         raise ValueError(
-            "Canonical summary is missing required baselines for claim-readiness: "
+            "Canonical claim-ready run is missing required deployment baselines: "
             f"{missing_baselines}"
         )
     adequacy = summary.get("sample_size_adequacy", {})
@@ -635,6 +642,7 @@ def _validate_report_contract(report_text: str) -> None:
         "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)",
         "## Sample Size Adequacy Checks",
         "## Kalman vs simple and learned weighting baselines",
+        "## Did Kalman beat the required deployment baselines?",
         "## Verdict",
     )
     missing_sections = [
@@ -853,7 +861,8 @@ def _render_report(summary: dict[str, Any]) -> str:
     )
     for comparison_key, decision_key in [
         ("kalman_vs_mean", "kalman_vs_mean"),
-        ("kalman_vs_tuned_weighted_mean_fusion", "kalman_vs_weighted_mean"),
+        ("kalman_vs_fixed_weighted_mean_fusion", "kalman_vs_weighted_mean"),
+        ("kalman_vs_router_only_top1", "kalman_vs_router_only_top1"),
         (
             "kalman_vs_learned_linear_combiner",
             "kalman_vs_learned_linear_combiner",
@@ -878,11 +887,20 @@ def _render_report(summary: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "## Did Kalman beat the required deployment baselines?",
+            "",
+            "| Decision | Verdict |",
+            "|---|---|",
+            f"| kalman_vs_mean | {summary['decision']['kalman_vs_mean']['verdict']} |",
+            f"| kalman_vs_weighted_mean | {summary['decision']['kalman_vs_weighted_mean']['verdict']} |",
+            f"| kalman_vs_router_only_top1 | {summary['decision']['kalman_vs_router_only_top1']['verdict']} |",
+            "",
             "## Verdict",
             "",
             f"- **benchmark_status:** `{benchmark_status['status']}`",
             f"- **kalman_vs_mean:** `{verdict}`",
             f"- **kalman_vs_weighted_mean:** `{summary['decision']['kalman_vs_weighted_mean']['verdict']}`",
+            f"- **kalman_vs_router_only_top1:** `{summary['decision']['kalman_vs_router_only_top1']['verdict']}`",
             f"- **kalman_vs_learned_linear_combiner:** `{summary['decision']['kalman_vs_learned_linear_combiner']['verdict']}`",
             "- Interpretation: `benchmark_status` grades evidence readiness (`toy`, `underpowered`, `minimally_powered`, `claim_ready`) while verdict preserves the existing Kalman-vs-baseline decision rule.",
             "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
@@ -955,7 +973,7 @@ def _render_report(summary: dict[str, Any]) -> str:
         for method in [
             "mean",
             "kalman",
-            "tuned_weighted_mean_fusion",
+            "fixed_weighted_mean_fusion",
             "router_only_top1",
         ]:
             value = confirmatory["method_metrics"][method]["ndcg@10"]
@@ -1232,31 +1250,28 @@ def run_canonical_benchmark(
             seed=seed,
             num_resamples=num_resamples,
         )
-    methods = _merge_methods_with_canonical_keys(raw_methods)
+    methods = _normalize_methods_with_canonical_keys(raw_methods)
 
     required_methods = {
-        "mean",
         "kalman",
-        "uniform_mean_fusion",
         *CLAIM_READY_REQUIRED_BASELINES,
     }
+    if any(
+        "general" in specialist["name"].lower()
+        for specialist in DEFAULT_REAL_SPECIALISTS
+    ):
+        required_methods.add("single_generalist_model")
     structurally_applicable_gate = len(DEFAULT_REAL_SPECIALISTS) == 2
     if structurally_applicable_gate:
         required_methods.add("learned_gate_fuser")
-    operational_required_methods = {"router_only_top1", "router_only_topk_mean"}
     missing_required = sorted(required_methods.difference(methods))
     if missing_required:
         raise ValueError(
-            "Canonical benchmark requires MeanFuser, KalmanorixFuser, uniform mean "
-            "fusion, tuned weighted mean fusion, learned linear combiner, and "
-            "LearnedGateFuser when structurally applicable. "
+            "Canonical benchmark requires KalmanorixFuser and all required deployment "
+            "baselines (mean, fixed weighted mean, router-only top1, router-only "
+            "topk mean, learned linear combiner, and single generalist model when "
+            "available). LearnedGateFuser is required when structurally applicable. "
             f"Missing strategies: {missing_required}"
-        )
-    missing_operational = sorted(operational_required_methods.difference(methods))
-    if missing_operational:
-        raise ValueError(
-            "Canonical benchmark requires hard-routing and top-k-mean routing "
-            f"baselines for subgroup diagnostics. Missing strategies: {missing_operational}"
         )
 
     ordered_qids = sorted(rankings["kalman"])
@@ -1276,7 +1291,8 @@ def run_canonical_benchmark(
 
     for baseline_key, include_domains in [
         ("mean", True),
-        ("tuned_weighted_mean_fusion", False),
+        ("fixed_weighted_mean_fusion", False),
+        ("router_only_top1", False),
         ("learned_linear_combiner", False),
     ]:
         baseline_metrics = methods[baseline_key]["query_level"]
@@ -1482,7 +1498,10 @@ def run_canonical_benchmark(
     summary["decision"] = {
         "kalman_vs_mean": _classify_kalman_vs_baseline(summary, baseline_key="mean"),
         "kalman_vs_weighted_mean": _classify_kalman_vs_baseline(
-            summary, baseline_key="tuned_weighted_mean_fusion"
+            summary, baseline_key="fixed_weighted_mean_fusion"
+        ),
+        "kalman_vs_router_only_top1": _classify_kalman_vs_baseline(
+            summary, baseline_key="router_only_top1"
         ),
         "kalman_vs_learned_linear_combiner": _classify_kalman_vs_baseline(
             summary, baseline_key="learned_linear_combiner"
