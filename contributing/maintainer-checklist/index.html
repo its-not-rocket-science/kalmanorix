@@ -2224,7 +2224,7 @@
 <h2 id="1-regenerate-artifacts-deterministically">1) Regenerate artifacts deterministically<a class="headerlink" href="#1-regenerate-artifacts-deterministically" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Re-run canonical benchmark artifacts:</li>
-<li><code>PYTHONPATH=src python experiments/run_canonical_benchmark.py --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json --split test --max-queries 1200 --output-dir results/canonical_benchmark_v3</code></li>
+<li><code>PYTHONPATH=src python experiments/run_canonical_benchmark.py --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet --split test --max-queries 1200 --output-dir results/canonical_benchmark_v3</code></li>
 <li>Re-run routing evaluation reference artifact:</li>
 <li><code>kalmanorix-eval-routing --dataset datasets/routing_eval/small_routing_eval_v1.json --output results/routing_eval/small_routing_eval_v1_report.json --markdown-output results/routing_eval/small_routing_eval_v1_report.md --mode semantic --semantic-threshold 0.7 --semantic-thresholds 0.5,0.6,0.7,0.8 --quality-tolerance 0.0</code></li>
 <li>Confirm every touched <code>results/&lt;track&gt;/</code> directory contains:</li>

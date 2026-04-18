@@ -1853,10 +1853,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#run-primary-benchmark" class="md-nav__link">
+  <a href="#run-primary-benchmark-canonical-v3-default-target" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run primary benchmark
+        Run primary benchmark (canonical v3 default target)
       
     </span>
   </a>
@@ -2612,10 +2612,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#run-primary-benchmark" class="md-nav__link">
+  <a href="#run-primary-benchmark-canonical-v3-default-target" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run primary benchmark
+        Run primary benchmark (canonical v3 default target)
       
     </span>
   </a>
@@ -2840,12 +2840,12 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--max-test-queries-per-domain<span class="w"> </span><span class="m">360</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span>--hard-queries-per-category-per-domain<span class="w"> </span><span class="m">20</span>
 </span></code></pre></div>
-<h3 id="run-primary-benchmark">Run primary benchmark<a class="headerlink" href="#run-primary-benchmark" title="Permanent link">&para;</a></h3>
+<h3 id="run-primary-benchmark-canonical-v3-default-target">Run primary benchmark (canonical v3 default target)<a class="headerlink" href="#run-primary-benchmark-canonical-v3-default-target" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>experiments/run_canonical_benchmark.py<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>--split<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark_v2
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">1200</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark_v3
 </span></code></pre></div>
 <h3 id="compatibility-entrypoints-real-mode-by-default">Compatibility entrypoints (real mode by default)<a class="headerlink" href="#compatibility-entrypoints-real-mode-by-default" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>experiments/validate_fusion.py
