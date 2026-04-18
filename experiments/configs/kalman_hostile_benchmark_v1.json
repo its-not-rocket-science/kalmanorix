@@ -1,0 +1,12 @@
+{
+  "name": "kalman-hostile-benchmark-v1",
+  "description": "Credibility-layer hostile run: high disagreement + low router confidence + high uncertainty spread (calibration proxy) slices are reported in canonical artifacts.",
+  "benchmark_path": "benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet",
+  "split": "test",
+  "max_queries": 1200,
+  "device": "cpu",
+  "seed": 42,
+  "num_resamples": 5000,
+  "confirmatory_slice": "high_disagreement_and_low_router_confidence",
+  "output_dir": "results/kalman_hostile_benchmark_v1"
+}
