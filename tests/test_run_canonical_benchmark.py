@@ -49,6 +49,11 @@ def _fake_details() -> dict[str, object]:
                     "q2": ["d2", "d3"],
                     "q3": ["d3", "d1"],
                 },
+                "single_generalist_model": {
+                    "q1": ["d1", "d4"],
+                    "q2": ["d2", "d3"],
+                    "q3": ["d3", "d1"],
+                },
             },
             "latency_ms": {
                 "mean": {"q1": 1.0, "q2": 1.2, "q3": 1.1},
@@ -58,6 +63,7 @@ def _fake_details() -> dict[str, object]:
                 "uniform_mean_fusion": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
                 "fixed_weighted_mean_fusion": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
                 "learned_linear_combiner": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
+                "single_generalist_model": {"q1": 1.0, "q2": 1.1, "q3": 1.0},
             },
             "confidence_proxy": {
                 "router_only_top1": {"q1": 0.65, "q2": 0.55, "q3": 0.75}
@@ -70,6 +76,7 @@ def _fake_details() -> dict[str, object]:
                 "uniform_mean_fusion": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
                 "fixed_weighted_mean_fusion": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
                 "learned_linear_combiner": {"q1": 3.0, "q2": 3.0, "q3": 3.0},
+                "single_generalist_model": {"q1": 1.0, "q2": 1.0, "q3": 1.0},
             },
             "query_metadata": {
                 "q1": {
@@ -138,13 +145,14 @@ def test_canonical_benchmark_writes_artifacts(
         "router_only_top1",
         "router_only_topk_mean",
         "uniform_mean_fusion",
-        "tuned_weighted_mean_fusion",
+        "fixed_weighted_mean_fusion",
         "learned_linear_combiner",
+        "single_generalist_model",
     }
     assert "ndcg@10" in on_disk["paired_statistics"]["kalman_vs_mean"]["overall"]
     assert (
         "ndcg@10"
-        in on_disk["paired_statistics"]["kalman_vs_tuned_weighted_mean_fusion"][
+        in on_disk["paired_statistics"]["kalman_vs_fixed_weighted_mean_fusion"][
             "overall"
         ]
     )
@@ -160,6 +168,12 @@ def test_canonical_benchmark_writes_artifacts(
         "inconclusive_sufficiently_powered",
     }
     assert on_disk["decision"]["kalman_vs_weighted_mean"]["verdict"] in {
+        "supported",
+        "unsupported",
+        "inconclusive_underpowered",
+        "inconclusive_sufficiently_powered",
+    }
+    assert on_disk["decision"]["kalman_vs_router_only_top1"]["verdict"] in {
         "supported",
         "unsupported",
         "inconclusive_underpowered",
@@ -278,7 +292,7 @@ def test_canonical_benchmark_fails_loudly_when_mean_is_missing(
             seed=7,
             num_resamples=100,
         )
-    assert "Canonical benchmark requires MeanFuser" in str(exc_info.value)
+    assert "required deployment baselines" in str(exc_info.value)
 
 
 def test_canonical_report_includes_paired_statistics_section(
@@ -317,6 +331,7 @@ def test_canonical_report_includes_paired_statistics_section(
         in report_text
     )
     assert "## Kalman vs simple and learned weighting baselines" in report_text
+    assert "## Did Kalman beat the required deployment baselines?" in report_text
     assert "top1_success" in report_text
     assert "## Method Ranking Snapshot" in report_text
     assert "## Verdict" in report_text
@@ -329,13 +344,16 @@ def test_canonical_report_includes_paired_statistics_section(
 def test_validate_summary_contract_requires_claim_ready_blocks() -> None:
     summary = {
         "methods": {
-            "uniform_mean_fusion": {},
-            "tuned_weighted_mean_fusion": {},
+            "mean": {},
+            "fixed_weighted_mean_fusion": {},
+            "router_only_top1": {},
+            "router_only_topk_mean": {},
             "learned_linear_combiner": {},
         },
         "decision": {
             "kalman_vs_mean": {},
             "kalman_vs_weighted_mean": {},
+            "kalman_vs_router_only_top1": {},
             "kalman_vs_learned_linear_combiner": {},
         },
         "sample_size_adequacy": {
@@ -358,8 +376,9 @@ def test_validate_summary_contract_requires_claim_ready_blocks() -> None:
         canonical._validate_summary_contract(missing_decision)
 
     missing_baseline = dict(summary)
-    missing_baseline["methods"] = {"uniform_mean_fusion": {}}
-    with pytest.raises(ValueError, match="required baselines"):
+    missing_baseline["methods"] = {"mean": {}}
+    missing_baseline["benchmark_status"] = {"status": "claim_ready"}
+    with pytest.raises(ValueError, match="required deployment baselines"):
         canonical._validate_summary_contract(missing_baseline)
 
     missing_adequacy = dict(summary)
@@ -374,6 +393,7 @@ def test_validate_report_contract_requires_required_sections() -> None:
             "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)",
             "## Sample Size Adequacy Checks",
             "## Kalman vs simple and learned weighting baselines",
+            "## Did Kalman beat the required deployment baselines?",
             "## Verdict",
         ]
     )
@@ -703,7 +723,7 @@ def test_canonical_report_renders_replication_section() -> None:
                     ]
                 }
             },
-            "tuned_weighted_mean_fusion": {
+            "fixed_weighted_mean_fusion": {
                 "metrics": {
                     k: {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0}
                     for k in [
@@ -751,7 +771,17 @@ def test_canonical_report_renders_replication_section() -> None:
                     for k in canonical.REPORT_METRICS
                 }
             },
-            "kalman_vs_tuned_weighted_mean_fusion": {
+            "kalman_vs_fixed_weighted_mean_fusion": {
+                "overall": {
+                    "ndcg@10": {
+                        "mean_difference": 0.0,
+                        "ci95_low": 0.0,
+                        "ci95_high": 0.0,
+                        "adjusted_p_value": 1.0,
+                    }
+                }
+            },
+            "kalman_vs_router_only_top1": {
                 "overall": {
                     "ndcg@10": {
                         "mean_difference": 0.0,
@@ -790,6 +820,7 @@ def test_canonical_report_renders_replication_section() -> None:
                 },
             },
             "kalman_vs_weighted_mean": {"verdict": "inconclusive_underpowered"},
+            "kalman_vs_router_only_top1": {"verdict": "inconclusive_underpowered"},
             "kalman_vs_learned_linear_combiner": {
                 "verdict": "inconclusive_underpowered"
             },
