@@ -63,10 +63,12 @@ def _build_summary() -> dict[str, Any]:
         confirmatory_source_path = "results/canonical_benchmark_v2/summary.json"
         confirmatory_source_json_path = "$.confirmatory_slice_results"
     else:
-        confirmatory_verdict = confirmatory.get("verdict", "unresolved")
+        confirmatory_verdict = confirmatory.get("decision", {}).get(
+            "verdict", "unresolved"
+        )
         confirmatory_light = _traffic_light_from_verdict(confirmatory_verdict)
         confirmatory_source_path = "results/canonical_benchmark_v2/summary.json"
-        confirmatory_source_json_path = "$.confirmatory_slice_results.verdict"
+        confirmatory_source_json_path = "$.confirmatory_slice_results.decision.verdict"
 
     kalman_ndcg10 = canonical["methods"]["kalman"]["metrics"]["ndcg@10"]["mean"]
     mean_ndcg10 = canonical["methods"]["mean"]["metrics"]["ndcg@10"]["mean"]

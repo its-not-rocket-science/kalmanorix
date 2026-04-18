@@ -87,6 +87,11 @@ CONFIRMATORY_SLICE_REASON = (
     "specialists disagree and router confidence is low; this is the regime where "
     "Kalman reliability-weighting is most theoretically justified."
 )
+CONFIRMATORY_REQUIRED_BASELINE_COMPARISONS = (
+    "kalman_vs_mean",
+    "kalman_vs_weighted_mean",
+    "kalman_vs_router_only_top1",
+)
 
 
 def _canonical_method_key(method_key: str) -> str:
@@ -346,6 +351,10 @@ def _build_confirmatory_slice_results(
         "kalman_vs_weighted_mean": "fixed_weighted_mean_fusion",
         "kalman_vs_router_only_top1": "router_only_top1",
     }
+    adjusted_p_value_threshold = float(
+        CANONICAL_DECISION_RULES["adjusted_p_value_threshold"]
+    )
+    practical_effect_size_floor = float(CANONICAL_DECISION_RULES["minimum_effect_size"])
     paired_statistics: dict[str, Any] | None = None
     verdicts: dict[str, dict[str, Any]] = {}
     if n_pairs >= CONFIRMATORY_SLICE_MIN_PAIRS:
@@ -396,18 +405,30 @@ def _build_confirmatory_slice_results(
                 for metric, entry in stats.comparisons.items()
             }
             ndcg10_entry = paired_statistics[comparison_key]["ndcg@10"]
-            beats_baseline = (
-                float(ndcg10_entry["mean_difference"]) > 0.0
-                and float(ndcg10_entry["adjusted_p_value"]) <= 0.05
-            )
+            mean_difference = float(ndcg10_entry["mean_difference"])
+            ci95_low = float(ndcg10_entry["ci95_low"])
+            ci95_high = float(ndcg10_entry["ci95_high"])
+            adjusted_p_value = float(ndcg10_entry["adjusted_p_value"])
+            checks = {
+                "positive_delta": mean_difference > 0.0,
+                "adjusted_p_value_ok": adjusted_p_value <= adjusted_p_value_threshold,
+                "ci_excludes_zero": ci95_low > 0.0 and ci95_high > 0.0,
+                "practical_effect_size_ok": mean_difference
+                >= practical_effect_size_floor,
+            }
             verdicts[comparison_key] = {
-                "status": "supported" if beats_baseline else "not_supported",
+                "status": "supported" if all(checks.values()) else "not_supported",
                 "primary_metric": "ndcg@10",
                 "requires_positive_delta": True,
-                "requires_adjusted_p_value_lte": 0.05,
+                "requires_adjusted_p_value_lte": adjusted_p_value_threshold,
+                "requires_ci_excluding_zero": True,
+                "requires_practical_effect_size_gte": practical_effect_size_floor,
+                "checks": checks,
                 "observed": {
-                    "mean_difference": ndcg10_entry["mean_difference"],
-                    "adjusted_p_value": ndcg10_entry["adjusted_p_value"],
+                    "mean_difference": mean_difference,
+                    "ci95_low": ci95_low,
+                    "ci95_high": ci95_high,
+                    "adjusted_p_value": adjusted_p_value,
                 },
             }
     else:
@@ -420,6 +441,13 @@ def _build_confirmatory_slice_results(
                     f"(n_pairs={n_pairs} < {CONFIRMATORY_SLICE_MIN_PAIRS})"
                 ),
             }
+
+    overall_decision = _classify_confirmatory_slice_decision(
+        n_pairs=n_pairs,
+        minimum_pairs=CONFIRMATORY_SLICE_MIN_PAIRS,
+        verdicts=verdicts,
+        required_comparisons=CONFIRMATORY_REQUIRED_BASELINE_COMPARISONS,
+    )
 
     slice_definition = {
         "name": CONFIRMATORY_SLICE_NAME,
@@ -445,6 +473,57 @@ def _build_confirmatory_slice_results(
         "method_metrics": method_metrics,
         "paired_statistics": paired_statistics,
         "verdicts": verdicts,
+        "decision": overall_decision,
+    }
+
+
+def _classify_confirmatory_slice_decision(
+    *,
+    n_pairs: int,
+    minimum_pairs: int,
+    verdicts: Mapping[str, Mapping[str, Any]],
+    required_comparisons: tuple[str, ...],
+) -> dict[str, Any]:
+    if n_pairs < minimum_pairs:
+        return {
+            "verdict": "inconclusive_underpowered",
+            "reason": f"n_pairs={n_pairs} < minimum_pairs={minimum_pairs}",
+            "required_comparisons": list(required_comparisons),
+        }
+
+    missing = [key for key in required_comparisons if key not in verdicts]
+    if missing:
+        return {
+            "verdict": "inconclusive_sufficiently_powered",
+            "reason": f"missing_required_comparisons={missing}",
+            "required_comparisons": list(required_comparisons),
+        }
+
+    statuses = {
+        key: str(verdicts[key].get("status", "unresolved"))
+        for key in required_comparisons
+    }
+    if any(status == "unresolved" for status in statuses.values()):
+        return {
+            "verdict": "inconclusive_sufficiently_powered",
+            "reason": "at_least_one_required_comparison_is_unresolved",
+            "required_comparisons": list(required_comparisons),
+            "comparison_statuses": statuses,
+        }
+
+    if all(status == "supported" for status in statuses.values()):
+        verdict = "supported"
+    else:
+        verdict = "unsupported"
+    return {
+        "verdict": verdict,
+        "reason": (
+            "all_required_pairwise_comparisons_passed"
+            if verdict == "supported"
+            else "at_least_one_required_pairwise_comparison_failed"
+        ),
+        "required_comparisons": list(required_comparisons),
+        "comparison_statuses": statuses,
     }
 
 
@@ -985,9 +1064,12 @@ def _render_report(summary: dict[str, Any]) -> str:
                 "",
                 "### Confirmatory verdicts",
                 "",
+                f"- **overall_confirmatory_slice_verdict:** `{confirmatory['decision']['verdict']}`",
                 f"- **kalman_vs_mean:** `{confirmatory['verdicts']['kalman_vs_mean']['status']}`",
                 f"- **kalman_vs_weighted_mean:** `{confirmatory['verdicts']['kalman_vs_weighted_mean']['status']}`",
                 f"- **kalman_vs_router_only_top1:** `{confirmatory['verdicts']['kalman_vs_router_only_top1']['status']}`",
+                "- Hard rule for the claim “Kalman fusion beats mean” in the confirmatory slice: require all three pairwise comparisons to pass all of these checks on nDCG@10: positive delta, Holm-adjusted p <= threshold, CI excludes 0, and practical effect-size floor met.",
+                "- Therefore the confirmatory slice is `supported` only when all required pairwise comparisons pass; otherwise it is `unsupported` (or `inconclusive_*` if underpowered or unresolved).",
             ]
         )
         if slice_stats is None:
