@@ -517,7 +517,6 @@ def test_canonical_benchmark_writes_confirmatory_slice_section(
     assert confirmatory["slice_name"] == "intersection_of_above"
     assert confirmatory["warning_count"] == 1
     assert confirmatory["paired_statistics_kalman_vs_mean"] is None
-
     report_text = (output_dir / "report.md").read_text(encoding="utf-8")
     assert "## Confirmatory Slice (Kalman-vs-Mean)" in report_text
     assert "Confirmatory paired statistical test" not in report_text
@@ -525,3 +524,296 @@ def test_canonical_benchmark_writes_confirmatory_slice_section(
         "## Bucketed Analysis (Exploratory unless significance criteria are met)"
         in report_text
     )
+
+
+def test_build_replication_summary_aggregates_runs() -> None:
+    run_summaries = [
+        {
+            "seed": 11,
+            "paired_statistics": {
+                "kalman_vs_mean": {
+                    "overall": {
+                        "ndcg@10": {
+                            "mean_difference": 0.03,
+                            "adjusted_p_value": 0.02,
+                            "n_pairs": 100,
+                        }
+                    }
+                }
+            },
+            "decision": {
+                "kalman_vs_mean": {
+                    "verdict": "supported",
+                    "observed": {"latency_ratio_vs_mean": 1.2},
+                }
+            },
+        },
+        {
+            "seed": 12,
+            "paired_statistics": {
+                "kalman_vs_mean": {
+                    "overall": {
+                        "ndcg@10": {
+                            "mean_difference": -0.01,
+                            "adjusted_p_value": 0.40,
+                            "n_pairs": 80,
+                        }
+                    }
+                }
+            },
+            "decision": {
+                "kalman_vs_mean": {
+                    "verdict": "inconclusive_underpowered",
+                    "observed": {"latency_ratio_vs_mean": 1.1},
+                }
+            },
+        },
+    ]
+
+    replication = canonical._build_replication_summary(run_summaries)
+    assert replication["num_runs"] == 2
+    assert replication["fraction_positive_deltas"] == 0.5
+    assert replication["fraction_significant_runs"] == 0.5
+    assert replication["direction_consistency"] == "mixed"
+    assert replication["median_latency_ratio"] == pytest.approx(1.15)
+    assert replication["pooled_effect_summaries"][
+        "weighted_mean_delta_ndcg10"
+    ] == pytest.approx(0.0122222222)
+
+
+def test_canonical_report_renders_replication_section() -> None:
+    summary = {
+        "benchmark": {
+            "path": "dummy.parquet",
+            "evaluated_split": "test",
+            "split_counts": {"train": 8, "validation": 4, "test": 3},
+        },
+        "specialists": ["tech", "cook"],
+        "comparisons": {"LearnedGateFuser": {"included": False, "reason": "omitted"}},
+        "methods": {
+            "mean": {
+                "metrics": {
+                    k: {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0}
+                    for k in [
+                        "ndcg@5",
+                        "ndcg@10",
+                        "mrr@5",
+                        "mrr@10",
+                        "recall@1",
+                        "recall@5",
+                        "recall@10",
+                        "top1_success",
+                        "latency_ms",
+                        "flops_proxy",
+                    ]
+                }
+            },
+            "kalman": {
+                "metrics": {
+                    k: {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0}
+                    for k in [
+                        "ndcg@5",
+                        "ndcg@10",
+                        "mrr@5",
+                        "mrr@10",
+                        "recall@1",
+                        "recall@5",
+                        "recall@10",
+                        "top1_success",
+                        "latency_ms",
+                        "flops_proxy",
+                    ]
+                }
+            },
+            "router_only_top1": {
+                "metrics": {
+                    k: {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0}
+                    for k in [
+                        "ndcg@5",
+                        "ndcg@10",
+                        "mrr@5",
+                        "mrr@10",
+                        "recall@1",
+                        "recall@5",
+                        "recall@10",
+                        "top1_success",
+                        "latency_ms",
+                        "flops_proxy",
+                    ]
+                }
+            },
+            "uniform_mean_fusion": {
+                "metrics": {
+                    k: {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0}
+                    for k in [
+                        "ndcg@5",
+                        "ndcg@10",
+                        "mrr@5",
+                        "mrr@10",
+                        "recall@1",
+                        "recall@5",
+                        "recall@10",
+                        "top1_success",
+                        "latency_ms",
+                        "flops_proxy",
+                    ]
+                }
+            },
+            "tuned_weighted_mean_fusion": {
+                "metrics": {
+                    k: {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0}
+                    for k in [
+                        "ndcg@5",
+                        "ndcg@10",
+                        "mrr@5",
+                        "mrr@10",
+                        "recall@1",
+                        "recall@5",
+                        "recall@10",
+                        "top1_success",
+                        "latency_ms",
+                        "flops_proxy",
+                    ]
+                }
+            },
+            "learned_linear_combiner": {
+                "metrics": {
+                    k: {"mean": 0.0, "ci95_low": 0.0, "ci95_high": 0.0}
+                    for k in [
+                        "ndcg@5",
+                        "ndcg@10",
+                        "mrr@5",
+                        "mrr@10",
+                        "recall@1",
+                        "recall@5",
+                        "recall@10",
+                        "top1_success",
+                        "latency_ms",
+                        "flops_proxy",
+                    ]
+                }
+            },
+        },
+        "paired_statistics": {
+            "kalman_vs_mean": {
+                "overall": {
+                    k: {
+                        "mean_difference": 0.0,
+                        "ci95_low": 0.0,
+                        "ci95_high": 0.0,
+                        "p_value": 1.0,
+                        "adjusted_p_value": 1.0,
+                    }
+                    for k in canonical.REPORT_METRICS
+                }
+            },
+            "kalman_vs_tuned_weighted_mean_fusion": {
+                "overall": {
+                    "ndcg@10": {
+                        "mean_difference": 0.0,
+                        "ci95_low": 0.0,
+                        "ci95_high": 0.0,
+                        "adjusted_p_value": 1.0,
+                    }
+                }
+            },
+            "kalman_vs_learned_linear_combiner": {
+                "overall": {
+                    "ndcg@10": {
+                        "mean_difference": 0.0,
+                        "ci95_low": 0.0,
+                        "ci95_high": 0.0,
+                        "adjusted_p_value": 1.0,
+                    }
+                }
+            },
+        },
+        "decision": {
+            "kalman_vs_mean": {
+                "verdict": "inconclusive_underpowered",
+                "rules": canonical.CANONICAL_DECISION_RULES,
+                "observed": {
+                    "primary_metric_delta": 0.0,
+                    "primary_metric_adjusted_p_value": 1.0,
+                    "latency_ratio_vs_mean": 1.0,
+                    "flops_ratio_vs_mean": 1.0,
+                },
+                "checks": {
+                    "effect_size_ok": False,
+                    "adjusted_p_value_ok": False,
+                    "latency_ratio_ok": True,
+                    "flops_ratio_ok": True,
+                },
+            },
+            "kalman_vs_weighted_mean": {"verdict": "inconclusive_underpowered"},
+            "kalman_vs_learned_linear_combiner": {
+                "verdict": "inconclusive_underpowered"
+            },
+        },
+        "benchmark_status": {"status": "toy", "status_note": "toy setup"},
+        "power_diagnostics": {
+            "kalman_vs_mean": {
+                "num_test_queries": 3,
+                "per_domain_test_counts": {"finance": 1},
+                "observed_effect_size": 0.0,
+                "detectable_effect_threshold_estimate": 1.0,
+                "target_effect_size": 0.02,
+                "is_sufficiently_powered_for_target_effect": False,
+            }
+        },
+        "sample_size_adequacy": {
+            "uncertainty_calibration": {
+                "available_queries": 4,
+                "minimum_required": 100,
+                "adequate": False,
+                "note": "n/a",
+            },
+            "paired_significance_testing": {
+                "available_queries": 3,
+                "minimum_required": 50,
+                "adequate": False,
+                "note": "n/a",
+            },
+            "per_domain_analysis": {
+                "minimum_domain_count": 1,
+                "minimum_required_per_domain": 20,
+                "adequate": False,
+                "note": "n/a",
+            },
+        },
+        "bucket_analysis": {"buckets": {}, "consistent_kalman_gain_buckets": []},
+        "replication": {
+            "num_runs": 2,
+            "fraction_positive_deltas": 0.5,
+            "fraction_significant_runs": 0.5,
+            "median_latency_ratio": 1.15,
+            "direction_consistency": "mixed",
+            "per_run_verdicts": [
+                {
+                    "run_id": "run_001",
+                    "seed": 11,
+                    "verdict": "supported",
+                    "primary_delta_ndcg10": 0.03,
+                    "primary_adjusted_p_value_ndcg10": 0.02,
+                    "latency_ratio_vs_mean": 1.2,
+                },
+                {
+                    "run_id": "run_002",
+                    "seed": 12,
+                    "verdict": "inconclusive_underpowered",
+                    "primary_delta_ndcg10": -0.01,
+                    "primary_adjusted_p_value_ndcg10": 0.4,
+                    "latency_ratio_vs_mean": 1.1,
+                },
+            ],
+            "pooled_effect_summaries": {
+                "weighted_mean_delta_ndcg10": 0.012,
+                "median_delta_ndcg10": 0.01,
+                "median_adjusted_p_value_ndcg10": 0.21,
+            },
+        },
+    }
+
+    report = canonical._render_report(summary)
+    assert "## Replication Evidence" in report
+    assert "Replication runs: `2`" in report
