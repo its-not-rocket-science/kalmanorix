@@ -1864,6 +1864,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#run-hostile-credibility-layer-benchmark-does-not-replace-canonical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run hostile credibility-layer benchmark (does not replace canonical)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#compatibility-entrypoints-real-mode-by-default" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2623,6 +2634,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#run-hostile-credibility-layer-benchmark-does-not-replace-canonical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run hostile credibility-layer benchmark (does not replace canonical)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#compatibility-entrypoints-real-mode-by-default" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2847,9 +2869,14 @@
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">1200</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark_v3
 </span></code></pre></div>
+<h3 id="run-hostile-credibility-layer-benchmark-does-not-replace-canonical">Run hostile credibility-layer benchmark (does not replace canonical)<a class="headerlink" href="#run-hostile-credibility-layer-benchmark-does-not-replace-canonical" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>experiments/run_hostile_benchmark.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--config<span class="w"> </span>experiments/configs/kalman_hostile_benchmark_v1.json
+</span></code></pre></div>
+<p>Hostile artifacts are written to <code>results/kalman_hostile_benchmark_v1/</code> by default and must be interpreted as an additional falsification-oriented stress layer. The canonical benchmark remains the primary evidence track.</p>
 <h3 id="compatibility-entrypoints-real-mode-by-default">Compatibility entrypoints (real mode by default)<a class="headerlink" href="#compatibility-entrypoints-real-mode-by-default" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>experiments/validate_fusion.py
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>experiments/mixed_domain_eval.py
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>experiments/validate_fusion.py
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>python<span class="w"> </span>experiments/mixed_domain_eval.py
 </span></code></pre></div>
 <hr />
 <h2 id="5-threats-to-validity-must-be-reported-with-results">5) Threats to Validity (must be reported with results)<a class="headerlink" href="#5-threats-to-validity-must-be-reported-with-results" title="Permanent link">&para;</a></h2>
