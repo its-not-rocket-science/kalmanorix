@@ -2723,6 +2723,7 @@
 <li><strong>Canonical artifact paths:</strong> <code>results/canonical_benchmark/</code> (v1) and <code>results/canonical_benchmark_v2/</code> (stronger protocol target).</li>
 <li><strong>State:</strong> v1 and v2 artifacts are committed (<code>summary.json</code>, <code>report.md</code>, and runner-level JSONs for v2).</li>
 <li><strong>What this means:</strong> canonical benchmark machinery exists and has produced evidence; benchmark closure has not happened for the unresolved quality claims.</li>
+<li><strong>Interpretation rule:</strong> read every canonical artifact through <code>benchmark_status</code> first; if <code>benchmark_status != "claim_ready"</code>, the run is non-claim-ready and must not be treated as proof of Kalman-vs-mean superiority.</li>
 <li><strong>Kalman-vs-mean dashboard:</strong> <code>results/kalman_evidence_dashboard/report.md</code> (human-readable) and <code>results/kalman_evidence_dashboard/summary.json</code> (artifact-sourced compact summary).</li>
 </ul>
 <h2 id="kalman-improvement-evidence-map-implemented-artifact-backed">Kalman Improvement Evidence Map (implemented + artifact-backed)<a class="headerlink" href="#kalman-improvement-evidence-map-implemented-artifact-backed" title="Permanent link">&para;</a></h2>
