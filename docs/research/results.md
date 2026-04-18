@@ -43,22 +43,23 @@ This section consolidates the current Kalman-improvement work so readers can see
 - `results/canonical_benchmark_v2/runner_details.json`
 - `results/canonical_benchmark_v2/README.md` (regeneration command)
 
-Canonical v2 is produced with a two-step but fully reproducible command sequence:
+Canonical v3 claim-ready target is produced with a two-step but fully reproducible command sequence:
 
 ```bash
 PYTHONPATH=src python scripts/build_mixed_benchmark.py \
-  --output-dir benchmarks/mixed_beir_v1.1.0 \
+  --output-dir benchmarks/mixed_beir_v1.2.0 \
   --seed 1337 \
   --max-candidates 80 \
-  --cross-domain-negative-ratio 0.45 \
-  --max-queries-per-domain 900 \
-  --max-test-queries-per-domain 180
+  --cross-domain-negative-ratio 0.60 \
+  --max-queries-per-domain 1800 \
+  --max-test-queries-per-domain 360 \
+  --hard-queries-per-category-per-domain 20
 
 PYTHONPATH=src python experiments/run_canonical_benchmark.py \
-  --benchmark-path benchmarks/mixed_beir_v1.1.0/mixed_benchmark.json \
+  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet \
   --split test \
-  --max-queries 600 \
-  --output-dir results/canonical_benchmark_v2
+  --max-queries 1200 \
+  --output-dir results/canonical_benchmark_v3
 ```
 
 The canonical artifact includes MeanFuser, KalmanorixFuser, hard-routing, and all-routing+mean baselines (plus LearnedGateFuser only when a two-specialist setup is used), with paired Kalman-vs-mean testing and confidence intervals for quality/latency/FLOPs proxy metrics. v2 additionally tracks nDCG@5, MRR@5, Recall@1, and top-1 success.

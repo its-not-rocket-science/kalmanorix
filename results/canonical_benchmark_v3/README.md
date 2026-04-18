@@ -15,7 +15,7 @@ PYTHONPATH=src python scripts/build_mixed_benchmark.py \
   --hard-queries-per-category-per-domain 20
 
 PYTHONPATH=src python experiments/run_canonical_benchmark.py \
-  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json \
+  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet \
   --split test \
   --max-queries 1200 \
   --output-dir results/canonical_benchmark_v3
