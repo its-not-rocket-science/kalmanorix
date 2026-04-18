@@ -2754,7 +2754,7 @@
 <tr>
 <td>Correlation-aware fusion</td>
 <td><code>results/correlation_aware_fusion/report.md</code>, <code>results/correlation_aware_fusion/summary.json</code></td>
-<td>Small positive uplift over baseline Kalman in a strengthened correlated split (best reported ΔMRR@10 <code>+0.0037</code>), treated as exploratory rather than claim-closing.</td>
+<td>Synthetic narrowed-hypothesis slice compares mean/Kalman/correlation-aware/weighted/learned baselines with paired stats and latency; any synthetic win is exploratory and non-headline.</td>
 </tr>
 <tr>
 <td>Latency optimization</td>
@@ -2856,7 +2856,7 @@
 <p><strong>Evidence status:</strong> <strong>Preliminary positive signal; not claim-closing.</strong></p>
 <ul>
 <li>Artifacts: <code>results/correlation_aware_fusion/summary.json</code>, <code>results/correlation_aware_fusion/report.md</code>.</li>
-<li>Interpretation: the best correlation-aware configuration improves slightly over baseline Kalman on the strengthened correlated split (reported ΔMRR@10 <code>+0.0037</code>), but magnitude is small and requires larger-scale confirmation.</li>
+<li>Interpretation: this track is now explicitly a narrowed synthetic hypothesis regime for partially correlated experts with unequal uncertainty quality; results are exploratory and cannot be used as headline proof.</li>
 </ul>
 <h3 id="9-latency-optimization">9) Latency optimization<a class="headerlink" href="#9-latency-optimization" title="Permanent link">&para;</a></h3>
 <p><strong>Evidence status:</strong> <strong>Engineering improvement demonstrated; canonical constraint still unmet.</strong></p>
