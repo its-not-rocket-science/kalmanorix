@@ -45,12 +45,51 @@ def _traffic_light_from_verdict(verdict: str) -> str:
     return "yellow"
 
 
+def _classify_replication_status(
+    *, canonical_verdict: str, replication: dict[str, Any] | None
+) -> str:
+    if replication is None:
+        return "not_replicated"
+    run_verdicts = [
+        str(run.get("verdict", "unknown"))
+        for run in replication.get("per_run_verdicts", [])
+    ]
+    if not run_verdicts:
+        return "not_replicated"
+    unique_verdicts = set(run_verdicts)
+    if unique_verdicts == {"supported"}:
+        sign_consistency = replication.get(
+            "sign_consistency_delta_kalman_minus_mean", "mixed"
+        )
+        latency_consistency = replication.get("latency_ratio_consistency", "mixed")
+        if (
+            canonical_verdict == "supported"
+            and sign_consistency == "all_positive"
+            and latency_consistency == "all_within_threshold"
+        ):
+            return "replicated_supported"
+    if len(unique_verdicts) == 1 and canonical_verdict in unique_verdicts:
+        return "replicated_same_verdict"
+    return "replicated_mixed_verdict"
+
+
 def _build_summary() -> dict[str, Any]:
     canonical = _load_json("results/canonical_benchmark_v2/summary.json")
     uncertainty_ablation = _load_json("results/uncertainty_ablation/summary.json")
-    latency_rerun = _load_json(
-        "results/kalman_latency_optimization/canonical/summary.json"
-    )
+    replication = canonical.get("replication")
+    replication_sources = ["results/canonical_benchmark_v2/summary.json"]
+    if replication is None:
+        latency_rerun = _load_json(
+            "results/kalman_latency_optimization/canonical/summary.json"
+        )
+        replication = {
+            "per_run_verdicts": [
+                {"verdict": latency_rerun["decision"]["kalman_vs_mean"]["verdict"]}
+            ]
+        }
+        replication_sources.append(
+            "results/kalman_latency_optimization/canonical/summary.json"
+        )
 
     canonical_decision = canonical["decision"]["kalman_vs_mean"]
     canonical_verdict = canonical_decision["verdict"]
@@ -91,17 +130,17 @@ def _build_summary() -> dict[str, Any]:
     latency_ok = canonical_decision["checks"]["latency_ratio_ok"]
     latency_light = "green" if latency_ok else "red"
 
-    rerun_verdict = latency_rerun["decision"]["kalman_vs_mean"]["verdict"]
-    rerun_latency_ratio = latency_rerun["decision"]["kalman_vs_mean"]["observed"][
-        "latency_ratio_vs_mean"
-    ]
-    replication_value = (
-        "replicated_same_verdict"
-        if rerun_verdict == canonical_verdict
-        else "verdict_changed_between_committed_runs"
+    replication_value = _classify_replication_status(
+        canonical_verdict=canonical_verdict, replication=replication
     )
     replication_light = (
-        "yellow" if replication_value == "replicated_same_verdict" else "red"
+        "green"
+        if replication_value == "replicated_supported"
+        else (
+            "yellow"
+            if replication_value in {"not_replicated", "replicated_same_verdict"}
+            else "red"
+        )
     )
 
     overall = "yellow"
@@ -119,7 +158,7 @@ def _build_summary() -> dict[str, Any]:
         "generated_from": [
             "results/canonical_benchmark_v2/summary.json",
             "results/uncertainty_ablation/summary.json",
-            "results/kalman_latency_optimization/canonical/summary.json",
+            *replication_sources[1:],
         ],
         "traffic_light_legend": {
             "green": "supported",
@@ -201,18 +240,22 @@ def _build_summary() -> dict[str, Any]:
                 "value": replication_value,
                 "sources": [
                     {
-                        "path": "results/canonical_benchmark_v2/summary.json",
-                        "json_path": "$.decision.kalman_vs_mean.verdict",
-                    },
-                    {
-                        "path": "results/kalman_latency_optimization/canonical/summary.json",
-                        "json_path": "$.decision.kalman_vs_mean.verdict",
-                    },
+                        "path": source_path,
+                        "json_path": (
+                            "$.replication.per_run_verdicts[*].verdict"
+                            if source_path
+                            == "results/canonical_benchmark_v2/summary.json"
+                            else "$.decision.kalman_vs_mean.verdict"
+                        ),
+                    }
+                    for source_path in replication_sources
                 ],
             },
             "canonical_verdict": canonical_verdict,
-            "canonical_rerun_verdict": rerun_verdict,
-            "canonical_rerun_latency_ratio_vs_mean": rerun_latency_ratio,
+            "replication_run_verdicts": [
+                str(run.get("verdict", "unknown"))
+                for run in replication.get("per_run_verdicts", [])
+            ],
         },
     }
 
@@ -292,10 +335,10 @@ def _build_markdown(summary: dict[str, Any]) -> str:
             (
                 "`"
                 + summary["replication_status"]["status"]["value"]
-                + "` (canonical verdict "
+                + "` (canonical verdict="
                 + f"`{summary['replication_status']['canonical_verdict']}`"
-                + ", rerun verdict "
-                + f"`{summary['replication_status']['canonical_rerun_verdict']}`"
+                + ", replication verdicts="
+                + f"`{summary['replication_status']['replication_run_verdicts']}`"
                 + ")"
             ),
         ),

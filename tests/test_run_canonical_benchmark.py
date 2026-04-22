@@ -671,6 +671,10 @@ def test_build_replication_summary_aggregates_runs() -> None:
     assert replication["fraction_positive_deltas"] == 0.5
     assert replication["fraction_significant_runs"] == 0.5
     assert replication["direction_consistency"] == "mixed"
+    assert replication["sign_consistency_delta_kalman_minus_mean"] == "mixed"
+    assert replication["latency_ratio_consistency"] == "all_within_threshold"
+    assert replication["latency_ratio_threshold_vs_mean"] == pytest.approx(1.5)
+    assert replication["fraction_latency_within_threshold"] == pytest.approx(1.0)
     assert replication["median_latency_ratio"] == pytest.approx(1.15)
     assert replication["pooled_effect_summaries"][
         "weighted_mean_delta_ndcg10"
@@ -894,7 +898,11 @@ def test_canonical_report_renders_replication_section() -> None:
             "fraction_positive_deltas": 0.5,
             "fraction_significant_runs": 0.5,
             "median_latency_ratio": 1.15,
+            "sign_consistency_delta_kalman_minus_mean": "mixed",
             "direction_consistency": "mixed",
+            "latency_ratio_consistency": "all_within_threshold",
+            "fraction_latency_within_threshold": 1.0,
+            "latency_ratio_threshold_vs_mean": 1.5,
             "per_run_verdicts": [
                 {
                     "run_id": "run_001",
@@ -922,5 +930,68 @@ def test_canonical_report_renders_replication_section() -> None:
     }
 
     report = canonical._render_report(summary)
-    assert "## Replication Evidence" in report
+    assert "## Replication status of Kalman-vs-mean conclusion" in report
     assert "Replication runs: `2`" in report
+
+
+def test_build_replication_summary_flags_latency_inconsistency() -> None:
+    run_summaries = [
+        {
+            "seed": 1,
+            "paired_statistics": {
+                "kalman_vs_mean": {
+                    "overall": {
+                        "ndcg@10": {
+                            "mean_difference": 0.02,
+                            "adjusted_p_value": 0.01,
+                            "n_pairs": 40,
+                        }
+                    }
+                }
+            },
+            "decision": {
+                "kalman_vs_mean": {
+                    "verdict": "supported",
+                    "observed": {"latency_ratio_vs_mean": 1.2},
+                }
+            },
+        },
+        {
+            "seed": 2,
+            "paired_statistics": {
+                "kalman_vs_mean": {
+                    "overall": {
+                        "ndcg@10": {
+                            "mean_difference": 0.03,
+                            "adjusted_p_value": 0.03,
+                            "n_pairs": 35,
+                        }
+                    }
+                }
+            },
+            "decision": {
+                "kalman_vs_mean": {
+                    "verdict": "supported",
+                    "observed": {"latency_ratio_vs_mean": 1.8},
+                }
+            },
+        },
+    ]
+
+    replication = canonical._build_replication_summary(run_summaries)
+    assert replication["sign_consistency_delta_kalman_minus_mean"] == "all_positive"
+    assert replication["latency_ratio_consistency"] == "mixed"
+    assert replication["fraction_latency_within_threshold"] == pytest.approx(0.5)
+
+
+def test_resolve_replication_build_specs() -> None:
+    specs = canonical._resolve_replication_build_specs(
+        replication_builds=(
+            "benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet@7,"
+            "benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet@8"
+        )
+    )
+    assert specs == [
+        (Path("benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet"), 7),
+        (Path("benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet"), 8),
+    ]

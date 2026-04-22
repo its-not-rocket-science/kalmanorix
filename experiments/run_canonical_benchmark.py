@@ -1292,13 +1292,14 @@ def _render_report(summary: dict[str, Any]) -> str:
         lines.extend(
             [
                 "",
-                "## Replication Evidence",
+                "## Replication status of Kalman-vs-mean conclusion",
                 "",
                 f"- Replication runs: `{replication['num_runs']}`",
                 f"- Positive nDCG@10 deltas (Kalman-Mean): `{replication['fraction_positive_deltas']:.3f}`",
                 f"- Statistically significant runs (Holm-adjusted p <= 0.05 on nDCG@10): `{replication['fraction_significant_runs']:.3f}`",
                 f"- Median latency ratio (Kalman/Mean): `{replication['median_latency_ratio']:.3f}`",
-                f"- Direction consistency: `{replication['direction_consistency']}`",
+                f"- Sign consistency of Kalman-minus-mean nDCG@10 delta: `{replication['sign_consistency_delta_kalman_minus_mean']}`",
+                f"- Latency ratio consistency (Kalman/Mean vs <= {replication['latency_ratio_threshold_vs_mean']:.3f}): `{replication['latency_ratio_consistency']}`",
                 "- Note: pooled summaries below are descriptive across replications and are not a formal meta-analytic significance test.",
                 "",
                 "| Run | Seed | Verdict | Δ nDCG@10 | Holm-adjusted p | Latency ratio |",
@@ -1590,6 +1591,8 @@ def _build_replication_summary(run_summaries: list[dict[str, Any]]) -> dict[str,
     latency_ratios: list[float] = []
     weighted_delta_num = 0.0
     weighted_delta_den = 0
+    latency_threshold = float(CANONICAL_DECISION_RULES["max_latency_ratio_vs_mean"])
+    within_latency_threshold_count = 0
 
     for idx, summary in enumerate(run_summaries, start=1):
         comparison = summary["paired_statistics"]["kalman_vs_mean"]["overall"][
@@ -1609,6 +1612,8 @@ def _build_replication_summary(run_summaries: list[dict[str, Any]]) -> dict[str,
             positive_count += 1
         if padj <= 0.05:
             significant_count += 1
+        if latency_ratio <= latency_threshold:
+            within_latency_threshold_count += 1
 
         deltas.append(delta)
         latency_ratios.append(latency_ratio)
@@ -1628,6 +1633,18 @@ def _build_replication_summary(run_summaries: list[dict[str, Any]]) -> dict[str,
         )
 
     num_runs = len(run_summaries)
+    if positive_count == num_runs:
+        sign_consistency = "all_positive"
+    elif positive_count == 0:
+        sign_consistency = "all_negative_or_zero"
+    else:
+        sign_consistency = "mixed"
+    if within_latency_threshold_count == num_runs:
+        latency_ratio_consistency = "all_within_threshold"
+    elif within_latency_threshold_count == 0:
+        latency_ratio_consistency = "all_above_threshold"
+    else:
+        latency_ratio_consistency = "mixed"
     return {
         "num_runs": num_runs,
         "per_run_verdicts": per_run_verdicts,
@@ -1636,11 +1653,13 @@ def _build_replication_summary(run_summaries: list[dict[str, Any]]) -> dict[str,
         "median_latency_ratio": float(
             np.median(np.asarray(latency_ratios, dtype=float))
         ),
-        "direction_consistency": (
-            "all_positive"
-            if positive_count == num_runs
-            else ("all_negative_or_zero" if positive_count == 0 else "mixed")
+        "sign_consistency_delta_kalman_minus_mean": sign_consistency,
+        "direction_consistency": sign_consistency,
+        "latency_ratio_consistency": latency_ratio_consistency,
+        "fraction_latency_within_threshold": float(
+            within_latency_threshold_count / num_runs
         ),
+        "latency_ratio_threshold_vs_mean": latency_threshold,
         "pooled_effect_summaries": {
             "weighted_mean_delta_ndcg10": (
                 float(weighted_delta_num / weighted_delta_den)
@@ -2025,6 +2044,27 @@ def _resolve_replication_seeds(
     return [seed + idx for idx in range(replication_runs)]
 
 
+def _resolve_replication_build_specs(
+    *, replication_builds: str
+) -> list[tuple[Path, int]]:
+    specs: list[tuple[Path, int]] = []
+    if not replication_builds.strip():
+        return specs
+    for raw in replication_builds.split(","):
+        token = raw.strip()
+        if not token:
+            continue
+        path_token, sep, seed_token = token.rpartition("@")
+        if sep == "" or not path_token.strip() or not seed_token.strip():
+            raise ValueError(
+                "Each replication build must use '<benchmark_path>@<seed>' format."
+            )
+        specs.append((Path(path_token.strip()), int(seed_token.strip())))
+    if len(specs) < 2:
+        raise ValueError("Replication builds require at least two build@seed entries.")
+    return specs
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run canonical benchmark and generate report artifacts"
@@ -2058,6 +2098,15 @@ def main() -> None:
         help="Comma-separated explicit replication seeds. Overrides --replication-runs when provided.",
     )
     parser.add_argument(
+        "--replication-builds",
+        type=str,
+        default="",
+        help=(
+            "Comma-separated '<benchmark_path>@<seed>' entries for replication across "
+            "multiple benchmark builds under fixed protocol. Overrides seed-only replication."
+        ),
+    )
+    parser.add_argument(
         "--confirmatory-slice",
         type=str,
         choices=CONFIRMATORY_SLICE_CHOICES,
@@ -2075,29 +2124,41 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    seeds = _resolve_replication_seeds(
-        seed=args.seed,
-        replication_seeds=args.replication_seeds,
-        replication_runs=args.replication_runs,
+    build_specs = _resolve_replication_build_specs(
+        replication_builds=args.replication_builds
     )
     run_summaries: list[dict[str, Any]] = []
-    if len(seeds) == 1:
+    if build_specs:
+        run_specs = build_specs
+    else:
+        seeds = _resolve_replication_seeds(
+            seed=args.seed,
+            replication_seeds=args.replication_seeds,
+            replication_runs=args.replication_runs,
+        )
+        run_specs = [(args.benchmark_path, run_seed) for run_seed in seeds]
+
+    if len(run_specs) == 1:
+        only_benchmark, only_seed = run_specs[0]
         summary = run_canonical_benchmark(
-            benchmark_path=args.benchmark_path,
+            benchmark_path=only_benchmark,
             output_dir=args.output_dir,
             split=args.split,
             max_queries=args.max_queries,
             device=args.device,
-            seed=seeds[0],
+            seed=only_seed,
             num_resamples=args.num_resamples,
             confirmatory_slice=args.confirmatory_slice,
         )
     else:
         runs_dir = args.output_dir / "replication_runs"
-        for idx, run_seed in enumerate(seeds, start=1):
-            run_output_dir = runs_dir / f"run_{idx:03d}_seed_{run_seed}"
+        for idx, (run_benchmark, run_seed) in enumerate(run_specs, start=1):
+            benchmark_label = run_benchmark.stem.replace(" ", "_")
+            run_output_dir = (
+                runs_dir / f"run_{idx:03d}_seed_{run_seed}_{benchmark_label}"
+            )
             run_summary = run_canonical_benchmark(
-                benchmark_path=args.benchmark_path,
+                benchmark_path=run_benchmark,
                 output_dir=run_output_dir,
                 split=args.split,
                 max_queries=args.max_queries,
