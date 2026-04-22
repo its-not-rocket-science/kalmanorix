@@ -1,74 +1,77 @@
 {
-  "artifact": "kalman_evidence_dashboard.v2",
+  "artifact": "kalman_evidence_dashboard.v3",
   "generated_from": [
-    "results/canonical_benchmark_v2/summary.json",
-    "results/uncertainty_ablation/summary.json",
-    "results/kalman_latency_optimization/canonical/summary.json"
+    "results/canonical_benchmark_v3/summary.json",
+    "results/kalman_latency_optimization/canonical/summary.json",
+    "results/uncertainty_ablation/summary.json"
   ],
   "traffic_light_legend": {
     "green": "supported",
     "yellow": "unresolved",
     "red": "unsupported in tested regime"
   },
-  "overall_hypothesis_status": {
-    "traffic_light": "yellow",
-    "reason": "Canonical verdict is inconclusive_underpowered with failed latency gate; confirmatory slice was not run in committed canonical artifacts."
+  "claim_ready_support": {
+    "traffic_light": "red",
+    "status": "no",
+    "required_confirmatory_evidence_present": false
   },
-  "canonical_benchmark_verdict": {
+  "canonical_v3_benchmark_status": {
+    "traffic_light": "yellow",
+    "status": {
+      "value": "placeholder_pending_run",
+      "source": {
+        "path": "results/canonical_benchmark_v3/summary.json",
+        "json_path": "$.status"
+      }
+    }
+  },
+  "canonical_v3_verdict": {
     "traffic_light": "yellow",
     "verdict": {
-      "value": "inconclusive_underpowered",
+      "value": "not_available_placeholder_pending_run",
       "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
+        "path": "results/canonical_benchmark_v3/summary.json",
         "json_path": "$.decision.kalman_vs_mean.verdict"
       }
     }
   },
   "confirmatory_slice_verdict": {
-    "traffic_light": "yellow",
+    "traffic_light": "red",
     "verdict": {
-      "value": "not_run_in_committed_canonical_artifact",
+      "value": "missing_confirmatory_evidence",
       "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
+        "path": "results/canonical_benchmark_v3/summary.json",
         "json_path": "$.confirmatory_slice_results"
       }
     }
   },
-  "baseline_comparisons": {
+  "kalman_vs_mean": {
     "traffic_light": "yellow",
-    "kalman_ndcg10": {
-      "value": 0.5485813625458471,
+    "verdict": {
+      "value": "inconclusive_underpowered",
       "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
-        "json_path": "$.methods.kalman.metrics.ndcg@10.mean"
+        "path": "results/kalman_latency_optimization/canonical/summary.json",
+        "json_path": "$.decision.kalman_vs_mean.verdict"
       }
-    },
-    "mean_ndcg10": {
-      "value": 0.4536941222247459,
+    }
+  },
+  "kalman_vs_weighted_mean": {
+    "traffic_light": "yellow",
+    "verdict": {
+      "value": "inconclusive_underpowered",
       "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
-        "json_path": "$.methods.mean.metrics.ndcg@10.mean"
+        "path": "results/kalman_latency_optimization/canonical/summary.json",
+        "json_path": "$.decision.kalman_vs_weighted_mean.verdict"
       }
-    },
-    "router_top1_ndcg10": {
-      "value": 0.6414150094710442,
+    }
+  },
+  "kalman_vs_router_only_top1": {
+    "traffic_light": "yellow",
+    "verdict": {
+      "value": "inconclusive_underpowered",
       "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
-        "json_path": "$.methods.router_only_top1.metrics.ndcg@10.mean"
-      }
-    },
-    "kalman_minus_mean_ndcg10": {
-      "value": 0.09488724032110114,
-      "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
-        "json_path": "$.paired_statistics.kalman_vs_mean.overall.ndcg@10.mean_difference"
-      }
-    },
-    "kalman_vs_mean_adjusted_p_value_ndcg10": {
-      "value": 1.0,
-      "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
-        "json_path": "$.paired_statistics.kalman_vs_mean.overall.ndcg@10.adjusted_p_value"
+        "path": "results/kalman_latency_optimization/canonical/summary.json",
+        "json_path": "$.decision.kalman_vs_router_only_top1.verdict"
       }
     }
   },
@@ -82,19 +85,19 @@
       }
     }
   },
-  "latency_ratio": {
-    "traffic_light": "red",
+  "latency_gate_status": {
+    "traffic_light": "green",
     "ratio_vs_mean": {
-      "value": 2.0553801675765238,
+      "value": 0.9239092503251253,
       "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
+        "path": "results/kalman_latency_optimization/canonical/summary.json",
         "json_path": "$.decision.kalman_vs_mean.observed.latency_ratio_vs_mean"
       }
     },
     "max_allowed_ratio": {
       "value": 1.5,
       "source": {
-        "path": "results/canonical_benchmark_v2/summary.json",
+        "path": "results/kalman_latency_optimization/canonical/summary.json",
         "json_path": "$.decision.kalman_vs_mean.rules.max_latency_ratio_vs_mean"
       }
     }
@@ -105,7 +108,7 @@
       "value": "replicated_same_verdict",
       "sources": [
         {
-          "path": "results/canonical_benchmark_v2/summary.json",
+          "path": "results/kalman_latency_optimization/canonical/summary.json",
           "json_path": "$.decision.kalman_vs_mean.verdict"
         },
         {
@@ -115,7 +118,21 @@
       ]
     },
     "canonical_verdict": "inconclusive_underpowered",
-    "canonical_rerun_verdict": "inconclusive_underpowered",
-    "canonical_rerun_latency_ratio_vs_mean": 0.9239092503251253
+    "replication_run_verdicts": [
+      "inconclusive_underpowered"
+    ]
+  },
+  "why_claim_ready_or_not": {
+    "title": "Why the repo can / cannot currently claim Kalman beats mean",
+    "claim_ready_support": "no",
+    "reasons": [
+      "canonical v3 benchmark status is `placeholder_pending_run`.",
+      "canonical v3 verdict is `not_available_placeholder_pending_run`.",
+      "confirmatory slice verdict is `missing_confirmatory_evidence`.",
+      "kalman_vs_mean verdict is `inconclusive_underpowered`.",
+      "kalman_vs_weighted_mean verdict is `inconclusive_underpowered`.",
+      "kalman_vs_router_only_top1 verdict is `inconclusive_underpowered`.",
+      "replication status is `replicated_same_verdict`."
+    ]
   }
 }
