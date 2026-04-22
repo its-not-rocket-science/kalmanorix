@@ -146,3 +146,43 @@ def test_kalman_fuser_reuses_precomputed_embeddings_without_reembedding() -> Non
 
     assert baseline_calls == [1, 1, 1]
     assert reused_calls == [0, 0, 0]
+
+
+def test_panoramix_shared_path_computes_each_embedding_once_per_query() -> None:
+    class CountingEmbed:
+        def __init__(self, seed: int):
+            self.rng = np.random.default_rng(seed)
+            self.calls = 0
+            self.direction = self.rng.normal(size=(24,))
+
+        def __call__(self, query: str) -> np.ndarray:
+            self.calls += 1
+            scale = max(len(query.split()), 1)
+            return (self.direction * (scale / 10.0)).astype(np.float64)
+
+    class EmbeddingAwareSigma2:
+        def __init__(self):
+            self.calls = 0
+            self.embedding_calls = 0
+
+        def __call__(self, query: str) -> float:
+            self.calls += 1
+            return 0.5 + 1e-6 * len(query)
+
+        def estimate_with_embedding(self, query: str, embedding: np.ndarray) -> float:
+            self.embedding_calls += 1
+            return float(0.1 + np.linalg.norm(embedding) * 0.001 + len(query) * 1e-6)
+
+    embeds = [CountingEmbed(11), CountingEmbed(22), CountingEmbed(33)]
+    sigma2 = [EmbeddingAwareSigma2(), EmbeddingAwareSigma2(), EmbeddingAwareSigma2()]
+    village = Village(
+        modules=[SEF(name=f"m{i}", embed=embeds[i], sigma2=sigma2[i]) for i in range(3)]
+    )
+    scout = ScoutRouter(mode="all")
+    pan = Panoramix(fuser=KalmanorixFuser(use_fast_scalar_path=True))
+
+    _ = pan.brew("query-level duplicate embedding audit", village=village, scout=scout)
+
+    assert [embed.calls for embed in embeds] == [1, 1, 1]
+    assert [s.calls for s in sigma2] == [0, 0, 0]
+    assert [s.embedding_calls for s in sigma2] == [1, 1, 1]

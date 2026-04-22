@@ -13,80 +13,84 @@
   },
   "single_query_strategies": {
     "mean": {
-      "mean_ms": 0.31767625994689297,
-      "p50_ms": 0.3074015003221575,
-      "p95_ms": 0.3815063498223026,
-      "memory_peak_kib": 1514.1650390625
+      "mean_ms": 0.3545391299996936,
+      "p50_ms": 0.3447220000083462,
+      "p95_ms": 0.4453505999961748,
+      "memory_peak_kib": 1515.51953125
     },
     "kalman_legacy": {
-      "mean_ms": 1.6519150199474097,
-      "p50_ms": 1.599762500518409,
-      "p95_ms": 1.873919199260852,
-      "memory_peak_kib": 2855.3486328125
+      "mean_ms": 1.7200010399999144,
+      "p50_ms": 1.6728439999980083,
+      "p95_ms": 2.102424499986454,
+      "memory_peak_kib": 2857.4765625
     },
     "kalman_optimized": {
-      "mean_ms": 0.8034227349980938,
-      "p50_ms": 0.7894930004113121,
-      "p95_ms": 0.929123448622704,
-      "memory_peak_kib": 2760.8828125
+      "mean_ms": 0.8399029199996733,
+      "p50_ms": 0.7936830000119244,
+      "p95_ms": 1.1181429499828253,
+      "memory_peak_kib": 2761.515625
     }
   },
   "batch_strategies": {
     "mean": {
-      "mean_ms": 6.084609900244686,
-      "p50_ms": 4.958107000675227,
-      "p95_ms": 10.597014800714527,
-      "memory_peak_kib": 2932.609375,
+      "mean_ms": 14.445743099997799,
+      "p50_ms": 15.44263150000802,
+      "p95_ms": 16.946344999998075,
+      "memory_peak_kib": 2749.62109375,
       "batch_size": 20.0,
       "queries_per_batch": 20.0
     },
     "kalman_legacy": {
-      "mean_ms": 17.61544689998118,
-      "p50_ms": 16.993206500046654,
-      "p95_ms": 21.1251664505653,
-      "memory_peak_kib": 6107.0634765625,
+      "mean_ms": 18.022419799999057,
+      "p50_ms": 17.0685245000044,
+      "p95_ms": 22.847990699995073,
+      "memory_peak_kib": 5264.2978515625,
       "batch_size": 20.0,
       "queries_per_batch": 20.0
     },
     "kalman_optimized": {
-      "mean_ms": 14.29607029986073,
-      "p50_ms": 13.340785499167396,
-      "p95_ms": 17.66724244971556,
-      "memory_peak_kib": 4673.890625,
+      "mean_ms": 14.753761400007193,
+      "p50_ms": 14.169433000006393,
+      "p95_ms": 17.8950231000087,
+      "memory_peak_kib": 3950.31640625,
       "batch_size": 20.0,
       "queries_per_batch": 20.0
     }
   },
-  "speedup_legacy_to_optimized": 2.0560969312765702,
-  "optimized_vs_mean_latency_ratio": 2.5290613001185696,
-  "batch_speedup_legacy_to_optimized": 1.2321880440216348,
+  "speedup_legacy_to_optimized": 2.0478569594692964,
+  "optimized_vs_mean_latency_ratio": 2.3689992131486277,
+  "batch_speedup_legacy_to_optimized": 1.2215474624654206,
   "numerical_deviation_vs_legacy": {
     "single_query": {
-      "vector_max_abs": 0.04294505722310164,
-      "vector_rms": 0.009030131278071708,
-      "weight_max_abs": 0.007383638557810573,
-      "covariance_max_abs": 0.003211286383505235
+      "vector_max_abs": 0.045068414033929055,
+      "vector_rms": 0.009016596024839995,
+      "weight_max_abs": 0.0063659218190032785,
+      "covariance_max_abs": 0.0025891948700639544
     },
     "batch": {
-      "vector_max_abs": 0.04324987779036202,
-      "vector_rms": 0.009063232199262075,
-      "weight_max_abs": 0.017314947938921826,
-      "covariance_max_abs": 0.002746425702566252
+      "vector_max_abs": 0.04103497058334207,
+      "vector_rms": 0.00905377299933473,
+      "weight_max_abs": 0.019010466836389156,
+      "covariance_max_abs": 0.0031479212850696603
     }
   },
   "profiling": {
     "embed_calls": 12000,
-    "embed_seconds": 0.39398516603614553,
+    "embed_seconds": 0.4379810820009311,
     "sigma2_calls": 4800,
-    "sigma2_seconds": 0.2785222940492531
+    "sigma2_seconds": 0.28197556699944926
   },
   "canonical_rerun": {
     "output_dir": "results/kalman_latency_optimization/canonical",
     "decision_verdict": "inconclusive_underpowered",
-    "latency_ratio_vs_mean": 2.0079430424389733,
+    "latency_ratio_vs_mean": 0.9239092503251253,
     "latency_ratio_threshold": 1.5,
-    "latency_ratio_ok": false,
+    "latency_ratio_ok": true,
     "primary_metric_delta": 0.09488724032110114,
     "primary_metric_adjusted_p_value": 1.0
+  },
+  "canonical_v3_latency_ratio_basis": {
+    "uses_optimized_kalman_path": true,
+    "evidence": "canonical rerun invoked via experiments/run_canonical_benchmark.py after KalmanorixFuser default fast scalar path is enabled"
   }
 }

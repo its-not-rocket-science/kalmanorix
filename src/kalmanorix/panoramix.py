@@ -66,6 +66,44 @@ def _aligned_embeddings_for_batch(modules: List[SEF], queries: List[str]) -> np.
     return np.stack(embeddings, axis=0).astype(np.float64, copy=False)
 
 
+def _sigma2_for_embeddings(
+    modules: List[SEF], query: str, embeddings: List[np.ndarray]
+) -> np.ndarray:
+    """Evaluate sigma² once per module for a single query using cached embeddings."""
+    return np.asarray(
+        [
+            float(module.sigma2_for(query, query_embedding=emb))
+            for module, emb in zip(modules, embeddings)
+        ],
+        dtype=np.float64,
+    )
+
+
+def _sigma2_for_batch_embeddings(
+    modules: List[SEF], queries: List[str], embeddings: np.ndarray
+) -> np.ndarray:
+    """Evaluate sigma² once per (module, query) pair using cached embeddings.
+
+    Args:
+        modules: Specialist modules, shape ``(n_modules,)``.
+        queries: Query strings, shape ``(n_queries,)``.
+        embeddings: Precomputed aligned embeddings with shape
+            ``(n_modules, n_queries, d)``.
+
+    Returns:
+        Sigma² matrix with shape ``(n_modules, n_queries)``.
+    """
+    n_modules = len(modules)
+    n_queries = len(queries)
+    sigma2 = np.empty((n_modules, n_queries), dtype=np.float64)
+    for i, module in enumerate(modules):
+        for j, query in enumerate(queries):
+            sigma2[i, j] = float(
+                module.sigma2_for(query, query_embedding=embeddings[i, j])
+            )
+    return sigma2
+
+
 @dataclass(frozen=True)
 class Potion:  # pylint: disable=too-few-public-methods
     """Result of a fusion operation.
@@ -246,17 +284,16 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         """Reference implementation retained for regression benchmarking."""
-        embeddings = []
-        covariances = []
         aligned = (
             precomputed_embeddings
             if precomputed_embeddings is not None
             else _aligned_embeddings_for_query(modules, query)
         )
-        for module, emb in zip(modules, aligned):
-            sigma2 = module.sigma2_for(query, query_embedding=emb)
+        embeddings = [np.asarray(emb, dtype=np.float64) for emb in aligned]
+        sigma2_values = _sigma2_for_embeddings(modules, query, embeddings)
+        covariances = []
+        for emb, sigma2 in zip(embeddings, sigma2_values):
             cov = np.full(emb.shape, sigma2, dtype=np.float64)
-            embeddings.append(emb)
             covariances.append(cov)
 
         fused, fused_cov = kalman_fuse_diagonal(
@@ -266,7 +303,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
             epsilon=self.epsilon,
         )
 
-        total_uncertainties = [np.sum(cov) for cov in covariances]
+        total_uncertainties = [float(np.sum(cov)) for cov in covariances]
         inv_uncertainties = [1.0 / (tu + self.epsilon) for tu in total_uncertainties]
         total_inv = sum(inv_uncertainties)
         weights = {
@@ -290,16 +327,13 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
         """Optimized implementation equivalent to sigma²*I covariance fusion."""
-        embeddings = []
-        sigma2_values = []
         aligned = (
             precomputed_embeddings
             if precomputed_embeddings is not None
             else _aligned_embeddings_for_query(modules, query)
         )
-        for module, emb in zip(modules, aligned):
-            embeddings.append(np.asarray(emb, dtype=np.float64))
-            sigma2_values.append(float(module.sigma2_for(query, query_embedding=emb)))
+        embeddings = [np.asarray(emb, dtype=np.float64) for emb in aligned]
+        sigma2_values = _sigma2_for_embeddings(modules, query, embeddings)
 
         order = np.arange(len(modules))
         if self.sort_by_certainty and len(modules) > 1:
@@ -315,7 +349,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
 
         d = int(x.shape[0])
         fused_cov = np.full((d,), p, dtype=np.float64)
-        total_uncertainties = [d * float(s) for s in sigma2_values]
+        total_uncertainties = [d * float(s) for s in sigma2_values.tolist()]
         inv_uncertainties = [1.0 / (tu + self.epsilon) for tu in total_uncertainties]
         total_inv = sum(inv_uncertainties)
         weights = {
@@ -368,22 +402,12 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         if b == 0:
             return [], [], None
 
-        # Build arrays: embeddings (n, b, d), sigma² values (n, b)
-        embeddings = []
-        sigma2 = np.empty((n, b), dtype=np.float64)
         embeddings_arr = (
             precomputed_batch_embeddings
             if precomputed_batch_embeddings is not None
             else _aligned_embeddings_for_batch(modules, queries)
         )
-        for i, module in enumerate(modules):
-            module_embs = []
-            for j, query in enumerate(queries):
-                emb = embeddings_arr[i, j]
-                module_embs.append(emb)
-                sigma2[i, j] = module.sigma2_for(query, query_embedding=emb)
-            embeddings.append(np.stack(module_embs, axis=0))
-        embeddings_arr = np.stack(embeddings, axis=0).astype(np.float64, copy=False)
+        sigma2 = _sigma2_for_batch_embeddings(modules, queries, embeddings_arr)
 
         if self.use_fast_scalar_path:
             if self.sort_by_certainty and n > 1:
