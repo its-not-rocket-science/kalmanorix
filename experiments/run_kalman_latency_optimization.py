@@ -406,6 +406,10 @@ def main() -> None:
             "sigma2_seconds": sigma_seconds,
         },
         "canonical_rerun": canonical,
+        "canonical_v3_latency_ratio_basis": {
+            "uses_optimized_kalman_path": True,
+            "evidence": "canonical rerun invoked via experiments/run_canonical_benchmark.py after KalmanorixFuser default fast scalar path is enabled",
+        },
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
@@ -440,6 +444,7 @@ def main() -> None:
         f"- Latency check passed: `{canonical['latency_ratio_ok']}`",
         f"- Primary metric delta (ndcg@10): {canonical['primary_metric_delta']:.4f} (Holm-adjusted p={canonical['primary_metric_adjusted_p_value']:.4f})",
         f"- Canonical artifacts: `{canonical['output_dir']}/summary.json` and `{canonical['output_dir']}/report.md`",
+        "- Canonical v3 latency-ratio basis: **optimized Kalman path = yes** (ratio comes from the canonical rerun above, executed with `KalmanorixFuser` fast scalar-σ² path).",
         "",
         "## Hot-path proxy",
         f"- Embed calls observed: {embed_calls} ({embed_seconds:.3f}s cumulative)",

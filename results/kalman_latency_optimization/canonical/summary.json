@@ -37,6 +37,21 @@
       "included": true,
       "reason": "present"
     },
+    "fixed weighted mean baseline": {
+      "strategy_key": "fixed_weighted_mean_fusion",
+      "included": true,
+      "reason": "present"
+    },
+    "learned linear combiner": {
+      "strategy_key": "learned_linear_combiner",
+      "included": true,
+      "reason": "present"
+    },
+    "single generalist model": {
+      "strategy_key": "single_generalist_model",
+      "included": true,
+      "reason": "present"
+    },
     "LearnedGateFuser": {
       "strategy_key": "learned_gate_fuser",
       "included": false,
@@ -88,9 +103,9 @@
           "ci95_high": 0.0
         },
         "latency_ms": {
-          "mean": 22.454339667092427,
-          "ci95_low": 21.33505650059912,
-          "ci95_high": 23.705281333604944
+          "mean": 28.67425300000548,
+          "ci95_low": 25.347976333335964,
+          "ci95_high": 32.95195483334131
         },
         "flops_proxy": {
           "mean": 2.0,
@@ -209,9 +224,9 @@
           "ci95_high": 0.5
         },
         "latency_ms": {
-          "mean": 17.376951166625076,
-          "ci95_low": 16.416941166426113,
-          "ci95_high": 18.42139466680237
+          "mean": 21.74046950000748,
+          "ci95_low": 20.284826708340137,
+          "ci95_high": 23.163500333344206
         },
         "flops_proxy": {
           "mean": 1.0,
@@ -330,9 +345,9 @@
           "ci95_high": 0.0
         },
         "latency_ms": {
-          "mean": 16.986975333262915,
-          "ci95_low": 16.04045522517481,
-          "ci95_high": 17.901010166497144
+          "mean": 21.376680500002482,
+          "ci95_low": 20.45172233333877,
+          "ci95_high": 22.400397499997855
         },
         "flops_proxy": {
           "mean": 3.0,
@@ -451,9 +466,9 @@
           "ci95_high": 0.5
         },
         "latency_ms": {
-          "mean": 35.35705983328322,
-          "ci95_low": 33.35817633342231,
-          "ci95_high": 37.49621849935162
+          "mean": 22.168220500001706,
+          "ci95_low": 19.783753033335575,
+          "ci95_high": 24.70387750001161
         },
         "flops_proxy": {
           "mean": 3.0,
@@ -572,9 +587,9 @@
           "ci95_high": 0.6666666666666666
         },
         "latency_ms": {
-          "mean": 17.727110499739258,
-          "ci95_low": 16.638305332890013,
-          "ci95_high": 18.790667666507943
+          "mean": 21.85032866666366,
+          "ci95_low": 19.517578166656335,
+          "ci95_high": 24.141337333342488
         },
         "flops_proxy": {
           "mean": 1.0,
@@ -693,9 +708,9 @@
           "ci95_high": 0.0
         },
         "latency_ms": {
-          "mean": 17.60859700001068,
-          "ci95_low": 16.562273666143785,
-          "ci95_high": 18.607302166856243
+          "mean": 23.99393716666509,
+          "ci95_low": 21.18061966667047,
+          "ci95_high": 26.807254666659713
         },
         "flops_proxy": {
           "mean": 3.0,
@@ -814,9 +829,9 @@
           "ci95_high": 0.6666666666666666
         },
         "latency_ms": {
-          "mean": 20.16675716701381,
-          "ci95_low": 19.119590666984248,
-          "ci95_high": 21.311140537621515
+          "mean": 24.597413333329616,
+          "ci95_low": 22.354933166662743,
+          "ci95_high": 27.32545916666614
         },
         "flops_proxy": {
           "mean": 1.0,
@@ -935,9 +950,9 @@
           "ci95_high": 0.0
         },
         "latency_ms": {
-          "mean": 19.798077166645573,
-          "ci95_low": 18.73651750004986,
-          "ci95_high": 20.89370516659983
+          "mean": 24.90674666665882,
+          "ci95_low": 23.541579666660557,
+          "ci95_high": 26.288612166662045
         },
         "flops_proxy": {
           "mean": 2.0,
@@ -1056,9 +1071,9 @@
           "ci95_high": 0.6666666666666666
         },
         "latency_ms": {
-          "mean": 17.120460833818168,
-          "ci95_low": 16.150194166584697,
-          "ci95_high": 18.0591410010796
+          "mean": 22.978895333333565,
+          "ci95_low": 21.18972000000004,
+          "ci95_high": 25.280145499991136
         },
         "flops_proxy": {
           "mean": 1.0,
@@ -1177,9 +1192,9 @@
           "ci95_high": 0.0
         },
         "latency_ms": {
-          "mean": 16.949869000200124,
-          "ci95_low": 15.934769499835966,
-          "ci95_high": 17.970468500304076
+          "mean": 24.698995500003207,
+          "ci95_low": 21.342029512494776,
+          "ci95_high": 29.588736333342542
         },
         "flops_proxy": {
           "mean": 3.0,
@@ -1340,7 +1355,265 @@
         }
       },
       "domains": {},
-      "configuration_hash": "ea735c193ff846e948f2cc86d580a77c9355ace1840c453f41de051d0774ade3"
+      "configuration_hash": "761827bd9cbab60c2a4f7dff21c27bb33e1ddff8218e5f29105c1d5da13279c1"
+    },
+    "kalman_vs_fixed_weighted_mean_fusion": {
+      "overall": {
+        "mrr@10": {
+          "mean_difference": 0.125,
+          "ci95_low": 0.0,
+          "ci95_high": 0.375,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.4082482904638631,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "mrr@5": {
+          "mean_difference": 0.125,
+          "ci95_low": 0.0,
+          "ci95_high": 0.375,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.4082482904638631,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "ndcg@10": {
+          "mean_difference": 0.09488724032110114,
+          "ci95_low": 0.0,
+          "ci95_high": 0.28466172096330344,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.408248290463863,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "ndcg@5": {
+          "mean_difference": 0.09488724032110114,
+          "ci95_low": 0.0,
+          "ci95_high": 0.28466172096330344,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.408248290463863,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "recall@1": {
+          "mean_difference": 0.16666666666666666,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.408248290463863,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "recall@10": {
+          "mean_difference": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.0,
+          "rank_biserial": 0.0,
+          "n_pairs": 6
+        },
+        "recall@5": {
+          "mean_difference": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.0,
+          "rank_biserial": 0.0,
+          "n_pairs": 6
+        },
+        "top1_success": {
+          "mean_difference": 0.16666666666666666,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.408248290463863,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        }
+      },
+      "domains": {},
+      "configuration_hash": "b2fa440f8757efef5804b38bd723d428a3126bbd1d55fca7995c17d04eb154f6"
+    },
+    "kalman_vs_router_only_top1": {
+      "overall": {
+        "mrr@10": {
+          "mean_difference": -0.12222222222222223,
+          "ci95_low": -0.30833333333333335,
+          "ci95_high": 0.03888888888888889,
+          "p_value": 0.3125,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.5136039026574273,
+          "rank_biserial": -0.6,
+          "n_pairs": 6
+        },
+        "mrr@5": {
+          "mean_difference": -0.09444444444444444,
+          "ci95_low": -0.30833333333333335,
+          "ci95_high": 0.10833333333333332,
+          "p_value": 0.375,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.3328346469002983,
+          "rank_biserial": -0.4666666666666667,
+          "n_pairs": 6
+        },
+        "ndcg@10": {
+          "mean_difference": -0.09283364692519724,
+          "ci95_low": -0.2325185727435658,
+          "ci95_high": 0.03332302068437546,
+          "p_value": 0.3125,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.5055541501521722,
+          "rank_biserial": -0.6,
+          "n_pairs": 6
+        },
+        "ndcg@5": {
+          "mean_difference": -0.033465782407193535,
+          "ci95_low": -0.22521461427042389,
+          "ci95_high": 0.20201655047070544,
+          "p_value": 0.5625,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.11244221006740608,
+          "rank_biserial": -0.3333333333333333,
+          "n_pairs": 6
+        },
+        "recall@1": {
+          "mean_difference": -0.16666666666666666,
+          "ci95_low": -0.5,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.408248290463863,
+          "rank_biserial": -1.0,
+          "n_pairs": 6
+        },
+        "recall@10": {
+          "mean_difference": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.0,
+          "rank_biserial": 0.0,
+          "n_pairs": 6
+        },
+        "recall@5": {
+          "mean_difference": 0.16666666666666666,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.408248290463863,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "top1_success": {
+          "mean_difference": -0.16666666666666666,
+          "ci95_low": -0.5,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.408248290463863,
+          "rank_biserial": -1.0,
+          "n_pairs": 6
+        }
+      },
+      "domains": {},
+      "configuration_hash": "180cb6b01775da5a160a84c9ea5d085dcb02e8bd8e9e995a5f2f3e1c3c75ae98"
+    },
+    "kalman_vs_learned_linear_combiner": {
+      "overall": {
+        "mrr@10": {
+          "mean_difference": -0.1638888888888889,
+          "ci95_low": -0.4888888888888889,
+          "ci95_high": 0.26666666666666666,
+          "p_value": 0.40625,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.30859530210570096,
+          "rank_biserial": -0.42857142857142855,
+          "n_pairs": 6
+        },
+        "mrr@5": {
+          "mean_difference": -0.13611111111111115,
+          "ci95_low": -0.48888888888888893,
+          "ci95_high": 0.33055555555555555,
+          "p_value": 0.40625,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.22903898968488207,
+          "rank_biserial": -0.42857142857142855,
+          "n_pairs": 6
+        },
+        "ndcg@10": {
+          "mean_difference": -0.12620917950820798,
+          "ci95_low": -0.37104906425515277,
+          "ci95_high": 0.1917762550161848,
+          "p_value": 0.40625,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.31048409869917604,
+          "rank_biserial": -0.42857142857142855,
+          "n_pairs": 6
+        },
+        "ndcg@5": {
+          "mean_difference": -0.06684131499020429,
+          "ci95_low": -0.3720384731684579,
+          "ci95_high": 0.3779615268315421,
+          "p_value": 0.40625,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.12283711507876277,
+          "rank_biserial": -0.42857142857142855,
+          "n_pairs": 6
+        },
+        "recall@1": {
+          "mean_difference": -0.16666666666666666,
+          "ci95_low": -0.6666666666666666,
+          "ci95_high": 0.3333333333333333,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.2214037213850238,
+          "rank_biserial": -0.3333333333333333,
+          "n_pairs": 6
+        },
+        "recall@10": {
+          "mean_difference": 0.0,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.0,
+          "rank_biserial": 0.0,
+          "n_pairs": 6
+        },
+        "recall@5": {
+          "mean_difference": 0.16666666666666666,
+          "ci95_low": 0.0,
+          "ci95_high": 0.5,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": 0.408248290463863,
+          "rank_biserial": 1.0,
+          "n_pairs": 6
+        },
+        "top1_success": {
+          "mean_difference": -0.16666666666666666,
+          "ci95_low": -0.6666666666666666,
+          "ci95_high": 0.3333333333333333,
+          "p_value": 1.0,
+          "adjusted_p_value": 1.0,
+          "cohen_dz": -0.2214037213850238,
+          "rank_biserial": -0.3333333333333333,
+          "n_pairs": 6
+        }
+      },
+      "domains": {},
+      "configuration_hash": "e01fc0b5fee9e40f07afd7462f9dfba40395de33af6f9a029223db05f44641a0"
     }
   },
   "power_diagnostics": {
@@ -1355,6 +1628,48 @@
       "target_effect_size": 0.02,
       "detectable_effect_threshold_estimate": 0.2656842728990832,
       "paired_delta_stddev": 0.23242532188753964,
+      "power_approximation": "detectable_effect \u2248 (1.96+0.84)*std(delta)/sqrt(n)",
+      "is_sufficiently_powered_for_target_effect": false
+    },
+    "kalman_vs_fixed_weighted_mean_fusion": {
+      "num_test_queries": 6,
+      "per_domain_test_counts": {
+        "biomedical": 2,
+        "finance": 2,
+        "general_qa": 2
+      },
+      "observed_effect_size": 0.09488724032110114,
+      "target_effect_size": 0.02,
+      "detectable_effect_threshold_estimate": 0.2656842728990832,
+      "paired_delta_stddev": 0.23242532188753964,
+      "power_approximation": "detectable_effect \u2248 (1.96+0.84)*std(delta)/sqrt(n)",
+      "is_sufficiently_powered_for_target_effect": false
+    },
+    "kalman_vs_router_only_top1": {
+      "num_test_queries": 6,
+      "per_domain_test_counts": {
+        "biomedical": 2,
+        "finance": 2,
+        "general_qa": 2
+      },
+      "observed_effect_size": -0.09283364692519724,
+      "target_effect_size": 0.02,
+      "detectable_effect_threshold_estimate": 0.20990372129538223,
+      "paired_delta_stddev": 0.1836275043875206,
+      "power_approximation": "detectable_effect \u2248 (1.96+0.84)*std(delta)/sqrt(n)",
+      "is_sufficiently_powered_for_target_effect": false
+    },
+    "kalman_vs_learned_linear_combiner": {
+      "num_test_queries": 6,
+      "per_domain_test_counts": {
+        "biomedical": 2,
+        "finance": 2,
+        "general_qa": 2
+      },
+      "observed_effect_size": -0.12620917950820798,
+      "target_effect_size": 0.02,
+      "detectable_effect_threshold_estimate": 0.4646586075571749,
+      "paired_delta_stddev": 0.4064916046811479,
       "power_approximation": "detectable_effect \u2248 (1.96+0.84)*std(delta)/sqrt(n)",
       "is_sufficiently_powered_for_target_effect": false
     }
@@ -1934,6 +2249,208 @@
       "router_confidence_high": 0.4067160244430246
     }
   },
+  "confirmatory_slice_results": {
+    "slice_name": "high_disagreement_and_low_router_confidence",
+    "slice_definition": {
+      "name": "high_disagreement_and_low_router_confidence",
+      "description": "specialist_disagreement >= median AND router_confidence <= 33rd percentile",
+      "reason": "Pre-declared confirmatory slice isolates routing-ambiguous queries where specialists disagree and router confidence is low; this is the regime where Kalman reliability-weighting is most theoretically justified.",
+      "fields": [
+        "specialist_disagreement",
+        "router_confidence"
+      ],
+      "thresholds": {
+        "specialist_disagreement_median": "computed on evaluated test queries",
+        "router_confidence_low": "33rd percentile on evaluated test queries"
+      }
+    },
+    "n_queries": 2,
+    "n_pairs": 2,
+    "minimum_pairs_for_inference": 50,
+    "warning_count": 1,
+    "warnings": [
+      "Confirmatory slice is underpowered for inferential claims (n_pairs=2 < 50)."
+    ],
+    "method_metrics": {
+      "mean": {
+        "ndcg@5": 0.38685280723454163,
+        "ndcg@10": 0.38685280723454163,
+        "mrr@5": 0.2,
+        "mrr@10": 0.2,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      },
+      "kalman": {
+        "ndcg@5": 0.38685280723454163,
+        "ndcg@10": 0.38685280723454163,
+        "mrr@5": 0.2,
+        "mrr@10": 0.2,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      },
+      "fixed_weighted_mean_fusion": {
+        "ndcg@5": 0.38685280723454163,
+        "ndcg@10": 0.38685280723454163,
+        "mrr@5": 0.2,
+        "mrr@10": 0.2,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      },
+      "router_only_top1": {
+        "ndcg@5": 0.5308031558224253,
+        "ndcg@10": 0.5308031558224253,
+        "mrr@5": 0.375,
+        "mrr@10": 0.375,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      }
+    },
+    "paired_statistics": null,
+    "verdicts": {
+      "kalman_vs_mean": {
+        "status": "underpowered",
+        "primary_metric": "ndcg@10",
+        "reason": "insufficient_paired_queries (n_pairs=2 < 50)"
+      },
+      "kalman_vs_weighted_mean": {
+        "status": "underpowered",
+        "primary_metric": "ndcg@10",
+        "reason": "insufficient_paired_queries (n_pairs=2 < 50)"
+      },
+      "kalman_vs_router_only_top1": {
+        "status": "underpowered",
+        "primary_metric": "ndcg@10",
+        "reason": "insufficient_paired_queries (n_pairs=2 < 50)"
+      }
+    },
+    "decision": {
+      "verdict": "inconclusive_underpowered",
+      "reason": "n_pairs=2 < minimum_pairs=50",
+      "required_comparisons": [
+        "kalman_vs_mean",
+        "kalman_vs_weighted_mean",
+        "kalman_vs_router_only_top1"
+      ]
+    }
+  },
+  "hostile_slice_results": {
+    "slice_name": "hostile_disagreement_calibration_routing_ambiguity",
+    "slice_definition": {
+      "name": "hostile_disagreement_calibration_routing_ambiguity",
+      "description": "high_specialist_disagreement AND low_router_confidence AND high_uncertainty_spread",
+      "reason": "Adversarial slice intersects high disagreement, low router confidence, and high uncertainty spread to stress disagreement, routing ambiguity, and calibration error proxies together.",
+      "fields": [
+        "specialist_disagreement",
+        "router_confidence",
+        "uncertainty_spread"
+      ],
+      "thresholds": {
+        "specialist_disagreement": ">= median on evaluated test queries",
+        "router_confidence": "<= 33rd percentile on evaluated test queries",
+        "uncertainty_spread": ">= median on evaluated test queries"
+      }
+    },
+    "n_queries": 1,
+    "n_pairs": 1,
+    "minimum_pairs_for_inference": 50,
+    "warning_count": 1,
+    "warnings": [
+      "Hostile slice is underpowered for inferential claims (n_pairs=1 < 50)."
+    ],
+    "method_metrics": {
+      "mean": {
+        "ndcg@5": 0.38685280723454163,
+        "ndcg@10": 0.38685280723454163,
+        "mrr@5": 0.2,
+        "mrr@10": 0.2,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      },
+      "kalman": {
+        "ndcg@5": 0.38685280723454163,
+        "ndcg@10": 0.38685280723454163,
+        "mrr@5": 0.2,
+        "mrr@10": 0.2,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      },
+      "fixed_weighted_mean_fusion": {
+        "ndcg@5": 0.38685280723454163,
+        "ndcg@10": 0.38685280723454163,
+        "mrr@5": 0.2,
+        "mrr@10": 0.2,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      },
+      "router_only_top1": {
+        "ndcg@5": 0.6309297535714575,
+        "ndcg@10": 0.6309297535714575,
+        "mrr@5": 0.5,
+        "mrr@10": 0.5,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      },
+      "learned_linear_combiner": {
+        "ndcg@5": 0.6309297535714575,
+        "ndcg@10": 0.6309297535714575,
+        "mrr@5": 0.5,
+        "mrr@10": 0.5,
+        "recall@1": 0.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "top1_success": 0.0
+      }
+    },
+    "paired_statistics": null,
+    "verdicts": {
+      "kalman_vs_mean": {
+        "status": "underpowered",
+        "primary_metric": "ndcg@10",
+        "reason": "insufficient_paired_queries (n_pairs=1 < 50)"
+      },
+      "kalman_vs_weighted_mean": {
+        "status": "underpowered",
+        "primary_metric": "ndcg@10",
+        "reason": "insufficient_paired_queries (n_pairs=1 < 50)"
+      },
+      "kalman_vs_router_only_top1": {
+        "status": "underpowered",
+        "primary_metric": "ndcg@10",
+        "reason": "insufficient_paired_queries (n_pairs=1 < 50)"
+      },
+      "kalman_vs_learned_linear_combiner": {
+        "status": "underpowered",
+        "primary_metric": "ndcg@10",
+        "reason": "insufficient_paired_queries (n_pairs=1 < 50)"
+      }
+    },
+    "decision": {
+      "verdict": "inconclusive_underpowered",
+      "required_comparisons": [
+        "kalman_vs_mean",
+        "kalman_vs_weighted_mean",
+        "kalman_vs_router_only_top1",
+        "kalman_vs_learned_linear_combiner"
+      ],
+      "reason": "n_pairs=1 < minimum_pairs=50"
+    }
+  },
   "decision": {
     "kalman_vs_mean": {
       "verdict": "inconclusive_underpowered",
@@ -1947,14 +2464,130 @@
       "observed": {
         "primary_metric_delta": 0.09488724032110114,
         "primary_metric_adjusted_p_value": 1.0,
-        "latency_ratio_vs_mean": 2.0079430424389733,
+        "latency_ratio_vs_mean": 0.9239092503251253,
         "flops_ratio_vs_mean": 1.0
       },
       "checks": {
         "effect_size_ok": true,
         "adjusted_p_value_ok": false,
-        "latency_ratio_ok": false,
+        "latency_ratio_ok": true,
         "flops_ratio_ok": true
+      }
+    },
+    "kalman_vs_weighted_mean": {
+      "verdict": "inconclusive_underpowered",
+      "rules": {
+        "primary_metric": "ndcg@10",
+        "minimum_effect_size": 0.02,
+        "adjusted_p_value_threshold": 0.05,
+        "max_latency_ratio_vs_mean": 1.5,
+        "max_flops_ratio_vs_mean": 1.1
+      },
+      "observed": {
+        "primary_metric_delta": 0.09488724032110114,
+        "primary_metric_adjusted_p_value": 1.0,
+        "latency_ratio_vs_fixed_weighted_mean_fusion": 1.0370281999583206,
+        "flops_ratio_vs_fixed_weighted_mean_fusion": 1.0
+      },
+      "checks": {
+        "effect_size_ok": true,
+        "adjusted_p_value_ok": false,
+        "latency_ratio_ok": true,
+        "flops_ratio_ok": true
+      }
+    },
+    "kalman_vs_router_only_top1": {
+      "verdict": "inconclusive_underpowered",
+      "rules": {
+        "primary_metric": "ndcg@10",
+        "minimum_effect_size": 0.02,
+        "adjusted_p_value_threshold": 0.05,
+        "max_latency_ratio_vs_mean": 1.5,
+        "max_flops_ratio_vs_mean": 1.1
+      },
+      "observed": {
+        "primary_metric_delta": -0.09283364692519724,
+        "primary_metric_adjusted_p_value": 1.0,
+        "latency_ratio_vs_router_only_top1": 0.9012419395320588,
+        "flops_ratio_vs_router_only_top1": 3.0
+      },
+      "checks": {
+        "effect_size_ok": false,
+        "adjusted_p_value_ok": false,
+        "latency_ratio_ok": true,
+        "flops_ratio_ok": false
+      }
+    },
+    "kalman_vs_learned_linear_combiner": {
+      "verdict": "inconclusive_underpowered",
+      "rules": {
+        "primary_metric": "ndcg@10",
+        "minimum_effect_size": 0.02,
+        "adjusted_p_value_threshold": 0.05,
+        "max_latency_ratio_vs_mean": 1.5,
+        "max_flops_ratio_vs_mean": 1.1
+      },
+      "observed": {
+        "primary_metric_delta": -0.12620917950820798,
+        "primary_metric_adjusted_p_value": 1.0,
+        "latency_ratio_vs_learned_linear_combiner": 1.014548606484947,
+        "flops_ratio_vs_learned_linear_combiner": 3.0
+      },
+      "checks": {
+        "effect_size_ok": false,
+        "adjusted_p_value_ok": false,
+        "latency_ratio_ok": true,
+        "flops_ratio_ok": false
+      }
+    }
+  },
+  "benchmark_status": {
+    "status": "toy",
+    "status_note": "Sample is toy-scale for Kalman-vs-mean claims; treat outcomes as smoke-test signals only.",
+    "criteria": {
+      "minimally_powered_checks": {
+        "test_query_count_ok": false,
+        "per_domain_min_count_ok": false,
+        "validation_count_ok": false,
+        "detectable_effect_ok": false
+      },
+      "claim_ready_checks": {
+        "test_query_count_claim_ready": false,
+        "per_domain_min_count_claim_ready": false,
+        "validation_count_claim_ready": false,
+        "detectable_effect_claim_ready": false
+      },
+      "failed_checks": [
+        "test_query_count=6 < 25",
+        "min_domain_test_count=2 < 10",
+        "validation_query_count=6 < 50"
+      ]
+    },
+    "inputs": {
+      "test_query_count": 6,
+      "minimum_per_domain_test_count": 2,
+      "validation_query_count": 6,
+      "detectable_effect_threshold_estimate": 0.2656842728990832,
+      "target_effect_size": 0.02,
+      "detectable_effect_to_target_ratio": 13.284213644954159
+    },
+    "thresholds": {
+      "toy": {
+        "test_query_count_lt": 25,
+        "minimum_per_domain_test_count_lt": 10,
+        "validation_query_count_lt": 50
+      },
+      "minimally_powered": {
+        "test_query_count_gte": 50,
+        "minimum_per_domain_test_count_gte": 20,
+        "validation_query_count_gte": 100,
+        "detectable_effect_threshold_lte_target_effect": true
+      },
+      "claim_ready": {
+        "test_query_count_gte": 100,
+        "minimum_per_domain_test_count_gte": 40,
+        "validation_query_count_gte": 200,
+        "detectable_effect_threshold_lte_target_effect_ratio": 0.75
       }
     }
   }

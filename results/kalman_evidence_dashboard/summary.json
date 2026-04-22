@@ -116,6 +116,6 @@
     },
     "canonical_verdict": "inconclusive_underpowered",
     "canonical_rerun_verdict": "inconclusive_underpowered",
-    "canonical_rerun_latency_ratio_vs_mean": 2.0079430424389733
+    "canonical_rerun_latency_ratio_vs_mean": 0.9239092503251253
   }
 }
