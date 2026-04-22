@@ -8,6 +8,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "results" / "kalman_evidence_dashboard"
+CANONICAL_V3_PATH = "results/canonical_benchmark_v3/summary.json"
+CLAIM_DECISION_PATH = "results/kalman_latency_optimization/canonical/summary.json"
 
 
 @dataclass(frozen=True)
@@ -73,11 +75,42 @@ def _classify_replication_status(
     return "replicated_mixed_verdict"
 
 
+def _derive_claim_ready_support(
+    *,
+    canonical_v3_status: str,
+    canonical_v3_verdict: str,
+    confirmatory_verdict: str,
+    kalman_vs_mean_verdict: str,
+    kalman_vs_weighted_mean_verdict: str,
+    kalman_vs_router_only_top1_verdict: str,
+    latency_gate_ok: bool,
+    replication_status: str,
+) -> str:
+    confirmatory_present = confirmatory_verdict != "missing_confirmatory_evidence"
+    if not confirmatory_present:
+        return "no"
+    all_supported = (
+        canonical_v3_verdict == "supported"
+        and confirmatory_verdict == "supported"
+        and kalman_vs_mean_verdict == "supported"
+        and kalman_vs_weighted_mean_verdict == "supported"
+        and kalman_vs_router_only_top1_verdict == "supported"
+        and latency_gate_ok
+        and replication_status == "replicated_supported"
+    )
+    if all_supported:
+        return "yes"
+    if canonical_v3_status == "placeholder_pending_run":
+        return "not_yet"
+    return "no"
+
+
 def _build_summary() -> dict[str, Any]:
-    canonical = _load_json("results/canonical_benchmark_v2/summary.json")
+    canonical_v3 = _load_json(CANONICAL_V3_PATH)
+    canonical = _load_json(CLAIM_DECISION_PATH)
     uncertainty_ablation = _load_json("results/uncertainty_ablation/summary.json")
     replication = canonical.get("replication")
-    replication_sources = ["results/canonical_benchmark_v2/summary.json"]
+    replication_sources = [CLAIM_DECISION_PATH]
     if replication is None:
         latency_rerun = _load_json(
             "results/kalman_latency_optimization/canonical/summary.json"
@@ -87,40 +120,40 @@ def _build_summary() -> dict[str, Any]:
                 {"verdict": latency_rerun["decision"]["kalman_vs_mean"]["verdict"]}
             ]
         }
-        replication_sources.append(
-            "results/kalman_latency_optimization/canonical/summary.json"
-        )
+        replication_sources.append(CLAIM_DECISION_PATH)
+
+    canonical_v3_status = str(canonical_v3.get("status", "unknown"))
+    canonical_v3_verdict = str(
+        canonical_v3.get("decision", {})
+        .get("kalman_vs_mean", {})
+        .get("verdict", "not_available_placeholder_pending_run")
+    )
 
     canonical_decision = canonical["decision"]["kalman_vs_mean"]
     canonical_verdict = canonical_decision["verdict"]
     canonical_light = _traffic_light_from_verdict(canonical_verdict)
 
-    confirmatory = canonical.get("confirmatory_slice_results")
+    confirmatory = canonical_v3.get("confirmatory_slice_results")
     if confirmatory is None:
-        confirmatory_verdict = "not_run_in_committed_canonical_artifact"
-        confirmatory_light = "yellow"
-        confirmatory_source_path = "results/canonical_benchmark_v2/summary.json"
+        confirmatory_verdict = "missing_confirmatory_evidence"
+        confirmatory_light = "red"
+        confirmatory_source_path = CANONICAL_V3_PATH
         confirmatory_source_json_path = "$.confirmatory_slice_results"
     else:
         confirmatory_verdict = confirmatory.get("decision", {}).get(
             "verdict", "unresolved"
         )
         confirmatory_light = _traffic_light_from_verdict(confirmatory_verdict)
-        confirmatory_source_path = "results/canonical_benchmark_v2/summary.json"
+        confirmatory_source_path = CANONICAL_V3_PATH
         confirmatory_source_json_path = "$.confirmatory_slice_results.decision.verdict"
 
-    kalman_ndcg10 = canonical["methods"]["kalman"]["metrics"]["ndcg@10"]["mean"]
-    mean_ndcg10 = canonical["methods"]["mean"]["metrics"]["ndcg@10"]["mean"]
-    router_ndcg10 = canonical["methods"]["router_only_top1"]["metrics"]["ndcg@10"][
-        "mean"
+    kalman_vs_mean_verdict = canonical["decision"]["kalman_vs_mean"]["verdict"]
+    kalman_vs_weighted_mean_verdict = canonical["decision"]["kalman_vs_weighted_mean"][
+        "verdict"
     ]
-    delta_ndcg10 = canonical["paired_statistics"]["kalman_vs_mean"]["overall"][
-        "ndcg@10"
-    ]["mean_difference"]
-    pvalue_ndcg10 = canonical["paired_statistics"]["kalman_vs_mean"]["overall"][
-        "ndcg@10"
-    ]["adjusted_p_value"]
-    baseline_light = "yellow" if pvalue_ndcg10 > 0.05 else "green"
+    kalman_vs_router_only_top1_verdict = canonical["decision"][
+        "kalman_vs_router_only_top1"
+    ]["verdict"]
 
     uncertainty_answer = uncertainty_ablation["answer"]
     uncertainty_light = "yellow" if "limited" in uncertainty_answer.lower() else "green"
@@ -143,37 +176,93 @@ def _build_summary() -> dict[str, Any]:
         )
     )
 
-    overall = "yellow"
-    if (
-        canonical_light == "green"
-        and confirmatory_light == "green"
-        and latency_light == "green"
-    ):
-        overall = "green"
-    elif canonical_light == "red":
-        overall = "red"
+    claim_ready_support = _derive_claim_ready_support(
+        canonical_v3_status=canonical_v3_status,
+        canonical_v3_verdict=canonical_v3_verdict,
+        confirmatory_verdict=confirmatory_verdict,
+        kalman_vs_mean_verdict=kalman_vs_mean_verdict,
+        kalman_vs_weighted_mean_verdict=kalman_vs_weighted_mean_verdict,
+        kalman_vs_router_only_top1_verdict=kalman_vs_router_only_top1_verdict,
+        latency_gate_ok=latency_ok,
+        replication_status=replication_value,
+    )
+    claim_ready_light = (
+        "green"
+        if claim_ready_support == "yes"
+        else "red"
+        if claim_ready_support == "no"
+        else "yellow"
+    )
+
+    claim_reasons: list[str] = []
+    if canonical_v3_status != "completed":
+        claim_reasons.append(
+            f"canonical v3 benchmark status is `{canonical_v3_status}`."
+        )
+    if canonical_v3_verdict != "supported":
+        claim_reasons.append(f"canonical v3 verdict is `{canonical_v3_verdict}`.")
+    if confirmatory_verdict != "supported":
+        claim_reasons.append(f"confirmatory slice verdict is `{confirmatory_verdict}`.")
+    if kalman_vs_mean_verdict != "supported":
+        claim_reasons.append(f"kalman_vs_mean verdict is `{kalman_vs_mean_verdict}`.")
+    if kalman_vs_weighted_mean_verdict != "supported":
+        claim_reasons.append(
+            f"kalman_vs_weighted_mean verdict is `{kalman_vs_weighted_mean_verdict}`."
+        )
+    if kalman_vs_router_only_top1_verdict != "supported":
+        claim_reasons.append(
+            "kalman_vs_router_only_top1 verdict is "
+            f"`{kalman_vs_router_only_top1_verdict}`."
+        )
+    if not latency_ok:
+        claim_reasons.append(
+            "latency gate failed with "
+            f"ratio `{latency_ratio:.3f}` over threshold `{latency_threshold:.3f}`."
+        )
+    if replication_value != "replicated_supported":
+        claim_reasons.append(f"replication status is `{replication_value}`.")
+    if not claim_reasons:
+        claim_reasons.append("all required evidence gates are satisfied.")
 
     return {
-        "artifact": "kalman_evidence_dashboard.v2",
-        "generated_from": [
-            "results/canonical_benchmark_v2/summary.json",
-            "results/uncertainty_ablation/summary.json",
-            *replication_sources[1:],
-        ],
+        "artifact": "kalman_evidence_dashboard.v3",
+        "generated_from": list(
+            dict.fromkeys(
+                [
+                    CANONICAL_V3_PATH,
+                    CLAIM_DECISION_PATH,
+                    "results/uncertainty_ablation/summary.json",
+                    *replication_sources[1:],
+                ]
+            )
+        ),
         "traffic_light_legend": {
             "green": "supported",
             "yellow": "unresolved",
             "red": "unsupported in tested regime",
         },
-        "overall_hypothesis_status": {
-            "traffic_light": overall,
-            "reason": "Canonical verdict is inconclusive_underpowered with failed latency gate; confirmatory slice was not run in committed canonical artifacts.",
+        "claim_ready_support": {
+            "traffic_light": claim_ready_light,
+            "status": claim_ready_support,
+            "required_confirmatory_evidence_present": (
+                confirmatory_verdict != "missing_confirmatory_evidence"
+            ),
         },
-        "canonical_benchmark_verdict": {
-            "traffic_light": canonical_light,
+        "canonical_v3_benchmark_status": {
+            "traffic_light": (
+                "green" if canonical_v3_status == "completed" else "yellow"
+            ),
+            "status": SourcedValue(
+                value=canonical_v3_status,
+                source_path=CANONICAL_V3_PATH,
+                source_json_path="$.status",
+            ).as_dict(),
+        },
+        "canonical_v3_verdict": {
+            "traffic_light": _traffic_light_from_verdict(canonical_v3_verdict),
             "verdict": SourcedValue(
-                value=canonical_verdict,
-                source_path="results/canonical_benchmark_v2/summary.json",
+                value=canonical_v3_verdict,
+                source_path=CANONICAL_V3_PATH,
                 source_json_path="$.decision.kalman_vs_mean.verdict",
             ).as_dict(),
         },
@@ -185,32 +274,32 @@ def _build_summary() -> dict[str, Any]:
                 source_json_path=confirmatory_source_json_path,
             ).as_dict(),
         },
-        "baseline_comparisons": {
-            "traffic_light": baseline_light,
-            "kalman_ndcg10": SourcedValue(
-                value=kalman_ndcg10,
-                source_path="results/canonical_benchmark_v2/summary.json",
-                source_json_path="$.methods.kalman.metrics.ndcg@10.mean",
+        "kalman_vs_mean": {
+            "traffic_light": _traffic_light_from_verdict(kalman_vs_mean_verdict),
+            "verdict": SourcedValue(
+                value=kalman_vs_mean_verdict,
+                source_path=CLAIM_DECISION_PATH,
+                source_json_path="$.decision.kalman_vs_mean.verdict",
             ).as_dict(),
-            "mean_ndcg10": SourcedValue(
-                value=mean_ndcg10,
-                source_path="results/canonical_benchmark_v2/summary.json",
-                source_json_path="$.methods.mean.metrics.ndcg@10.mean",
+        },
+        "kalman_vs_weighted_mean": {
+            "traffic_light": _traffic_light_from_verdict(
+                kalman_vs_weighted_mean_verdict
+            ),
+            "verdict": SourcedValue(
+                value=kalman_vs_weighted_mean_verdict,
+                source_path=CLAIM_DECISION_PATH,
+                source_json_path="$.decision.kalman_vs_weighted_mean.verdict",
             ).as_dict(),
-            "router_top1_ndcg10": SourcedValue(
-                value=router_ndcg10,
-                source_path="results/canonical_benchmark_v2/summary.json",
-                source_json_path="$.methods.router_only_top1.metrics.ndcg@10.mean",
-            ).as_dict(),
-            "kalman_minus_mean_ndcg10": SourcedValue(
-                value=delta_ndcg10,
-                source_path="results/canonical_benchmark_v2/summary.json",
-                source_json_path="$.paired_statistics.kalman_vs_mean.overall.ndcg@10.mean_difference",
-            ).as_dict(),
-            "kalman_vs_mean_adjusted_p_value_ndcg10": SourcedValue(
-                value=pvalue_ndcg10,
-                source_path="results/canonical_benchmark_v2/summary.json",
-                source_json_path="$.paired_statistics.kalman_vs_mean.overall.ndcg@10.adjusted_p_value",
+        },
+        "kalman_vs_router_only_top1": {
+            "traffic_light": _traffic_light_from_verdict(
+                kalman_vs_router_only_top1_verdict
+            ),
+            "verdict": SourcedValue(
+                value=kalman_vs_router_only_top1_verdict,
+                source_path=CLAIM_DECISION_PATH,
+                source_json_path="$.decision.kalman_vs_router_only_top1.verdict",
             ).as_dict(),
         },
         "uncertainty_ablation_result": {
@@ -221,16 +310,16 @@ def _build_summary() -> dict[str, Any]:
                 source_json_path="$.answer",
             ).as_dict(),
         },
-        "latency_ratio": {
+        "latency_gate_status": {
             "traffic_light": latency_light,
             "ratio_vs_mean": SourcedValue(
                 value=latency_ratio,
-                source_path="results/canonical_benchmark_v2/summary.json",
+                source_path=CLAIM_DECISION_PATH,
                 source_json_path="$.decision.kalman_vs_mean.observed.latency_ratio_vs_mean",
             ).as_dict(),
             "max_allowed_ratio": SourcedValue(
                 value=latency_threshold,
-                source_path="results/canonical_benchmark_v2/summary.json",
+                source_path=CLAIM_DECISION_PATH,
                 source_json_path="$.decision.kalman_vs_mean.rules.max_latency_ratio_vs_mean",
             ).as_dict(),
         },
@@ -257,6 +346,11 @@ def _build_summary() -> dict[str, Any]:
                 for run in replication.get("per_run_verdicts", [])
             ],
         },
+        "why_claim_ready_or_not": {
+            "title": "Why the repo can / cannot currently claim Kalman beats mean",
+            "claim_ready_support": claim_ready_support,
+            "reasons": claim_reasons,
+        },
     }
 
 
@@ -269,7 +363,7 @@ def _build_markdown(summary: dict[str, Any]) -> str:
     lines = [
         "# Kalman-vs-Mean Evidence Dashboard",
         "",
-        f"**Overall status:** `{summary['overall_hypothesis_status']['traffic_light']}`",
+        ("**Claim-ready support:** " + f"`{summary['claim_ready_support']['status']}`"),
         "",
         "## Traffic-light legend",
         f"- `green` = {legend['green']}",
@@ -281,13 +375,23 @@ def _build_markdown(summary: dict[str, Any]) -> str:
         "| Field | Traffic light | Evidence (artifact-sourced) |",
         "|---|---|---|",
         row(
-            "Canonical benchmark verdict",
-            summary["canonical_benchmark_verdict"],
+            "Canonical v3 benchmark status",
+            summary["canonical_v3_benchmark_status"],
             (
                 "`"
-                + summary["canonical_benchmark_verdict"]["verdict"]["value"]
+                + summary["canonical_v3_benchmark_status"]["status"]["value"]
                 + "` from "
-                + f"`{summary['canonical_benchmark_verdict']['verdict']['source']['path']}`"
+                + f"`{summary['canonical_v3_benchmark_status']['status']['source']['path']}`"
+            ),
+        ),
+        row(
+            "Canonical v3 verdict",
+            summary["canonical_v3_verdict"],
+            (
+                "`"
+                + summary["canonical_v3_verdict"]["verdict"]["value"]
+                + "` from "
+                + f"`{summary['canonical_v3_verdict']['verdict']['source']['path']}`"
             ),
         ),
         row(
@@ -301,17 +405,33 @@ def _build_markdown(summary: dict[str, Any]) -> str:
             ),
         ),
         row(
-            "Baseline comparisons",
-            summary["baseline_comparisons"],
+            "Kalman vs mean",
+            summary["kalman_vs_mean"],
             (
-                "Kalman nDCG@10 "
-                + f"{summary['baseline_comparisons']['kalman_ndcg10']['value']:.4f}"
-                + ", Mean "
-                + f"{summary['baseline_comparisons']['mean_ndcg10']['value']:.4f}"
-                + ", Δ "
-                + f"{summary['baseline_comparisons']['kalman_minus_mean_ndcg10']['value']:.4f}"
-                + ", adjusted p="
-                + f"{summary['baseline_comparisons']['kalman_vs_mean_adjusted_p_value_ndcg10']['value']:.4f}"
+                "`"
+                + summary["kalman_vs_mean"]["verdict"]["value"]
+                + "` from "
+                + f"`{summary['kalman_vs_mean']['verdict']['source']['path']}`"
+            ),
+        ),
+        row(
+            "Kalman vs weighted mean",
+            summary["kalman_vs_weighted_mean"],
+            (
+                "`"
+                + summary["kalman_vs_weighted_mean"]["verdict"]["value"]
+                + "` from "
+                + f"`{summary['kalman_vs_weighted_mean']['verdict']['source']['path']}`"
+            ),
+        ),
+        row(
+            "Kalman vs router only top1",
+            summary["kalman_vs_router_only_top1"],
+            (
+                "`"
+                + summary["kalman_vs_router_only_top1"]["verdict"]["value"]
+                + "` from "
+                + f"`{summary['kalman_vs_router_only_top1']['verdict']['source']['path']}`"
             ),
         ),
         row(
@@ -320,13 +440,13 @@ def _build_markdown(summary: dict[str, Any]) -> str:
             summary["uncertainty_ablation_result"]["answer"]["value"],
         ),
         row(
-            "Latency ratio",
-            summary["latency_ratio"],
+            "Latency gate status",
+            summary["latency_gate_status"],
             (
                 "Kalman/Mean="
-                + f"{summary['latency_ratio']['ratio_vs_mean']['value']:.3f}"
+                + f"{summary['latency_gate_status']['ratio_vs_mean']['value']:.3f}"
                 + " vs threshold="
-                + f"{summary['latency_ratio']['max_allowed_ratio']['value']:.3f}"
+                + f"{summary['latency_gate_status']['max_allowed_ratio']['value']:.3f}"
             ),
         ),
         row(
@@ -343,8 +463,17 @@ def _build_markdown(summary: dict[str, Any]) -> str:
             ),
         ),
         "",
-        "## Source artifacts",
+        "## Why the repo can / cannot currently claim Kalman beats mean",
     ]
+    for reason in summary["why_claim_ready_or_not"]["reasons"]:
+        lines.append(f"- {reason}")
+
+    lines.extend(
+        [
+            "",
+            "## Source artifacts",
+        ]
+    )
 
     for path in summary["generated_from"]:
         lines.append(f"- `{path}`")
