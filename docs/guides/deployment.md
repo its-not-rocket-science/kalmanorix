@@ -522,4 +522,4 @@ Monthly cost estimate for AWS deployment (US‑east‑1):
 - [API Usage Examples](api-usage.md) – Python, JavaScript, and curl examples for both library and REST API
 - [Creating Specialists](creating-specialists.md) – Building production specialists
 - [Fusion Strategies](fusion-strategies.md) – Choosing fusion algorithms
-- [Milestone 3.3](../contributing/roadmap.md#milestone-33-integration-ecosystem) – Production‑ready API features
+- [Roadmap](../contributing/roadmap.md) – Production‑ready API features

@@ -78,8 +78,8 @@ If any box above is unchecked, the allowed language is:
 
 ## Required references (artifact directories)
 
-- Canonical claim track: [`results/canonical_benchmark_v3/`](../../results/canonical_benchmark_v3/)
-- Evidence dashboard: [`results/kalman_evidence_dashboard/`](../../results/kalman_evidence_dashboard/)
-- Latency optimization evidence: [`results/kalman_latency_optimization/`](../../results/kalman_latency_optimization/)
-- Prior canonical artifacts for provenance: [`results/canonical_benchmark/`](../../results/canonical_benchmark/), [`results/canonical_benchmark_v2/`](../../results/canonical_benchmark_v2/)
-- Exploratory-only synthetic narrowed regime (not claim-closing): [`results/correlation_aware_fusion/`](../../results/correlation_aware_fusion/)
+- Canonical claim track: `results/canonical_benchmark_v3/`
+- Evidence dashboard: `results/kalman_evidence_dashboard/`
+- Latency optimization evidence: `results/kalman_latency_optimization/`
+- Prior canonical artifacts for provenance: `results/canonical_benchmark/`, `results/canonical_benchmark_v2/`
+- Exploratory-only synthetic narrowed regime (not claim-closing): `results/correlation_aware_fusion/`
