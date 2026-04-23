@@ -47,7 +47,7 @@ def test_classify_replication_status_supported() -> None:
 def test_claim_ready_support_is_no_without_confirmatory_evidence() -> None:
     status = dashboard._derive_claim_ready_support(
         canonical_v3_status="placeholder_pending_run",
-        canonical_v3_verdict="not_available_placeholder_pending_run",
+        canonical_v3_verdict="not_available",
         confirmatory_verdict="missing_confirmatory_evidence",
         kalman_vs_mean_verdict="supported",
         kalman_vs_weighted_mean_verdict="supported",
@@ -60,7 +60,7 @@ def test_claim_ready_support_is_no_without_confirmatory_evidence() -> None:
 
 def test_claim_ready_support_is_yes_only_when_all_gates_are_supported() -> None:
     status = dashboard._derive_claim_ready_support(
-        canonical_v3_status="completed",
+        canonical_v3_status="claim_ready",
         canonical_v3_verdict="supported",
         confirmatory_verdict="supported",
         kalman_vs_mean_verdict="supported",

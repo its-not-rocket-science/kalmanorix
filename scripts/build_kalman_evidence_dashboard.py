@@ -9,7 +9,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "results" / "kalman_evidence_dashboard"
 CANONICAL_V3_PATH = "results/canonical_benchmark_v3/summary.json"
-CLAIM_DECISION_PATH = "results/kalman_latency_optimization/canonical/summary.json"
+UNCERTAINTY_ABLATION_PATH = "results/uncertainty_ablation/summary.json"
 
 
 @dataclass(frozen=True)
@@ -34,7 +34,7 @@ def _load_json(relative_path: str) -> dict[str, Any]:
 
 
 def _traffic_light_from_verdict(verdict: str) -> str:
-    if verdict in {"supported", "pass"}:
+    if verdict in {"supported", "pass", "allowed"}:
         return "green"
     if verdict in {
         "unsupported",
@@ -42,6 +42,7 @@ def _traffic_light_from_verdict(verdict: str) -> str:
         "regression",
         "failed",
         "not_ready_for_default_rollout",
+        "blocked",
     }:
         return "red"
     return "yellow"
@@ -90,7 +91,8 @@ def _derive_claim_ready_support(
     if not confirmatory_present:
         return "no"
     all_supported = (
-        canonical_v3_verdict == "supported"
+        canonical_v3_status == "claim_ready"
+        and canonical_v3_verdict == "supported"
         and confirmatory_verdict == "supported"
         and kalman_vs_mean_verdict == "supported"
         and kalman_vs_weighted_mean_verdict == "supported"
@@ -100,40 +102,31 @@ def _derive_claim_ready_support(
     )
     if all_supported:
         return "yes"
-    if canonical_v3_status == "placeholder_pending_run":
+    if canonical_v3_status in {"unknown", "placeholder_pending_run"}:
         return "not_yet"
     return "no"
 
 
 def _build_summary() -> dict[str, Any]:
-    canonical_v3 = _load_json(CANONICAL_V3_PATH)
-    canonical = _load_json(CLAIM_DECISION_PATH)
-    uncertainty_ablation = _load_json("results/uncertainty_ablation/summary.json")
-    replication = canonical.get("replication")
-    replication_sources = [CLAIM_DECISION_PATH]
-    if replication is None:
-        latency_rerun = _load_json(
-            "results/kalman_latency_optimization/canonical/summary.json"
-        )
-        replication = {
-            "per_run_verdicts": [
-                {"verdict": latency_rerun["decision"]["kalman_vs_mean"]["verdict"]}
-            ]
-        }
-        replication_sources.append(CLAIM_DECISION_PATH)
+    canonical = _load_json(CANONICAL_V3_PATH)
+    uncertainty_ablation = _load_json(UNCERTAINTY_ABLATION_PATH)
 
-    canonical_v3_status = str(canonical_v3.get("status", "unknown"))
+    replication = canonical.get("replication")
+    replication_sources = [CANONICAL_V3_PATH]
+
+    canonical_v3_status = str(
+        canonical.get("benchmark_status", {}).get("status", "unknown")
+    )
     canonical_v3_verdict = str(
-        canonical_v3.get("decision", {})
+        canonical.get("decision", {})
         .get("kalman_vs_mean", {})
-        .get("verdict", "not_available_placeholder_pending_run")
+        .get("verdict", "not_available")
     )
 
     canonical_decision = canonical["decision"]["kalman_vs_mean"]
     canonical_verdict = canonical_decision["verdict"]
-    canonical_light = _traffic_light_from_verdict(canonical_verdict)
 
-    confirmatory = canonical_v3.get("confirmatory_slice_results")
+    confirmatory = canonical.get("confirmatory_slice_results")
     if confirmatory is None:
         confirmatory_verdict = "missing_confirmatory_evidence"
         confirmatory_light = "red"
@@ -195,9 +188,9 @@ def _build_summary() -> dict[str, Any]:
     )
 
     claim_reasons: list[str] = []
-    if canonical_v3_status != "completed":
+    if canonical_v3_status != "claim_ready":
         claim_reasons.append(
-            f"canonical v3 benchmark status is `{canonical_v3_status}`."
+            f"canonical v3 benchmark status is `{canonical_v3_status}` (must be `claim_ready`)."
         )
     if canonical_v3_verdict != "supported":
         claim_reasons.append(f"canonical v3 verdict is `{canonical_v3_verdict}`.")
@@ -230,8 +223,7 @@ def _build_summary() -> dict[str, Any]:
             dict.fromkeys(
                 [
                     CANONICAL_V3_PATH,
-                    CLAIM_DECISION_PATH,
-                    "results/uncertainty_ablation/summary.json",
+                    UNCERTAINTY_ABLATION_PATH,
                     *replication_sources[1:],
                 ]
             )
@@ -240,6 +232,10 @@ def _build_summary() -> dict[str, Any]:
             "green": "supported",
             "yellow": "unresolved",
             "red": "unsupported in tested regime",
+        },
+        "headline_answer": {
+            "question": "Can this repository honestly claim 'Kalman fusion beats mean fusion' right now?",
+            "answer": "YES" if claim_ready_support == "yes" else "NO",
         },
         "claim_ready_support": {
             "traffic_light": claim_ready_light,
@@ -250,12 +246,12 @@ def _build_summary() -> dict[str, Any]:
         },
         "canonical_v3_benchmark_status": {
             "traffic_light": (
-                "green" if canonical_v3_status == "completed" else "yellow"
+                "green" if canonical_v3_status == "claim_ready" else "yellow"
             ),
             "status": SourcedValue(
                 value=canonical_v3_status,
                 source_path=CANONICAL_V3_PATH,
-                source_json_path="$.status",
+                source_json_path="$.benchmark_status.status",
             ).as_dict(),
         },
         "canonical_v3_verdict": {
@@ -278,7 +274,7 @@ def _build_summary() -> dict[str, Any]:
             "traffic_light": _traffic_light_from_verdict(kalman_vs_mean_verdict),
             "verdict": SourcedValue(
                 value=kalman_vs_mean_verdict,
-                source_path=CLAIM_DECISION_PATH,
+                source_path=CANONICAL_V3_PATH,
                 source_json_path="$.decision.kalman_vs_mean.verdict",
             ).as_dict(),
         },
@@ -288,7 +284,7 @@ def _build_summary() -> dict[str, Any]:
             ),
             "verdict": SourcedValue(
                 value=kalman_vs_weighted_mean_verdict,
-                source_path=CLAIM_DECISION_PATH,
+                source_path=CANONICAL_V3_PATH,
                 source_json_path="$.decision.kalman_vs_weighted_mean.verdict",
             ).as_dict(),
         },
@@ -298,7 +294,7 @@ def _build_summary() -> dict[str, Any]:
             ),
             "verdict": SourcedValue(
                 value=kalman_vs_router_only_top1_verdict,
-                source_path=CLAIM_DECISION_PATH,
+                source_path=CANONICAL_V3_PATH,
                 source_json_path="$.decision.kalman_vs_router_only_top1.verdict",
             ).as_dict(),
         },
@@ -306,7 +302,7 @@ def _build_summary() -> dict[str, Any]:
             "traffic_light": uncertainty_light,
             "answer": SourcedValue(
                 value=uncertainty_answer,
-                source_path="results/uncertainty_ablation/summary.json",
+                source_path=UNCERTAINTY_ABLATION_PATH,
                 source_json_path="$.answer",
             ).as_dict(),
         },
@@ -314,12 +310,12 @@ def _build_summary() -> dict[str, Any]:
             "traffic_light": latency_light,
             "ratio_vs_mean": SourcedValue(
                 value=latency_ratio,
-                source_path=CLAIM_DECISION_PATH,
+                source_path=CANONICAL_V3_PATH,
                 source_json_path="$.decision.kalman_vs_mean.observed.latency_ratio_vs_mean",
             ).as_dict(),
             "max_allowed_ratio": SourcedValue(
                 value=latency_threshold,
-                source_path=CLAIM_DECISION_PATH,
+                source_path=CANONICAL_V3_PATH,
                 source_json_path="$.decision.kalman_vs_mean.rules.max_latency_ratio_vs_mean",
             ).as_dict(),
         },
@@ -330,12 +326,7 @@ def _build_summary() -> dict[str, Any]:
                 "sources": [
                     {
                         "path": source_path,
-                        "json_path": (
-                            "$.replication.per_run_verdicts[*].verdict"
-                            if source_path
-                            == "results/canonical_benchmark_v2/summary.json"
-                            else "$.decision.kalman_vs_mean.verdict"
-                        ),
+                        "json_path": "$.replication.per_run_verdicts[*].verdict",
                     }
                     for source_path in replication_sources
                 ],
@@ -343,7 +334,7 @@ def _build_summary() -> dict[str, Any]:
             "canonical_verdict": canonical_verdict,
             "replication_run_verdicts": [
                 str(run.get("verdict", "unknown"))
-                for run in replication.get("per_run_verdicts", [])
+                for run in (replication or {}).get("per_run_verdicts", [])
             ],
         },
         "why_claim_ready_or_not": {
@@ -362,6 +353,9 @@ def _build_markdown(summary: dict[str, Any]) -> str:
 
     lines = [
         "# Kalman-vs-Mean Evidence Dashboard",
+        "",
+        f"**{summary['headline_answer']['question']}**",
+        f"**Answer:** `{summary['headline_answer']['answer']}`",
         "",
         ("**Claim-ready support:** " + f"`{summary['claim_ready_support']['status']}`"),
         "",

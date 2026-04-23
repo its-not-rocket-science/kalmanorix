@@ -57,7 +57,10 @@ def main() -> None:
         seed=int(cfg["seed"]),
         num_resamples=int(cfg["num_resamples"]),
         confirmatory_slice=str(
-            cfg.get("confirmatory_slice", "high_disagreement_and_low_router_confidence")
+            cfg.get(
+                "confirmatory_slice",
+                "preregistered_high_disagreement_high_uncertainty_multi_domain_low_router_confidence",
+            )
         ),
     )
 

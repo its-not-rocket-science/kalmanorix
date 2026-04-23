@@ -72,7 +72,7 @@ BUCKET_SIGNIFICANCE_MIN_PAIRS = 20
 CALIBRATION_MIN_VALIDATION_QUERIES = 100
 PAIRED_TEST_MIN_TEST_QUERIES = 50
 PER_DOMAIN_MIN_QUERIES = 20
-CONFIRMATORY_SLICE_MIN_PAIRS = PAIRED_TEST_MIN_TEST_QUERIES
+CONFIRMATORY_SLICE_MIN_PAIRS = 20
 TOY_TEST_QUERY_THRESHOLD = max(10, PAIRED_TEST_MIN_TEST_QUERIES // 2)
 TOY_PER_DOMAIN_THRESHOLD = max(5, PER_DOMAIN_MIN_QUERIES // 2)
 TOY_VALIDATION_THRESHOLD = max(20, CALIBRATION_MIN_VALIDATION_QUERIES // 2)
@@ -80,12 +80,12 @@ CLAIM_READY_TEST_QUERY_THRESHOLD = PAIRED_TEST_MIN_TEST_QUERIES * 2
 CLAIM_READY_PER_DOMAIN_THRESHOLD = PER_DOMAIN_MIN_QUERIES * 2
 CLAIM_READY_VALIDATION_THRESHOLD = CALIBRATION_MIN_VALIDATION_QUERIES * 2
 CLAIM_READY_DETECTABLE_EFFECT_RATIO = 0.75
-CONFIRMATORY_SLICE_NAME = "high_disagreement_and_low_router_confidence"
+CONFIRMATORY_SLICE_NAME = "preregistered_high_disagreement_high_uncertainty_multi_domain_low_router_confidence"
 CONFIRMATORY_SLICE_CHOICES = (CONFIRMATORY_SLICE_NAME,)
 CONFIRMATORY_SLICE_REASON = (
-    "Pre-declared confirmatory slice isolates routing-ambiguous queries where "
-    "specialists disagree and router confidence is low; this is the regime where "
-    "Kalman reliability-weighting is most theoretically justified."
+    "Pre-declared confirmatory slice exactly follows the preregistered contract: "
+    "high specialist disagreement, high uncertainty spread, low router confidence, "
+    "and multi-domain queries only."
 )
 CONFIRMATORY_REQUIRED_BASELINE_COMPARISONS = (
     "kalman_vs_mean",
@@ -305,8 +305,14 @@ def _resolve_confirmatory_slice_ids(
 ) -> list[str]:
     if slice_name == CONFIRMATORY_SLICE_NAME:
         high_disagreement = set(bucket_to_qids.get("high_specialist_disagreement", []))
+        high_uncertainty = set(bucket_to_qids.get("high_uncertainty_spread", []))
         router_low = set(bucket_to_qids.get("router_low_confidence", []))
-        return sorted(high_disagreement.intersection(router_low))
+        true_multi_domain = set(bucket_to_qids.get("true_multi_domain_queries", []))
+        return sorted(
+            high_disagreement.intersection(high_uncertainty)
+            .intersection(router_low)
+            .intersection(true_multi_domain)
+        )
     raise ValueError(
         "Unknown confirmatory slice name: "
         f"{slice_name}. Expected one of {list(CONFIRMATORY_SLICE_CHOICES)}."
@@ -422,12 +428,54 @@ def _build_confirmatory_slice_results(
             ci95_low = float(ndcg10_entry["ci95_low"])
             ci95_high = float(ndcg10_entry["ci95_high"])
             adjusted_p_value = float(ndcg10_entry["adjusted_p_value"])
+            kalman_latency_mean = float(
+                np.mean(
+                    [
+                        methods["kalman"]["query_level"]["latency_ms"][idx]
+                        for idx in idxs
+                    ]
+                )
+            )
+            baseline_latency_mean = float(
+                np.mean(
+                    [
+                        methods[baseline_method]["query_level"]["latency_ms"][idx]
+                        for idx in idxs
+                    ]
+                )
+            )
+            latency_ratio = (
+                float(kalman_latency_mean / baseline_latency_mean)
+                if baseline_latency_mean > 0.0
+                else float("inf")
+            )
+            delta_values = np.asarray(
+                [
+                    methods["kalman"]["query_level"]["ndcg@10"][idx]
+                    - methods[baseline_method]["query_level"]["ndcg@10"][idx]
+                    for idx in idxs
+                ],
+                dtype=float,
+            )
+            std_delta = float(np.std(delta_values, ddof=1)) if n_pairs > 1 else 0.0
+            detectable_threshold = (
+                float((1.96 + 0.84) * (std_delta / np.sqrt(n_pairs)))
+                if n_pairs > 1
+                else float("inf")
+            )
+            power_adequate = bool(
+                n_pairs >= CONFIRMATORY_SLICE_MIN_PAIRS
+                and detectable_threshold <= practical_effect_size_floor
+            )
             checks = {
                 "positive_delta": mean_difference > 0.0,
                 "adjusted_p_value_ok": adjusted_p_value <= adjusted_p_value_threshold,
                 "ci_excludes_zero": ci95_low > 0.0 and ci95_high > 0.0,
                 "practical_effect_size_ok": mean_difference
                 >= practical_effect_size_floor,
+                "latency_ratio_ok": latency_ratio
+                <= float(CANONICAL_DECISION_RULES["max_latency_ratio_vs_mean"]),
+                "power_adequate": power_adequate,
             }
             verdicts[comparison_key] = {
                 "status": "supported" if all(checks.values()) else "not_supported",
@@ -436,12 +484,19 @@ def _build_confirmatory_slice_results(
                 "requires_adjusted_p_value_lte": adjusted_p_value_threshold,
                 "requires_ci_excluding_zero": True,
                 "requires_practical_effect_size_gte": practical_effect_size_floor,
+                "requires_latency_ratio_lte": float(
+                    CANONICAL_DECISION_RULES["max_latency_ratio_vs_mean"]
+                ),
+                "requires_power_adequacy": True,
                 "checks": checks,
                 "observed": {
                     "mean_difference": mean_difference,
                     "ci95_low": ci95_low,
                     "ci95_high": ci95_high,
                     "adjusted_p_value": adjusted_p_value,
+                    "latency_ratio": latency_ratio,
+                    "detectable_effect_threshold_estimate": detectable_threshold,
+                    "n_pairs": n_pairs,
                 },
             }
     else:
@@ -465,13 +520,20 @@ def _build_confirmatory_slice_results(
     slice_definition = {
         "name": CONFIRMATORY_SLICE_NAME,
         "description": (
-            "specialist_disagreement >= median AND router_confidence <= 33rd percentile"
+            "specialist_disagreement >= median AND uncertainty_spread >= median AND "
+            "router_confidence <= 33rd percentile AND is_multi_domain == True"
         ),
         "reason": CONFIRMATORY_SLICE_REASON,
-        "fields": ["specialist_disagreement", "router_confidence"],
+        "fields": [
+            "specialist_disagreement",
+            "uncertainty_spread",
+            "router_confidence",
+            "is_multi_domain",
+        ],
         "thresholds": {
-            "specialist_disagreement_median": "computed on evaluated test queries",
-            "router_confidence_low": "33rd percentile on evaluated test queries",
+            "D50_specialist_disagreement_median": "computed on evaluated test queries",
+            "U50_uncertainty_spread_median": "computed on evaluated test queries",
+            "C33_router_confidence_low": "33rd percentile on evaluated test queries",
         },
     }
 
@@ -1287,6 +1349,18 @@ def _render_report(summary: dict[str, Any]) -> str:
             "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
         ]
     )
+    claim_decision = summary.get("claim_success_decision")
+    if claim_decision is not None:
+        lines.extend(
+            [
+                "",
+                "## Hard claim gate",
+                "",
+                f"- Question: **{claim_decision['question']}**",
+                f"- Hard rule: {claim_decision['hard_rule']}",
+                f"- Decision: **`{claim_decision['status']}`**",
+            ]
+        )
     replication = summary.get("replication")
     if replication is not None:
         lines.extend(
@@ -1962,6 +2036,38 @@ def run_canonical_benchmark(
         seed=seed + 20_000,
         num_resamples=num_resamples,
     )
+    confirmatory_slice_membership = []
+    selected_qid_set = set(selected_qids)
+    high_disagreement_set = set(bucket_to_qids.get("high_specialist_disagreement", []))
+    high_uncertainty_set = set(bucket_to_qids.get("high_uncertainty_spread", []))
+    low_confidence_set = set(bucket_to_qids.get("router_low_confidence", []))
+    for qid in ordered_qids:
+        meta = query_metadata.get(qid, {})
+        reasons: list[str] = []
+        if qid not in high_disagreement_set:
+            reasons.append("specialist_disagreement_below_D50")
+        if qid not in high_uncertainty_set:
+            reasons.append("uncertainty_spread_below_U50")
+        if qid not in low_confidence_set:
+            reasons.append("router_confidence_above_C33")
+        if not bool(meta.get("is_multi_domain", False)):
+            reasons.append("is_multi_domain_false")
+        confirmatory_slice_membership.append(
+            {
+                "query_id": qid,
+                "included": qid in selected_qid_set,
+                "reason": "included" if qid in selected_qid_set else ",".join(reasons),
+            }
+        )
+    confirmatory_slice_thresholds = {
+        "D50_specialist_disagreement_median": float(
+            bucket_thresholds["specialist_disagreement_median"]
+        ),
+        "U50_uncertainty_spread_median": float(
+            bucket_thresholds["uncertainty_spread_median"]
+        ),
+        "C33_router_confidence_low": float(bucket_thresholds["router_confidence_low"]),
+    }
     hostile_qids = _resolve_hostile_slice_ids(bucket_to_qids=bucket_to_qids)
     hostile_slice_results = _build_hostile_slice_results(
         methods=methods,
@@ -2005,6 +2111,10 @@ def run_canonical_benchmark(
         "bucket_analysis": bucket_analysis,
         "confirmatory_slice_results": confirmatory_slice_results,
         "hostile_slice_results": hostile_slice_results,
+        "confirmatory_slice_artifacts": {
+            "thresholds": confirmatory_slice_thresholds,
+            "membership": confirmatory_slice_membership,
+        },
     }
     summary["decision"] = {
         "kalman_vs_mean": _classify_kalman_vs_baseline(summary, baseline_key="mean"),
@@ -2019,6 +2129,32 @@ def run_canonical_benchmark(
         ),
     }
     summary["benchmark_status"] = _classify_benchmark_status(summary)
+    required_decisions = (
+        "kalman_vs_mean",
+        "kalman_vs_weighted_mean",
+        "kalman_vs_router_only_top1",
+    )
+    required_decision_supported = all(
+        summary["decision"][key]["verdict"] == "supported" for key in required_decisions
+    )
+    summary["claim_success_decision"] = {
+        "question": "May we honestly claim 'Kalman fusion beats mean fusion'?",
+        "hard_rule": (
+            "Allowed only if benchmark_status == claim_ready, confirmatory slice verdict == supported, "
+            "and all required baseline decisions (mean, weighted_mean, router_only_top1) are supported."
+        ),
+        "required_decisions": list(required_decisions),
+        "status": (
+            "allowed"
+            if (
+                summary["benchmark_status"]["status"] == "claim_ready"
+                and summary["confirmatory_slice_results"]["decision"]["verdict"]
+                == "supported"
+                and required_decision_supported
+            )
+            else "blocked"
+        ),
+    }
     _validate_summary_contract(summary)
     report_text = _render_report(summary)
     _validate_report_contract(report_text)
@@ -2079,8 +2215,8 @@ def main() -> None:
     parser.add_argument(
         "--max-queries",
         type=int,
-        default=1200,
-        help="Maximum evaluated queries (canonical v3 default: 1200).",
+        default=1800,
+        help="Maximum evaluated queries (canonical v3 default: 1800).",
     )
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=42)

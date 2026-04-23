@@ -103,7 +103,7 @@ PYTHONPATH=src python scripts/build_mixed_benchmark.py \
 PYTHONPATH=src python experiments/run_canonical_benchmark.py \
   --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet \
   --split test \
-  --max-queries 1200 \
+  --max-queries 1800 \
   --output-dir results/canonical_benchmark_v3
 ```
 

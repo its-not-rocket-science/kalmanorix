@@ -7,6 +7,6 @@
   "device": "cpu",
   "seed": 42,
   "num_resamples": 5000,
-  "confirmatory_slice": "high_disagreement_and_low_router_confidence",
+  "confirmatory_slice": "preregistered_high_disagreement_high_uncertainty_multi_domain_low_router_confidence",
   "output_dir": "results/kalman_hostile_benchmark_v1"
 }
