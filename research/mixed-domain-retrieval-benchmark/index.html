@@ -2655,7 +2655,10 @@
 <h1 id="mixed-domain-retrieval-benchmark-real-data-reproducible">Mixed-Domain Retrieval Benchmark (Real-Data, Reproducible)<a class="headerlink" href="#mixed-domain-retrieval-benchmark-real-data-reproducible" title="Permanent link">&para;</a></h1>
 <p>This benchmark is designed for <strong>Kalmanorix retrieval/fusion evaluation</strong> with real corpora and query→relevance labels.</p>
 <h2 id="1-exact-datasets-to-use-links-licenses">1) Exact datasets to use (links + licenses)<a class="headerlink" href="#1-exact-datasets-to-use-links-licenses" title="Permanent link">&para;</a></h2>
-<p>Use three BEIR tasks that are already structured as <code>(corpus, queries, qrels)</code> and represent distinct domains:</p>
+<p>Use three BEIR tasks with retrieval triplets <code>(corpus, queries, qrels)</code> and distinct domains.
+Implementation note: benchmark configs must treat these components as independently sourced
+(dataset/config/split), because some BEIR Hugging Face datasets do not expose <code>qrels</code> as a
+builder config on the same dataset entry as <code>corpus</code>/<code>queries</code>.</p>
 <table>
 <thead>
 <tr>
