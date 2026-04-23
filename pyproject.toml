@@ -57,6 +57,8 @@ onnx = [
 markers = [
     "benchmark: performance benchmarks (excluded from regular CI)",
     "e2e: end-to-end tests",
+    "integration: tests that require network-backed external datasets",
+    "stress: long-running stress tests",
 ]
 
 [tool.setuptools]

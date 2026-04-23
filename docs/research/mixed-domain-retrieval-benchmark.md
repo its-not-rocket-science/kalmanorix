@@ -4,7 +4,10 @@ This benchmark is designed for **Kalmanorix retrieval/fusion evaluation** with r
 
 ## 1) Exact datasets to use (links + licenses)
 
-Use three BEIR tasks that are already structured as `(corpus, queries, qrels)` and represent distinct domains:
+Use three BEIR tasks with retrieval triplets `(corpus, queries, qrels)` and distinct domains.
+Implementation note: benchmark configs must treat these components as independently sourced
+(dataset/config/split), because some BEIR Hugging Face datasets do not expose `qrels` as a
+builder config on the same dataset entry as `corpus`/`queries`.
 
 | Domain | Dataset | Why it fits | Link | License |
 |---|---|---|---|---|

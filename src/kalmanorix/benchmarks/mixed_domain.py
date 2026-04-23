@@ -19,6 +19,11 @@ DEFAULT_OUTPUT_DIR = Path("benchmarks") / BENCHMARK_VERSION
 DATASET_SPECS = (
     {
         "hf_name": "BeIR/nq",
+        # BEIR qrels are not always exposed as a `qrels` builder config.
+        # Keep explicit component fields available so corpus / queries / qrels
+        # can be loaded independently when needed.
+        "qrels_config": None,
+        "qrels_split": "test",
         "key": "nq",
         "source_dataset": "beir_nq",
         "domain": "general_qa",
@@ -111,34 +116,92 @@ def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _load_split(dataset_name: str, config: str, split_name: str):
+def _load_split(dataset_name: str, config: str | None, split_name: str):
     from datasets import load_dataset
 
+    if config is None:
+        return load_dataset(dataset_name, split=split_name)
     return load_dataset(dataset_name, config, split=split_name)
 
 
-def _load_beir_triplet(dataset_name: str) -> tuple[Any, Any, Any]:
-    candidates = {
-        "corpus": ["corpus"],
-        "queries": ["queries"],
-        "qrels": ["qrels", "default"],
-    }
+def _load_beir_component(
+    *,
+    component: str,
+    dataset_name: str,
+    split_name: str,
+    configs: list[str | None],
+) -> Any:
+    if not configs:
+        raise ValueError(f"No config candidates were provided for {component}")
 
-    corpus = None
-    queries = None
-    qrels = None
-    last_error = None
-
-    for qrels_config in candidates["qrels"]:
+    errors: list[tuple[str | None, Exception]] = []
+    for config in configs:
         try:
-            corpus = _load_split(dataset_name, "corpus", "corpus")
-            queries = _load_split(dataset_name, "queries", "queries")
-            qrels = _load_split(dataset_name, qrels_config, "test")
-            return corpus, queries, qrels
+            return _load_split(dataset_name, config, split_name)
         except Exception as exc:  # pragma: no cover - network/data source variation
-            last_error = exc
+            errors.append((config, exc))
 
-    raise RuntimeError(f"Unable to load BEIR triplet for {dataset_name}: {last_error}")
+    attempted = ", ".join(f"config={cfg!r}, split={split_name!r}" for cfg, _ in errors)
+    last_config, last_error = errors[-1]
+    raise RuntimeError(
+        f"Failed loading {component} for dataset={dataset_name!r}. "
+        f"Attempted {attempted}. Last failure for config={last_config!r}: {last_error}"
+    ) from last_error
+
+
+def _load_beir_triplet(spec_or_dataset: dict[str, Any] | str) -> tuple[Any, Any, Any]:
+    if isinstance(spec_or_dataset, str):
+        spec: dict[str, Any] = {"hf_name": spec_or_dataset}
+    else:
+        spec = spec_or_dataset
+
+    def _component_settings(
+        component: str, *, default_config: str | None, default_split: str
+    ) -> tuple[str, str, list[str | None]]:
+        dataset_name = str(spec.get(f"{component}_hf_name") or spec["hf_name"])
+        split_name = str(spec.get(f"{component}_split") or default_split)
+
+        explicit_config_key = f"{component}_config"
+        if explicit_config_key in spec:
+            configs = [spec[explicit_config_key]]
+        elif component == "qrels":
+            raw_candidates = spec.get("qrels_config_candidates", ["qrels", "default"])
+            configs = list(raw_candidates)
+        else:
+            configs = [default_config]
+
+        return dataset_name, split_name, configs
+
+    corpus_dataset, corpus_split, corpus_configs = _component_settings(
+        "corpus", default_config="corpus", default_split="corpus"
+    )
+    queries_dataset, queries_split, queries_configs = _component_settings(
+        "queries", default_config="queries", default_split="queries"
+    )
+    qrels_dataset, qrels_split, qrels_configs = _component_settings(
+        "qrels", default_config="qrels", default_split="test"
+    )
+
+    corpus = _load_beir_component(
+        component="corpus",
+        dataset_name=corpus_dataset,
+        split_name=corpus_split,
+        configs=corpus_configs,
+    )
+    queries = _load_beir_component(
+        component="queries",
+        dataset_name=queries_dataset,
+        split_name=queries_split,
+        configs=queries_configs,
+    )
+    qrels = _load_beir_component(
+        component="qrels",
+        dataset_name=qrels_dataset,
+        split_name=qrels_split,
+        configs=qrels_configs,
+    )
+
+    return corpus, queries, qrels
 
 
 def _build_domain_tables(
@@ -150,7 +213,7 @@ def _build_domain_tables(
     dict[str, str],
     dict[str, int],
 ]:
-    corpus_ds, queries_ds, qrels_ds = _load_beir_triplet(spec["hf_name"])
+    corpus_ds, queries_ds, qrels_ds = _load_beir_triplet(spec)
 
     doc_map: dict[str, dict[str, Any]] = {}
     duplicate_of: dict[str, str] = {}
