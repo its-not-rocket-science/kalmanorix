@@ -22,7 +22,7 @@ DATASET_SPECS = (
         # BEIR qrels are not always exposed as a `qrels` builder config.
         # Keep explicit component fields available so corpus / queries / qrels
         # can be loaded independently when needed.
-        "qrels_config": None,
+        "qrels_config_candidates": ["qrels", "default"],
         "qrels_split": "test",
         "key": "nq",
         "source_dataset": "beir_nq",
@@ -141,12 +141,15 @@ def _load_beir_component(
         except Exception as exc:  # pragma: no cover - network/data source variation
             errors.append((config, exc))
 
-    attempted = ", ".join(f"config={cfg!r}, split={split_name!r}" for cfg, _ in errors)
-    last_config, last_error = errors[-1]
+    attempted_configs = [cfg for cfg, _ in errors]
+    attempted = ", ".join(repr(cfg) for cfg in attempted_configs)
+    failure_details = "; ".join(
+        f"{cfg!r}: {type(exc).__name__}: {exc}" for cfg, exc in errors
+    )
     raise RuntimeError(
-        f"Failed loading {component} for dataset={dataset_name!r}. "
-        f"Attempted {attempted}. Last failure for config={last_config!r}: {last_error}"
-    ) from last_error
+        f"Failed loading {component} for dataset={dataset_name!r}, split={split_name!r}. "
+        f"Attempted configs: [{attempted}]. Failures: {failure_details}"
+    ) from errors[-1][1]
 
 
 def _load_beir_triplet(spec_or_dataset: dict[str, Any] | str) -> tuple[Any, Any, Any]:
@@ -162,7 +165,8 @@ def _load_beir_triplet(spec_or_dataset: dict[str, Any] | str) -> tuple[Any, Any,
         split_name = str(spec.get(f"{component}_split") or default_split)
 
         explicit_config_key = f"{component}_config"
-        if explicit_config_key in spec:
+        explicit_config = spec.get(explicit_config_key)
+        if explicit_config is not None:
             configs = [spec[explicit_config_key]]
         elif component == "qrels":
             raw_candidates = spec.get("qrels_config_candidates", ["qrels", "default"])
