@@ -194,6 +194,7 @@ def test_canonical_benchmark_writes_artifacts(
     }
     assert "kalman_vs_mean" in on_disk["decision"]
     assert on_disk["benchmark_status"]["status"] == "toy"
+    assert on_disk["claim_success_decision"]["status"] == "blocked"
     assert summary["comparisons"]["LearnedGateFuser"]["included"] is False
     assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
 
@@ -605,6 +606,7 @@ def test_canonical_benchmark_writes_confirmatory_slice_section(
     summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
     confirmatory = summary["confirmatory_slice_results"]
     assert confirmatory["slice_name"] == canonical.CONFIRMATORY_SLICE_NAME
+    assert "uncertainty_spread" in confirmatory["slice_definition"]["description"]
     assert confirmatory["warning_count"] == 1
     assert confirmatory["paired_statistics"] is None
     assert (
@@ -619,6 +621,12 @@ def test_canonical_benchmark_writes_confirmatory_slice_section(
     assert (
         "## Bucketed Analysis (Exploratory unless significance criteria are met)"
         in report_text
+    )
+    assert "## Hard claim gate" in report_text
+    assert summary["confirmatory_slice_artifacts"]["membership"]
+    assert (
+        "D50_specialist_disagreement_median"
+        in summary["confirmatory_slice_artifacts"]["thresholds"]
     )
 
 

@@ -118,7 +118,7 @@ def test_cli_canonical_benchmark_v3_defaults(
     assert captured["benchmark_path"] == Path(
         "benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet"
     )
-    assert captured["max_queries"] == 1200
+    assert captured["max_queries"] == 1800
 
 
 @pytest.mark.e2e

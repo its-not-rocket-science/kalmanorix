@@ -16,6 +16,7 @@ If any required artifact is missing or any gate fails, that sentence is not allo
 - [ ] `results/canonical_benchmark_v3/runner_details.json` exists.
 - [ ] Canonical `benchmark_status` is `claim_ready`.
 - [ ] Canonical Kalman-vs-Mean verdict is not `inconclusive_*`.
+- [ ] Canonical `claim_success_decision.status` is `allowed`.
 
 ### 2) Confirmatory slice (pre-registered)
 
@@ -54,6 +55,7 @@ If any required artifact is missing or any gate fails, that sentence is not allo
 - [ ] Every box in sections 1-5 is checked.
 - [ ] No box is satisfied by exploratory or synthetic-only evidence.
 - [ ] No unresolved placeholder status remains in the evidence dashboard inputs.
+- [ ] Dashboard headline answer is explicit (`YES`/`NO`) and matches canonical hard claim gate.
 
 If any box above is unchecked, the allowed language is:
 
