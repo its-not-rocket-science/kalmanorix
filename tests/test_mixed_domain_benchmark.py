@@ -7,6 +7,7 @@ from kalmanorix.benchmarks.mixed_domain import (
     SplitRatios,
     _augment_hard_queries,
     _build_query_records,
+    _load_beir_triplet,
     _deterministic_split,
     build_mixed_domain_benchmark,
 )
@@ -143,3 +144,62 @@ def test_augment_hard_queries_adds_required_categories_and_metadata() -> None:
         row["query_id"] for row in augmented_qrels if row["query_id"].startswith("syn:")
     }
     assert synthetic_qrels
+
+
+def test_load_beir_triplet_supports_component_specific_qrels(monkeypatch) -> None:
+    captured_calls = []
+
+    def _fake_load_split(dataset_name: str, config: str | None, split_name: str):
+        captured_calls.append((dataset_name, config, split_name))
+        return (dataset_name, config, split_name)
+
+    monkeypatch.setattr(
+        "kalmanorix.benchmarks.mixed_domain._load_split",
+        _fake_load_split,
+    )
+
+    spec = {
+        "hf_name": "BeIR/nq",
+        "qrels_config": None,
+        "qrels_split": "test",
+    }
+
+    corpus, queries, qrels = _load_beir_triplet(spec)
+    assert corpus == ("BeIR/nq", "corpus", "corpus")
+    assert queries == ("BeIR/nq", "queries", "queries")
+    assert qrels == ("BeIR/nq", None, "test")
+    assert captured_calls == [
+        ("BeIR/nq", "corpus", "corpus"),
+        ("BeIR/nq", "queries", "queries"),
+        ("BeIR/nq", None, "test"),
+    ]
+
+
+def test_load_beir_triplet_reports_failed_component(monkeypatch) -> None:
+    def _fake_load_split(dataset_name: str, config: str | None, split_name: str):
+        if split_name == "test":
+            raise ValueError("BuilderConfig 'qrels' not found")
+        return {"dataset": dataset_name, "config": config, "split": split_name}
+
+    monkeypatch.setattr(
+        "kalmanorix.benchmarks.mixed_domain._load_split",
+        _fake_load_split,
+    )
+
+    with pytest.raises(RuntimeError, match="Failed loading qrels"):
+        _load_beir_triplet("BeIR/nq")
+
+
+@pytest.mark.integration
+def test_load_beir_triplet_smoke_beir_nq() -> None:
+    datasets_module = pytest.importorskip("datasets")
+    if not hasattr(datasets_module, "load_dataset"):
+        pytest.skip("huggingface datasets package is unavailable in this environment")
+
+    corpus_ds, queries_ds, qrels_ds = _load_beir_triplet(
+        {"hf_name": "BeIR/nq", "qrels_config": None, "qrels_split": "test"}
+    )
+
+    assert len(corpus_ds) > 0
+    assert len(queries_ds) > 0
+    assert len(qrels_ds) > 0
