@@ -1,5 +1,7 @@
 """Tests for mixed-domain benchmark build helpers."""
 
+import random
+
 import pytest
 
 from kalmanorix.benchmarks.mixed_domain import (
@@ -8,6 +10,7 @@ from kalmanorix.benchmarks.mixed_domain import (
     _augment_hard_queries,
     _build_query_records,
     _load_beir_triplet,
+    _sample_excluding,
     _deterministic_split,
     build_mixed_domain_benchmark,
 )
@@ -83,6 +86,145 @@ def test_build_query_records_can_include_cross_domain_negatives() -> None:
     domains = {doc["domain"] for doc in rows[0]["candidate_documents"]}
     assert "finance" in domains
     assert rows[0]["contains_cross_domain_hard_negatives"] is True
+
+
+def test_sample_excluding_never_returns_excluded_or_duplicates() -> None:
+    rng = random.Random(123)
+    sampled = _sample_excluding(
+        rng=rng,
+        pool=["d1", "d2", "d3", "d4", "d5"],
+        excluded={"d2", "d4"},
+        k=3,
+    )
+
+    assert len(sampled) == len(set(sampled))
+    assert not (set(sampled) & {"d2", "d4"})
+
+
+def test_build_query_records_sampling_constraints_and_determinism() -> None:
+    query_rows = [
+        {
+            "query_id": "nq:q1",
+            "query_text": "cpu throttling",
+            "domain": "general_qa",
+            "source_dataset": "beir_nq",
+        }
+    ]
+    doc_map = {
+        "nq:d_pos": {
+            "doc_id": "nq:d_pos",
+            "title": "cpu throttling",
+            "text": "positive",
+            "domain": "general_qa",
+            "source_dataset": "beir_nq",
+        },
+        "nq:d_neg1": {
+            "doc_id": "nq:d_neg1",
+            "title": "general 1",
+            "text": "negative",
+            "domain": "general_qa",
+            "source_dataset": "beir_nq",
+        },
+        "nq:d_neg2": {
+            "doc_id": "nq:d_neg2",
+            "title": "general 2",
+            "text": "negative",
+            "domain": "general_qa",
+            "source_dataset": "beir_nq",
+        },
+        "fiqa:d_neg1": {
+            "doc_id": "fiqa:d_neg1",
+            "title": "finance 1",
+            "text": "negative",
+            "domain": "finance",
+            "source_dataset": "beir_fiqa",
+        },
+        "fiqa:d_neg2": {
+            "doc_id": "fiqa:d_neg2",
+            "title": "finance 2",
+            "text": "negative",
+            "domain": "finance",
+            "source_dataset": "beir_fiqa",
+        },
+    }
+    qrels_rows = [{"query_id": "nq:q1", "doc_id": "nq:d_pos", "relevance": 1}]
+
+    rows_a = _build_query_records(
+        query_rows=query_rows,
+        doc_map=doc_map,
+        qrels_rows=qrels_rows,
+        split_map={"nq:q1": "test"},
+        max_candidates=5,
+        cross_domain_negative_ratio=0.5,
+        seed=13,
+    )
+    rows_b = _build_query_records(
+        query_rows=query_rows,
+        doc_map=doc_map,
+        qrels_rows=qrels_rows,
+        split_map={"nq:q1": "test"},
+        max_candidates=5,
+        cross_domain_negative_ratio=0.5,
+        seed=13,
+    )
+
+    assert rows_a == rows_b
+    assert len(rows_a) == 1
+    row = rows_a[0]
+    assert len(row["candidate_documents"]) <= 5
+
+    positive_ids = set(row["ground_truth_relevant_ids"])
+    assert positive_ids == {"nq:d_pos"}
+
+    negatives = [
+        doc for doc in row["candidate_documents"] if doc["doc_id"] not in positive_ids
+    ]
+    assert negatives
+    assert all(doc["doc_id"] not in positive_ids for doc in negatives)
+
+    in_domain = [doc for doc in negatives if doc["domain"] == "general_qa"]
+    cross_domain = [doc for doc in negatives if doc["domain"] != "general_qa"]
+    assert len(in_domain) == 2
+    assert len(cross_domain) == 2
+
+
+def test_build_query_records_respects_max_candidates_even_with_many_positives() -> None:
+    query_rows = [
+        {
+            "query_id": "nq:q1",
+            "query_text": "cpu throttling",
+            "domain": "general_qa",
+            "source_dataset": "beir_nq",
+        }
+    ]
+    doc_map = {
+        f"nq:d{idx}": {
+            "doc_id": f"nq:d{idx}",
+            "title": f"title {idx}",
+            "text": f"text {idx}",
+            "domain": "general_qa",
+            "source_dataset": "beir_nq",
+        }
+        for idx in range(5)
+    }
+    qrels_rows = [
+        {"query_id": "nq:q1", "doc_id": f"nq:d{idx}", "relevance": 1}
+        for idx in range(5)
+    ]
+
+    rows = _build_query_records(
+        query_rows=query_rows,
+        doc_map=doc_map,
+        qrels_rows=qrels_rows,
+        split_map={"nq:q1": "test"},
+        max_candidates=3,
+        cross_domain_negative_ratio=0.5,
+        seed=13,
+    )
+
+    assert len(rows) == 1
+    assert len(rows[0]["candidate_documents"]) == 3
+    assert len(rows[0]["ground_truth_relevant_ids"]) == 3
 
 
 def test_cross_domain_ratio_validation() -> None:

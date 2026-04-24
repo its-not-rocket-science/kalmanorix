@@ -357,6 +357,9 @@ def _build_query_records(
     cross_domain_negative_ratio: float,
     seed: int,
 ) -> list[dict[str, Any]]:
+    def _domain_from_row(query_row: dict[str, Any]) -> str:
+        return str(query_row.get("dominant_domain") or query_row["domain"])
+
     positives_by_query: dict[str, set[str]] = {}
     for row in qrels_rows:
         positives_by_query.setdefault(row["query_id"], set()).add(row["doc_id"])
@@ -364,7 +367,21 @@ def _build_query_records(
     docs_by_domain: dict[str, list[str]] = {}
     for doc_id, doc in doc_map.items():
         docs_by_domain.setdefault(doc["domain"], []).append(doc_id)
-    all_doc_ids = sorted(doc_map)
+    for domain_docs in docs_by_domain.values():
+        domain_docs.sort()
+
+    # Precompute cross-domain pools once. The previous approach filtered all
+    # documents for every query, leading to O(num_queries × num_docs) behavior
+    # on BEIR-scale corpora and severe end-to-end generation slowdowns.
+    sorted_domains = sorted(docs_by_domain)
+    cross_domain_pools_by_domain: dict[str, list[str]] = {}
+    for domain in sorted_domains:
+        pool: list[str] = []
+        for other_domain in sorted_domains:
+            if other_domain == domain:
+                continue
+            pool.extend(docs_by_domain[other_domain])
+        cross_domain_pools_by_domain[domain] = pool
 
     rng = random.Random(seed)
     records: list[dict[str, Any]] = []
@@ -375,25 +392,26 @@ def _build_query_records(
         if not positive_ids:
             continue
 
-        domain_docs = sorted(docs_by_domain.get(row["domain"], []))
-        negatives = [doc_id for doc_id in domain_docs if doc_id not in positive_ids]
-        cross_domain_negatives = [
-            doc_id
-            for doc_id in all_doc_ids
-            if doc_map[doc_id]["domain"] != row["domain"] and doc_id not in positive_ids
-        ]
+        query_domain = row["domain"]
+        dominant_domain = _domain_from_row(row)
+        positive_ids = positive_ids[:max_candidates]
         needed_negatives = max(0, max_candidates - len(positive_ids))
         cross_domain_needed = min(
             needed_negatives, int(round(needed_negatives * cross_domain_negative_ratio))
         )
         in_domain_needed = max(0, needed_negatives - cross_domain_needed)
 
-        sampled_in_domain = rng.sample(
-            negatives, k=min(in_domain_needed, len(negatives))
+        sampled_in_domain = _sample_excluding(
+            rng=rng,
+            pool=docs_by_domain.get(query_domain, []),
+            excluded=set(positive_ids),
+            k=in_domain_needed,
         )
-        sampled_cross_domain = rng.sample(
-            cross_domain_negatives,
-            k=min(cross_domain_needed, len(cross_domain_negatives)),
+        sampled_cross_domain = _sample_excluding(
+            rng=rng,
+            pool=cross_domain_pools_by_domain.get(dominant_domain, []),
+            excluded=set(positive_ids),
+            k=cross_domain_needed,
         )
         sampled_negatives = sampled_in_domain + sampled_cross_domain
 
@@ -440,6 +458,41 @@ def _build_query_records(
         )
 
     return records
+
+
+def _sample_excluding(
+    rng: random.Random, pool: list[str], excluded: set[str], k: int
+) -> list[str]:
+    if k <= 0 or not pool:
+        return []
+
+    target = min(k, len(pool))
+    selected: list[str] = []
+    used_indices: set[int] = set()
+
+    while len(selected) < target and len(used_indices) < len(pool):
+        idx = rng.randrange(len(pool))
+        if idx in used_indices:
+            continue
+        used_indices.add(idx)
+        candidate = pool[idx]
+        if candidate in excluded:
+            continue
+        selected.append(candidate)
+
+    if len(selected) >= target:
+        return selected
+
+    selected_set = set(selected)
+    for candidate in pool:
+        if candidate in excluded or candidate in selected_set:
+            continue
+        selected.append(candidate)
+        selected_set.add(candidate)
+        if len(selected) >= target:
+            break
+
+    return selected
 
 
 def _file_sha256(path: Path) -> str:
