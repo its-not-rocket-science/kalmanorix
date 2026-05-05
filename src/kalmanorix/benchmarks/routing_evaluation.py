@@ -258,7 +258,7 @@ def evaluate_threshold_robustness(
         return (max(values) - min(values)) if values else 0.0
 
     best = max(runs, key=lambda r: r["summary"]["routing_f1"]) if runs else None
-    
+
     if best is not None:
         best_threshold = best["semantic_threshold"]
         print(

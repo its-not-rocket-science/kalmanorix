@@ -12,6 +12,20 @@ import numpy as np
 
 from kalmanorix import KalmanorixFuser, MeanFuser, Panoramix, ScoutRouter, Village
 
+EMBEDDING_CACHE_VERSION = "v1"
+_EMBEDDING_CACHE: dict[tuple[str, str, str], np.ndarray] = {}
+_TIMINGS: dict[str, float] = {"embedding_ms": 0.0, "fusion_ms": 0.0}
+
+
+def reset_runtime_caches() -> None:
+    _EMBEDDING_CACHE.clear()
+    _TIMINGS["embedding_ms"] = 0.0
+    _TIMINGS["fusion_ms"] = 0.0
+
+
+def get_runtime_timings() -> dict[str, float]:
+    return dict(_TIMINGS)
+
 
 def _normalize(vec: np.ndarray) -> np.ndarray:
     norm = np.linalg.norm(vec)
@@ -21,7 +35,25 @@ def _normalize(vec: np.ndarray) -> np.ndarray:
 
 
 def _resolve_embedding(module: Any, text: str) -> np.ndarray:
-    vec = module.embed(text)
+    start = time.perf_counter()
+    module_meta = getattr(module, "meta", None)
+    if module_meta:
+        model_id = (
+            f"{module.name}::{module_meta.get('model_name', module.name)}::"
+            f"{type(module.embed).__name__}"
+        )
+    else:
+        model_id = f"{module.name}::{type(module.embed).__name__}"
+    text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    cache_key = (model_id, text_hash, EMBEDDING_CACHE_VERSION)
+    cached = _EMBEDDING_CACHE.get(cache_key)
+    if cached is not None:
+        _TIMINGS["embedding_ms"] += (time.perf_counter() - start) * 1000.0
+        vec = cached
+    else:
+        vec = module.embed(text)
+        _EMBEDDING_CACHE[cache_key] = np.array(vec, copy=True)
+        _TIMINGS["embedding_ms"] += (time.perf_counter() - start) * 1000.0
     if module.alignment_matrix is not None:
         vec = module.alignment_matrix @ vec
     return vec
@@ -567,9 +599,11 @@ def rank_query_with_baseline(
     else:
         weights = weights / total
 
+    fuse_start = time.perf_counter()
     ranked = _fuse_and_rank(
         query_vecs=query_vecs, doc_vecs=doc_vecs, weights=weights, candidates=candidates
     )
+    _TIMINGS["fusion_ms"] += (time.perf_counter() - fuse_start) * 1000.0
     return ranked, (time.perf_counter() - start) * 1000.0
 
 
@@ -582,6 +616,7 @@ def rank_query(
 ) -> tuple[list[str], float]:
     """Rank candidate docs and return doc_ids + latency (ms)."""
     start = time.perf_counter()
+    fuse_start = time.perf_counter()
     qv = pan.brew(query_text, village=village, scout=scout).vector
     scored = []
     for cand in candidates:
@@ -589,4 +624,5 @@ def rank_query(
         dv = pan.brew(doc_text, village=village, scout=scout).vector
         scored.append((cand["doc_id"], float(qv @ dv)))
     ranked = [doc_id for doc_id, _ in sorted(scored, key=lambda x: (-x[1], x[0]))]
+    _TIMINGS["fusion_ms"] += (time.perf_counter() - fuse_start) * 1000.0
     return ranked, (time.perf_counter() - start) * 1000.0

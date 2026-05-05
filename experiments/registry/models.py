@@ -87,7 +87,11 @@ class SpecialistSpec:
 
 
 def build_village(
-    kind: str, payload: Any, specialists: list[dict[str, Any]], device: str
+    kind: str,
+    payload: Any,
+    specialists: list[dict[str, Any]],
+    device: str,
+    force_hash_embedder: bool = False,
 ) -> Village:
     """Build village from config/model kind."""
     if kind == "debug_keyword":
@@ -118,7 +122,7 @@ def build_village(
         has_torch = importlib.util.find_spec("torch") is not None
         for raw in specialists:
             spec = SpecialistSpec(**raw)
-            if has_transformers and has_torch:
+            if has_transformers and has_torch and not force_hash_embedder:
                 embedder = HFMeanPoolEmbedder(spec.model_name, device=device)
             else:
                 embedder = DeterministicHashEmbedder(spec.model_name)
