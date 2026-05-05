@@ -13,16 +13,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import datasets  # type: ignore[import-untyped, attr-defined]
+
 BENCHMARK_VERSION = "mixed_beir_v1.2.0"
 DEFAULT_SEED = 1337
 DEFAULT_OUTPUT_DIR = Path("benchmarks") / BENCHMARK_VERSION
-DATASET_SPECS = (
+DATASET_SPECS: tuple[dict[str, Any], ...] = (
     {
         "hf_name": "BeIR/nq",
-        # BEIR qrels are not always exposed as a `qrels` builder config.
-        # Keep explicit component fields available so corpus / queries / qrels
-        # can be loaded independently when needed.
-        "qrels_config_candidates": ["qrels", "default"],
+        "qrels_hf_name": "BeIR/nq-qrels",
         "qrels_split": "test",
         "key": "nq",
         "source_dataset": "beir_nq",
@@ -33,6 +32,8 @@ DATASET_SPECS = (
     },
     {
         "hf_name": "BeIR/scifact",
+        "qrels_hf_name": "BeIR/scifact-qrels",
+        "qrels_split": "test",
         "key": "scifact",
         "source_dataset": "beir_scifact",
         "domain": "biomedical",
@@ -42,6 +43,8 @@ DATASET_SPECS = (
     },
     {
         "hf_name": "BeIR/fiqa",
+        "qrels_hf_name": "BeIR/fiqa-qrels",
+        "qrels_split": "test",
         "key": "fiqa",
         "source_dataset": "beir_fiqa",
         "domain": "finance",
@@ -51,6 +54,8 @@ DATASET_SPECS = (
     },
     {
         "hf_name": "BeIR/arguana",
+        "qrels_hf_name": "BeIR/arguana-qrels",
+        "qrels_split": "test",
         "key": "arguana",
         "source_dataset": "beir_arguana",
         "domain": "argumentation",
@@ -60,6 +65,8 @@ DATASET_SPECS = (
     },
     {
         "hf_name": "BeIR/fever",
+        "qrels_hf_name": "BeIR/fever-qrels",
+        "qrels_split": "test",
         "key": "fever",
         "source_dataset": "beir_fever",
         "domain": "fact_checking",
@@ -69,6 +76,8 @@ DATASET_SPECS = (
     },
     {
         "hf_name": "BeIR/dbpedia-entity",
+        "qrels_hf_name": "BeIR/dbpedia-entity-qrels",
+        "qrels_split": "test",
         "key": "dbpedia",
         "source_dataset": "beir_dbpedia_entity",
         "domain": "encyclopedic",
@@ -116,9 +125,8 @@ def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _load_split(dataset_name: str, config: str | None, split_name: str):
-    from datasets import load_dataset
-
+def _load_split(dataset_name: str, config: str | None, split_name: str) -> Any:
+    load_dataset = getattr(datasets, "load_dataset")
     if config is None:
         return load_dataset(dataset_name, split=split_name)
     return load_dataset(dataset_name, config, split=split_name)
@@ -777,7 +785,6 @@ def build_mixed_domain_benchmark(
     """Download, preprocess, split, and persist a mixed-domain benchmark."""
     if not (0.0 <= cross_domain_negative_ratio <= 1.0):
         raise ValueError("cross_domain_negative_ratio must be in [0, 1]")
-    from datasets import __version__ as datasets_version
 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -801,7 +808,8 @@ def build_mixed_domain_benchmark(
         all_qrels.extend(qrels)
         duplicate_map.update(duplicates)
 
-        source_row_counts[spec["source_dataset"]] = {
+        source_dataset = str(spec["source_dataset"])
+        source_row_counts[source_dataset] = {
             "corpus": len(docs),
             "queries": len(queries),
             "qrels": len(
@@ -833,7 +841,6 @@ def build_mixed_domain_benchmark(
                 continue
             ordered = sorted(query_ids)
             rng.shuffle(ordered)
-            keep_test = set(ordered[: sampling.max_test_queries_per_domain])
             for qid in ordered[sampling.max_test_queries_per_domain :]:
                 split_map[qid] = "validation"
 
@@ -925,6 +932,16 @@ def build_mixed_domain_benchmark(
 
     output_files = [corpus_path, queries_path, qrels_path, splits_path, benchmark_path]
 
+    datasets_version = str(getattr(datasets, "__version__", "unknown"))
+
+    artifacts: dict[str, dict[str, Any]] = {
+        path.name: {
+            "sha256": _file_sha256(path),
+            "rows": len(benchmark_records) if path == benchmark_path else None,
+        }
+        for path in output_files
+    }
+    
     manifest = {
         "benchmark_version": BENCHMARK_VERSION,
         "build_timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -951,21 +968,15 @@ def build_mixed_domain_benchmark(
         },
         "datasets": [
             {
-                "name": spec["source_dataset"],
-                "hf_dataset": spec["hf_name"],
-                "url": spec["url"],
-                "license": spec["license"],
-                "row_counts": source_row_counts[spec["source_dataset"]],
+                "name": str(spec["source_dataset"]),
+                "hf_dataset": str(spec["hf_name"]),
+                "url": str(spec["url"]),
+                "license": str(spec["license"]),
+                "row_counts": source_row_counts[str(spec["source_dataset"])],
             }
             for spec in DATASET_SPECS
         ],
-        "artifacts": {
-            path.name: {
-                "sha256": _file_sha256(path),
-                "rows": len(benchmark_records) if path == benchmark_path else None,
-            }
-            for path in output_files
-        },
+        "artifacts": artifacts,
         "validation": {
             "queries_with_labels": len(query_rows),
             "qrels": len(all_qrels),
@@ -978,18 +989,18 @@ def build_mixed_domain_benchmark(
         },
     }
 
-    for path, rows in (
+    for path, row_count in (
         (corpus_path, len(all_docs)),
         (queries_path, len(query_rows)),
         (qrels_path, len(all_qrels)),
         (splits_path, len(split_rows)),
         (benchmark_path, len(benchmark_records)),
     ):
-        manifest["artifacts"][path.name]["rows"] = rows
+        artifacts[path.name]["rows"] = row_count
 
     manifest_path = output_dir / "benchmark_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    manifest["artifacts"][manifest_path.name] = {
+    artifacts[manifest_path.name] = {
         "sha256": _file_sha256(manifest_path),
         "rows": None,
     }
@@ -1065,13 +1076,13 @@ def main() -> None:
     args = parser.parse_args()
 
     split_ratios = SplitRatios(
-        train=args.train_ratio,
-        validation=args.validation_ratio,
-        test=args.test_ratio,
+        train=float(args.train_ratio),
+        validation=float(args.validation_ratio),
+        test=float(args.test_ratio),
     )
     sampling = QuerySampling(
-        max_queries_per_domain=args.max_queries_per_domain,
-        max_test_queries_per_domain=args.max_test_queries_per_domain,
+        max_queries_per_domain=int(args.max_queries_per_domain),
+        max_test_queries_per_domain=int(args.max_test_queries_per_domain),
     )
 
     manifest = build_mixed_domain_benchmark(
@@ -1082,8 +1093,8 @@ def main() -> None:
         sampling=sampling,
         split_ratios=split_ratios,
         hard_queries=HardQueryConfig(
-            enabled=not args.disable_hard_query_expansion,
-            per_category_per_domain=args.hard_queries_per_category_per_domain,
+            enabled=not bool(args.disable_hard_query_expansion),
+            per_category_per_domain=int(args.hard_queries_per_category_per_domain),
         ),
     )
     print(json.dumps(manifest, indent=2))

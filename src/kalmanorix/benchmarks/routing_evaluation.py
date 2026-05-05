@@ -236,7 +236,7 @@ def evaluate_threshold_robustness(
 ) -> dict[str, Any]:
     """Run threshold sweep and summarize robustness of routing behavior."""
 
-    runs = []
+    runs: list[dict[str, Any]] = []
     for threshold in config.semantic_thresholds:
         run_cfg = RoutingRunConfig(
             mode=config.mode,
@@ -258,14 +258,23 @@ def evaluate_threshold_robustness(
         return (max(values) - min(values)) if values else 0.0
 
     best = max(runs, key=lambda r: r["summary"]["routing_f1"]) if runs else None
+    
+    if best is not None:
+        best_threshold = best["semantic_threshold"]
+        print(
+            f"Best semantic threshold by F1: {best_threshold:.2f} "
+            f"(Precision: {best['summary']['routing_precision']:.3f}, "
+            f"Recall: {best['summary']['routing_recall']:.3f}, "
+            f"F1: {best['summary']['routing_f1']:.3f})"
+        )
+    else:
+        best_threshold = None
 
     return {
         "config": asdict(config),
         "threshold_runs": runs,
         "robustness": {
-            "best_semantic_threshold_by_f1": None
-            if best is None
-            else best["semantic_threshold"],
+            "best_semantic_threshold_by_f1": best_threshold,
             "f1_range": _range("routing_f1"),
             "precision_range": _range("routing_precision"),
             "recall_range": _range("routing_recall"),

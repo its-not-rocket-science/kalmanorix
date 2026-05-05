@@ -329,7 +329,7 @@ def _build_split_indices(
     for idx, label in enumerate(labels):
         by_stratum[label["stratum"]].append(idx)
 
-    split = {"train": [], "validation": [], "test": []}
+    split: dict[str, list[int]] = {"train": [], "validation": [], "test": []}
     for _, members in sorted(by_stratum.items()):
         local = sorted(members)
         m = len(local)

@@ -1,0 +1,123 @@
+{
+  "benchmark_version": "mixed_beir_v1.2.0",
+  "build_timestamp_utc": "2026-04-24T15:44:51.800516+00:00",
+  "seed": 1337,
+  "split_ratios": {
+    "train": 0.8,
+    "validation": 0.1,
+    "test": 0.1
+  },
+  "max_candidates_per_query": 60,
+  "cross_domain_negative_ratio": 0.6,
+  "sampling": {
+    "max_queries_per_domain": 600,
+    "max_test_queries_per_domain": 120
+  },
+  "hard_query_expansion": {
+    "enabled": true,
+    "per_category_per_domain": 10,
+    "min_token_length_for_long_tail": 9
+  },
+  "packages": {
+    "datasets": "2.19.1",
+    "pyarrow": "14.0.2"
+  },
+  "datasets": [
+    {
+      "name": "beir_nq",
+      "hf_dataset": "BeIR/nq",
+      "url": "https://huggingface.co/datasets/BeIR/nq",
+      "license": "cc-by-sa-4.0",
+      "row_counts": {
+        "corpus": 2669956,
+        "queries": 3452,
+        "qrels": 4201
+      }
+    },
+    {
+      "name": "beir_scifact",
+      "hf_dataset": "BeIR/scifact",
+      "url": "https://huggingface.co/datasets/BeIR/scifact",
+      "license": "cc-by-4.0",
+      "row_counts": {
+        "corpus": 5183,
+        "queries": 300,
+        "qrels": 339
+      }
+    },
+    {
+      "name": "beir_fiqa",
+      "hf_dataset": "BeIR/fiqa",
+      "url": "https://huggingface.co/datasets/BeIR/fiqa",
+      "license": "cc-by-nc-4.0",
+      "row_counts": {
+        "corpus": 57598,
+        "queries": 648,
+        "qrels": 1705
+      }
+    },
+    {
+      "name": "beir_arguana",
+      "hf_dataset": "BeIR/arguana",
+      "url": "https://huggingface.co/datasets/BeIR/arguana",
+      "license": "cc-by-4.0",
+      "row_counts": {
+        "corpus": 8626,
+        "queries": 1401,
+        "qrels": 1401
+      }
+    },
+    {
+      "name": "beir_fever",
+      "hf_dataset": "BeIR/fever",
+      "url": "https://huggingface.co/datasets/BeIR/fever",
+      "license": "cc-by-sa-4.0",
+      "row_counts": {
+        "corpus": 5396138,
+        "queries": 6666,
+        "qrels": 7937
+      }
+    },
+    {
+      "name": "beir_dbpedia_entity",
+      "hf_dataset": "BeIR/dbpedia-entity",
+      "url": "https://huggingface.co/datasets/BeIR/dbpedia-entity",
+      "license": "cc-by-sa-3.0",
+      "row_counts": {
+        "corpus": 4635922,
+        "queries": 400,
+        "qrels": 15286
+      }
+    }
+  ],
+  "artifacts": {
+    "corpus.parquet": {
+      "sha256": "cff9930f5381d30b5291b5b18b551240658e548d7c7a980d8836e7d94736b7d6",
+      "rows": 12773423
+    },
+    "queries.parquet": {
+      "sha256": "0674e9b2e611023991e3854082b9d3ce8d1e1457b1be062cc3ad37f4947b90b5",
+      "rows": 3379
+    },
+    "qrels.parquet": {
+      "sha256": "b1028416f0ea76f8da1c52cdd12a1b7cca95be2588fee65bbf8dd5fee73ddf0f",
+      "rows": 20554
+    },
+    "splits.parquet": {
+      "sha256": "8016d5f1f346cd7f30decc221b700f0c4b4bf0c5eec1364f3a7e8b4b450c5fda",
+      "rows": 3379
+    },
+    "mixed_benchmark.parquet": {
+      "sha256": "958f3bdab39a1356c6f71f5da584bb248ba91d0dce033863a4c2f7c1437a8f81",
+      "rows": 3379
+    }
+  },
+  "validation": {
+    "queries_with_labels": 3379,
+    "qrels": 20554,
+    "documents": 12773423,
+    "duplicates_removed": 11055,
+    "all_queries_have_relevant": true,
+    "synthetic_queries": 279
+  }
+}
