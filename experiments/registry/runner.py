@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import random
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +27,8 @@ from experiments.registry.fusion import (
     build_strategy,
     rank_query,
     rank_query_with_baseline,
+    get_runtime_timings,
+    reset_runtime_caches,
 )
 from experiments.registry.models import build_village
 from experiments.registry.reporting import write_json
@@ -98,20 +101,28 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         path=config.dataset.path,
         split=config.dataset.split,
         max_queries=config.dataset.max_queries,
+        max_candidates=config.dataset.options.get("max_candidates"),
     )
+    reset_runtime_caches()
+    model_start = time.perf_counter()
     specialists = config.models.specialists or DEFAULT_REAL_SPECIALISTS
     village = build_village(
         kind=config.models.kind,
         payload=rows,
         specialists=specialists,
         device=config.models.device,
+        force_hash_embedder=bool(
+            config.models.options.get("force_hash_embedder", False)
+        ),
     )
+    model_loading_ms = (time.perf_counter() - model_start) * 1000.0
 
     rankings_by_strategy: dict[str, dict[str, QueryRanking]] = {}
     latencies_by_strategy: dict[str, dict[str, float]] = {}
     confidence_by_strategy: dict[str, dict[str, float]] = {}
     specialist_count_by_strategy: dict[str, dict[str, float]] = {}
     policy_usage_by_strategy: dict[str, dict[str, Any]] = {}
+    strategy_timings_ms: dict[str, float] = {}
     query_metadata: dict[str, dict[str, Any]] = {}
 
     def _confidence_from_selected(
@@ -151,6 +162,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         return float(np.sum(weights * inv_var)), float(np.count_nonzero(weights > 0.0))
 
     for strategy_name in config.fusion.strategies:
+        strategy_start = time.perf_counter()
         scout, pan = build_strategy(
             name=strategy_name, routing_mode=config.fusion.routing_mode
         )
@@ -178,6 +190,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         latencies_by_strategy[strategy_name] = latencies
         confidence_by_strategy[strategy_name] = confidences
         specialist_count_by_strategy[strategy_name] = specialist_counts
+        strategy_timings_ms[strategy_name] = (
+            time.perf_counter() - strategy_start
+        ) * 1000.0
 
     for row in rows:
         query_text = row["query_text"]
@@ -238,6 +253,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
 
     baseline_strategies = build_retrieval_baselines(config.fusion.options)
     for strategy in baseline_strategies:
+        strategy_start = time.perf_counter()
         strategy.fit(rows=rows, village=village, options=config.fusion.options)
         rankings = {}
         latencies = {}
@@ -271,6 +287,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         specialist_count_by_strategy[strategy.name] = specialist_counts
         if policy_usage:
             policy_usage_by_strategy[strategy.name] = policy_usage
+        strategy_timings_ms[strategy.name] = (
+            time.perf_counter() - strategy_start
+        ) * 1000.0
 
     reports = evaluate_locked(
         rows=rows,
@@ -352,6 +371,11 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             "specialist_count_selected": specialist_count_by_strategy,
             "policy_usage": policy_usage_by_strategy,
             "query_metadata": query_metadata,
+        },
+        "runtime_diagnostics": {
+            "model_loading_ms": model_loading_ms,
+            "strategy_scoring_ms": strategy_timings_ms,
+            **get_runtime_timings(),
         },
         "comparison_table": comparison_table,
         "kalman_guardrail": {

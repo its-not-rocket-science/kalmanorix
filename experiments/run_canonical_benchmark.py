@@ -8,6 +8,7 @@ import importlib.util
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import time
 from typing import Any
 
 import numpy as np
@@ -1767,7 +1768,11 @@ def run_canonical_benchmark(
     seed: int,
     num_resamples: int,
     confirmatory_slice: str = CONFIRMATORY_SLICE_NAME,
+    fast_local: bool = False,
+    timing_json: Path | None = None,
+    max_candidates: int | None = None,
 ) -> dict[str, Any]:
+    overall_start = time.perf_counter()
     split_counts = _load_split_counts(benchmark_path)
 
     config_payload = {
@@ -1783,11 +1788,13 @@ def run_canonical_benchmark(
             "path": str(benchmark_path),
             "split": split,
             "max_queries": max_queries,
+            "options": {"max_candidates": max_candidates},
         },
         "models": {
             "kind": "hf_specialists",
             "device": device,
             "specialists": DEFAULT_REAL_SPECIALISTS,
+            "options": {"force_hash_embedder": fast_local},
         },
         "fusion": {
             "strategies": ["mean", "kalman"],
@@ -1801,7 +1808,9 @@ def run_canonical_benchmark(
     with TemporaryDirectory() as tmpdir:
         cfg_path = Path(tmpdir) / "canonical.json"
         cfg_path.write_text(json.dumps(config_payload, indent=2), encoding="utf-8")
+        cfg_load_start = time.perf_counter()
         cfg = load_experiment_config(cfg_path)
+        benchmark_load_ms = (time.perf_counter() - cfg_load_start) * 1000.0
         details = run_experiment(cfg)
 
     (output_dir / "runner_details.json").write_text(
@@ -2162,7 +2171,29 @@ def run_canonical_benchmark(
     (output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
     )
+    report_write_start = time.perf_counter()
     (output_dir / "report.md").write_text(report_text, encoding="utf-8")
+    report_writing_ms = (time.perf_counter() - report_write_start) * 1000.0
+    runtime_diag = details.get("runtime_diagnostics", {})
+    per_query_latency = list(latencies["kalman"].values())
+    timings = {
+        "model_loading_ms": float(runtime_diag.get("model_loading_ms", 0.0)),
+        "benchmark_loading_ms": benchmark_load_ms,
+        "per_query_total_ms": {
+            "mean": float(np.mean(np.asarray(per_query_latency, dtype=float))),
+            "p95": float(np.quantile(np.asarray(per_query_latency, dtype=float), 0.95)),
+            "count": len(per_query_latency),
+        },
+        "per_strategy_scoring_ms": runtime_diag.get("strategy_scoring_ms", {}),
+        "embedding_ms": float(runtime_diag.get("embedding_ms", 0.0)),
+        "fusion_ms": float(runtime_diag.get("fusion_ms", 0.0)),
+        "report_writing_ms": report_writing_ms,
+        "total_runtime_ms": (time.perf_counter() - overall_start) * 1000.0,
+    }
+    summary["timings"] = timings
+    if timing_json is not None:
+        timing_json.parent.mkdir(parents=True, exist_ok=True)
+        timing_json.write_text(json.dumps(timings, indent=2), encoding="utf-8")
     return summary
 
 
@@ -2219,6 +2250,11 @@ def main() -> None:
         help="Maximum evaluated queries (canonical v3 default: 1800).",
     )
     parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument("--timing-json", type=Path, default=None)
+    parser.add_argument(
+        "--fast-local", "--hash-embedder", action="store_true", dest="fast_local"
+    )
+    parser.add_argument("--max-candidates", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-resamples", type=int, default=5000)
     parser.add_argument(
@@ -2285,6 +2321,9 @@ def main() -> None:
             seed=only_seed,
             num_resamples=args.num_resamples,
             confirmatory_slice=args.confirmatory_slice,
+            fast_local=args.fast_local,
+            timing_json=args.timing_json,
+            max_candidates=args.max_candidates,
         )
     else:
         runs_dir = args.output_dir / "replication_runs"
@@ -2302,6 +2341,13 @@ def main() -> None:
                 seed=run_seed,
                 num_resamples=args.num_resamples,
                 confirmatory_slice=args.confirmatory_slice,
+                fast_local=args.fast_local,
+                timing_json=(
+                    args.timing_json.parent / f"{run_output_dir.name}_timings.json"
+                    if args.timing_json is not None
+                    else None
+                ),
+                max_candidates=args.max_candidates,
             )
             run_summaries.append(run_summary)
         summary = run_summaries[0]

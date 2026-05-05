@@ -180,6 +180,42 @@ Dashboard (traffic-light + compact evidence table):
 - `results/kalman_evidence_dashboard/report.md`
 - `results/kalman_evidence_dashboard/summary.json`
 
+### Local CPU smoke benchmark
+
+Use deterministic hash embeddings plus candidate downsampling for fast local sanity checks.
+
+```bash
+# 1 query (target: <60s on commodity CPU)
+PYTHONPATH=src python experiments/run_canonical_benchmark.py \
+  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json \
+  --split test \
+  --max-queries 1 \
+  --max-candidates 40 \
+  --fast-local \
+  --timing-json results/canonical_benchmark_fast_local/timing_q1.json \
+  --output-dir results/canonical_benchmark_fast_local/q1
+
+# 10 queries (target: a few minutes)
+PYTHONPATH=src python experiments/run_canonical_benchmark.py \
+  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json \
+  --split test \
+  --max-queries 10 \
+  --max-candidates 40 \
+  --fast-local \
+  --timing-json results/canonical_benchmark_fast_local/timing_q10.json \
+  --output-dir results/canonical_benchmark_fast_local/q10
+
+# 100 queries (developer-scale dry run)
+PYTHONPATH=src python experiments/run_canonical_benchmark.py \
+  --benchmark-path benchmarks/mixed_beir_v1.2.0/mixed_benchmark.json \
+  --split test \
+  --max-queries 100 \
+  --max-candidates 40 \
+  --fast-local \
+  --timing-json results/canonical_benchmark_fast_local/timing_q100.json \
+  --output-dir results/canonical_benchmark_fast_local/q100
+```
+
 ### 4) Extending with new specialists (contributor flow)
 
 ```bash

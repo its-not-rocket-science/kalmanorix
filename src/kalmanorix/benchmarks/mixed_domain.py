@@ -941,7 +941,7 @@ def build_mixed_domain_benchmark(
         }
         for path in output_files
     }
-    
+
     manifest = {
         "benchmark_version": BENCHMARK_VERSION,
         "build_timestamp_utc": datetime.now(timezone.utc).isoformat(),
