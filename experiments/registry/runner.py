@@ -70,6 +70,99 @@ def set_global_seed(seed_python: int, seed_numpy: int, seed_torch: int) -> None:
         return
 
 
+def _first_relevant_rank(
+    ranked_doc_ids: list[str], relevant_ids: set[str]
+) -> int | None:
+    for rank, doc_id in enumerate(ranked_doc_ids, start=1):
+        if doc_id in relevant_ids:
+            return rank
+    return None
+
+
+def _build_retrieval_diagnostics(
+    rows: list[dict[str, Any]],
+    rankings_by_strategy: dict[str, dict[str, QueryRanking]],
+    *,
+    top_k: int,
+    top_n_log: int,
+) -> dict[str, Any]:
+    ground_truth_by_qid = {
+        str(row["query_id"]): [
+            str(doc_id) for doc_id in row["ground_truth_relevant_ids"]
+        ]
+        for row in rows
+    }
+    candidate_pool_by_qid: dict[str, set[str]] = {}
+    for row in rows:
+        qid = str(row["query_id"])
+        pool: set[str] = set()
+        for cand in row["candidate_documents"]:
+            if isinstance(cand, dict):
+                pool.add(str(cand.get("doc_id", "")))
+            else:
+                pool.add(str(cand))
+        pool.discard("")
+        candidate_pool_by_qid[qid] = pool
+    per_strategy: dict[str, Any] = {}
+    for strategy_name, rankings in rankings_by_strategy.items():
+        per_query_logs: dict[str, Any] = {}
+        queries_with_hit = 0
+        first_ranks: list[int] = []
+        candidate_pool_hits = 0
+        for row in rows:
+            qid = str(row["query_id"])
+            gt_ids = ground_truth_by_qid[qid]
+            gt_set = set(gt_ids)
+            ranked_ids = [
+                str(doc_id)
+                for doc_id in rankings.get(qid, QueryRanking(doc_ids=tuple())).doc_ids
+            ]
+            top20 = ranked_ids[:top_n_log]
+            topk = ranked_ids[:top_k]
+            hit = any(doc_id in gt_set for doc_id in topk)
+            rank = _first_relevant_rank(ranked_ids, gt_set)
+            in_candidate_pool = any(
+                doc_id in candidate_pool_by_qid[qid] for doc_id in gt_set
+            )
+            if in_candidate_pool:
+                candidate_pool_hits += 1
+            if hit:
+                queries_with_hit += 1
+            if rank is not None:
+                first_ranks.append(rank)
+            per_query_logs[qid] = {
+                "ground_truth_doc_ids": gt_ids,
+                "top20_retrieved_doc_ids": top20,
+                "has_match_in_top_k": hit,
+                "first_relevant_rank": rank,
+                "candidate_pool_has_ground_truth": in_candidate_pool,
+            }
+
+        num_queries = max(len(rows), 1)
+        per_strategy[strategy_name] = {
+            "diagnostic_report": {
+                "top_k": top_k,
+                "queries_total": len(rows),
+                "queries_with_hit_top_k": queries_with_hit,
+                "hit_rate_top_k_percent": 100.0 * queries_with_hit / num_queries,
+                "avg_first_relevant_rank_if_any": (
+                    float(np.mean(np.asarray(first_ranks, dtype=float)))
+                    if first_ranks
+                    else None
+                ),
+                "queries_where_candidate_pool_contains_ground_truth": candidate_pool_hits,
+                "candidate_pool_contains_ground_truth_percent": 100.0
+                * candidate_pool_hits
+                / num_queries,
+            },
+            "per_query": per_query_logs,
+        }
+    return {
+        "ground_truth_id_match_rule": "exact_string_equality",
+        "per_strategy": per_strategy,
+    }
+
+
 def _run_synthetic(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     corpus = load_dataset(
         kind=config.dataset.kind,
@@ -599,6 +692,16 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         for name, rep in ranked_methods
     ]
 
+    debug_retrieval = bool(config.evaluation.options.get("debug_retrieval", False))
+    debug_top_k = int(config.evaluation.options.get("debug_top_k", 10))
+    debug_top_n = int(config.evaluation.options.get("debug_top_n", 20))
+    retrieval_diagnostics = _build_retrieval_diagnostics(
+        rows=rows,
+        rankings_by_strategy=rankings_by_strategy,
+        top_k=max(debug_top_k, 1),
+        top_n_log=max(debug_top_n, 1),
+    )
+
     output = {
         "name": config.name,
         "experiment_type": config.experiment_type,
@@ -646,7 +749,15 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             ),
         },
         "delta_last_minus_first": delta,
+        "retrieval_diagnostics": retrieval_diagnostics,
     }
+    if not debug_retrieval:
+        output["retrieval_diagnostics"]["per_strategy"] = {
+            strategy: {"diagnostic_report": payload["diagnostic_report"]}
+            for strategy, payload in output["retrieval_diagnostics"][
+                "per_strategy"
+            ].items()
+        }
     metadata["status"] = "complete"
     metadata.setdefault("benchmark_path", str(config.dataset.path.resolve()))
     metadata.setdefault("split", config.dataset.split)
