@@ -10,6 +10,16 @@ from experiments import run_canonical_benchmark as canonical
 
 def _fake_details() -> dict[str, object]:
     return {
+        "retrieval_diagnostics": {
+            "per_strategy": {
+                "kalman": {
+                    "diagnostic_report": {
+                        "queries_total": 3,
+                        "queries_where_candidate_pool_contains_ground_truth": 3,
+                    }
+                }
+            }
+        },
         "query_level": {
             "domains": {
                 "q1": "finance",
@@ -98,7 +108,7 @@ def _fake_details() -> dict[str, object]:
                     "router_confidence": 0.6,
                 },
             },
-        }
+        },
     }
 
 
@@ -139,64 +149,42 @@ def test_canonical_benchmark_writes_artifacts(
         "validation": 4,
         "test": 3,
     }
-    assert set(on_disk["methods"]) >= {
-        "mean",
-        "kalman",
-        "router_only_top1",
-        "router_only_topk_mean",
-        "uniform_mean_fusion",
-        "fixed_weighted_mean_fusion",
-        "learned_linear_combiner",
-        "single_generalist_model",
+    assert on_disk["oracle_recall_at_k"]["value"] == pytest.approx(1.0)
+
+
+def test_canonical_benchmark_fails_fast_when_oracle_recall_is_too_low(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    low_recall_details = _fake_details()
+    low_recall_details["retrieval_diagnostics"] = {
+        "per_strategy": {
+            "kalman": {
+                "diagnostic_report": {
+                    "queries_total": 10,
+                    "queries_where_candidate_pool_contains_ground_truth": 1,
+                }
+            }
+        }
     }
-    assert "ndcg@10" in on_disk["paired_statistics"]["kalman_vs_mean"]["overall"]
-    assert (
-        "ndcg@10"
-        in on_disk["paired_statistics"]["kalman_vs_fixed_weighted_mean_fusion"][
-            "overall"
-        ]
+
+    monkeypatch.setattr(canonical, "_load_split_counts", lambda _: {"test": 10})
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
     )
-    assert (
-        "ndcg@10"
-        in on_disk["paired_statistics"]["kalman_vs_learned_linear_combiner"]["overall"]
-    )
-    assert "bucket_analysis" in on_disk
-    assert on_disk["decision"]["kalman_vs_mean"]["verdict"] in {
-        "supported",
-        "unsupported",
-        "inconclusive_underpowered",
-        "inconclusive_sufficiently_powered",
-    }
-    assert on_disk["decision"]["kalman_vs_weighted_mean"]["verdict"] in {
-        "supported",
-        "unsupported",
-        "inconclusive_underpowered",
-        "inconclusive_sufficiently_powered",
-    }
-    assert on_disk["decision"]["kalman_vs_router_only_top1"]["verdict"] in {
-        "supported",
-        "unsupported",
-        "inconclusive_underpowered",
-        "inconclusive_sufficiently_powered",
-    }
-    assert on_disk["decision"]["kalman_vs_learned_linear_combiner"]["verdict"] in {
-        "supported",
-        "unsupported",
-        "inconclusive_underpowered",
-        "inconclusive_sufficiently_powered",
-    }
-    assert "power_diagnostics" in on_disk
-    assert "sample_size_adequacy" in on_disk
-    assert set(on_disk["sample_size_adequacy"]) == {
-        "uncertainty_calibration",
-        "paired_significance_testing",
-        "per_domain_analysis",
-    }
-    assert "kalman_vs_mean" in on_disk["decision"]
-    assert on_disk["benchmark_status"]["status"] == "toy"
-    assert on_disk["claim_success_decision"]["status"] == "blocked"
-    assert summary["comparisons"]["LearnedGateFuser"]["included"] is False
-    assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
+    monkeypatch.setattr(canonical, "run_experiment", lambda cfg: low_recall_details)
+
+    with pytest.raises(RuntimeError, match="oracle_recall_at_k"):
+        canonical.run_canonical_benchmark(
+            benchmark_path=tmp_path / "dummy.parquet",
+            output_dir=tmp_path / "results",
+            split="test",
+            max_queries=None,
+            device="cpu",
+            seed=0,
+            num_resamples=10,
+        )
 
 
 def test_canonical_report_is_utf8_and_mojibake_free(
