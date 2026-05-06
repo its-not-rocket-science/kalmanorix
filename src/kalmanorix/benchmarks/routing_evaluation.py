@@ -234,7 +234,7 @@ def evaluate_threshold_robustness(
     samples: list[RoutingSample],
     config: ThresholdSweepConfig,
 ) -> dict[str, Any]:
-    """Run threshold sweep and summarize robustness of routing behavior."""
+    """Run threshold sweep and summarise robustness of routing behaviour."""
 
     runs: list[dict[str, Any]] = []
     for threshold in config.semantic_thresholds:

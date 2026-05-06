@@ -152,7 +152,7 @@ Start with `MeanFuser` to verify the pipeline works and obtain a performance bas
 - **Without validation data**: Use `CentroidDistanceSigma2` with representative calibration texts
 - **For API‑based embedders**: Use factory functions with calibration (`create_*_sef_with_calibration`)
 
-### Step 4: Optimize Routing
+### Step 4: Optimise Routing
 - **Clear domain boundaries**: Use semantic routing with fixed threshold (0.7‑0.8)
 - **Ambiguous queries**: Use dynamic thresholding or `top_k` heuristic
 - **Always include fallback**: Set `fallback_mode="hard"` for minimum sigma² selection

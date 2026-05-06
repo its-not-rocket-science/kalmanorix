@@ -134,7 +134,7 @@ def load_specialist_model(
             f"  Calibrated uncertainty for {domain.value} using {len(calibration_texts)} texts"
         )
     else:
-        # Fallback: constant uncertainty (original behavior)
+        # Fallback: constant uncertainty (original behaviour)
         dim = st_model.get_sentence_embedding_dimension()
         assert dim is not None
         sigma2 = CentroidDistanceSigma2(
@@ -350,7 +350,7 @@ def run_experiment(
             """Wrapper to make SEF compatible with SentenceTransformer API."""
 
             def __init__(self, sef):
-                """Initialize wrapper."""
+                """Initialise wrapper."""
                 self.sef = sef
 
             def encode(self, texts, normalize_embeddings=False, **kwargs):

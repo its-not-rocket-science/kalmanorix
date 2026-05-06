@@ -119,7 +119,7 @@ def main() -> None:
         "quantum physics is fascinating",
         "legal documents require precise language",
         "medical diagnosis relies on accurate data",
-        "financial markets exhibit complex behavior",
+        "financial markets exhibit complex behaviour",
         "artificial intelligence transforms industries",
         "climate change impacts global ecosystems",
         "neural networks learn hierarchical representations",

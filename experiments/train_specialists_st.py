@@ -305,7 +305,7 @@ def train_specialist(
         train_objectives=[(train_loader, mn_rank)],
         epochs=max(1, epochs // 2),
         warmup_steps=warmup_steps,
-        optimizer_params={"lr": lr},
+        optimiser_params={"lr": lr},
         show_progress_bar=True,
     )
 
@@ -315,7 +315,7 @@ def train_specialist(
     dim = dim_opt
     head = DomainHead(dim)
 
-    # Encoder optimizer (for manual phase) and head optimizer
+    # Encoder optimiser (for manual phase) and head optimiser
     enc_optim = torch.optim.AdamW(model.parameters(), lr=lr)
     head_optim = torch.optim.AdamW(head.parameters(), lr=2e-3)
 

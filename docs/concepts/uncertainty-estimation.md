@@ -55,6 +55,6 @@ This is currently implemented for:
 ## Why this matters for Kalman vs mean fusion
 
 Kalman fusion only helps when relative uncertainty is informative.
-If sigma² is too flat, noisy, or mis-ranked across specialists, Kalman reduces to near-mean behavior.
+If sigma² is too flat, noisy, or mis-ranked across specialists, Kalman reduces to near-mean behaviour.
 The improved estimator is designed to make confidence ranking more query-sensitive while remaining
 lightweight and model-free.

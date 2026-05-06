@@ -160,7 +160,7 @@ Key conclusions:
 3. **Gating survives because it avoids fusion**
    It selects one space rather than mixing incompatible vectors.
 
-4. **Alignment is a first-class requirement**, not an optimization.
+4. **Alignment is a first-class requirement**, not an optimisation.
 
 This directly supports the KEFF design emphasis on:
 - orthogonal Procrustes alignment

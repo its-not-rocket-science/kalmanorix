@@ -103,7 +103,7 @@ def kalman_fuse_diagonal(  # pylint: disable=too-many-arguments
 
     d = embeddings[0].shape[0]
 
-    # Initialize state
+    # Initialise state
     if initial_state is not None:
         if initial_state.shape != (d,):
             raise ValueError(
@@ -184,7 +184,7 @@ def _kalman_update_diagonal(  # pylint: disable=invalid-name
     # Kalman gain for each dimension independently
     # K_i = P_i / (P_i + R_i + epsilon)
     denominator = P + R + epsilon
-    # Initialize K array with zeros (default for denominator <= epsilon)
+    # Initialise K array with zeros (default for denominator <= epsilon)
     K = np.zeros_like(P, dtype=np.float64)
     # Compute division only where denominator > epsilon
     np.divide(P, denominator, out=K, where=denominator > epsilon)
@@ -344,7 +344,7 @@ def kalman_fuse_diagonal_ensemble(
     embeddings_f64 = [emb.astype(np.float64) for emb in embeddings]
     covariances_f64 = [cov.astype(np.float64) for cov in covariances]
 
-    # Initialize prior terms
+    # Initialise prior terms
     if initial_state is not None:
         if initial_state.shape != (d,):
             raise ValueError(
@@ -473,7 +473,7 @@ def _kalman_update_diagonal_batch(
     # Kalman gain for each dimension independently, broadcast across batch
     # K_i = P_i / (P_i + R_i + epsilon)
     denominator = P + R + epsilon
-    # Initialize K array with zeros (default for denominator <= epsilon)
+    # Initialise K array with zeros (default for denominator <= epsilon)
     K = np.zeros_like(P, dtype=np.float64)
     # Compute division only where denominator > epsilon
     np.divide(P, denominator, out=K, where=denominator > epsilon)
@@ -523,7 +523,7 @@ def kalman_fuse_diagonal_batch(
     _validate_batch_inputs(embeddings, covariances)
     num_specialists, batch_size, d = embeddings.shape
 
-    # Initialize state
+    # Initialise state
     if initial_state is not None:
         if initial_state.shape != (batch_size, d):
             raise ValueError(
@@ -611,7 +611,7 @@ def kalman_fuse_diagonal_ensemble_batch(
     embeddings_f64 = embeddings.astype(np.float64)
     covariances_f64 = covariances.astype(np.float64)
 
-    # Initialize prior terms
+    # Initialise prior terms
     if initial_state is not None:
         if initial_state.shape != (batch_size, d):
             raise ValueError(
@@ -776,7 +776,7 @@ def kalman_fuse_structured(
         if not np.all(np.isfinite(emb)):
             raise ValueError(f"Item {i}: embedding must be finite")
 
-    # Initialize state
+    # Initialise state
     if initial_state is not None:
         if initial_state.shape != (d,):
             raise ValueError(

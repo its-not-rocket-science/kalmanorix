@@ -228,7 +228,7 @@ def test_snapshot_correlation_aware_fusion_markdown(tmp_path: Path) -> None:
     assert report == expected
 
 
-def test_optimized_kalman_numerical_equivalence_tight_tolerance() -> None:
+def test_optimised_kalman_numerical_equivalence_tight_tolerance() -> None:
     modules = [
         SEF(
             name="m0", embed=lambda q: np.array([1.0, 0.1, len(q) * 0.001]), sigma2=1e-4
@@ -247,10 +247,10 @@ def test_optimized_kalman_numerical_equivalence_tight_tolerance() -> None:
     queries = ["tiny query", "longer deterministic query here"]
 
     legacy = KalmanorixFuser(use_fast_scalar_path=False)
-    optimized = KalmanorixFuser(use_fast_scalar_path=True)
+    optimised = KalmanorixFuser(use_fast_scalar_path=True)
 
     x_legacy, w_legacy, m_legacy = legacy.fuse_batch(queries, modules)
-    x_opt, w_opt, m_opt = optimized.fuse_batch(queries, modules)
+    x_opt, w_opt, m_opt = optimised.fuse_batch(queries, modules)
 
     for xl, xo, wl, wo, ml, mo in zip(
         x_legacy, x_opt, w_legacy, w_opt, m_legacy, m_opt

@@ -115,7 +115,7 @@ python examples/create_interactive_demo.py
 This creates a `demo.ipynb` notebook that you can open in Jupyter.
 
 **Key learning points**:
-- Interactive exploration of fusion behavior
+- Interactive exploration of fusion behaviour
 - Visualizing embedding spaces and uncertainty
 - Real‑time parameter tuning
 

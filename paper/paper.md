@@ -32,7 +32,7 @@ Kalmanorix addresses this need by offering a software platform that connects dat
 
 # State of the Field
 
-Research on routing, probabilistic estimation, and sensor/data fusion spans multiple communities, with established methods for shortest-path search, state estimation, and uncertainty propagation [@TODO-routing-citation; @TODO-fusion-citation; @TODO-uncertainty-citation]. However, the software landscape is fragmented: route optimization tooling, probabilistic filtering libraries, and experiment harnesses are often developed independently and integrated only for specific projects.
+Research on routing, probabilistic estimation, and sensor/data fusion spans multiple communities, with established methods for shortest-path search, state estimation, and uncertainty propagation [@TODO-routing-citation; @TODO-fusion-citation; @TODO-uncertainty-citation]. However, the software landscape is fragmented: route optimisation tooling, probabilistic filtering libraries, and experiment harnesses are often developed independently and integrated only for specific projects.
 
 Kalmanorix contributes at this integration layer. It is positioned as research infrastructure that bridges routing evaluation and uncertainty-aware fusion analysis with reproducible experiment management. Rather than proposing a single closed-form algorithm as its primary contribution, the software supports systematic method comparison and ablation-oriented investigation in uncertainty-aware routing contexts.
 
@@ -42,8 +42,8 @@ Kalmanorix provides:
 
 1. **Experiment scaffolding for routing evaluation**: structured workflows for defining scenarios, running route computations, and collecting comparable outputs across methods.
 2. **Uncertainty-aware fusion hooks**: modular components for incorporating and evaluating uncertainty-aware fusion stages in the routing pipeline.
-3. **Metric and analysis utilities**: tools for summarizing route quality, robustness, and uncertainty-related behavior across runs.
-4. **Reproducibility-oriented organization**: configuration-driven execution, dataset handling conventions, and artifact-friendly outputs suitable for research reporting.
+3. **Metric and analysis utilities**: tools for summarizing route quality, robustness, and uncertainty-related behaviour across runs.
+4. **Reproducibility-oriented organisation**: configuration-driven execution, dataset handling conventions, and artifact-friendly outputs suitable for research reporting.
 
 The project is designed to support iterative experimentation: researchers can vary routing assumptions, fusion strategies, and uncertainty treatments while preserving a consistent evaluation protocol. This makes Kalmanorix suitable for baseline construction, method benchmarking, and exploratory analysis in uncertainty-aware routing studies.
 

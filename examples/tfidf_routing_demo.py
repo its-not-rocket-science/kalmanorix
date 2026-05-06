@@ -5,7 +5,7 @@ Demonstration of TF-IDF embedder as a fast, cached embedder for semantic routing
 This example shows how to:
 1. Fit a TF-IDF vectorizer on domain-specific calibration texts.
 2. Use the resulting TfidfEmbedder as the `fast_embedder` in a ScoutRouter.
-3. Observe caching behavior and routing decisions.
+3. Observe caching behaviour and routing decisions.
 
 Requirements:
     - scikit-learn (install via `pip install scikit-learn` or `pip install kalmanorix[train]`)

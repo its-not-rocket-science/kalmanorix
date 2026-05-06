@@ -535,7 +535,7 @@ class TfidfEmbedder(Embedder):
     cache: LRUCache[str, Vec] = field(init=False)
 
     def __post_init__(self) -> None:
-        """Initialize LRU cache after dataclass construction."""
+        """Initialise LRU cache after dataclass construction."""
         # Frozen dataclass requires object.__setattr__
         object.__setattr__(self, "cache", LRUCache(maxsize=self.max_cache_size))
 

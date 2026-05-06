@@ -256,7 +256,7 @@ def profile_tfidf_embedder(
         "cloud infrastructure scalability design",
         "microservices architecture patterns",
         "container orchestration with Kubernetes",
-        "neural network training optimization",
+        "neural network training optimisation",
         "serverless compute pricing model",
         "API gateway rate limiting configuration",
         "database sharding replication strategy",

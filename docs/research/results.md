@@ -20,7 +20,7 @@ This section consolidates the current Kalman-improvement work so readers can see
 | Uncertainty ablation | `results/uncertainty_ablation/report.md`, `results/uncertainty_ablation/summary.json` | Better-calibrated uncertainty methods are measurable, but retrieval metrics are mostly flat in this setup; report conclusion is partial/limited downstream gain. |
 | Covariance ablation | `results/kalman_covariance_ablation_v2/report.md`, `results/kalman_covariance_ablation_v2/summary.json` | Scalar/diagonal/structured variants evaluated; richer covariance is currently not justified by practical gain thresholds and increases latency vs mean fusion. |
 | Correlation-aware fusion | `results/correlation_aware_fusion/report.md`, `results/correlation_aware_fusion/summary.json` | Synthetic narrowed-hypothesis slice compares mean/Kalman/correlation-aware/weighted/learned baselines with paired stats and latency; any synthetic win is exploratory and non-headline. |
-| Latency optimization | `results/kalman_latency_optimization/report.md`, `results/kalman_latency_optimization/summary.json` | Legacy-to-optimized Kalman speedup is real, but optimized Kalman remains above mean-latency ratio limits used by canonical decision rules. |
+| Latency optimisation | `results/kalman_latency_optimisation/report.md`, `results/kalman_latency_optimisation/summary.json` | Legacy-to-optimised Kalman speedup is real, but optimised Kalman remains above mean-latency ratio limits used by canonical decision rules. |
 | Canonical benchmark v2 | `results/canonical_benchmark_v2/report.md`, `results/canonical_benchmark_v2/summary.json` | Decision remains `inconclusive_underpowered`; positive observed quality deltas are not statistically reliable at current sample size and latency threshold still fails. |
 
 ## Demonstrated vs Planned
@@ -121,11 +121,11 @@ Interpretation:
 - Artifacts: `results/correlation_aware_fusion/summary.json`, `results/correlation_aware_fusion/report.md`.
 - Interpretation: this track is now explicitly a narrowed synthetic hypothesis regime for partially correlated experts with unequal uncertainty quality; results are exploratory and cannot be used as headline proof.
 
-### 9) Latency optimization
+### 9) Latency optimisation
 **Evidence status:** **Engineering improvement demonstrated; canonical constraint still unmet.**
 
-- Artifacts: `results/kalman_latency_optimization/summary.json`, `results/kalman_latency_optimization/report.md`.
-- Interpretation: optimized Kalman improves over legacy implementation speed, but remains above the canonical Kalman/Mean latency ratio threshold.
+- Artifacts: `results/kalman_latency_optimisation/summary.json`, `results/kalman_latency_optimisation/report.md`.
+- Interpretation: optimised Kalman improves over legacy implementation speed, but remains above the canonical Kalman/Mean latency ratio threshold.
 
 ## Next empirical phase scaffold (post-canonical closure)
 
@@ -160,7 +160,7 @@ Synthetic results are useful for regression detection and implementation checks,
 ## Threats to Validity
 
 1. **Limited domain/query diversity** in current demonstrated efficiency runs.
-2. **Benchmark-to-production gap** in latency and system overhead behavior.
+2. **Benchmark-to-production gap** in latency and system overhead behaviour.
 3. **Threshold/centroid dependence** in routing outcomes.
 4. **Uncertainty estimation quality** may constrain Kalman fusion performance.
 5. **Incomplete hypothesis coverage** until pending benchmarks are finalized.

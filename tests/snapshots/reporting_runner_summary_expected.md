@@ -55,7 +55,7 @@
 
 ## Benchmark limitations
 
-- The benchmark evaluates retrieval behavior only; downstream task performance is not measured here.
+- The benchmark evaluates retrieval behaviour only; downstream task performance is not measured here.
 - Calibration metrics use confidence proxies rather than calibrated probabilities from a dedicated model.
 
 ## Recommended next experiments

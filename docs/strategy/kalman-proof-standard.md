@@ -79,7 +79,7 @@ Treat the hypothesis (“Kalman fusion beats mean fusion here”) as failed for 
    - Quality signal exists but repeatedly fails latency/FLOPs acceptance constraints.
 
 3. **Mechanism checks stay flat where they should matter.**
-   - Improvements in uncertainty calibration/covariance modeling continue to produce little or no downstream retrieval gain.
+   - Improvements in uncertainty calibration/covariance modelling continue to produce little or no downstream retrieval gain.
 
 4. **Competitor baselines dominate.**
    - Simpler or learned combiners repeatedly match or beat Kalman in the same real protocol.
@@ -92,7 +92,7 @@ We should pivot if the next powered canonical cycle still does not clear the ful
 
 ### Pivot trigger conditions
 - Canonical verdict remains inconclusive/unsupported after a meaningfully larger run.
-- Latency-ratio noncompliance remains persistent despite optimization.
+- Latency-ratio noncompliance remains persistent despite optimisation.
 - Gains appear only in specific structures (e.g., correlated experts) and fail to generalize.
 
 ### Better fallback claims (if supported by artifacts)

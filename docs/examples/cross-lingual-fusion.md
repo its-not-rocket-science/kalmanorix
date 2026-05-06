@@ -15,7 +15,7 @@ The system supports English, Spanish, French, German, Chinese, Japanese, and Ara
 
 Monolithic multilingual models (e.g., `paraphrase-multilingual-MiniLM`) embed all languages into a shared space but may under‑perform language‑specific models. Kalmanorix enables:
 
-- **Language‑specific optimization**: Fine‑tune each specialist on high‑quality monolingual data
+- **Language‑specific optimisation**: Fine‑tune each specialist on high‑quality monolingual data
 - **Efficient routing**: Skip irrelevant language specialists
 - **Graceful degradation**: When a language specialist is unavailable, fall back to multilingual model
 - **Incremental expansion**: Add new languages without retraining entire system
@@ -267,7 +267,7 @@ class LanguageDetector:
             except:
                 return 'en'
 
-# Initialize detector
+# Initialise detector
 detector = LanguageDetector(use_fasttext=True)
 ```
 
@@ -769,7 +769,7 @@ curl -X POST http://localhost:8000/search \
   -d '{"query": "Configuration du cluster Kubernetes", "include_language_detection": true}'
 ```
 
-## Step 7: Performance Optimization
+## Step 7: Performance Optimisation
 
 ### Language‑Specific Caching
 
@@ -991,7 +991,7 @@ You've built a multilingual search system that:
 - **Outperforms monolithic models** by 1.9‑5% on multilingual benchmarks
 - **Scales to new languages** incrementally without retraining
 
-This demonstrates Kalmanorix's strength in multilingual applications where language‑specific optimization provides measurable accuracy gains.
+This demonstrates Kalmanorix's strength in multilingual applications where language‑specific optimisation provides measurable accuracy gains.
 
 ## Further Reading
 

@@ -379,7 +379,7 @@ def _build_query_records(
         domain_docs.sort()
 
     # Precompute cross-domain pools once. The previous approach filtered all
-    # documents for every query, leading to O(num_queries × num_docs) behavior
+    # documents for every query, leading to O(num_queries × num_docs) behaviour
     # on BEIR-scale corpora and severe end-to-end generation slowdowns.
     sorted_domains = sorted(docs_by_domain)
     cross_domain_pools_by_domain: dict[str, list[str]] = {}

@@ -99,7 +99,7 @@ tech_calibration = [
     "Cloud infrastructure scalability design",
     "Microservices architecture patterns",
     "Container orchestration with Kubernetes",
-    "Neural network training optimization",
+    "Neural network training optimisation",
     "Serverless compute pricing model",
     "API gateway rate limiting configuration",
     "Database sharding replication strategy",
@@ -261,7 +261,7 @@ from tutorial_setup import create_specialists
 
 app = FastAPI(title="Multi‑Domain Search API", version="0.1.0")
 
-# Initialize on startup
+# Initialise on startup
 @app.on_event("startup")
 async def startup_event():
     global panoramix

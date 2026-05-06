@@ -1,4 +1,4 @@
-"""Regression tests for optimized Kalmanorix scalar-sigma² fast path."""
+"""Regression tests for optimised Kalmanorix scalar-sigma² fast path."""
 
 from __future__ import annotations
 
@@ -29,9 +29,9 @@ def _make_modules(n: int = 4, d: int = 64) -> list[SEF]:
     return modules
 
 
-def test_optimized_kalman_matches_legacy_single_query() -> None:
+def test_optimised_kalman_matches_legacy_single_query() -> None:
     modules = _make_modules(n=5, d=128)
-    query = "optimize kalman latency without changing semantics"
+    query = "optimise kalman latency without changing semantics"
 
     legacy = KalmanorixFuser(use_fast_scalar_path=False)
     fast = KalmanorixFuser(use_fast_scalar_path=True)
@@ -47,7 +47,7 @@ def test_optimized_kalman_matches_legacy_single_query() -> None:
         assert np.isclose(w_fast[key], w_legacy[key], rtol=1e-12, atol=1e-12)
 
 
-def test_optimized_kalman_matches_legacy_batch() -> None:
+def test_optimised_kalman_matches_legacy_batch() -> None:
     modules = _make_modules(n=4, d=96)
     queries = [
         "finance portfolio hedging",

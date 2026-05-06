@@ -5,11 +5,11 @@ This script previously ran a synthetic toy-corpus benchmark with handcrafted
 embedders. It is now a compatibility wrapper so the default execution path uses
 real mixed-domain retrieval data and real specialist models.
 
-Default behavior (primary validation):
+Default behaviour (primary validation):
     python experiments/mixed_domain_eval.py
         -> runs experiments/run_real_mixed_benchmark.py
 
-Debug-only behavior (synthetic smoke):
+Debug-only behaviour (synthetic smoke):
     python experiments/mixed_domain_eval.py --debug-synthetic
         -> runs experiments/validate_fusion.py --debug-synthetic
 """

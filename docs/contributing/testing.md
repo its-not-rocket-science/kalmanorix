@@ -216,7 +216,7 @@ pytest --cov=src/kalmanorix --cov-report=html
 
 ## Best Practices
 
-1. **Test behavior, not implementation**: Focus on what the code does, not how it does it
+1. **Test behaviour, not implementation**: Focus on what the code does, not how it does it
 2. **Keep tests fast**: Avoid unnecessary I/O, network calls, or heavy computation
 3. **Make tests independent**: Each test should set up its own state
 4. **Use descriptive test names**: Test function names should describe what they test

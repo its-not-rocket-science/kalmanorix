@@ -9,7 +9,7 @@ combined at query time using different fusion strategies:
 3. KalmanorixFuser (uncertainty / precision-weighted fusion)
 4. LearnedGateFuser (tiny learned gating baseline)
 
-The goal is not performance, but *behavioral clarity*: you should be able to
+The goal is not performance, but *behavioural clarity*: you should be able to
 read the printed weights and immediately understand how each strategy responds
 to a mixed-domain query.
 

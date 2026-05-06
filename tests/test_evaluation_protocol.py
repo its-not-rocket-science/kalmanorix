@@ -15,7 +15,7 @@ from kalmanorix.benchmarks.evaluation_protocol import (
 def test_locked_protocol_metrics_and_aggregation() -> None:
     rankings = {
         "q1": QueryRanking(doc_ids=("d2", "d1", "d3"), scores=(0.9, 0.9, 0.1)),
-        # q2 intentionally missing to verify empty-ranking behavior
+        # q2 intentionally missing to verify empty-ranking behaviour
     }
     qrels = {
         "q1": {"d1": 3.0, "d3": 1.0},

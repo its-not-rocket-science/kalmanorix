@@ -98,7 +98,7 @@ If a specialist is consistently over‑ or under‑confident, apply a global sca
 ```python
 def calibrate_scaling(errors, variances, target_coverage=0.68):
     """Find alpha that minimizes |coverage(alpha*variances) - target_coverage|."""
-    from scipy.optimize import minimize_scalar
+    from scipy.optimise import minimize_scalar
 
     def loss(alpha):
         scaled = alpha * variances
@@ -163,7 +163,7 @@ centroid = centroid / np.linalg.norm(centroid)
 # 2. Tune parameters using validation data
 def tune_centroid_params(errors, similarities, target_coverage=0.68):
     """Find optimal base_sigma2 and scale."""
-    from scipy.optimize import minimize
+    from scipy.optimise import minimize
 
     def loss(params):
         base, scale = params
