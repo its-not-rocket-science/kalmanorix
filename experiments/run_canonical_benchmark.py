@@ -75,6 +75,7 @@ CALIBRATION_MIN_VALIDATION_QUERIES = 100
 PAIRED_TEST_MIN_TEST_QUERIES = 50
 PER_DOMAIN_MIN_QUERIES = 20
 CONFIRMATORY_SLICE_MIN_PAIRS = 20
+ORACLE_RECALL_AT_K_FAIL_THRESHOLD = 0.2
 TOY_TEST_QUERY_THRESHOLD = max(10, PAIRED_TEST_MIN_TEST_QUERIES // 2)
 TOY_PER_DOMAIN_THRESHOLD = max(5, PER_DOMAIN_MIN_QUERIES // 2)
 TOY_VALIDATION_THRESHOLD = max(20, CALIBRATION_MIN_VALIDATION_QUERIES // 2)
@@ -1838,6 +1839,34 @@ def run_canonical_benchmark(
         benchmark_load_ms = (time.perf_counter() - cfg_load_start) * 1000.0
         details = run_experiment(cfg)
 
+    retrieval_diagnostics = details.get("retrieval_diagnostics", {})
+    per_strategy_diag = retrieval_diagnostics.get("per_strategy", {})
+    oracle_source_strategy = "kalman"
+    if oracle_source_strategy not in per_strategy_diag and per_strategy_diag:
+        oracle_source_strategy = next(iter(sorted(per_strategy_diag.keys())))
+
+    oracle_payload = per_strategy_diag.get(oracle_source_strategy, {}).get(
+        "diagnostic_report", {}
+    )
+    oracle_hits = oracle_payload.get(
+        "queries_where_candidate_pool_contains_ground_truth"
+    )
+    oracle_total = oracle_payload.get("queries_total")
+    oracle_recall_at_k: float | None = None
+    if (
+        isinstance(oracle_hits, int)
+        and isinstance(oracle_total, int)
+        and oracle_total > 0
+    ):
+        oracle_recall_at_k = float(oracle_hits) / float(oracle_total)
+        if oracle_recall_at_k < ORACLE_RECALL_AT_K_FAIL_THRESHOLD:
+            raise RuntimeError(
+                "Aborting canonical benchmark: oracle_recall_at_k is below fail-fast "
+                f"threshold ({oracle_recall_at_k:.3f} < {ORACLE_RECALL_AT_K_FAIL_THRESHOLD:.3f}). "
+                "Ground-truth appears in the candidate pool for too few queries, which "
+                "indicates retrieval is likely broken upstream."
+            )
+
     (output_dir / "runner_details.json").write_text(
         json.dumps(details, indent=2), encoding="utf-8"
     )
@@ -2117,6 +2146,16 @@ def run_canonical_benchmark(
             "evaluated_split": split,
             "split_counts": split_counts,
             "max_queries": max_queries,
+        },
+        "oracle_recall_at_k": {
+            "value": oracle_recall_at_k,
+            "threshold": ORACLE_RECALL_AT_K_FAIL_THRESHOLD,
+            "source_strategy": oracle_source_strategy,
+            "queries_with_ground_truth_in_candidate_pool": oracle_hits,
+            "queries_total": oracle_total,
+            "ground_truth_in_candidate_pool_percent": (
+                None if oracle_recall_at_k is None else oracle_recall_at_k * 100.0
+            ),
         },
         "seed": seed,
         "num_resamples": num_resamples,
