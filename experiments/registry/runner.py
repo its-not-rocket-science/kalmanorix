@@ -192,13 +192,25 @@ def _run_synthetic(config: BenchmarkExperimentConfig) -> dict[str, Any]:
 
 
 def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
+    force_hash_embedder = bool(config.models.options.get("force_hash_embedder", False))
+    max_candidates = config.dataset.options.get("max_candidates")
+    max_candidates_full = bool(config.dataset.options.get("max_candidates_full", False))
+    if max_candidates_full:
+        max_candidates = None
+    elif max_candidates is None and not force_hash_embedder:
+        max_candidates = 1000
+
+    stream_dataset = bool(config.dataset.options.get("stream", False))
+    if not stream_dataset and not force_hash_embedder:
+        stream_dataset = max_candidates is None or max_candidates > 1000
+
     rows = load_dataset(
         kind=config.dataset.kind,
         path=config.dataset.path,
         split=config.dataset.split,
         max_queries=config.dataset.max_queries,
-        max_candidates=config.dataset.options.get("max_candidates"),
-        stream=bool(config.dataset.options.get("stream", False)),
+        max_candidates=max_candidates,
+        stream=stream_dataset,
         row_batch_size=int(config.dataset.options.get("row_batch_size", 4096)),
     )
     reset_runtime_caches()
@@ -319,7 +331,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         "benchmark_path": str(config.dataset.path.resolve()),
         "split": config.dataset.split,
         "max_queries": config.dataset.max_queries,
-        "max_candidates": config.dataset.options.get("max_candidates"),
+        "max_candidates": max_candidates,
+        "max_candidates_full": max_candidates_full,
+        "stream_dataset": stream_dataset,
         "seed": config.seed.python,
         "fast_local": force_hash_embedder,
         "device": config.models.device,
@@ -335,7 +349,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         "benchmark_path": str(config.dataset.path.resolve()),
         "split": config.dataset.split,
         "max_queries": config.dataset.max_queries,
-        "max_candidates": config.dataset.options.get("max_candidates"),
+        "max_candidates": max_candidates,
+        "max_candidates_full": max_candidates_full,
+        "stream_dataset": stream_dataset,
         "seed": config.seed.__dict__,
         "fast_local_hash_mode": force_hash_embedder,
         "device": config.models.device,
@@ -363,9 +379,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         metadata.setdefault("benchmark_path", str(config.dataset.path.resolve()))
         metadata.setdefault("split", config.dataset.split)
         metadata.setdefault("max_queries", config.dataset.max_queries)
-        metadata.setdefault(
-            "max_candidates", config.dataset.options.get("max_candidates")
-        )
+        metadata.setdefault("max_candidates", max_candidates)
+        metadata.setdefault("max_candidates_full", max_candidates_full)
+        metadata.setdefault("stream_dataset", stream_dataset)
         metadata.setdefault("seed", config.seed.__dict__)
         metadata.setdefault("fast_local_hash_mode", force_hash_embedder)
         metadata.setdefault("device", config.models.device)
@@ -764,7 +780,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     metadata.setdefault("benchmark_path", str(config.dataset.path.resolve()))
     metadata.setdefault("split", config.dataset.split)
     metadata.setdefault("max_queries", config.dataset.max_queries)
-    metadata.setdefault("max_candidates", config.dataset.options.get("max_candidates"))
+    metadata.setdefault("max_candidates", max_candidates)
+    metadata.setdefault("max_candidates_full", max_candidates_full)
+    metadata.setdefault("stream_dataset", stream_dataset)
     metadata.setdefault("seed", config.seed.__dict__)
     metadata.setdefault("fast_local_hash_mode", force_hash_embedder)
     metadata.setdefault("device", config.models.device)

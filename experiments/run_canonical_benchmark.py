@@ -1799,6 +1799,7 @@ def run_canonical_benchmark(
             "max_queries": max_queries,
             "options": {
                 "max_candidates": None if max_candidates_full else max_candidates,
+                "max_candidates_full": max_candidates_full,
                 "stream": stream_dataset,
                 "row_batch_size": row_batch_size,
             },

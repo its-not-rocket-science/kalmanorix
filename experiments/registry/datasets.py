@@ -31,32 +31,56 @@ def load_dataset(
             import pyarrow.parquet as pq
 
             if stream:
-                source_rows = []
+                rows = []
                 for batch in pq.ParquetFile(path).iter_batches(
                     batch_size=max(1, row_batch_size)
                 ):
-                    source_rows.extend(batch.to_pylist())
-                    if max_queries is not None and len(source_rows) >= max_queries:
+                    for row in batch.to_pylist():
+                        if row.get("split") != split:
+                            continue
+                        if max_candidates is not None:
+                            row = {
+                                **row,
+                                "candidate_documents": row.get(
+                                    "candidate_documents", []
+                                )[:max_candidates],
+                            }
+                        rows.append(row)
+                        if max_queries is not None and len(rows) >= max_queries:
+                            break
+                    if max_queries is not None and len(rows) >= max_queries:
                         break
             else:
                 table = pq.read_table(path)
                 source_rows = table.to_pylist()
+                rows = [row for row in source_rows if row.get("split") == split]
+                if max_queries is not None:
+                    rows = rows[:max_queries]
+                if max_candidates is not None:
+                    rows = [
+                        {
+                            **row,
+                            "candidate_documents": row.get("candidate_documents", [])[
+                                :max_candidates
+                            ],
+                        }
+                        for row in rows
+                    ]
         else:
             source_rows = json.loads(path.read_text(encoding="utf-8"))
-
-        rows = [row for row in source_rows if row.get("split") == split]
-        if max_queries is not None:
-            rows = rows[:max_queries]
-        if max_candidates is not None:
-            rows = [
-                {
-                    **row,
-                    "candidate_documents": row.get("candidate_documents", [])[
-                        :max_candidates
-                    ],
-                }
-                for row in rows
-            ]
+            rows = [row for row in source_rows if row.get("split") == split]
+            if max_queries is not None:
+                rows = rows[:max_queries]
+            if max_candidates is not None:
+                rows = [
+                    {
+                        **row,
+                        "candidate_documents": row.get("candidate_documents", [])[
+                            :max_candidates
+                        ],
+                    }
+                    for row in rows
+                ]
         if not rows:
             raise ValueError(f"No rows found for split='{split}' in {path}")
         return rows
