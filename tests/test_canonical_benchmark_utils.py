@@ -38,6 +38,7 @@ def test_aggregate_strategy_metrics_returns_ci_and_query_level() -> None:
         "recall@1",
         "recall@5",
         "recall@10",
+        "recall@100",
         "mrr@5",
         "mrr@10",
         "top1_success",

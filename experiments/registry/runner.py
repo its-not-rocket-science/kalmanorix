@@ -198,6 +198,8 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         split=config.dataset.split,
         max_queries=config.dataset.max_queries,
         max_candidates=config.dataset.options.get("max_candidates"),
+        stream=bool(config.dataset.options.get("stream", False)),
+        row_batch_size=int(config.dataset.options.get("row_batch_size", 4096)),
     )
     reset_runtime_caches()
     model_start = time.perf_counter()

@@ -16,6 +16,8 @@ def load_dataset(
     split: str,
     max_queries: int | None,
     max_candidates: int | None = None,
+    stream: bool = False,
+    row_batch_size: int = 4096,
 ) -> Any:
     """Load dataset payload by kind."""
     if kind == "synthetic_toy":
@@ -28,8 +30,17 @@ def load_dataset(
         if pyarrow_available and path.suffix == ".parquet":
             import pyarrow.parquet as pq
 
-            table = pq.read_table(path)
-            source_rows = table.to_pylist()
+            if stream:
+                source_rows = []
+                for batch in pq.ParquetFile(path).iter_batches(
+                    batch_size=max(1, row_batch_size)
+                ):
+                    source_rows.extend(batch.to_pylist())
+                    if max_queries is not None and len(source_rows) >= max_queries:
+                        break
+            else:
+                table = pq.read_table(path)
+                source_rows = table.to_pylist()
         else:
             source_rows = json.loads(path.read_text(encoding="utf-8"))
 

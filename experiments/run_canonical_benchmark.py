@@ -67,6 +67,7 @@ REPORT_METRICS = [
     "recall@1",
     "recall@5",
     "recall@10",
+    "recall@100",
     "top1_success",
 ]
 BUCKET_SIGNIFICANCE_MIN_PAIRS = 20
@@ -1771,6 +1772,9 @@ def run_canonical_benchmark(
     fast_local: bool = False,
     timing_json: Path | None = None,
     max_candidates: int | None = None,
+    max_candidates_full: bool = False,
+    stream_dataset: bool = False,
+    row_batch_size: int = 4096,
     resume: bool = False,
     force_resume: bool = False,
     checkpoint_every: int = 0,
@@ -1793,7 +1797,11 @@ def run_canonical_benchmark(
             "path": str(benchmark_path),
             "split": split,
             "max_queries": max_queries,
-            "options": {"max_candidates": max_candidates},
+            "options": {
+                "max_candidates": None if max_candidates_full else max_candidates,
+                "stream": stream_dataset,
+                "row_batch_size": row_batch_size,
+            },
         },
         "models": {
             "kind": "hf_specialists",
@@ -2271,6 +2279,22 @@ def main() -> None:
         "--fast-local", "--hash-embedder", action="store_true", dest="fast_local"
     )
     parser.add_argument("--max-candidates", type=int, default=None)
+    parser.add_argument(
+        "--max-candidates-full",
+        action="store_true",
+        help="Use full candidate corpus when feasible.",
+    )
+    parser.add_argument(
+        "--stream-dataset",
+        action="store_true",
+        help="Stream parquet rows in batches to reduce peak memory.",
+    )
+    parser.add_argument(
+        "--row-batch-size",
+        type=int,
+        default=4096,
+        help="Batch size for --stream-dataset parquet loading.",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--force-resume", action="store_true")
@@ -2325,6 +2349,12 @@ def main() -> None:
             "resume safety is reduced."
         )
 
+    effective_max_candidates = args.max_candidates
+    if args.max_candidates_full:
+        effective_max_candidates = None
+    elif effective_max_candidates is None and not args.fast_local:
+        effective_max_candidates = 1000
+
     build_specs = _resolve_replication_build_specs(
         replication_builds=args.replication_builds
     )
@@ -2352,7 +2382,10 @@ def main() -> None:
             confirmatory_slice=args.confirmatory_slice,
             fast_local=args.fast_local,
             timing_json=args.timing_json,
-            max_candidates=args.max_candidates,
+            max_candidates=effective_max_candidates,
+            max_candidates_full=args.max_candidates_full,
+            stream_dataset=args.stream_dataset,
+            row_batch_size=args.row_batch_size,
             resume=args.resume,
             force_resume=args.force_resume,
             checkpoint_every=checkpoint_every,
@@ -2381,7 +2414,10 @@ def main() -> None:
                     if args.timing_json is not None
                     else None
                 ),
-                max_candidates=args.max_candidates,
+                max_candidates=effective_max_candidates,
+                max_candidates_full=args.max_candidates_full,
+                stream_dataset=args.stream_dataset,
+                row_batch_size=args.row_batch_size,
                 resume=args.resume,
                 force_resume=args.force_resume,
                 checkpoint_every=checkpoint_every,
