@@ -1772,8 +1772,10 @@ def run_canonical_benchmark(
     timing_json: Path | None = None,
     max_candidates: int | None = None,
     resume: bool = False,
+    force_resume: bool = False,
     checkpoint_every: int = 0,
     checkpoint_dir: Path | None = None,
+    allow_partial_report: bool = False,
 ) -> dict[str, Any]:
     overall_start = time.perf_counter()
     split_counts = _load_split_counts(benchmark_path)
@@ -1807,10 +1809,12 @@ def run_canonical_benchmark(
             "kind": "locked_protocol",
             "options": {
                 "resume": resume,
+                "force_resume": force_resume,
                 "checkpoint_every": checkpoint_every,
                 "checkpoint_dir": str(checkpoint_dir)
                 if checkpoint_dir is not None
                 else None,
+                "allow_partial_report": allow_partial_report,
             },
         },
         "reporting": {"print_stdout": False},
@@ -2269,8 +2273,10 @@ def main() -> None:
     parser.add_argument("--max-candidates", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--force-resume", action="store_true")
     parser.add_argument("--checkpoint-every", type=int, default=0)
     parser.add_argument("--checkpoint-dir", type=Path, default=None)
+    parser.add_argument("--allow-partial-report", action="store_true")
     parser.add_argument("--num-resamples", type=int, default=5000)
     parser.add_argument(
         "--replication-runs",
@@ -2340,8 +2346,10 @@ def main() -> None:
             timing_json=args.timing_json,
             max_candidates=args.max_candidates,
             resume=args.resume,
+            force_resume=args.force_resume,
             checkpoint_every=args.checkpoint_every,
             checkpoint_dir=args.checkpoint_dir,
+            allow_partial_report=args.allow_partial_report,
         )
     else:
         runs_dir = args.output_dir / "replication_runs"
@@ -2367,8 +2375,14 @@ def main() -> None:
                 ),
                 max_candidates=args.max_candidates,
                 resume=args.resume,
+                force_resume=args.force_resume,
                 checkpoint_every=args.checkpoint_every,
-                checkpoint_dir=args.checkpoint_dir,
+                checkpoint_dir=(
+                    args.checkpoint_dir / run_output_dir.name
+                    if args.checkpoint_dir is not None
+                    else None
+                ),
+                allow_partial_report=args.allow_partial_report,
             )
             run_summaries.append(run_summary)
         summary = run_summaries[0]
