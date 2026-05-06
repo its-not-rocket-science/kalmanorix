@@ -2437,7 +2437,7 @@
 <p>Legacy implementation (scalar prior variance).
 Maintains a scalar prior variance P (shared across dimensions).</p>
 
-        <p>Initialize diagonal Kalman fuser with scalar prior variance.</p>
+        <p>Initialise diagonal Kalman fuser with scalar prior variance.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2508,7 +2508,7 @@ Maintains a scalar prior variance P (shared across dimensions).</p>
 <span class="normal"><a href="#__codelineno-0-804">804</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-794"><a id="__codelineno-0-794" name="__codelineno-0-794"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="__span-0-795"><a id="__codelineno-0-795" name="__codelineno-0-795"></a>    <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prior_sigma2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">sort_by_sigma2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 </span><span id="__span-0-796"><a id="__codelineno-0-796" name="__codelineno-0-796"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-797"><a id="__codelineno-0-797" name="__codelineno-0-797"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize diagonal Kalman fuser with scalar prior variance.</span>
+</span><span id="__span-0-797"><a id="__codelineno-0-797" name="__codelineno-0-797"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialise diagonal Kalman fuser with scalar prior variance.</span>
 </span><span id="__span-0-798"><a id="__codelineno-0-798" name="__codelineno-0-798"></a>
 </span><span id="__span-0-799"><a id="__codelineno-0-799" name="__codelineno-0-799"></a><span class="sd">    Args:</span>
 </span><span id="__span-0-800"><a id="__codelineno-0-800" name="__codelineno-0-800"></a><span class="sd">        prior_sigma2: Prior variance shared across dimensions.</span>
@@ -3531,7 +3531,7 @@ diagonal covariance matrix (sigma² * I).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Use optimized scalar-sigma² Kalman path that
+                <p>Use optimised scalar-sigma² Kalman path that
 avoids constructing repeated diagonal covariance vectors.</p>
               </div>
             </td>
@@ -3576,7 +3576,7 @@ avoids constructing repeated diagonal covariance vectors.</p>
 </span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a><span class="sd">    Args:</span>
 </span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a><span class="sd">        sort_by_certainty: Sort measurements by certainty before fusion</span>
 </span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a><span class="sd">        epsilon: Small constant for numerical stability</span>
-</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a><span class="sd">        use_fast_scalar_path: Use optimized scalar-sigma² Kalman path that</span>
+</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a><span class="sd">        use_fast_scalar_path: Use optimised scalar-sigma² Kalman path that</span>
 </span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a><span class="sd">            avoids constructing repeated diagonal covariance vectors.</span>
 </span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">sort_by_certainty</span> <span class="o">=</span> <span class="n">sort_by_certainty</span>
@@ -3761,7 +3761,7 @@ avoids constructing repeated diagonal covariance vectors.</p>
 </span><span id="__span-0-458"><a id="__codelineno-0-458" name="__codelineno-0-458"></a>            <span class="s2">&quot;sort_by_certainty&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_by_certainty</span><span class="p">,</span>
 </span><span id="__span-0-459"><a id="__codelineno-0-459" name="__codelineno-0-459"></a>            <span class="s2">&quot;variance&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fused_cov</span><span class="p">[</span><span class="n">j</span><span class="p">])),</span>
 </span><span id="__span-0-460"><a id="__codelineno-0-460" name="__codelineno-0-460"></a>            <span class="s2">&quot;implementation&quot;</span><span class="p">:</span> <span class="p">(</span>
-</span><span id="__span-0-461"><a id="__codelineno-0-461" name="__codelineno-0-461"></a>                <span class="s2">&quot;optimized_scalar_sigma2&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_fast_scalar_path</span> <span class="k">else</span> <span class="s2">&quot;legacy&quot;</span>
+</span><span id="__span-0-461"><a id="__codelineno-0-461" name="__codelineno-0-461"></a>                <span class="s2">&quot;optimised_scalar_sigma2&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_fast_scalar_path</span> <span class="k">else</span> <span class="s2">&quot;legacy&quot;</span>
 </span><span id="__span-0-462"><a id="__codelineno-0-462" name="__codelineno-0-462"></a>            <span class="p">),</span>
 </span><span id="__span-0-463"><a id="__codelineno-0-463" name="__codelineno-0-463"></a>        <span class="p">}</span>
 </span><span id="__span-0-464"><a id="__codelineno-0-464" name="__codelineno-0-464"></a>        <span class="n">meta_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
@@ -3803,7 +3803,7 @@ avoids constructing repeated diagonal covariance vectors.</p>
 <p>This serves as a critical learned baseline against which Kalman-style
 fusion should be compared.</p>
 
-        <p>Initialize learned gate fuser between two modules.</p>
+        <p>Initialise learned gate fuser between two modules.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -3963,7 +3963,7 @@ fusion should be compared.</p>
 </span><span id="__span-0-899"><a id="__codelineno-0-899" name="__codelineno-0-899"></a>    <span class="n">l2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
 </span><span id="__span-0-900"><a id="__codelineno-0-900" name="__codelineno-0-900"></a>    <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
 </span><span id="__span-0-901"><a id="__codelineno-0-901" name="__codelineno-0-901"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-902"><a id="__codelineno-0-902" name="__codelineno-0-902"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize learned gate fuser between two modules.</span>
+</span><span id="__span-0-902"><a id="__codelineno-0-902" name="__codelineno-0-902"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialise learned gate fuser between two modules.</span>
 </span><span id="__span-0-903"><a id="__codelineno-0-903" name="__codelineno-0-903"></a>
 </span><span id="__span-0-904"><a id="__codelineno-0-904" name="__codelineno-0-904"></a><span class="sd">    Args:</span>
 </span><span id="__span-0-905"><a id="__codelineno-0-905" name="__codelineno-0-905"></a><span class="sd">        module_a: Name of first module.</span>

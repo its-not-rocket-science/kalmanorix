@@ -2795,9 +2795,9 @@
 <td>Narrowed-hypothesis synthetic correlated-experts regime with paired stats/latency; exploratory only and explicitly non-headline.</td>
 </tr>
 <tr>
-<td>Latency optimization</td>
-<td><code>results/kalman_latency_optimization/summary.json</code>, <code>results/kalman_latency_optimization/report.md</code></td>
-<td>Legacy Kalman path is measurably faster after optimization, but canonical latency-ratio acceptance is still not met.</td>
+<td>Latency optimisation</td>
+<td><code>results/kalman_latency_optimisation/summary.json</code>, <code>results/kalman_latency_optimisation/report.md</code></td>
+<td>Legacy Kalman path is measurably faster after optimisation, but canonical latency-ratio acceptance is still not met.</td>
 </tr>
 </tbody>
 </table>
@@ -2814,7 +2814,7 @@
 <li><code>experiments/benchmark_efficiency.py</code></li>
 </ul>
 <h3 id="scope-limitation">Scope limitation<a class="headerlink" href="#scope-limitation" title="Permanent link">&para;</a></h3>
-<p>This evidence demonstrates compute behavior in the tested benchmark setup; it does <strong>not</strong> by itself prove quality gains or universal real-world latency improvements.</p>
+<p>This evidence demonstrates compute behaviour in the tested benchmark setup; it does <strong>not</strong> by itself prove quality gains or universal real-world latency improvements.</p>
 <hr />
 <h2 id="canonical-benchmark-decision-criteria-kalman-vs-mean">Canonical benchmark decision criteria (Kalman vs Mean)<a class="headerlink" href="#canonical-benchmark-decision-criteria-kalman-vs-mean" title="Permanent link">&para;</a></h2>
 <p>The canonical benchmark must end with a rule-based verdict for <strong>KalmanorixFuser vs MeanFuser</strong>:</p>
@@ -2884,15 +2884,15 @@
 <li><strong>Benchmark representativeness:</strong> selected domains and queries may not match production distributions.</li>
 <li><strong>Statistical stability:</strong> limited query counts can produce unstable estimates and p-values.</li>
 <li><strong>Compute parity validity:</strong> specialists-vs-monolith comparisons can be biased if training/inference budgets differ.</li>
-<li><strong>Calibration quality:</strong> uncertainty quality directly affects Kalman weighting behavior.</li>
+<li><strong>Calibration quality:</strong> uncertainty quality directly affects Kalman weighting behaviour.</li>
 <li><strong>Routing sensitivity:</strong> fixed thresholds may under-select or over-select specialists depending on query mix.</li>
 </ol>
 <hr />
 <h2 id="what-kalman-improvements-changed-empirically-current">What Kalman improvements changed empirically (current)<a class="headerlink" href="#what-kalman-improvements-changed-empirically-current" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Improved implementation and instrumentation:</strong> uncertainty calibration now has explicit power checks; covariance variants, correlation-aware fusion, and latency optimizations all have committed artifact trails.</li>
+<li><strong>Improved implementation and instrumentation:</strong> uncertainty calibration now has explicit power checks; covariance variants, correlation-aware fusion, and latency optimisations all have committed artifact trails.</li>
 <li><strong>Unchanged/null outcomes where observed:</strong> canonical Kalman-vs-Mean remains unresolved; uncertainty calibration and uncertainty ablation currently do not produce a robust downstream quality lift in committed runs.</li>
-<li><strong>Open questions:</strong> can small correlation-aware gains replicate at larger sample sizes, and can additional latency optimization meet canonical latency thresholds while preserving quality metrics.</li>
+<li><strong>Open questions:</strong> can small correlation-aware gains replicate at larger sample sizes, and can additional latency optimisation meet canonical latency thresholds while preserving quality metrics.</li>
 </ul>
 
 

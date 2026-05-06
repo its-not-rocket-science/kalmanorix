@@ -2220,7 +2220,7 @@
 
 
 <h1 id="fastapi-server-production-upgrade-notes-april-2026">FastAPI Server Production Upgrade Notes (April 2026)<a class="headerlink" href="#fastapi-server-production-upgrade-notes-april-2026" title="Permanent link">&para;</a></h1>
-<p>This note documents a <strong>minimal-viable</strong> upgrade of <code>examples/fastapi_server.py</code> from demo-grade to production-oriented behavior without rewriting the core fusion engine.</p>
+<p>This note documents a <strong>minimal-viable</strong> upgrade of <code>examples/fastapi_server.py</code> from demo-grade to production-oriented behaviour without rewriting the core fusion engine.</p>
 <h2 id="what-was-not-production-safe-before">What was not production-safe before<a class="headerlink" href="#what-was-not-production-safe-before" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Runtime initialization at import-time</strong></li>
@@ -2229,7 +2229,7 @@
 <li>Different paths returned different shapes (<code>detail</code>, <code>type</code>, raw exception text).</li>
 <li><strong>Unstructured logging</strong></li>
 <li>Logging used free-text messages, making metrics extraction and filtering harder.</li>
-<li><strong>No explicit timeout behavior</strong></li>
+<li><strong>No explicit timeout behaviour</strong></li>
 <li>A slow embedder/fuser could hold request workers indefinitely.</li>
 <li><strong>No probe endpoints for orchestration</strong></li>
 <li>Missing liveness/readiness endpoints for Kubernetes/containers.</li>
@@ -2276,7 +2276,7 @@
 <ol>
 <li><strong>Baseline latency</strong></li>
 <li>Measure p50/p95/p99 for <code>/fuse</code> by strategy and routing mode.</li>
-<li><strong>Timeout behavior</strong></li>
+<li><strong>Timeout behaviour</strong></li>
 <li>Force slow specialists; verify timeout returns quickly with controlled error payload.</li>
 <li><strong>Error schema contract</strong></li>
 <li>Confirm 4xx/5xx responses share <code>{"error": ..., "request_id": ...}</code> format.</li>
