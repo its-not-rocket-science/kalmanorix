@@ -11,10 +11,10 @@ The current claim-ready fast-local benchmark does not support Kalman fusion supe
 - [arXiv checklist](./arxiv-checklist.md)
 - [TMLR submission outline](./tmlr-submission-outline.md)
 - [JOSS plan](./joss-plan.md)
-- [Publication tables directory](./tables/)
+- Publication tables directory: `paper/tmlr/tables/`
 
 ## Benchmark artifacts
 
-- [Canonical benchmark result directory (claim-ready fast-local run)](../../results/canonical_benchmark_v3_fast_1200/)
-- [Timing JSON (canonical fast-local run)](../../results/canonical_benchmark_v3_fast_1200/timing.json)
-- [Benchmark manifest](../../benchmarks/mixed_beir_v1.2.0/benchmark_manifest.json)
+- Canonical benchmark result directory (claim-ready fast-local run): `results/canonical_benchmark_v3_fast_1200/`
+- Timing JSON (canonical fast-local run): `results/canonical_benchmark_v3_fast_1200/timing.json`
+- Benchmark manifest: `benchmarks/mixed_beir_v1.2.0/benchmark_manifest.json`
