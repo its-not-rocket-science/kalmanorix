@@ -225,12 +225,10 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         "split": config.dataset.split,
         "max_queries": config.dataset.max_queries,
         "max_candidates": config.dataset.options.get("max_candidates"),
-        "force_hash_embedder": force_hash_embedder,
-        "seed": config.seed.__dict__,
+        "seed": config.seed.python,
+        "fast_local": force_hash_embedder,
+        "device": config.models.device,
         "specialists": config.models.specialists,
-        "models_kind": config.models.kind,
-        "routing_mode": config.fusion.routing_mode,
-        "strategies": list(config.fusion.strategies),
         "schema_version": CHECKPOINT_SCHEMA_VERSION,
     }
     config_fingerprint = hashlib.sha256(
@@ -536,6 +534,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
                 f"--resume --checkpoint-dir {checkpoint_dir}"
                 if checkpoint_dir is not None
                 else "--resume"
+            )
+            print(
+                f"Interrupted by user. Resume with exact command suffix: {resume_hint}"
             )
             raise RuntimeError(
                 f"Interrupted by user. Resume with exact command suffix: {resume_hint}"

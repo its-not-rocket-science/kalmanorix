@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import time
-from typing import Any
+from typing import Any, Mapping
 
 import numpy as np
 
@@ -2274,7 +2274,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--force-resume", action="store_true")
-    parser.add_argument("--checkpoint-every", type=int, default=0)
+    parser.add_argument("--checkpoint-every", type=int, default=None)
     parser.add_argument("--checkpoint-dir", type=Path, default=None)
     parser.add_argument("--allow-partial-report", action="store_true")
     parser.add_argument("--num-resamples", type=int, default=5000)
@@ -2316,6 +2316,14 @@ def main() -> None:
         help="Output artifact directory (canonical v3 default: results/canonical_benchmark_v3).",
     )
     args = parser.parse_args()
+    checkpoint_every = args.checkpoint_every
+    if checkpoint_every is None:
+        checkpoint_every = 0 if args.fast_local else 1
+    elif checkpoint_every <= 0 and not args.fast_local:
+        print(
+            "WARNING: checkpointing is disabled for a non-fast-local neural run; "
+            "resume safety is reduced."
+        )
 
     build_specs = _resolve_replication_build_specs(
         replication_builds=args.replication_builds
@@ -2347,7 +2355,7 @@ def main() -> None:
             max_candidates=args.max_candidates,
             resume=args.resume,
             force_resume=args.force_resume,
-            checkpoint_every=args.checkpoint_every,
+            checkpoint_every=checkpoint_every,
             checkpoint_dir=args.checkpoint_dir,
             allow_partial_report=args.allow_partial_report,
         )
@@ -2376,7 +2384,7 @@ def main() -> None:
                 max_candidates=args.max_candidates,
                 resume=args.resume,
                 force_resume=args.force_resume,
-                checkpoint_every=args.checkpoint_every,
+                checkpoint_every=checkpoint_every,
                 checkpoint_dir=(
                     args.checkpoint_dir / run_output_dir.name
                     if args.checkpoint_dir is not None
