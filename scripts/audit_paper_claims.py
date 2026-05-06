@@ -1,151 +1,88 @@
 #!/usr/bin/env python3
-"""Audit publication text for unsupported superiority claims."""
+"""Audit publication artifacts for overclaiming language."""
 
 from __future__ import annotations
 
-import argparse
 import re
 from pathlib import Path
 
-DEFAULT_DIRECTORIES = [
-    "paper/arxiv",
-    "paper/tmlr",
-    "paper/joss",
-    "docs/publication",
-]
+AUDIT_DIRECTORIES = (
+    Path("paper/arxiv"),
+    Path("paper/tmlr"),
+    Path("paper/joss"),
+    Path("docs/publication"),
+)
 
-TEXT_EXTENSIONS = {".md", ".tex", ".txt", ".rst"}
+TEXT_SUFFIXES = {".md", ".tex", ".txt", ".rst"}
 
-RISKY_PATTERNS = [
-    r"kalman beats mean",
-    r"kalman improves retrieval",
-    r"kalman outperforms",
-    r"proved superior",
-    r"state of the art",
-    r"statistically significant improvement",
-    r"robustly improves",
-]
+RISKY_PHRASES = (
+    "Kalman beats mean",
+    "Kalman improves retrieval",
+    "Kalman outperforms",
+    "proved superior",
+    "state of the art",
+    "statistically significant improvement",
+    "robustly improves",
+)
 
-ALLOWANCE_PATTERNS = [
-    r"\bnot\b",
-    r"\bno\b",
-    r"\bunsupported\b",
-    r"\bwas not supported\b",
-    r"\bdid not\b",
-    r"\bfailed to\b",
-    r"\bcannot support\b",
-    r"\bcan't support\b",
-]
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Flag risky superiority claims in publication text."
-    )
-    parser.add_argument(
-        "paths",
-        nargs="*",
-        default=DEFAULT_DIRECTORIES,
-        help="Directories or files to audit.",
-    )
-    return parser.parse_args()
+ALLOWED_CONTEXT_PATTERNS = (
+    re.compile(r"\bavoid\b", re.IGNORECASE),
+    re.compile(r"\bprohibited\b", re.IGNORECASE),
+    re.compile(r"\bsuch\s+as\b", re.IGNORECASE),
+    re.compile(r"\boverclaiming\b", re.IGNORECASE),
+    re.compile(r"\bnot\b", re.IGNORECASE),
+    re.compile(r"\bno\b", re.IGNORECASE),
+    re.compile(r"\bunsupported\b", re.IGNORECASE),
+    re.compile(r"\bcannot\s+support\b", re.IGNORECASE),
+    re.compile(r"\bfails?\s+to\s+support\b", re.IGNORECASE),
+    re.compile(r"\bhypothesis\s+was\s+not\s+supported\b", re.IGNORECASE),
+)
 
 
-def iter_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for raw in paths:
-        path = Path(raw)
-        if not path.exists():
+def _iter_candidate_files(repo_root: Path):
+    for rel_dir in AUDIT_DIRECTORIES:
+        directory = repo_root / rel_dir
+        if not directory.exists():
             continue
-        if path.is_file() and path.suffix.lower() in TEXT_EXTENSIONS:
-            files.append(path)
-            continue
-        if path.is_dir():
-            for file in path.rglob("*"):
-                if file.is_file() and file.suffix.lower() in TEXT_EXTENSIONS:
-                    files.append(file)
-    return sorted(files)
+        for file_path in sorted(directory.rglob("*")):
+            if file_path.is_file() and file_path.suffix.lower() in TEXT_SUFFIXES:
+                yield file_path
 
 
-def sentence_bounds(line: str) -> list[tuple[int, int]]:
-    bounds: list[tuple[int, int]] = []
-    start = 0
-    for match in re.finditer(r"[.!?]", line):
-        end = match.end()
-        bounds.append((start, end))
-        start = end
-    if start < len(line):
-        bounds.append((start, len(line)))
-    return bounds
-
-
-def containing_sentence(line: str, start_idx: int) -> str:
-    for start, end in sentence_bounds(line):
-        if start <= start_idx < end:
-            return line[start:end]
-    return line
-
-
-def is_allowed(context: str) -> bool:
-    lowered = context.lower()
-    return any(re.search(pattern, lowered) for pattern in ALLOWANCE_PATTERNS)
-
-
-def audit_file(
-    path: Path, risky_regexes: list[re.Pattern[str]]
-) -> list[tuple[int, str, str]]:
-    findings: list[tuple[int, str, str]] = []
-    lines = path.read_text(encoding="utf-8").splitlines()
-    for idx, line in enumerate(lines):
-        line_number = idx + 1
-        lowered = line.lower()
-        for regex in risky_regexes:
-            match = regex.search(lowered)
-            if not match:
-                continue
-            sentence_context = containing_sentence(lowered, match.start())
-            window_start = max(0, idx - 5)
-            window_end = min(len(lines), idx + 6)
-            neighborhood = " ".join(lines[window_start:window_end]).lower()
-            if is_allowed(sentence_context):
-                continue
-            if any(
-                tag in neighborhood
-                for tag in [
-                    "risky",
-                    "disallowed",
-                    "not supported",
-                    "unsupported",
-                    "only acceptable when",
-                    "do not use",
-                    "avoid",
-                    "unqualified phrases",
-                ]
-            ):
-                continue
-            findings.append((line_number, regex.pattern, line.strip()))
-    return findings
+def _line_has_allowed_context(line: str, recent_context: str = "") -> bool:
+    context = f"{recent_context} {line}".strip()
+    return any(pattern.search(context) for pattern in ALLOWED_CONTEXT_PATTERNS)
 
 
 def main() -> int:
-    args = parse_args()
-    files = iter_files(args.paths)
-    risky_regexes = [
-        re.compile(pattern, flags=re.IGNORECASE) for pattern in RISKY_PATTERNS
-    ]
+    repo_root = Path(__file__).resolve().parents[1]
+    violations: list[tuple[str, int, str, str]] = []
 
-    issues: list[tuple[Path, int, str, str]] = []
-    for file in files:
-        for line_number, pattern, line in audit_file(file, risky_regexes):
-            issues.append((file, line_number, pattern, line))
+    for file_path in _iter_candidate_files(repo_root):
+        rel_path = str(file_path.relative_to(repo_root))
+        lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        for lineno, line in enumerate(lines, start=1):
+            for phrase in RISKY_PHRASES:
+                if not re.search(re.escape(phrase), line, re.IGNORECASE):
+                    continue
+                context_start = max(0, lineno - 6)
+                recent_context = " ".join(lines[context_start : lineno - 1])
+                if line.strip().startswith('- "') and re.search(
+                    r"overclaiming|prohibited|avoid", recent_context, re.IGNORECASE
+                ):
+                    continue
+                if _line_has_allowed_context(line, recent_context=recent_context):
+                    continue
+                violations.append((rel_path, lineno, phrase, line.strip()))
 
-    if issues:
-        print("Risky publication claims detected:")
-        for file, line_number, pattern, line in issues:
-            print(f"- {file}:{line_number}: matched '{pattern}' -> {line}")
+    if violations:
+        print("Risky paper claims detected:")
+        for rel_path, lineno, phrase, line in violations:
+            print(f" - {rel_path}:{lineno}: matched '{phrase}'")
+            print(f"   line: {line}")
         return 1
 
-    print("No unsupported superiority claims detected.")
+    print("No risky paper claims detected.")
     return 0
 
 

@@ -1,43 +1,40 @@
-# Claims Policy for Publications
+# Publication Claims Policy
 
-This repository reports a negative-result finding. Publication language must avoid unsupported superiority claims.
+This repository adopts a conservative claims standard for all publication materials.
 
 ## Scope
 
 Apply this policy to:
+
 - `paper/arxiv/`
 - `paper/tmlr/`
 - `paper/joss/`
 - `docs/publication/`
 
-## Disallowed claim patterns (unless explicitly negated or marked unsupported)
+## Prohibited overclaiming language
 
-The following phrases are risky and should be treated as disallowed by default:
-- “Kalman beats mean”
-- “Kalman improves retrieval”
-- “Kalman outperforms”
-- “proved superior”
-- “state of the art”
-- “statistically significant improvement”
-- “robustly improves”
+Avoid unsupported superiority language such as:
 
-These phrases are only acceptable when they are clearly negated or directly described as unsupported.
+- "Kalman beats mean"
+- "Kalman improves retrieval"
+- "Kalman outperforms"
+- "proved superior"
+- "state of the art" (unsupported claim example)
+- "statistically significant improvement" (unsupported claim example)
+- "robustly improves" (unsupported claim example)
+
+These phrases are only acceptable when clearly negated or explicitly described as unsupported.
 
 ## Preferred wording
 
-Use wording aligned with observed evidence:
-- “The hypothesis was not supported.”
-- “No practical or statistically significant advantage was observed.”
-- “The result is benchmark-specific.”
-- “Hard routing was the strongest observed baseline in this configuration.”
-- “The confirmatory slice was empty and cannot support a superiority claim.”
+Use language that accurately reflects negative or bounded findings:
+
+- "The hypothesis was not supported."
+- "No practical or statistically significant advantage was observed."
+- "The result is benchmark-specific."
+- "Hard routing was the strongest observed baseline in this configuration."
+- "The confirmatory slice was empty and cannot support a superiority claim."
 
 ## Enforcement
 
-Run the audit script before submission:
-
-```bash
-python scripts/audit_paper_claims.py
-```
-
-The script exits nonzero when risky claims are found.
+Run `scripts/audit_paper_claims.py` before release or submission. The audit exits nonzero when risky, unsupported claim language is detected.
