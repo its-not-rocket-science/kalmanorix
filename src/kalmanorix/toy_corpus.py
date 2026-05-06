@@ -40,7 +40,7 @@ def build_toy_corpus(*, british_spelling: bool = True) -> ToyCorpus:
         If True, uses "optimisation" / "flavour". If False, uses US spellings.
         This only affects the literal document strings, not the indices.
     """
-    optimisation = "optimisation" if british_spelling else "optimization"
+    optimisation = "optimisation" if british_spelling else "optimisation"
     flavour = "flavour" if british_spelling else "flavor"
 
     tech_docs = [

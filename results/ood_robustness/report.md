@@ -31,7 +31,7 @@ Decision logic:
 1. `positive` when OOD split semantics are explicit, parameterized, and validated.
 2. `null` when existing uncertainty artifacts show no downstream quality lift.
 3. `inconclusive` when no direct paired OOD significance table is present.
-4. `regression` when OOD queries require rejection behavior but no reject/abstain rule is committed.
+4. `regression` when OOD queries require rejection behaviour but no reject/abstain rule is committed.
 
 ## Guarded findings scaffold
 

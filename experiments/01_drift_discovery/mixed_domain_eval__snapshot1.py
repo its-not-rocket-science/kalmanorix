@@ -131,7 +131,7 @@ def build_toy_corpus() -> ToyCorpus:
         "Reduce a sauce by simmering to concentrate flavor",
     ]
     confusers = [
-        "Battery optimization recipe: reduce background activity to improve performance",
+        "Battery optimisation recipe: reduce background activity to improve performance",
         "Use a food processor to chop onions quickly for a stew recipe",
         "Camera-ready plating: improve presentation with garnish and sauce reduction",
         "Thermal load: avoid overheating by reducing power draw under performance spikes",

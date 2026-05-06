@@ -269,7 +269,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         Args:
             sort_by_certainty: Sort measurements by certainty before fusion
             epsilon: Small constant for numerical stability
-            use_fast_scalar_path: Use optimized scalar-sigma² Kalman path that
+            use_fast_scalar_path: Use optimised scalar-sigma² Kalman path that
                 avoids constructing repeated diagonal covariance vectors.
         """
         self.sort_by_certainty = sort_by_certainty
@@ -326,7 +326,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
         *,
         precomputed_embeddings: Optional[List[np.ndarray]] = None,
     ) -> Tuple[Vec, Dict[str, float], Optional[Dict[str, object]]]:
-        """Optimized implementation equivalent to sigma²*I covariance fusion."""
+        """Optimised implementation equivalent to sigma²*I covariance fusion."""
         aligned = (
             precomputed_embeddings
             if precomputed_embeddings is not None
@@ -361,7 +361,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
             "total_uncertainties": total_uncertainties,
             "sort_by_certainty": self.sort_by_certainty,
             "variance": float(p),
-            "implementation": "optimized_scalar_sigma2",
+            "implementation": "optimised_scalar_sigma2",
         }
         return x, weights, meta
 
@@ -458,7 +458,7 @@ class KalmanorixFuser(Fuser):  # pylint: disable=too-few-public-methods
                 "sort_by_certainty": self.sort_by_certainty,
                 "variance": float(np.mean(fused_cov[j])),
                 "implementation": (
-                    "optimized_scalar_sigma2" if self.use_fast_scalar_path else "legacy"
+                    "optimised_scalar_sigma2" if self.use_fast_scalar_path else "legacy"
                 ),
             }
             meta_list.append(meta)
@@ -794,7 +794,7 @@ class DiagonalKalmanFuser(Fuser):  # pylint: disable=too-few-public-methods
     def __init__(
         self, *, prior_sigma2: float = 1.0, sort_by_sigma2: bool = True
     ) -> None:
-        """Initialize diagonal Kalman fuser with scalar prior variance.
+        """Initialise diagonal Kalman fuser with scalar prior variance.
 
         Args:
             prior_sigma2: Prior variance shared across dimensions.
@@ -899,7 +899,7 @@ class LearnedGateFuser(Fuser):
         l2: float = 1e-3,
         steps: int = 300,
     ) -> None:
-        """Initialize learned gate fuser between two modules.
+        """Initialise learned gate fuser between two modules.
 
         Args:
             module_a: Name of first module.

@@ -485,7 +485,7 @@ def get_runtime() -> SpecialistRuntime:
             scout_hard=scout_hard,
             fusers=fusers,
         )
-        log_event(logging.INFO, "runtime.initialized", modules=len(village.modules))
+        log_event(logging.INFO, "runtime.initialised", modules=len(village.modules))
         return _runtime
 
 
@@ -560,7 +560,7 @@ def target_difficulty_for_user(user_knowledge: UserKnowledge) -> float:
 
 
 def get_or_create_user_knowledge(user_id: str) -> UserKnowledge:
-    """Fetch or initialize user knowledge profile."""
+    """Fetch or initialise user knowledge profile."""
     with _user_knowledge_lock:
         if user_id in _user_knowledge_store:
             return _user_knowledge_store[user_id]

@@ -17,7 +17,7 @@ from kalmanorix.uncertainty import (
     apply_uncertainty_baseline_to_specialists,
     build_uncertainty_method,
     create_uncertainty_method,
-    summarize_uncertainty_distribution,
+    summarise_uncertainty_distribution,
     uncertainty_histogram,
 )
 
@@ -104,7 +104,7 @@ def test_uncertainty_diagnostics_report_well_behaved_distribution() -> None:
     sigma2 = EmbeddingNormSigma2(embed=_toy_embed, base_sigma2=0.2)
     queries = ["weak", "strong", "tech", "cook"]
 
-    stats = summarize_uncertainty_distribution(sigma2, queries)
+    stats = summarise_uncertainty_distribution(sigma2, queries)
     hist = uncertainty_histogram(sigma2, queries, bins=3)
 
     assert stats.n_queries == 4

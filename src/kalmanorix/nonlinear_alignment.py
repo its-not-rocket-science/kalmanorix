@@ -76,7 +76,7 @@ def train_alignment(
     model = AlignmentNetwork(input_dim=source.shape[1], output_dim=target.shape[1]).to(
         device
     )
-    optimizer = torch.optim.AdamW(
+    optimiser = torch.optim.AdamW(
         model.parameters(), lr=learning_rate, weight_decay=1e-4
     )
 
@@ -99,9 +99,9 @@ def train_alignment(
             )
             loss = 0.7 * info_nce + 0.3 * cosine
 
-            optimizer.zero_grad()
+            optimiser.zero_grad()
             loss.backward()
-            optimizer.step()
+            optimiser.step()
 
     model.eval()
     return model

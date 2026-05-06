@@ -8,7 +8,7 @@ components works:
     SEF → Village → ScoutRouter → Panoramix → Fuser → Potion
 
 If these tests fail, it indicates a breaking change in the public API or
-a wiring error between components, not a modeling issue.
+a wiring error between components, not a modelling issue.
 """
 
 import numpy as np

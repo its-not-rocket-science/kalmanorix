@@ -74,7 +74,7 @@ DOMAIN_DEFS = {
             "film": ["director", "cinematography", "sequel", "festival"],
             "music": ["album", "chorus", "producer", "tour"],
             "gaming": ["gameplay", "level", "patch", "multiplayer"],
-            "streaming": ["subscriber", "catalog", "episode", "binge"],
+            "streaming": ["subscriber", "catalogue", "episode", "binge"],
             "celebrity": ["interview", "publicist", "headline", "fanbase"],
         },
     },

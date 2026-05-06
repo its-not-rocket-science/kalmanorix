@@ -74,12 +74,12 @@ Key characteristics today:
 
 ## 3) Scalability with number of specialists
 
-### A. Core scaling behavior today
+### A. Core scaling behaviour today
 - FLOPs ratio tracks specialist count in all-routing mode (~N).
 - Throughput drops roughly linearly as N increases.
 - Routing compute cost itself is also O(N*d) and becomes material with many specialists.
 
-### B. Duplicate-centroid behavior in scaled experiments
+### B. Duplicate-centroid behaviour in scaled experiments
 - When specialists are duplicated, semantic routing can select many near-identical modules.
 
 **Impact:** Selection cardinality grows with duplication; efficiency decays.
@@ -157,7 +157,7 @@ Avoid separate embed pass; compute uncertainty from already-produced specialist 
 
 ---
 
-## Concrete optimization plan (prioritized)
+## Concrete optimisation plan (prioritized)
 
 ## P0 (do first: 1-2 sprints)
 

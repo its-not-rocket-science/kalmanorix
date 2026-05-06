@@ -276,7 +276,7 @@ def evaluate_uncertainty_method_on_dataset(
         metrics, _ = _compute_metrics(dataset, scaled_village)
         scaled_metrics[str(scale)] = metrics
 
-    sensitivity = summarize_scale_sensitivity(scaled_metrics)
+    sensitivity = summarise_scale_sensitivity(scaled_metrics)
     return {
         "dataset": dataset.name,
         "synthetic": dataset.synthetic,
@@ -290,7 +290,7 @@ def evaluate_uncertainty_method_on_dataset(
     }
 
 
-def summarize_scale_sensitivity(
+def summarise_scale_sensitivity(
     metrics_by_scale: dict[str, MethodMetrics],
 ) -> ScaleSensitivity:
     recalls = [m.recall_at_1 for m in metrics_by_scale.values()]

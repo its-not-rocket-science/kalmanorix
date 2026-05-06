@@ -19,7 +19,7 @@ This is the compact map of implemented Kalman-improvement tracks and how to inte
 | Uncertainty ablation | `results/uncertainty_ablation/summary.json`, `results/uncertainty_ablation/report.md` | Calibration proxies improve for some methods, while retrieval metrics are largely unchanged in this setup. |
 | Covariance ablation | `results/kalman_covariance_ablation_v2/summary.json`, `results/kalman_covariance_ablation_v2/report.md` | Richer covariance families are implemented and tested but not justified by practical gains here. |
 | Correlation-aware fusion | `results/correlation_aware_fusion/summary.json`, `results/correlation_aware_fusion/report.md` | Narrowed-hypothesis synthetic correlated-experts regime with paired stats/latency; exploratory only and explicitly non-headline. |
-| Latency optimization | `results/kalman_latency_optimization/summary.json`, `results/kalman_latency_optimization/report.md` | Legacy Kalman path is measurably faster after optimization, but canonical latency-ratio acceptance is still not met. |
+| Latency optimisation | `results/kalman_latency_optimisation/summary.json`, `results/kalman_latency_optimisation/report.md` | Legacy Kalman path is measurably faster after optimisation, but canonical latency-ratio acceptance is still not met. |
 
 ## 1) Demonstrated Evidence (as of April 9, 2026)
 
@@ -33,7 +33,7 @@ This is the compact map of implemented Kalman-improvement tracks and how to inte
 - `experiments/benchmark_efficiency.py`
 
 ### Scope limitation
-This evidence demonstrates compute behavior in the tested benchmark setup; it does **not** by itself prove quality gains or universal real-world latency improvements.
+This evidence demonstrates compute behaviour in the tested benchmark setup; it does **not** by itself prove quality gains or universal real-world latency improvements.
 
 ---
 
@@ -128,13 +128,13 @@ python experiments/mixed_domain_eval.py
 1. **Benchmark representativeness:** selected domains and queries may not match production distributions.
 2. **Statistical stability:** limited query counts can produce unstable estimates and p-values.
 3. **Compute parity validity:** specialists-vs-monolith comparisons can be biased if training/inference budgets differ.
-4. **Calibration quality:** uncertainty quality directly affects Kalman weighting behavior.
+4. **Calibration quality:** uncertainty quality directly affects Kalman weighting behaviour.
 5. **Routing sensitivity:** fixed thresholds may under-select or over-select specialists depending on query mix.
 
 ---
 
 ## What Kalman improvements changed empirically (current)
 
-- **Improved implementation and instrumentation:** uncertainty calibration now has explicit power checks; covariance variants, correlation-aware fusion, and latency optimizations all have committed artifact trails.
+- **Improved implementation and instrumentation:** uncertainty calibration now has explicit power checks; covariance variants, correlation-aware fusion, and latency optimisations all have committed artifact trails.
 - **Unchanged/null outcomes where observed:** canonical Kalman-vs-Mean remains unresolved; uncertainty calibration and uncertainty ablation currently do not produce a robust downstream quality lift in committed runs.
-- **Open questions:** can small correlation-aware gains replicate at larger sample sizes, and can additional latency optimization meet canonical latency thresholds while preserving quality metrics.
+- **Open questions:** can small correlation-aware gains replicate at larger sample sizes, and can additional latency optimisation meet canonical latency thresholds while preserving quality metrics.

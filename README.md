@@ -62,7 +62,7 @@ The Kalman-improvement line now has committed artifacts across implementation, a
 | Uncertainty ablation | `results/uncertainty_ablation/report.md`, `results/uncertainty_ablation/summary.json` | Multiple uncertainty estimators compared; calibration metrics differ, but retrieval metrics are largely unchanged in this setup (constant uncertainty remains competitive). |
 | Covariance ablation | `results/kalman_covariance_ablation_v2/report.md`, `results/kalman_covariance_ablation_v2/summary.json` | Scalar/diagonal/structured Kalman families benchmarked; richer covariance did not clear practical gain thresholds, while latency rose substantially vs mean. |
 | Correlation-aware fusion | `results/correlation_aware_fusion/report.md`, `results/correlation_aware_fusion/summary.json` | Correlation-aware variant shows a small positive delta vs baseline Kalman on strengthened correlated split (best reported ΔMRR@10 = `+0.0037`); currently exploratory and not yet a headline claim. |
-| Latency optimization | `results/kalman_latency_optimization/report.md`, `results/kalman_latency_optimization/summary.json` | Kalman hot path is faster than legacy (reported `~2.06x` single-query speedup), but optimized Kalman is still materially slower than mean and still fails canonical latency-ratio decision threshold. |
+| Latency optimisation | `results/kalman_latency_optimisation/report.md`, `results/kalman_latency_optimisation/summary.json` | Kalman hot path is faster than legacy (reported `~2.06x` single-query speedup), but optimised Kalman is still materially slower than mean and still fails canonical latency-ratio decision threshold. |
 | Canonical benchmark v2 | `results/canonical_benchmark_v2/report.md`, `results/canonical_benchmark_v2/summary.json` | Canonical decision remains `inconclusive_underpowered` for Kalman-vs-Mean; observed quality delta is positive but statistically non-significant with current sample size, and latency ratio check fails. |
 
 ### What Kalman improvements changed empirically
@@ -117,7 +117,7 @@ Any numbers from toy/debug pipelines are **synthetic** and must be treated as de
 
 1. **Benchmark representativeness:** current demonstrated efficiency evidence is from limited benchmark setups and may not generalize to production traffic.
 2. **Routing–quality coupling:** compute savings do not by themselves establish quality preservation across all domains.
-3. **Model heterogeneity:** many tests assume specific model families/embedding-space behavior.
+3. **Model heterogeneity:** many tests assume specific model families/embedding-space behaviour.
 4. **Threshold sensitivity:** routing outcomes depend strongly on threshold heuristics and centroid quality.
 5. **Evaluation completeness:** core scientific claims remain open until full statistical reports are published.
 
@@ -223,7 +223,7 @@ python experiments/train_specialists_st.py --config experiments/configs/mileston
 python experiments/run_real_mixed_benchmark.py --max-queries 150
 ```
 
-Then document specialist behavior and expected uncertainty behavior in `docs/contributing/model-contributors.md`.
+Then document specialist behaviour and expected uncertainty behaviour in `docs/contributing/model-contributors.md`.
 
 ## Routing Toolkit Quickstart
 

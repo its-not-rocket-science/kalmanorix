@@ -42,7 +42,7 @@ We compare three operationally relevant approaches:
 2. **Kalman fusion** (test method): uses uncertainty-weighted fusion to combine component signals.
 3. **Hard routing**: routes queries to a single subsystem according to routing logic rather than soft combination.
 
-Implementation details (feature scaling, uncertainty estimation, calibration, and fallback behavior) should be specified in the final reproducibility package. **TODO: add implementation appendix and config references.**
+Implementation details (feature scaling, uncertainty estimation, calibration, and fallback behaviour) should be specified in the final reproducibility package. **TODO: add implementation appendix and config references.**
 
 ## 7. Pre-registered Decision Rule
 The confirmatory decision framework contains both quality and operational criteria.

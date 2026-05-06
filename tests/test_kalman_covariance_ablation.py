@@ -28,7 +28,7 @@ def test_fit_structured_covariance_shapes_and_nonnegative_diagonal() -> None:
     assert cov.lowrank_factor.shape == (12, 3)
 
 
-def test_shrinkage_behavior_reduces_offdiagonal_energy() -> None:
+def test_shrinkage_behaviour_reduces_offdiagonal_energy() -> None:
     rng = np.random.default_rng(9)
     base = rng.normal(size=(100, 6))
     correlated = base.copy()

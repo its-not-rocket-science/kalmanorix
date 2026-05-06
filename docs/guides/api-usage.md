@@ -461,5 +461,5 @@ async function safeFuse(query) {
 - [Deployment Guide](deployment.md) – Production deployment best practices
 - [API Server Example](../examples/api-server.md) – Complete FastAPI server reference
 - [Multi‑Domain Search Tutorial](../examples/multi-domain-search-tutorial.md) – End‑to‑end use case
-- [Real‑Time Semantic Search](../examples/real-time-semantic-search.md) – Performance‑optimized system
+- [Real‑Time Semantic Search](../examples/real-time-semantic-search.md) – Performance‑optimised system
 - [Cross‑Lingual Fusion](../examples/cross-lingual-fusion.md) – Multilingual specialist fusion

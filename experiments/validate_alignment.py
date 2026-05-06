@@ -56,7 +56,7 @@ def generate_diverse_sentences(n: int, *, seed: int = 1234) -> List[str]:
             "neural network pruning",
             "zero-trust security",
             "edge inference",
-            "compiler optimization",
+            "compiler optimisation",
             "stream processing",
         ],
         "medicine": [
@@ -69,7 +69,7 @@ def generate_diverse_sentences(n: int, *, seed: int = 1234) -> List[str]:
         ],
         "finance": [
             "yield curve inversion",
-            "credit risk modeling",
+            "credit risk modelling",
             "portfolio rebalancing",
             "fraud detection",
             "retail banking churn",

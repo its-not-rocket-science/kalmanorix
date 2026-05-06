@@ -44,7 +44,7 @@ sef = create_sentence_transformer_sef(
     base_model="sentence-transformers/all-MiniLM-L6-v2",
     training_data_description="200k tech‑domain sentences from Stack Overflow, GitHub READMEs, and API docs",
     training_date="2025-12-01",
-    author="Your Name/Organization",
+    author="Your Name/Organisation",
     licence="MIT",
 )
 ```

@@ -285,7 +285,7 @@ def load_specialist_model(
             )
 
     else:
-        # Fallback: constant uncertainty (original behavior)
+        # Fallback: constant uncertainty (original behaviour)
         dim = st_model.get_sentence_embedding_dimension()
         assert dim is not None
         sigma2 = CentroidDistanceSigma2(

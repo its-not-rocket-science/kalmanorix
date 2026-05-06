@@ -128,11 +128,11 @@ class KalmanLearnedCorrection:
 
         if self.cfg.model_type == "linear":
             if self._w_linear is None:
-                raise ValueError("Linear model not initialized")
+                raise ValueError("Linear model not initialised")
             correction = features @ self._w_linear + self._b_linear
         else:
             if self._w1 is None or self._b1 is None or self._w2 is None:
-                raise ValueError("MLP model not initialized")
+                raise ValueError("MLP model not initialised")
             h = np.tanh(features @ self._w1 + self._b1)
             correction = h @ self._w2 + self._b2
 

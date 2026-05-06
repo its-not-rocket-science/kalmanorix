@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate reproducible latency optimization evidence for Kalman fusion."""
+"""Generate reproducible latency optimisation evidence for Kalman fusion."""
 
 from __future__ import annotations
 
@@ -109,7 +109,7 @@ def _benchmark_strategy(
         fuser = MeanFuser()
     elif strategy == "kalman_legacy":
         fuser = KalmanorixFuser(use_fast_scalar_path=False)
-    elif strategy == "kalman_optimized":
+    elif strategy == "kalman_optimised":
         fuser = KalmanorixFuser(use_fast_scalar_path=True)
     else:
         raise ValueError(strategy)
@@ -154,7 +154,7 @@ def _benchmark_batch_strategy(
         fuser = MeanFuser()
     elif strategy == "kalman_legacy":
         fuser = KalmanorixFuser(use_fast_scalar_path=False)
-    elif strategy == "kalman_optimized":
+    elif strategy == "kalman_optimised":
         fuser = KalmanorixFuser(use_fast_scalar_path=True)
     else:
         raise ValueError(strategy)
@@ -287,7 +287,7 @@ def _run_canonical_benchmark(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--output-dir", type=Path, default=Path("results/kalman_latency_optimization")
+        "--output-dir", type=Path, default=Path("results/kalman_latency_optimisation")
     )
     parser.add_argument("--n-queries", type=int, default=200)
     parser.add_argument("--n-specialists", type=int, default=6)
@@ -311,7 +311,7 @@ def main() -> None:
 
     strategy_metrics = {}
     strategy_outputs = {}
-    for name in ("mean", "kalman_legacy", "kalman_optimized"):
+    for name in ("mean", "kalman_legacy", "kalman_optimised"):
         metrics, vectors, weights, meta = _benchmark_strategy(queries, village, name)
         strategy_metrics[name] = metrics
         strategy_outputs[name] = {
@@ -322,7 +322,7 @@ def main() -> None:
 
     batch_metrics = {}
     batch_outputs = {}
-    for name in ("mean", "kalman_legacy", "kalman_optimized"):
+    for name in ("mean", "kalman_legacy", "kalman_optimised"):
         metrics, vectors, weights, meta = _benchmark_batch_strategy(
             queries=queries,
             modules=village.modules,
@@ -343,32 +343,32 @@ def main() -> None:
 
     speedup = (
         strategy_metrics["kalman_legacy"]["mean_ms"]
-        / strategy_metrics["kalman_optimized"]["mean_ms"]
+        / strategy_metrics["kalman_optimised"]["mean_ms"]
     )
     ratio_vs_mean = (
-        strategy_metrics["kalman_optimized"]["mean_ms"]
+        strategy_metrics["kalman_optimised"]["mean_ms"]
         / strategy_metrics["mean"]["mean_ms"]
     )
     batch_speedup = (
         batch_metrics["kalman_legacy"]["mean_ms"]
-        / batch_metrics["kalman_optimized"]["mean_ms"]
+        / batch_metrics["kalman_optimised"]["mean_ms"]
     )
 
     deviation_scalar = _numerical_deviation(
         strategy_outputs["kalman_legacy"]["vectors"],
-        strategy_outputs["kalman_optimized"]["vectors"],
+        strategy_outputs["kalman_optimised"]["vectors"],
         strategy_outputs["kalman_legacy"]["weights"],
-        strategy_outputs["kalman_optimized"]["weights"],
+        strategy_outputs["kalman_optimised"]["weights"],
         strategy_outputs["kalman_legacy"]["meta"],
-        strategy_outputs["kalman_optimized"]["meta"],
+        strategy_outputs["kalman_optimised"]["meta"],
     )
     deviation_batch = _numerical_deviation(
         batch_outputs["kalman_legacy"]["vectors"],
-        batch_outputs["kalman_optimized"]["vectors"],
+        batch_outputs["kalman_optimised"]["vectors"],
         batch_outputs["kalman_legacy"]["weights"],
-        batch_outputs["kalman_optimized"]["weights"],
+        batch_outputs["kalman_optimised"]["weights"],
         batch_outputs["kalman_legacy"]["meta"],
-        batch_outputs["kalman_optimized"]["meta"],
+        batch_outputs["kalman_optimised"]["meta"],
     )
 
     canonical = _run_canonical_benchmark(
@@ -392,9 +392,9 @@ def main() -> None:
         },
         "single_query_strategies": strategy_metrics,
         "batch_strategies": batch_metrics,
-        "speedup_legacy_to_optimized": speedup,
-        "optimized_vs_mean_latency_ratio": ratio_vs_mean,
-        "batch_speedup_legacy_to_optimized": batch_speedup,
+        "speedup_legacy_to_optimised": speedup,
+        "optimised_vs_mean_latency_ratio": ratio_vs_mean,
+        "batch_speedup_legacy_to_optimised": batch_speedup,
         "numerical_deviation_vs_legacy": {
             "single_query": deviation_scalar,
             "batch": deviation_batch,
@@ -407,14 +407,14 @@ def main() -> None:
         },
         "canonical_rerun": canonical,
         "canonical_v3_latency_ratio_basis": {
-            "uses_optimized_kalman_path": True,
+            "uses_optimised_kalman_path": True,
             "evidence": "canonical rerun invoked via experiments/run_canonical_benchmark.py after KalmanorixFuser default fast scalar path is enabled",
         },
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
     report = [
-        "# Kalman latency optimization",
+        "# Kalman latency optimisation",
         "",
         "## Environment assumptions",
         f"- Queries: {args.n_queries}, specialists: {args.n_specialists}, embedding dim: {args.dim}, batch size: {args.batch_size}",
@@ -424,27 +424,27 @@ def main() -> None:
         "## Single-query latency (Panoramix.brew)",
         f"- MeanFuser: mean={strategy_metrics['mean']['mean_ms']:.3f} ms, p50={strategy_metrics['mean']['p50_ms']:.3f} ms, p95={strategy_metrics['mean']['p95_ms']:.3f} ms, mem_proxy={strategy_metrics['mean']['memory_peak_kib']:.1f} KiB",
         f"- Kalman legacy: mean={strategy_metrics['kalman_legacy']['mean_ms']:.3f} ms, p50={strategy_metrics['kalman_legacy']['p50_ms']:.3f} ms, p95={strategy_metrics['kalman_legacy']['p95_ms']:.3f} ms, mem_proxy={strategy_metrics['kalman_legacy']['memory_peak_kib']:.1f} KiB",
-        f"- Kalman optimized scalar-σ²: mean={strategy_metrics['kalman_optimized']['mean_ms']:.3f} ms, p50={strategy_metrics['kalman_optimized']['p50_ms']:.3f} ms, p95={strategy_metrics['kalman_optimized']['p95_ms']:.3f} ms, mem_proxy={strategy_metrics['kalman_optimized']['memory_peak_kib']:.1f} KiB",
-        f"- Speedup (legacy -> optimized): {speedup:.2f}x",
-        f"- Optimized Kalman / Mean latency ratio: {ratio_vs_mean:.2f}x",
+        f"- Kalman optimised scalar-σ²: mean={strategy_metrics['kalman_optimised']['mean_ms']:.3f} ms, p50={strategy_metrics['kalman_optimised']['p50_ms']:.3f} ms, p95={strategy_metrics['kalman_optimised']['p95_ms']:.3f} ms, mem_proxy={strategy_metrics['kalman_optimised']['memory_peak_kib']:.1f} KiB",
+        f"- Speedup (legacy -> optimised): {speedup:.2f}x",
+        f"- Optimised Kalman / Mean latency ratio: {ratio_vs_mean:.2f}x",
         "",
         "## Batch latency (fuser.fuse_batch)",
         f"- MeanFuser batch: mean={batch_metrics['mean']['mean_ms']:.3f} ms, p50={batch_metrics['mean']['p50_ms']:.3f} ms, p95={batch_metrics['mean']['p95_ms']:.3f} ms, mem_proxy={batch_metrics['mean']['memory_peak_kib']:.1f} KiB",
         f"- Kalman legacy batch: mean={batch_metrics['kalman_legacy']['mean_ms']:.3f} ms, p50={batch_metrics['kalman_legacy']['p50_ms']:.3f} ms, p95={batch_metrics['kalman_legacy']['p95_ms']:.3f} ms, mem_proxy={batch_metrics['kalman_legacy']['memory_peak_kib']:.1f} KiB",
-        f"- Kalman optimized batch: mean={batch_metrics['kalman_optimized']['mean_ms']:.3f} ms, p50={batch_metrics['kalman_optimized']['p50_ms']:.3f} ms, p95={batch_metrics['kalman_optimized']['p95_ms']:.3f} ms, mem_proxy={batch_metrics['kalman_optimized']['memory_peak_kib']:.1f} KiB",
-        f"- Batch speedup (legacy -> optimized): {batch_speedup:.2f}x",
+        f"- Kalman optimised batch: mean={batch_metrics['kalman_optimised']['mean_ms']:.3f} ms, p50={batch_metrics['kalman_optimised']['p50_ms']:.3f} ms, p95={batch_metrics['kalman_optimised']['p95_ms']:.3f} ms, mem_proxy={batch_metrics['kalman_optimised']['memory_peak_kib']:.1f} KiB",
+        f"- Batch speedup (legacy -> optimised): {batch_speedup:.2f}x",
         "",
         "## Numerical deviation vs legacy",
         f"- Single-query: vector_max_abs={deviation_scalar['vector_max_abs']:.3e}, vector_rms={deviation_scalar['vector_rms']:.3e}, weight_max_abs={deviation_scalar['weight_max_abs']:.3e}, covariance_max_abs={deviation_scalar['covariance_max_abs']:.3e}",
         f"- Batch: vector_max_abs={deviation_batch['vector_max_abs']:.3e}, vector_rms={deviation_batch['vector_rms']:.3e}, weight_max_abs={deviation_batch['weight_max_abs']:.3e}, covariance_max_abs={deviation_batch['covariance_max_abs']:.3e}",
         "",
-        "## Canonical benchmark rerun with optimized Kalman path",
+        "## Canonical benchmark rerun with optimised Kalman path",
         f"- Verdict: `{canonical['decision_verdict']}`",
         f"- Decision-framework latency ratio (kalman/mean): {canonical['latency_ratio_vs_mean']:.3f} (threshold <= {canonical['latency_ratio_threshold']:.3f})",
         f"- Latency check passed: `{canonical['latency_ratio_ok']}`",
         f"- Primary metric delta (ndcg@10): {canonical['primary_metric_delta']:.4f} (Holm-adjusted p={canonical['primary_metric_adjusted_p_value']:.4f})",
         f"- Canonical artifacts: `{canonical['output_dir']}/summary.json` and `{canonical['output_dir']}/report.md`",
-        "- Canonical v3 latency-ratio basis: **optimized Kalman path = yes** (ratio comes from the canonical rerun above, executed with `KalmanorixFuser` fast scalar-σ² path).",
+        "- Canonical v3 latency-ratio basis: **optimised Kalman path = yes** (ratio comes from the canonical rerun above, executed with `KalmanorixFuser` fast scalar-σ² path).",
         "",
         "## Hot-path proxy",
         f"- Embed calls observed: {embed_calls} ({embed_seconds:.3f}s cumulative)",

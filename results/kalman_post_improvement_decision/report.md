@@ -17,7 +17,7 @@ This guarded report aggregates only the requested evidence tracks:
 - **Covariance ablation:** `kalman_covariance_ablation_v2_enlarged` (`results/kalman_covariance_ablation_v2/report.md`).
 - **Correlation-aware fusion:** strengthened synthetic correlated-expert split with `n_test=420`, 50/50 high/low-correlation buckets (`results/correlation_aware_fusion/summary.json`).
 - **Canonical benchmark baseline:** `benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet` (`results/canonical_benchmark/report.md`).
-- **Canonical benchmark rerun artifact actually containing metrics:** latency-optimized canonical rerun on the **same** `mixed_beir_v1.0.0` test split (`results/kalman_latency_optimization/canonical/summary.json`).
+- **Canonical benchmark rerun artifact actually containing metrics:** latency-optimised canonical rerun on the **same** `mixed_beir_v1.0.0` test split (`results/kalman_latency_optimisation/canonical/summary.json`).
 - **Canonical v1.1.0/v1.2.0 stronger benchmark folders:** present as README-only placeholders without `summary.json` metrics (`results/canonical_benchmark_v2/README.md`, `results/canonical_benchmark_v3/README.md`).
 - **Per-bucket analysis:** query-bucketed report over 12 queries (`results/kalman_error_analysis/report.md`).
 

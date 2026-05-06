@@ -480,7 +480,7 @@ Where:
 
 Example: 5 specialists × 2 GB + 100 queries × 384 × 4 × 2 ≈ 10 GB + 0.3 GB ≈ 10.3 GB
 
-### Latency Optimization
+### Latency Optimisation
 
 - **Batch processing**: Use `/fuse_batch` endpoint for multiple queries (30–50% latency reduction)
 - **Caching**: Enable TTL cache for frequent queries

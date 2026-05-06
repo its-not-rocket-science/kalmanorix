@@ -191,4 +191,4 @@ Good patterns:
 
 For milestone work, reference the milestone in the commit message (e.g., "[Milestone 1.1] Add covariance estimation framework").
 
-Keep messages concise but informative. If a commit touches multiple related changes, summarize the theme rather than listing every file.
+Keep messages concise but informative. If a commit touches multiple related changes, summarise the theme rather than listing every file.

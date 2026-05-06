@@ -27,7 +27,7 @@ Scope focus: bad uncertainty estimates, conflicting specialists, out-of-domain (
 
 #### A3. Global mis-scaling of uncertainty
 - **Pattern**: all uncertainties shifted by multiplicative factor (too large/small).
-- **Consequence**: either near-mean behavior (all too large/similar) or unstable winner-take-most behavior (all too small + tiny relative differences).
+- **Consequence**: either near-mean behaviour (all too large/similar) or unstable winner-take-most behaviour (all too small + tiny relative differences).
 
 ---
 
@@ -55,7 +55,7 @@ Scope focus: bad uncertainty estimates, conflicting specialists, out-of-domain (
 
 #### C2. No specialist passes threshold
 - **Pattern**: semantic routing returns empty set (or would, absent fallback).
-- **Consequence**: brittle behavior if fallback is weakly chosen.
+- **Consequence**: brittle behaviour if fallback is weakly chosen.
 
 #### C3. Novel compositional query
 - **Pattern**: mixed-domain query where none of the specialists is truly appropriate end-to-end.

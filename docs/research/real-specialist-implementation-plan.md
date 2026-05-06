@@ -184,7 +184,7 @@ village = build_village_from_config("examples/configs/real_specialists.yaml")
 
 print(village.list())
 for m in village.modules:
-    q = "Summarize indemnification clause for software license."
+    q = "Summarise indemnification clause for software license."
     print(m.name, m.meta.get("domain"), m.sigma2_for(q))
 ```
 

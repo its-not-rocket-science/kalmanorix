@@ -697,13 +697,13 @@ class NeuralCovariance(CovarianceEstimator):
         epsilon: float = 1e-8,
         device: str = "cpu",
     ):
-        """Initialize the neural covariance estimator.
+        """Initialise the neural covariance estimator.
 
         Args:
             dimension: Embedding dimension (input and output size).
             hidden_layers: List of hidden layer sizes.
             activation: Activation function name ('ReLU', 'Sigmoid', 'Tanh').
-            learning_rate: Learning rate for optimizer.
+            learning_rate: Learning rate for optimiser.
             epsilon: Small constant added to variance for numerical stability.
             device: 'cpu' or 'cuda'.
 
@@ -728,8 +728,8 @@ class NeuralCovariance(CovarianceEstimator):
         self.network = self._build_network()
         self.network.to(self.device)
 
-        # Optimizer and loss
-        self.optimizer = torch.optim.Adam(
+        # Optimiser and loss
+        self.optimiser = torch.optim.Adam(
             self.network.parameters(), lr=self.learning_rate
         )
         self.loss_fn = nn.MSELoss()
@@ -821,12 +821,12 @@ class NeuralCovariance(CovarianceEstimator):
         for epoch in range(epochs):
             train_loss = 0.0
             for batch_x, batch_y in train_loader:
-                self.optimizer.zero_grad()
+                self.optimiser.zero_grad()
                 log_var = self.network(batch_x)
                 pred_var = torch.exp(log_var) + self.epsilon
                 loss = self.loss_fn(pred_var, batch_y)
                 loss.backward()
-                self.optimizer.step()
+                self.optimiser.step()
                 train_loss += loss.item() * batch_x.size(0)
 
             # Validation loss
@@ -859,7 +859,7 @@ class NeuralCovariance(CovarianceEstimator):
         torch.save(
             {
                 "network_state": self.network.state_dict(),
-                "optimizer_state": self.optimizer.state_dict(),
+                "optimiser_state": self.optimiser.state_dict(),
                 "dimension": self.dimension,
                 "hidden_layers": self.hidden_layers,
                 "activation": self.activation,
@@ -882,7 +882,7 @@ class NeuralCovariance(CovarianceEstimator):
             device=device,
         )
         estimator.network.load_state_dict(checkpoint["network_state"])
-        estimator.optimizer.load_state_dict(checkpoint["optimizer_state"])
+        estimator.optimiser.load_state_dict(checkpoint["optimiser_state"])
         estimator.is_trained = True
         return estimator
 

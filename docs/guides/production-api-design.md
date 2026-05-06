@@ -120,7 +120,7 @@ class FusionResponse(BaseModel):
     elapsed_ms: float
 ```
 
-### 1.4 Endpoint behavior
+### 1.4 Endpoint behaviour
 
 #### `POST /v1/embedding`
 
@@ -368,8 +368,8 @@ volumes:
 1. Add tests:
    - schema validation/unit tests,
    - route tests with dependency overrides,
-   - cache behavior tests,
-   - rate-limit behavior tests,
+   - cache behaviour tests,
+   - rate-limit behaviour tests,
    - failure-mode tests (dependency timeouts).
 2. Add load test baseline (k6/Locust) for p95/p99 latency and throughput.
 3. Build and run containerized stack; verify startup/readiness.

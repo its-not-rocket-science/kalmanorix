@@ -122,7 +122,7 @@ class ComputeTracker:
         track_memory: bool = False,
     ) -> None:
         """
-        Initialize compute tracker.
+        Initialise compute tracker.
 
         Parameters
         ----------
@@ -170,7 +170,7 @@ class ComputeTracker:
                 print("Warning: psutil not installed, memory tracking disabled")
                 self.track_memory = False
 
-        # Initialize GPU monitoring if requested
+        # Initialise GPU monitoring if requested
         self.pynvml = None
         self.handle = None
         if track_gpu:
@@ -184,7 +184,7 @@ class ComputeTracker:
                 print("Warning: pynvml not installed, GPU tracking disabled")
                 self.track_gpu = False
             except Exception as e:
-                print(f"Warning: Failed to initialize GPU tracking: {e}")
+                print(f"Warning: Failed to initialise GPU tracking: {e}")
                 self.track_gpu = False
 
     def __enter__(self) -> ComputeTracker:

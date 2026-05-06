@@ -1,4 +1,4 @@
-"""Bucketed per-query error analysis for Kalman fusion behavior."""
+"""Bucketed per-query error analysis for Kalman fusion behaviour."""
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ def build_query_records(details: Mapping[str, Any]) -> list[QueryRecord]:
     return records
 
 
-def _summarize_bucket(name: str, rows: list[QueryRecord]) -> dict[str, Any]:
+def _summarise_bucket(name: str, rows: list[QueryRecord]) -> dict[str, Any]:
     if not rows:
         return {
             "bucket": name,
@@ -185,7 +185,7 @@ def generate_bucket_summaries(records: list[QueryRecord]) -> list[dict[str, Any]
             ],
         ),
     ]
-    return [_summarize_bucket(name, list(rows)) for name, rows in buckets]
+    return [_summarise_bucket(name, list(rows)) for name, rows in buckets]
 
 
 def render_markdown_report(

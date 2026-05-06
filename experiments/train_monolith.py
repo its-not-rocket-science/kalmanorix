@@ -116,7 +116,7 @@ def train_monolith(
     train_examples = prepare_monolith_data(domain_data, config)
     logger.info(f"Created {len(train_examples)} training pairs")
 
-    # Initialize model
+    # Initialise model
     model = SentenceTransformer(config.base_model)
 
     # Create DataLoader
@@ -169,7 +169,7 @@ def train_monolith(
             train_objectives=[(train_loader, loss)],
             epochs=config.epochs_monolith,
             warmup_steps=warmup_steps,
-            optimizer_params={"lr": config.learning_rate},
+            optimiser_params={"lr": config.learning_rate},
             show_progress_bar=True,
         )
 

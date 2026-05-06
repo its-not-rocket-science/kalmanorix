@@ -4,7 +4,7 @@ Build a low‑latency semantic search system using Kalmanorix that scales to tho
 
 1. **Optimizing specialists for speed** – small models, TF‑IDF, and quantization
 2. **Multi‑level caching** – embedding cache, routing cache, result cache
-3. **Batch processing** – throughput optimization for bulk queries
+3. **Batch processing** – throughput optimisation for bulk queries
 4. **Monitoring & observability** – Prometheus metrics, distributed tracing
 5. **Horizontal scaling** – Kubernetes deployment with auto‑scaling
 6. **Load testing** – simulating production traffic patterns
@@ -57,7 +57,7 @@ Additional packages for caching and monitoring:
 pip install redis prometheus-client opentelemetry-api opentelemetry-sdk
 ```
 
-## Step 1: Create Speed‑Optimized Specialists
+## Step 1: Create Speed‑Optimised Specialists
 
 ### Fast TF‑IDF Specialist (Product Search)
 
@@ -346,7 +346,7 @@ routing_cache = RoutingCache()
 cached_router = CachedRouter(router, routing_cache)
 ```
 
-## Step 4: Create Optimized Fusion Engine
+## Step 4: Create Optimised Fusion Engine
 
 Use batch fusion for throughput:
 
@@ -427,7 +427,7 @@ class CachedPanoramix:
         cached_results.sort(key=lambda x: x[0])
         return [result for _, result in cached_results]
 
-# Create optimized fusion engine
+# Create optimised fusion engine
 fusion_engine = CachedPanoramix(village, cached_router, fuser, result_cache)
 ```
 
@@ -450,9 +450,9 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 # Import fusion engine
-from optimized_fusion import fusion_engine
+from optimised_fusion import fusion_engine
 
-# Initialize tracing
+# Initialise tracing
 trace.set_tracer_provider(TracerProvider())
 tracer = trace.get_tracer("kalmanorix-server")
 
@@ -574,7 +574,7 @@ async def batch_search(request: BatchSearchRequest):
 
 @app.get("/health")
 async def health():
-    from optimized_fusion import redis_cache, routing_cache, result_cache
+    from optimised_fusion import redis_cache, routing_cache, result_cache
 
     # Check Redis connectivity
     cache_status = {
@@ -860,7 +860,7 @@ pip install locust
 locust -f locustfile.py --host=http://localhost:8000
 ```
 
-## Step 9: Performance Optimization
+## Step 9: Performance Optimisation
 
 ### Cache Warming
 

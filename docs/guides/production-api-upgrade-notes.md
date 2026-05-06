@@ -1,6 +1,6 @@
 # FastAPI Server Production Upgrade Notes (April 2026)
 
-This note documents a **minimal-viable** upgrade of `examples/fastapi_server.py` from demo-grade to production-oriented behavior without rewriting the core fusion engine.
+This note documents a **minimal-viable** upgrade of `examples/fastapi_server.py` from demo-grade to production-oriented behaviour without rewriting the core fusion engine.
 
 ## What was not production-safe before
 
@@ -10,7 +10,7 @@ This note documents a **minimal-viable** upgrade of `examples/fastapi_server.py`
    - Different paths returned different shapes (`detail`, `type`, raw exception text).
 3. **Unstructured logging**
    - Logging used free-text messages, making metrics extraction and filtering harder.
-4. **No explicit timeout behavior**
+4. **No explicit timeout behaviour**
    - A slow embedder/fuser could hold request workers indefinitely.
 5. **No probe endpoints for orchestration**
    - Missing liveness/readiness endpoints for Kubernetes/containers.
@@ -58,7 +58,7 @@ Use this checklist before production cutover.
 
 1. **Baseline latency**
    - Measure p50/p95/p99 for `/fuse` by strategy and routing mode.
-2. **Timeout behavior**
+2. **Timeout behaviour**
    - Force slow specialists; verify timeout returns quickly with controlled error payload.
 3. **Error schema contract**
    - Confirm 4xx/5xx responses share `{"error": ..., "request_id": ...}` format.

@@ -161,7 +161,7 @@ class CentroidDistanceSigma2:
     ) -> None:
         """Calibrate beta and base_sigma2 using validation data.
 
-        Uses 1-D optimization over beta to maximize correlation between
+        Uses 1-D optimisation over beta to maximize correlation between
         predicted sigma² and empirical errors, then rescales base_sigma2 to
         match average error level.
         """
@@ -172,7 +172,7 @@ class CentroidDistanceSigma2:
         if not validation_queries:
             raise ValueError("validation_queries must not be empty.")
 
-        from scipy.optimize import minimize_scalar
+        from scipy.optimise import minimize_scalar
 
         errors = np.asarray(empirical_errors, dtype=np.float64)
         if np.allclose(np.std(errors), 0.0):
@@ -352,7 +352,7 @@ class CentroidNormPeerSigma2:
       this specialist centroid, raise uncertainty.
 
     The combined score is mapped through a sigmoid for smooth calibration-like
-    behavior and bounded uncertainty scaling.
+    behaviour and bounded uncertainty scaling.
     """
 
     embed: EmbedderFn
@@ -588,7 +588,7 @@ def _extract_keywords(texts: Iterable[str], max_keywords: int = 24) -> List[str]
     return [token for token, _ in ranked[:max_keywords]]
 
 
-def summarize_uncertainty_distribution(
+def summarise_uncertainty_distribution(
     sigma2_fn: Callable[[str], float], queries: Iterable[str]
 ) -> Sigma2Diagnostics:
     """Compute simple diagnostics to inspect sigma² distribution."""

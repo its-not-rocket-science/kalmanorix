@@ -65,8 +65,8 @@ def test_near_perfect_correlation_precision_discounting() -> None:
     assert discount <= 0.501
 
 
-def test_independence_reduces_to_baseline_behavior() -> None:
-    """Zero off-diagonal correlation should recover baseline Kalman behavior."""
+def test_independence_reduces_to_baseline_behaviour() -> None:
+    """Zero off-diagonal correlation should recover baseline Kalman behaviour."""
     village = _make_two_module_village()
     scout = ScoutRouter(mode="all")
 

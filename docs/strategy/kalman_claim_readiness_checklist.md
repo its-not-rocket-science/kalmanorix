@@ -82,6 +82,6 @@ If any box above is unchecked, the allowed language is:
 
 - Canonical claim track: `results/canonical_benchmark_v3/`
 - Evidence dashboard: `results/kalman_evidence_dashboard/`
-- Latency optimization evidence: `results/kalman_latency_optimization/`
+- Latency optimisation evidence: `results/kalman_latency_optimisation/`
 - Prior canonical artifacts for provenance: `results/canonical_benchmark/`, `results/canonical_benchmark_v2/`
 - Exploratory-only synthetic narrowed regime (not claim-closing): `results/correlation_aware_fusion/`

@@ -219,7 +219,7 @@ def load_specialist_runtime(
     return module, load_ms, memory_delta
 
 
-def summarize(values: Iterable[float]) -> Dict[str, float]:
+def summarise(values: Iterable[float]) -> Dict[str, float]:
     arr = list(values)
     if not arr:
         return {"mean": 0.0, "p50": 0.0, "p95": 0.0}
@@ -304,18 +304,18 @@ def run_all_loaded(
         "batch_size": 1,
         "specialists_loaded": len(loaded),
         "specialists_available": len(definitions),
-        "selected_specialists": summarize(selected_sizes),
-        "load_cost_ms": summarize(load_ms),
+        "selected_specialists": summarise(selected_sizes),
+        "load_cost_ms": summarise(load_ms),
         "memory": {
             "shared_process_rss_mb_before": shared_before,
             "shared_process_rss_mb_after": shared_after,
             "specialist_incremental_rss_mb": float(sum(load_mem)),
         },
         "cost_ms": {
-            "embedding": summarize(embed_cost),
-            "routing": summarize(route_cost),
-            "fusion": summarize(fusion_cost),
-            "end_to_end": summarize(e2e_cost),
+            "embedding": summarise(embed_cost),
+            "routing": summarise(route_cost),
+            "fusion": summarise(fusion_cost),
+            "end_to_end": summarise(e2e_cost),
         },
     }
 
@@ -364,17 +364,17 @@ def run_lazy_loading(
         "batch_size": 1,
         "specialists_loaded": len(loaded),
         "specialists_available": len(definitions),
-        "selected_specialists": summarize(selected_sizes),
-        "load_cost_ms": summarize(load_cost),
+        "selected_specialists": summarise(selected_sizes),
+        "load_cost_ms": summarise(load_cost),
         "memory": {
             "specialist_incremental_rss_mb": float(sum(load_mem)),
             "loaded_embedder_ids": pool.loaded_embedder_ids,
         },
         "cost_ms": {
-            "embedding": summarize(embed_cost),
-            "routing": summarize(route_cost),
-            "fusion": summarize(fusion_cost),
-            "end_to_end": summarize(e2e_cost),
+            "embedding": summarise(embed_cost),
+            "routing": summarise(route_cost),
+            "fusion": summarise(fusion_cost),
+            "end_to_end": summarise(e2e_cost),
         },
     }
 
@@ -429,17 +429,17 @@ def run_cached_routing(
         "batch_size": 1,
         "specialists_loaded": len(loaded),
         "specialists_available": len(definitions),
-        "selected_specialists": summarize(selected_sizes),
-        "load_cost_ms": summarize([0.0 for _ in queries]),
+        "selected_specialists": summarise(selected_sizes),
+        "load_cost_ms": summarise([0.0 for _ in queries]),
         "memory": {
             "routing_cache_entries": len(cache),
             "loaded_embedder_ids": pool.loaded_embedder_ids,
         },
         "cost_ms": {
-            "embedding": summarize(embed_cost),
-            "routing": summarize(route_cost),
-            "fusion": summarize(fusion_cost),
-            "end_to_end": summarize(e2e_cost),
+            "embedding": summarise(embed_cost),
+            "routing": summarise(route_cost),
+            "fusion": summarise(fusion_cost),
+            "end_to_end": summarise(e2e_cost),
         },
     }
 
@@ -509,17 +509,17 @@ def run_batched(
         "batch_size": batch_size,
         "specialists_loaded": len(loaded),
         "specialists_available": len(definitions),
-        "selected_specialists": summarize(selected_sizes),
-        "load_cost_ms": summarize([0.0 for _ in e2e_cost]),
+        "selected_specialists": summarise(selected_sizes),
+        "load_cost_ms": summarise([0.0 for _ in e2e_cost]),
         "memory": {
             "loaded_embedder_ids": pool.loaded_embedder_ids,
             "batch_size": batch_size,
         },
         "cost_ms": {
-            "embedding": summarize(embed_cost),
-            "routing": summarize(route_cost),
-            "fusion": summarize(fusion_cost),
-            "end_to_end": summarize(e2e_cost),
+            "embedding": summarise(embed_cost),
+            "routing": summarise(route_cost),
+            "fusion": summarise(fusion_cost),
+            "end_to_end": summarise(e2e_cost),
         },
     }
 

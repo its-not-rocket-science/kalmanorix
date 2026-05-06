@@ -52,7 +52,7 @@ Report benchmark scores on standard datasets. Use the format `{"dataset": score}
 
 ## Model Provenance
 
-**Author:** `[Name or organization]`
+**Author:** `[Name or organisation]`
 
 **License:** `[e.g., "MIT", "Apache-2.0"]`
 
