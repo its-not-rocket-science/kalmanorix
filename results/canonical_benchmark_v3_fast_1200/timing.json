@@ -1,0 +1,25 @@
+{
+  "model_loading_ms": 414.6578998770565,
+  "benchmark_loading_ms": 11.023399885743856,
+  "per_query_total_ms": {
+    "mean": 202.85839992083535,
+    "p95": 272.79889988712955,
+    "count": 1193
+  },
+  "per_strategy_scoring_ms": {
+    "mean": 242042.201400036,
+    "kalman": 247181.92269979045,
+    "best_single_specialist": 225644.67089995742,
+    "single_generalist_model": 7994.225000031292,
+    "uniform_mean_fusion": 7708.271600073203,
+    "fixed_weighted_mean_fusion": 7483.494699932635,
+    "router_only_top1": 18150.558999972418,
+    "router_only_topk_mean": 20998.96929995157,
+    "adaptive_route_or_fuse": 22843.436599941924,
+    "learned_linear_combiner": 7424.1710000205785
+  },
+  "embedding_ms": 222708.55927816592,
+  "fusion_ms": 490697.3407061305,
+  "report_writing_ms": 2.980399876832962,
+  "total_runtime_ms": 841138.4372001048
+}

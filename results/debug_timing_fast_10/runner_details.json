@@ -1,0 +1,3816 @@
+{
+  "name": "canonical-benchmark",
+  "experiment_type": "real_mixed",
+  "seed": {
+    "python": 42,
+    "numpy": 42,
+    "torch": 42
+  },
+  "dataset": {
+    "path": "benchmarks\\mixed_beir_v1.2.0\\mixed_benchmark.parquet",
+    "split": "test",
+    "max_queries": 10
+  },
+  "specialists": [
+    {
+      "name": "general_qa",
+      "domain": "general_qa",
+      "model_name": "sentence-transformers/all-mpnet-base-v2"
+    },
+    {
+      "name": "biomedical",
+      "domain": "biomedical",
+      "model_name": "emilyalsentzer/Bio_ClinicalBERT"
+    },
+    {
+      "name": "finance",
+      "domain": "finance",
+      "model_name": "ProsusAI/finbert"
+    }
+  ],
+  "results": {
+    "mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 138.52115001063794,
+          "median": 136.5526500158012
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "kalman": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 117.96579000074416,
+          "median": 116.22145003639162
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "best_single_specialist": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 51.3390899868682,
+          "median": 1.9226500298827887
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "single_generalist_model": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 1.4494399540126324,
+          "median": 1.3776998966932297
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "uniform_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 1.1239999905228615,
+          "median": 1.0922499932348728
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "fixed_weighted_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 1.3027299894019961,
+          "median": 1.0968499118462205
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "router_only_top1": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 10.400480031967163,
+          "median": 8.921699947677553
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "router_only_topk_mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 9.959099953994155,
+          "median": 8.388650021515787
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "adaptive_route_or_fuse": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 8.887779945507646,
+          "median": 7.29219987988472
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "learned_linear_combiner": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 10,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 1.2103200191631913,
+          "median": 1.1188499629497528
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    }
+  },
+  "query_level": {
+    "domains": {
+      "arguana:test-culture-ahrtsdlgra-pro03a": "argumentation",
+      "arguana:test-culture-mmciahbans-pro01a": "argumentation",
+      "arguana:test-culture-mthbah-pro02a": "argumentation",
+      "arguana:test-culture-thbcsbptwhht-pro02a": "argumentation",
+      "arguana:test-culture-tlhrilsfhwr-pro03a": "argumentation",
+      "arguana:test-digital-freedoms-aihwbasmn-pro03a": "argumentation",
+      "arguana:test-digital-freedoms-efsappgdfp-pro02a": "argumentation",
+      "arguana:test-digital-freedoms-efsappgdfp-pro04a": "argumentation",
+      "arguana:test-digital-freedoms-piidfaihbg-pro02a": "argumentation",
+      "arguana:test-economy-beghwbh-con03a": "argumentation"
+    },
+    "ground_truth": {
+      "arguana:test-culture-ahrtsdlgra-pro03a": [
+        "arguana:test-culture-ahrtsdlgra-pro03b"
+      ],
+      "arguana:test-culture-mmciahbans-pro01a": [
+        "arguana:test-culture-mmciahbans-pro01b"
+      ],
+      "arguana:test-culture-mthbah-pro02a": [
+        "arguana:test-culture-mthbah-pro02b"
+      ],
+      "arguana:test-culture-thbcsbptwhht-pro02a": [
+        "arguana:test-culture-thbcsbptwhht-pro02b"
+      ],
+      "arguana:test-culture-tlhrilsfhwr-pro03a": [
+        "arguana:test-culture-tlhrilsfhwr-pro03b"
+      ],
+      "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+        "arguana:test-digital-freedoms-aihwbasmn-pro03b"
+      ],
+      "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+        "arguana:test-digital-freedoms-efsappgdfp-pro02b"
+      ],
+      "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+        "arguana:test-digital-freedoms-efsappgdfp-pro04b"
+      ],
+      "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+        "arguana:test-digital-freedoms-piidfaihbg-pro02b"
+      ],
+      "arguana:test-economy-beghwbh-con03a": [
+        "arguana:test-economy-beghwbh-con03b"
+      ]
+    },
+    "rankings": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "nq:doc1424156",
+          "arguana:training-politics-thwnt-con02b",
+          "arguana:training-culture-tphwpac-pro04a",
+          "arguana:training-education-egsrsla1j-con01a",
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "nq:doc578456",
+          "fever:Wally_Don",
+          "fever:Yulia_Peresild",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "nq:doc2053786",
+          "arguana:training-environment-achbessbp-con02b",
+          "fever:Nigeria_Hockey_Federation",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "fever:Kyran_Bracken"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "nq:doc2403261",
+          "arguana:test-society-asfhwapg-pro01b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "fever:Elbridge,_Alberta",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "fever:Moorreesburg",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "nq:doc411815",
+          "arguana:training-education-egpeupdw-con04b",
+          "fever:Bertha,_Virginia",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "arguana:test-society-simhbrasnba-con03a"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "nq:doc1004484",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "nq:doc700994",
+          "nq:doc1061692",
+          "nq:doc495257",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "nq:doc2419600",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1666226",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc2558402",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "dbpedia:<dbpedia:Peziza>",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "fever:Handfasting_(Neopaganism)",
+          "nq:doc1985534"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "arguana:training-economy-befhwimsc-con01a",
+          "fever:Monpazier",
+          "nq:doc540235",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "arguana:training-international-seighweo-con03a",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Great_Western_Highway",
+          "arguana:training-international-epvepesio-pro01b",
+          "nq:doc1577666",
+          "arguana:training-sport-tshwiropf-con01a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "fever:Epichirostenotes",
+          "fever:Aleksandr_Oleinik",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "fever:Zapmail",
+          "dbpedia:<dbpedia:FloodSim>",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "fever:Rame_Taharpur"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "arguana:test-law-lghbacpsba-pro05b",
+          "nq:doc1415585",
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "arguana:training-society-fygspsmy-con03a",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "nq:doc519813",
+          "nq:doc717138",
+          "nq:doc1688033",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "arguana:training-culture-tphwpac-pro02a",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:validation-free-speech-debate-nshwcb-con01b",
+          "nq:doc1821528"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Pawe\u0142_Fajdek",
+          "fever:Economy_of_Guatemala",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "nq:doc1386247",
+          "arguana:test-education-ughbuesbf-con01b",
+          "arguana:test-economy-bepighbdb-con01a",
+          "fever:Fucoli-Somepal",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Kazi_Maruf",
+          "nq:doc1401379",
+          "fever:Sissi_Christidou",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "fever:Koyukon",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "arguana:training-environment-achbessbp-con02a",
+          "arguana:training-international-agpwhouhmp-pro02b",
+          "arguana:test-culture-mthbah-pro01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "fever:Taking_Over_(EP)",
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "fever:Harry_Steel_(politician)",
+          "fever:Making_Love_from_Memory",
+          "fever:George_Bogle_(diplomat)",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "nq:doc811298",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Tom_McCall_Waterfront_Park",
+          "fever:Communism",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "nq:doc502195",
+          "fever:Lamia_Bahnasawy",
+          "fever:James_Lowery",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "nq:doc297977",
+          "fever:Noah_Cappe",
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "nq:doc2587416",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "fever:Santa_Maria",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "nq:doc1980448",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "fever:Valentina_Monetta",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:C._J._Parker",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Wieczywno",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "fever:Kurtbeli",
+          "fever:Brad_Wheal",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "nq:doc2387950",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground",
+          "arguana:training-philosophy-pphsipd-pro01b"
+        ]
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "fever:P21_holin_family",
+          "nq:doc302599",
+          "fever:Renzo_Martens",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "nq:doc1424156",
+          "arguana:training-politics-thwnt-con02b",
+          "arguana:training-culture-tphwpac-pro04a",
+          "arguana:training-education-egsrsla1j-con01a",
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "fever:Wally_Don",
+          "nq:doc578456",
+          "fever:Yulia_Peresild",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "nq:doc2053786",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "arguana:training-environment-achbessbp-con02b",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "fever:Nigeria_Hockey_Federation",
+          "fever:Kyran_Bracken"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "nq:doc2403261",
+          "arguana:test-society-asfhwapg-pro01b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "fever:Elbridge,_Alberta",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "fever:Moorreesburg",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "nq:doc411815",
+          "arguana:training-education-egpeupdw-con04b",
+          "fever:Bertha,_Virginia",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "arguana:test-society-simhbrasnba-con03a"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "nq:doc1004484",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "nq:doc700994",
+          "nq:doc1061692",
+          "nq:doc495257",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "nq:doc2419600",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1666226",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc2558402",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "dbpedia:<dbpedia:Peziza>",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "fever:Handfasting_(Neopaganism)",
+          "nq:doc1985534"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "fever:Monpazier",
+          "arguana:training-economy-befhwimsc-con01a",
+          "nq:doc540235",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "arguana:training-international-seighweo-con03a",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Great_Western_Highway",
+          "arguana:training-international-epvepesio-pro01b",
+          "nq:doc1577666",
+          "arguana:training-sport-tshwiropf-con01a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "fever:Epichirostenotes",
+          "fever:Aleksandr_Oleinik",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "fever:Zapmail",
+          "dbpedia:<dbpedia:FloodSim>",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "fever:Rame_Taharpur"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "arguana:test-law-lghbacpsba-pro05b",
+          "nq:doc1415585",
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "arguana:training-society-fygspsmy-con03a",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "nq:doc717138",
+          "nq:doc519813",
+          "nq:doc1688033",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:training-culture-tphwpac-pro02a",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "fever:Juan_Pablo_Ledezma",
+          "nq:doc1821528",
+          "arguana:validation-free-speech-debate-nshwcb-con01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Pawe\u0142_Fajdek",
+          "fever:Economy_of_Guatemala",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "nq:doc1386247",
+          "arguana:test-education-ughbuesbf-con01b",
+          "arguana:test-economy-bepighbdb-con01a",
+          "fever:Fucoli-Somepal",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Kazi_Maruf",
+          "nq:doc1401379",
+          "fever:Sissi_Christidou",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "fever:Koyukon",
+          "arguana:training-environment-achbessbp-con02a",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "arguana:training-international-agpwhouhmp-pro02b",
+          "arguana:test-culture-mthbah-pro01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "fever:Taking_Over_(EP)",
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "fever:Harry_Steel_(politician)",
+          "fever:Making_Love_from_Memory",
+          "fever:George_Bogle_(diplomat)",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "nq:doc811298",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Tom_McCall_Waterfront_Park",
+          "fever:Communism",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "nq:doc502195",
+          "fever:Lamia_Bahnasawy",
+          "fever:James_Lowery",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "nq:doc297977",
+          "fever:Noah_Cappe",
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "nq:doc2587416",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "fever:Santa_Maria",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "nq:doc1980448",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "fever:Valentina_Monetta",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:C._J._Parker",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Wieczywno",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "fever:Kurtbeli",
+          "fever:Brad_Wheal",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "nq:doc2387950",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground",
+          "arguana:training-philosophy-pphsipd-pro01b"
+        ]
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "dbpedia:<dbpedia:Washingley>",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:Fred_Dallmayr",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Club_Me",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Renzo_Martens",
+          "nq:doc302599",
+          "fever:Andrea_Joyce",
+          "nq:doc1329818",
+          "fever:P21_holin_family",
+          "fever:House_Calls",
+          "fever:Milton_Jes\u00fas_Puerto",
+          "nq:doc1314787"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "arguana:training-culture-tphwpac-pro04a",
+          "fever:Yulia_Peresild",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "nq:doc578456",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "arguana:training-environment-achbessbp-con02b",
+          "fever:Wally_Don",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "fever:Kyran_Bracken",
+          "fever:Nigeria_Hockey_Federation",
+          "nq:doc1424156",
+          "nq:doc2053786",
+          "arguana:training-politics-thwnt-con02b",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "arguana:training-education-egsrsla1j-con01a"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "fever:Elbridge,_Alberta",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc2186958",
+          "arguana:training-education-egpeupdw-con04b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "nq:doc2403261",
+          "arguana:test-society-asfhwapg-pro01b",
+          "nq:doc411815",
+          "arguana:test-society-simhbrasnba-con03a",
+          "fever:Bertha,_Virginia",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "fever:Moorreesburg",
+          "dbpedia:<dbpedia:Tucker_Durkin>"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "nq:doc495257",
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "dbpedia:<dbpedia:Peziza>",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "nq:doc1666226",
+          "nq:doc1061692",
+          "fever:Handfasting_(Neopaganism)",
+          "nq:doc1004484",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc700994",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "nq:doc2558402",
+          "nq:doc1985534",
+          "nq:doc2419600",
+          "arguana:training-politics-appghwace-pro04b"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "arguana:training-economy-befhwimsc-con01a",
+          "arguana:training-sport-tshwiropf-con01a",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Zapmail",
+          "arguana:training-international-seighweo-con03a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "nq:doc540235",
+          "fever:Epichirostenotes",
+          "fever:Great_Western_Highway",
+          "fever:Monpazier",
+          "nq:doc1577666",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "fever:Rame_Taharpur",
+          "dbpedia:<dbpedia:FloodSim>",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "arguana:training-international-epvepesio-pro01b",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "fever:Aleksandr_Oleinik"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "arguana:training-culture-tphwpac-pro02a",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "nq:doc1821528",
+          "nq:doc1415585",
+          "nq:doc1688033",
+          "arguana:training-society-fygspsmy-con03a",
+          "nq:doc519813",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "arguana:test-law-lghbacpsba-pro05b",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "nq:doc717138",
+          "arguana:validation-free-speech-debate-nshwcb-con01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "fever:Kazi_Maruf",
+          "fever:Pawe\u0142_Fajdek",
+          "arguana:training-environment-achbessbp-con02a",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Fucoli-Somepal",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "arguana:test-economy-bepighbdb-con01a",
+          "arguana:test-education-ughbuesbf-con01b",
+          "fever:Economy_of_Guatemala",
+          "fever:Koyukon",
+          "nq:doc1386247",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Sissi_Christidou",
+          "arguana:test-culture-mthbah-pro01b",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "nq:doc1401379",
+          "arguana:training-international-agpwhouhmp-pro02b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Communism",
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "fever:Tom_McCall_Waterfront_Park",
+          "fever:Making_Love_from_Memory",
+          "fever:Taking_Over_(EP)",
+          "fever:James_Lowery",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "fever:George_Bogle_(diplomat)",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "fever:Lamia_Bahnasawy",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "nq:doc502195",
+          "fever:Harry_Steel_(politician)",
+          "nq:doc811298",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "nq:doc2587416",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "fever:Santa_Maria",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "fever:Noah_Cappe",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "nq:doc1980448",
+          "nq:doc297977",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "arguana:training-religion-chwccaogalp-pro04a"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "fever:Wieczywno",
+          "fever:C._J._Parker",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Valentina_Monetta",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:Kurtbeli",
+          "fever:Brad_Wheal",
+          "nq:doc2387950",
+          "arguana:training-philosophy-pphsipd-pro01b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground"
+        ]
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "dbpedia:<dbpedia:Washingley>",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:Fred_Dallmayr",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Club_Me",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Renzo_Martens",
+          "nq:doc302599",
+          "fever:Andrea_Joyce",
+          "nq:doc1329818",
+          "fever:P21_holin_family",
+          "fever:House_Calls",
+          "fever:Milton_Jes\u00fas_Puerto",
+          "nq:doc1314787"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "arguana:training-culture-tphwpac-pro04a",
+          "fever:Yulia_Peresild",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "nq:doc578456",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "arguana:training-environment-achbessbp-con02b",
+          "fever:Wally_Don",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "fever:Kyran_Bracken",
+          "fever:Nigeria_Hockey_Federation",
+          "nq:doc1424156",
+          "nq:doc2053786",
+          "arguana:training-politics-thwnt-con02b",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "arguana:training-education-egsrsla1j-con01a"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "fever:Elbridge,_Alberta",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc2186958",
+          "arguana:training-education-egpeupdw-con04b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "nq:doc2403261",
+          "arguana:test-society-asfhwapg-pro01b",
+          "nq:doc411815",
+          "arguana:test-society-simhbrasnba-con03a",
+          "fever:Bertha,_Virginia",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "fever:Moorreesburg",
+          "dbpedia:<dbpedia:Tucker_Durkin>"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "nq:doc495257",
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "dbpedia:<dbpedia:Peziza>",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "nq:doc1666226",
+          "nq:doc1061692",
+          "fever:Handfasting_(Neopaganism)",
+          "nq:doc1004484",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc700994",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "nq:doc2558402",
+          "nq:doc1985534",
+          "nq:doc2419600",
+          "arguana:training-politics-appghwace-pro04b"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "arguana:training-economy-befhwimsc-con01a",
+          "arguana:training-sport-tshwiropf-con01a",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Zapmail",
+          "arguana:training-international-seighweo-con03a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "nq:doc540235",
+          "fever:Epichirostenotes",
+          "fever:Great_Western_Highway",
+          "fever:Monpazier",
+          "nq:doc1577666",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "fever:Rame_Taharpur",
+          "dbpedia:<dbpedia:FloodSim>",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "arguana:training-international-epvepesio-pro01b",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "fever:Aleksandr_Oleinik"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "arguana:training-culture-tphwpac-pro02a",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "nq:doc1821528",
+          "nq:doc1415585",
+          "nq:doc1688033",
+          "arguana:training-society-fygspsmy-con03a",
+          "nq:doc519813",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "arguana:test-law-lghbacpsba-pro05b",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "nq:doc717138",
+          "arguana:validation-free-speech-debate-nshwcb-con01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "fever:Kazi_Maruf",
+          "fever:Pawe\u0142_Fajdek",
+          "arguana:training-environment-achbessbp-con02a",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Fucoli-Somepal",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "arguana:test-economy-bepighbdb-con01a",
+          "arguana:test-education-ughbuesbf-con01b",
+          "fever:Economy_of_Guatemala",
+          "fever:Koyukon",
+          "nq:doc1386247",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Sissi_Christidou",
+          "arguana:test-culture-mthbah-pro01b",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "nq:doc1401379",
+          "arguana:training-international-agpwhouhmp-pro02b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Communism",
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "fever:Tom_McCall_Waterfront_Park",
+          "fever:Making_Love_from_Memory",
+          "fever:Taking_Over_(EP)",
+          "fever:James_Lowery",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "fever:George_Bogle_(diplomat)",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "fever:Lamia_Bahnasawy",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "nq:doc502195",
+          "fever:Harry_Steel_(politician)",
+          "nq:doc811298",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "nq:doc2587416",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "fever:Santa_Maria",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "fever:Noah_Cappe",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "nq:doc1980448",
+          "nq:doc297977",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "arguana:training-religion-chwccaogalp-pro04a"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "fever:Wieczywno",
+          "fever:C._J._Parker",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Valentina_Monetta",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:Kurtbeli",
+          "fever:Brad_Wheal",
+          "nq:doc2387950",
+          "arguana:training-philosophy-pphsipd-pro01b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground"
+        ]
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "nq:doc1424156",
+          "arguana:training-politics-thwnt-con02b",
+          "arguana:training-culture-tphwpac-pro04a",
+          "arguana:training-education-egsrsla1j-con01a",
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "nq:doc578456",
+          "fever:Wally_Don",
+          "fever:Yulia_Peresild",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "nq:doc2053786",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "arguana:training-environment-achbessbp-con02b",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "fever:Nigeria_Hockey_Federation",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "fever:Kyran_Bracken"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "nq:doc2403261",
+          "arguana:test-society-asfhwapg-pro01b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "fever:Elbridge,_Alberta",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "fever:Moorreesburg",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "nq:doc411815",
+          "arguana:training-education-egpeupdw-con04b",
+          "fever:Bertha,_Virginia",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "arguana:test-society-simhbrasnba-con03a"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "nq:doc1004484",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "nq:doc700994",
+          "nq:doc1061692",
+          "nq:doc495257",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "nq:doc2419600",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1666226",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc2558402",
+          "dbpedia:<dbpedia:Peziza>",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "fever:Handfasting_(Neopaganism)",
+          "nq:doc1985534"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "arguana:training-economy-befhwimsc-con01a",
+          "fever:Monpazier",
+          "nq:doc540235",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "arguana:training-international-seighweo-con03a",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Great_Western_Highway",
+          "arguana:training-international-epvepesio-pro01b",
+          "nq:doc1577666",
+          "arguana:training-sport-tshwiropf-con01a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "fever:Epichirostenotes",
+          "fever:Aleksandr_Oleinik",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "fever:Zapmail",
+          "dbpedia:<dbpedia:FloodSim>",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "fever:Rame_Taharpur"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "arguana:test-law-lghbacpsba-pro05b",
+          "nq:doc1415585",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "arguana:training-society-fygspsmy-con03a",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "nq:doc519813",
+          "nq:doc717138",
+          "nq:doc1688033",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "arguana:training-culture-tphwpac-pro02a",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:validation-free-speech-debate-nshwcb-con01b",
+          "nq:doc1821528"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Pawe\u0142_Fajdek",
+          "fever:Economy_of_Guatemala",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "nq:doc1386247",
+          "arguana:test-education-ughbuesbf-con01b",
+          "arguana:test-economy-bepighbdb-con01a",
+          "fever:Fucoli-Somepal",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Kazi_Maruf",
+          "nq:doc1401379",
+          "fever:Sissi_Christidou",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "fever:Koyukon",
+          "arguana:training-environment-achbessbp-con02a",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "arguana:training-international-agpwhouhmp-pro02b",
+          "arguana:test-culture-mthbah-pro01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "fever:Taking_Over_(EP)",
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "fever:Harry_Steel_(politician)",
+          "fever:Making_Love_from_Memory",
+          "fever:George_Bogle_(diplomat)",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "nq:doc811298",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Tom_McCall_Waterfront_Park",
+          "fever:Communism",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "nq:doc502195",
+          "fever:Lamia_Bahnasawy",
+          "fever:James_Lowery",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "nq:doc297977",
+          "fever:Noah_Cappe",
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "nq:doc2587416",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "fever:Santa_Maria",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "nq:doc1980448",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "fever:Valentina_Monetta",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:C._J._Parker",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Wieczywno",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "fever:Kurtbeli",
+          "fever:Brad_Wheal",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "nq:doc2387950",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground",
+          "arguana:training-philosophy-pphsipd-pro01b"
+        ]
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "nq:doc1424156",
+          "arguana:training-politics-thwnt-con02b",
+          "arguana:training-culture-tphwpac-pro04a",
+          "arguana:training-education-egsrsla1j-con01a",
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "nq:doc578456",
+          "fever:Wally_Don",
+          "fever:Yulia_Peresild",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "nq:doc2053786",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "arguana:training-environment-achbessbp-con02b",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "fever:Nigeria_Hockey_Federation",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "fever:Kyran_Bracken"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "nq:doc2403261",
+          "arguana:test-society-asfhwapg-pro01b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "fever:Elbridge,_Alberta",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "fever:Moorreesburg",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "nq:doc411815",
+          "arguana:training-education-egpeupdw-con04b",
+          "fever:Bertha,_Virginia",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "arguana:test-society-simhbrasnba-con03a"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "nq:doc1004484",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "nq:doc700994",
+          "nq:doc1061692",
+          "nq:doc495257",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "nq:doc2419600",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1666226",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc2558402",
+          "dbpedia:<dbpedia:Peziza>",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "fever:Handfasting_(Neopaganism)",
+          "nq:doc1985534"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "arguana:training-economy-befhwimsc-con01a",
+          "fever:Monpazier",
+          "nq:doc540235",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "arguana:training-international-seighweo-con03a",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Great_Western_Highway",
+          "arguana:training-international-epvepesio-pro01b",
+          "nq:doc1577666",
+          "arguana:training-sport-tshwiropf-con01a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "fever:Epichirostenotes",
+          "fever:Aleksandr_Oleinik",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "fever:Zapmail",
+          "dbpedia:<dbpedia:FloodSim>",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "fever:Rame_Taharpur"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "arguana:test-law-lghbacpsba-pro05b",
+          "nq:doc1415585",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "arguana:training-society-fygspsmy-con03a",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "nq:doc519813",
+          "nq:doc717138",
+          "nq:doc1688033",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "arguana:training-culture-tphwpac-pro02a",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:validation-free-speech-debate-nshwcb-con01b",
+          "nq:doc1821528"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Pawe\u0142_Fajdek",
+          "fever:Economy_of_Guatemala",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "nq:doc1386247",
+          "arguana:test-education-ughbuesbf-con01b",
+          "arguana:test-economy-bepighbdb-con01a",
+          "fever:Fucoli-Somepal",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Kazi_Maruf",
+          "nq:doc1401379",
+          "fever:Sissi_Christidou",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "fever:Koyukon",
+          "arguana:training-environment-achbessbp-con02a",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "arguana:training-international-agpwhouhmp-pro02b",
+          "arguana:test-culture-mthbah-pro01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "fever:Taking_Over_(EP)",
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "fever:Harry_Steel_(politician)",
+          "fever:Making_Love_from_Memory",
+          "fever:George_Bogle_(diplomat)",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "nq:doc811298",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Tom_McCall_Waterfront_Park",
+          "fever:Communism",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "nq:doc502195",
+          "fever:Lamia_Bahnasawy",
+          "fever:James_Lowery",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "nq:doc297977",
+          "fever:Noah_Cappe",
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "nq:doc2587416",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "fever:Santa_Maria",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "nq:doc1980448",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "fever:Valentina_Monetta",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:C._J._Parker",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Wieczywno",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "fever:Kurtbeli",
+          "fever:Brad_Wheal",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "nq:doc2387950",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground",
+          "arguana:training-philosophy-pphsipd-pro01b"
+        ]
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "nq:doc1329818",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:House_Calls",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Renzo_Martens",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:P21_holin_family",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "fever:Milton_Jes\u00fas_Puerto",
+          "nq:doc302599",
+          "dbpedia:<dbpedia:Washingley>",
+          "arguana:training-education-tfsdfkhwabvh-con04a"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "arguana:training-culture-tphwpac-pro04a",
+          "fever:Yulia_Peresild",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "nq:doc578456",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "arguana:training-environment-achbessbp-con02b",
+          "fever:Wally_Don",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "fever:Kyran_Bracken",
+          "fever:Nigeria_Hockey_Federation",
+          "nq:doc1424156",
+          "nq:doc2053786",
+          "arguana:training-politics-thwnt-con02b",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "arguana:training-education-egsrsla1j-con01a"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "arguana:test-society-simhbrasnba-con03a",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "arguana:test-society-asfhwapg-pro01b",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "fever:Bertha,_Virginia",
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "arguana:training-education-egpeupdw-con04b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "fever:Moorreesburg",
+          "fever:Elbridge,_Alberta",
+          "nq:doc2403261",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "nq:doc411815"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "nq:doc2419600",
+          "nq:doc1004484",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "nq:doc700994",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1985534",
+          "nq:doc2558402",
+          "nq:doc1666226",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "dbpedia:<dbpedia:Peziza>",
+          "nq:doc1061692",
+          "fever:Handfasting_(Neopaganism)",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "nq:doc495257"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "fever:Monpazier",
+          "arguana:training-sport-tshwiropf-con01a",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Zapmail",
+          "fever:Epichirostenotes",
+          "fever:Great_Western_Highway",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "nq:doc540235",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "arguana:training-economy-befhwimsc-con01a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "dbpedia:<dbpedia:FloodSim>",
+          "fever:Aleksandr_Oleinik",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "fever:Rame_Taharpur",
+          "arguana:training-international-seighweo-con03a",
+          "nq:doc1577666",
+          "arguana:training-international-epvepesio-pro01b"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "arguana:training-culture-tphwpac-pro02a",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "nq:doc1821528",
+          "nq:doc1415585",
+          "nq:doc1688033",
+          "arguana:training-society-fygspsmy-con03a",
+          "nq:doc519813",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "arguana:test-law-lghbacpsba-pro05b",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "nq:doc717138",
+          "arguana:validation-free-speech-debate-nshwcb-con01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "fever:Kazi_Maruf",
+          "fever:Pawe\u0142_Fajdek",
+          "arguana:training-environment-achbessbp-con02a",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Fucoli-Somepal",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "arguana:test-economy-bepighbdb-con01a",
+          "arguana:test-education-ughbuesbf-con01b",
+          "fever:Economy_of_Guatemala",
+          "fever:Koyukon",
+          "nq:doc1386247",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Sissi_Christidou",
+          "arguana:test-culture-mthbah-pro01b",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "nq:doc1401379",
+          "arguana:training-international-agpwhouhmp-pro02b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "fever:Taking_Over_(EP)",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "fever:George_Bogle_(diplomat)",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "fever:Harry_Steel_(politician)",
+          "fever:Lamia_Bahnasawy",
+          "fever:Making_Love_from_Memory",
+          "nq:doc811298",
+          "arguana:training-international-ghbwg-pro04a",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "fever:James_Lowery",
+          "fever:Communism",
+          "nq:doc502195",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Tom_McCall_Waterfront_Park"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "nq:doc2587416",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "fever:Santa_Maria",
+          "fever:Noah_Cappe",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "nq:doc297977",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "nq:doc1980448",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>",
+          "arguana:training-education-eghwbsuj-pro02b"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "fever:C._J._Parker",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:Brad_Wheal",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Kurtbeli",
+          "fever:Wieczywno",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "nq:doc2387950",
+          "arguana:training-philosophy-pphsipd-pro01b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "fever:Valentina_Monetta",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground"
+        ]
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "fever:Fred_Dallmayr",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Andrea_Joyce",
+          "fever:P21_holin_family",
+          "nq:doc1314787",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:House_Calls",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1329818",
+          "nq:doc302599",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "fever:Club_Me",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Renzo_Martens",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "arguana:training-culture-tphwpac-pro04a",
+          "arguana:training-politics-thwnt-con02b",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "nq:doc1424156",
+          "fever:Binder_(material)",
+          "arguana:training-environment-achbessbp-con02b",
+          "arguana:training-education-egsrsla1j-con01a",
+          "fever:Yulia_Peresild",
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "nq:doc578456",
+          "nq:doc2053786",
+          "fever:Wally_Don",
+          "fever:Kyran_Bracken",
+          "fever:Nigeria_Hockey_Federation",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "arguana:test-international-eghrhbeusli-pro01a"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "arguana:training-education-egpeupdw-con04b",
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "arguana:test-society-asfhwapg-pro01b",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "nq:doc2403261",
+          "dbpedia:<dbpedia:Akimbo>",
+          "fever:Elbridge,_Alberta",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "fever:Bertha,_Virginia",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "arguana:test-society-simhbrasnba-con03a",
+          "fever:Moorreesburg",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc411815",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "arguana:test-law-tlcplghwfne-con02a"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "nq:doc2419600",
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "nq:doc700994",
+          "nq:doc1004484",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc2558402",
+          "nq:doc495257",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1061692",
+          "dbpedia:<dbpedia:Peziza>",
+          "fever:Handfasting_(Neopaganism)",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "nq:doc1666226",
+          "nq:doc1985534"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "fever:Monpazier",
+          "arguana:training-sport-tshwiropf-con01a",
+          "arguana:training-economy-befhwimsc-con01a",
+          "nq:doc540235",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "fever:Epichirostenotes",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "fever:Zapmail",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "arguana:training-international-seighweo-con03a",
+          "nq:doc1577666",
+          "fever:Aleksandr_Oleinik",
+          "arguana:training-international-epvepesio-pro01b",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "dbpedia:<dbpedia:FloodSim>",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "fever:Great_Western_Highway",
+          "fever:Rame_Taharpur"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "arguana:test-law-lghbacpsba-pro05b",
+          "nq:doc1415585",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "nq:doc717138",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "nq:doc1688033",
+          "arguana:training-society-fygspsmy-con03a",
+          "arguana:training-international-apdwhbpa-con02b",
+          "fever:Lotar_Siewerdt",
+          "nq:doc519813",
+          "fever:HMS_Worcester_(1698)",
+          "nq:doc1821528",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:training-culture-tphwpac-pro02a",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "arguana:validation-free-speech-debate-nshwcb-con01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "fever:Pawe\u0142_Fajdek",
+          "fever:Kazi_Maruf",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Fucoli-Somepal",
+          "arguana:test-economy-bepighbdb-con01a",
+          "fever:Economy_of_Guatemala",
+          "arguana:test-education-ughbuesbf-con01b",
+          "fever:Raj_Mahajan",
+          "arguana:training-international-gsimhbnws-con01a",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "arguana:training-environment-achbessbp-con02a",
+          "nq:doc1386247",
+          "fever:Koyukon",
+          "nq:doc1401379",
+          "fever:Sissi_Christidou",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "arguana:test-culture-mthbah-pro01b",
+          "arguana:training-international-agpwhouhmp-pro02b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "fever:Taking_Over_(EP)",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "fever:Lamia_Bahnasawy",
+          "nq:doc502195",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Making_Love_from_Memory",
+          "fever:Harry_Steel_(politician)",
+          "fever:George_Bogle_(diplomat)",
+          "nq:doc811298",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "fever:James_Lowery",
+          "fever:Communism",
+          "fever:Tom_McCall_Waterfront_Park",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "fever:Noah_Cappe",
+          "nq:doc297977",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "fever:Santa_Maria",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "nq:doc2587416",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "nq:doc1980448",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "fever:C._J._Parker",
+          "fever:Wieczywno",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:Kurtbeli",
+          "fever:Valentina_Monetta",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "fever:Brad_Wheal",
+          "nq:doc2387950",
+          "arguana:training-philosophy-pphsipd-pro01b",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground"
+        ]
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "fever:Fred_Dallmayr",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Andrea_Joyce",
+          "fever:P21_holin_family",
+          "nq:doc1314787",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:House_Calls",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1329818",
+          "nq:doc302599",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "fever:Club_Me",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Renzo_Martens",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "arguana:training-culture-tphwpac-pro04a",
+          "arguana:training-politics-thwnt-con02b",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "nq:doc1424156",
+          "fever:Binder_(material)",
+          "arguana:training-environment-achbessbp-con02b",
+          "arguana:training-education-egsrsla1j-con01a",
+          "fever:Yulia_Peresild",
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "nq:doc578456",
+          "nq:doc2053786",
+          "fever:Wally_Don",
+          "fever:Kyran_Bracken",
+          "fever:Nigeria_Hockey_Federation",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "arguana:test-international-eghrhbeusli-pro01a"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "arguana:training-education-egpeupdw-con04b",
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "arguana:test-society-asfhwapg-pro01b",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "nq:doc2403261",
+          "dbpedia:<dbpedia:Akimbo>",
+          "fever:Elbridge,_Alberta",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "fever:Bertha,_Virginia",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "arguana:test-society-simhbrasnba-con03a",
+          "fever:Moorreesburg",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc411815",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "arguana:test-law-tlcplghwfne-con02a"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "nq:doc2419600",
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "nq:doc700994",
+          "nq:doc1004484",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc2558402",
+          "nq:doc495257",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1061692",
+          "dbpedia:<dbpedia:Peziza>",
+          "fever:Handfasting_(Neopaganism)",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "nq:doc1666226",
+          "nq:doc1985534"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "fever:Monpazier",
+          "arguana:training-sport-tshwiropf-con01a",
+          "arguana:training-economy-befhwimsc-con01a",
+          "nq:doc540235",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "fever:Epichirostenotes",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "fever:Zapmail",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "arguana:training-international-seighweo-con03a",
+          "nq:doc1577666",
+          "fever:Aleksandr_Oleinik",
+          "arguana:training-international-epvepesio-pro01b",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "dbpedia:<dbpedia:FloodSim>",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "fever:Great_Western_Highway",
+          "fever:Rame_Taharpur"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "arguana:test-law-lghbacpsba-pro05b",
+          "nq:doc1415585",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "nq:doc717138",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "nq:doc1688033",
+          "arguana:training-society-fygspsmy-con03a",
+          "arguana:training-international-apdwhbpa-con02b",
+          "fever:Lotar_Siewerdt",
+          "nq:doc519813",
+          "fever:HMS_Worcester_(1698)",
+          "nq:doc1821528",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:training-culture-tphwpac-pro02a",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "arguana:validation-free-speech-debate-nshwcb-con01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "fever:Pawe\u0142_Fajdek",
+          "fever:Kazi_Maruf",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Fucoli-Somepal",
+          "arguana:test-economy-bepighbdb-con01a",
+          "fever:Economy_of_Guatemala",
+          "arguana:test-education-ughbuesbf-con01b",
+          "fever:Raj_Mahajan",
+          "arguana:training-international-gsimhbnws-con01a",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "arguana:training-environment-achbessbp-con02a",
+          "nq:doc1386247",
+          "fever:Koyukon",
+          "nq:doc1401379",
+          "fever:Sissi_Christidou",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "arguana:test-culture-mthbah-pro01b",
+          "arguana:training-international-agpwhouhmp-pro02b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "fever:Taking_Over_(EP)",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "fever:Lamia_Bahnasawy",
+          "nq:doc502195",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Making_Love_from_Memory",
+          "fever:Harry_Steel_(politician)",
+          "fever:George_Bogle_(diplomat)",
+          "nq:doc811298",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "fever:James_Lowery",
+          "fever:Communism",
+          "fever:Tom_McCall_Waterfront_Park",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "fever:Noah_Cappe",
+          "nq:doc297977",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "fever:Santa_Maria",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "nq:doc2587416",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "nq:doc1980448",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "fever:C._J._Parker",
+          "fever:Wieczywno",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:Kurtbeli",
+          "fever:Valentina_Monetta",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "fever:Brad_Wheal",
+          "nq:doc2387950",
+          "arguana:training-philosophy-pphsipd-pro01b",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground"
+        ]
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ],
+        "arguana:test-culture-mmciahbans-pro01a": [
+          "nq:doc1424156",
+          "arguana:training-politics-thwnt-con02b",
+          "arguana:training-culture-tphwpac-pro04a",
+          "arguana:training-education-egsrsla1j-con01a",
+          "arguana:validation-economy-epeghwbhst-con01a",
+          "fever:Binder_(material)",
+          "dbpedia:<dbpedia:San_Vicente_Nu\u00f1\u00fa>",
+          "arguana:training-economy-egplhbbsa-pro03a",
+          "nq:doc578456",
+          "fever:Wally_Don",
+          "fever:Yulia_Peresild",
+          "arguana:test-international-eghrhbeusli-pro01a",
+          "dbpedia:<dbpedia:Chemical_Society_of_Pakistan>",
+          "nq:doc2053786",
+          "fever:W\u00f3dka_\u017bo\u0142\u0105dkowa_Gorzka",
+          "arguana:training-environment-achbessbp-con02b",
+          "dbpedia:<dbpedia:Annum_ingressi>",
+          "fever:Nigeria_Hockey_Federation",
+          "dbpedia:<dbpedia:No_God,_No_Master>",
+          "fever:Kyran_Bracken"
+        ],
+        "arguana:test-culture-mthbah-pro02a": [
+          "dbpedia:<dbpedia:Democratic_Alliance_Party_(Tunisia)>",
+          "nq:doc2403261",
+          "arguana:test-society-asfhwapg-pro01b",
+          "arguana:training-education-pstpsnbtsj-con02a",
+          "fever:Elbridge,_Alberta",
+          "arguana:training-free-speech-debate-nvhbfemir-pro02b",
+          "dbpedia:<dbpedia:The_Boat_Race_1974>",
+          "nq:doc2186958",
+          "dbpedia:<dbpedia:Cephalotes_scutulatus>",
+          "fever:Moorreesburg",
+          "arguana:test-digital-freedoms-efsappgdfp-pro02b",
+          "nq:doc411815",
+          "arguana:training-education-egpeupdw-con04b",
+          "fever:Bertha,_Virginia",
+          "dbpedia:<dbpedia:USNS_Stalwart_(T-AGOS-1)>",
+          "dbpedia:<dbpedia:Tucker_Durkin>",
+          "dbpedia:<dbpedia:Akimbo>",
+          "arguana:test-law-tlcplghwfne-con02a",
+          "arguana:training-free-speech-debate-nshbimprsb-pro02b",
+          "arguana:test-society-simhbrasnba-con03a"
+        ],
+        "arguana:test-culture-thbcsbptwhht-pro02a": [
+          "arguana:training-society-gfyhbprcsao-pro02b",
+          "dbpedia:<dbpedia:Preston_Powers>",
+          "nq:doc1004484",
+          "arguana:training-health-adhgphwfrs-con01a",
+          "nq:doc700994",
+          "nq:doc1061692",
+          "nq:doc495257",
+          "arguana:training-international-epdtwhblew-pro03b",
+          "nq:doc2419600",
+          "dbpedia:<dbpedia:Grade_II*_listed_buildings_in_Hambleton>",
+          "arguana:training-politics-appghwace-pro04b",
+          "nq:doc1666226",
+          "dbpedia:<dbpedia:Peter_Bouwknegt>",
+          "nq:doc2558402",
+          "dbpedia:<dbpedia:Peziza>",
+          "arguana:training-philosophy-lsfhwnhc-pro02a",
+          "arguana:training-politics-pggvhbophd-con04b",
+          "dbpedia:<dbpedia:Sanjeev_Tripathi>",
+          "fever:Handfasting_(Neopaganism)",
+          "nq:doc1985534"
+        ],
+        "arguana:test-culture-tlhrilsfhwr-pro03a": [
+          "arguana:training-economy-befhwimsc-con01a",
+          "fever:Monpazier",
+          "nq:doc540235",
+          "fever:Agency_for_the_Development_of_Macroregions_and_Border_Zones",
+          "arguana:training-international-seighweo-con03a",
+          "dbpedia:<dbpedia:Horizon_City,_Texas>",
+          "arguana:training-international-ipeegiahw-con03b",
+          "fever:Great_Western_Highway",
+          "arguana:training-international-epvepesio-pro01b",
+          "nq:doc1577666",
+          "arguana:training-sport-tshwiropf-con01a",
+          "fever:First_Methodist_Episcopal_Church,_South_(Ozark,_Arkansas)",
+          "fever:Epichirostenotes",
+          "fever:Aleksandr_Oleinik",
+          "arguana:validation-international-mewhwakapps-pro02a",
+          "fever:Zapmail",
+          "dbpedia:<dbpedia:FloodSim>",
+          "arguana:training-politics-pggllgvhwa-con05a",
+          "dbpedia:<dbpedia:Universidade_Luterana_do_Brasil>",
+          "fever:Rame_Taharpur"
+        ],
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": [
+          "arguana:test-law-lghbacpsba-pro05b",
+          "nq:doc1415585",
+          "dbpedia:<dbpedia:Giuseppe_Tarella>",
+          "fever:Semyonov,_Nizhny_Novgorod_Oblast",
+          "dbpedia:<dbpedia:1993\u201394_FIBA_Women's_European_Champions_Cup>",
+          "arguana:training-society-fygspsmy-con03a",
+          "dbpedia:<dbpedia:Brown_University_Interactive_Language>",
+          "nq:doc519813",
+          "nq:doc717138",
+          "nq:doc1688033",
+          "arguana:training-international-apdwhbpa-con02b",
+          "dbpedia:<dbpedia:Foggerty's_Fairy>",
+          "arguana:test-society-tsmihwurpp-con03a",
+          "fever:Lotar_Siewerdt",
+          "arguana:training-culture-tphwpac-pro02a",
+          "fever:HMS_Worcester_(1698)",
+          "arguana:test-health-hpehwadvoee-pro05b",
+          "fever:Juan_Pablo_Ledezma",
+          "arguana:validation-free-speech-debate-nshwcb-con01b",
+          "nq:doc1821528"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": [
+          "fever:Karen_Kotte",
+          "arguana:training-law-apslpsyhwbbc-pro01a",
+          "fever:Pawe\u0142_Fajdek",
+          "fever:Economy_of_Guatemala",
+          "arguana:training-international-gsimhbnws-con01a",
+          "fever:Raj_Mahajan",
+          "nq:doc1386247",
+          "arguana:test-education-ughbuesbf-con01b",
+          "arguana:test-economy-bepighbdb-con01a",
+          "fever:Fucoli-Somepal",
+          "dbpedia:<dbpedia:1994_Cheltenham_Gold_Cup>",
+          "fever:Kazi_Maruf",
+          "nq:doc1401379",
+          "fever:Sissi_Christidou",
+          "dbpedia:<dbpedia:Sanctus_Diavolos>",
+          "fever:Koyukon",
+          "arguana:training-environment-achbessbp-con02a",
+          "dbpedia:<dbpedia:Luk\u00e1>",
+          "arguana:training-international-agpwhouhmp-pro02b",
+          "arguana:test-culture-mthbah-pro01b"
+        ],
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": [
+          "fever:Taking_Over_(EP)",
+          "arguana:training-international-ghbwg-pro04a",
+          "arguana:test-international-ipecfiepg-pro03a",
+          "arguana:training-free-speech-debate-nshbimprsb-con02a",
+          "dbpedia:<dbpedia:Azerbaijan_national_under-19_football_team>",
+          "fever:Harry_Steel_(politician)",
+          "fever:Making_Love_from_Memory",
+          "fever:George_Bogle_(diplomat)",
+          "dbpedia:<dbpedia:Mohanad_Salem>",
+          "nq:doc811298",
+          "arguana:validation-international-ahbiataucs-pro01b",
+          "fever:Tom_McCall_Waterfront_Park",
+          "fever:Communism",
+          "arguana:training-politics-yppplhbmlgl-con02a",
+          "nq:doc502195",
+          "fever:Lamia_Bahnasawy",
+          "fever:James_Lowery",
+          "dbpedia:<dbpedia:Wild_Planet>",
+          "arguana:training-health-mthwhwbpd-pro01a",
+          "arguana:training-digital-freedoms-pidfakhwcs-con02a"
+        ],
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": [
+          "nq:doc297977",
+          "fever:Noah_Cappe",
+          "dbpedia:<dbpedia:Marcel_Kinsbourne>",
+          "nq:doc2587416",
+          "arguana:training-education-eghwbsuj-pro02b",
+          "arguana:training-international-agpwhouhmp-pro05b",
+          "arguana:validation-free-speech-debate-radhbrap-con02a",
+          "arguana:training-religion-chwccaogalp-pro04a",
+          "arguana:test-health-ahiahbgbsp-con04a",
+          "arguana:training-politics-ghbrphliw-con01b",
+          "fever:Santa_Maria",
+          "dbpedia:<dbpedia:General_Schuyler_House>",
+          "dbpedia:<dbpedia:Lone_Mathiesen>",
+          "dbpedia:<dbpedia:CAVE-based_authentication>",
+          "arguana:training-free-speech-debate-fsaphwacsl-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Security_Council_Resolution_1535>",
+          "nq:doc1980448",
+          "dbpedia:<dbpedia:Sutherland_of_Forse>",
+          "dbpedia:<dbpedia:Immigration_and_Asylum_Act_1999>",
+          "dbpedia:<dbpedia:Q\u0131rxbulaq>"
+        ],
+        "arguana:test-economy-beghwbh-con03a": [
+          "arguana:test-politics-cdfsaphgiap-pro03b",
+          "fever:Global_Ozone_Monitoring_by_Occultation_of_Stars",
+          "dbpedia:<dbpedia:Arthur_Ribeiro>",
+          "fever:Valentina_Monetta",
+          "dbpedia:<dbpedia:TSV_Schilksee>",
+          "arguana:training-international-ghbssbupd-pro01a",
+          "fever:C._J._Parker",
+          "arguana:training-international-aehbcvrflen-con02b",
+          "fever:Wieczywno",
+          "arguana:test-science-ciidfaihwc-pro02b",
+          "dbpedia:<dbpedia:United_Nations_Palestine_Commission>",
+          "fever:Kurtbeli",
+          "fever:Brad_Wheal",
+          "arguana:validation-education-eggrhwbfs-con03a",
+          "fever:Francisco_L\u00f3pez_Military_Academy",
+          "arguana:training-health-mchdhgwhwff-con04b",
+          "nq:doc2387950",
+          "arguana:test-education-pstrgsehwt-con01a",
+          "fever:Bloomfield_Cricket_and_Athletic_Club_Ground",
+          "arguana:training-philosophy-pphsipd-pro01b"
+        ]
+      }
+    },
+    "latency_ms": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 111.63410008884966,
+        "arguana:test-culture-mmciahbans-pro01a": 163.3827998302877,
+        "arguana:test-culture-mthbah-pro02a": 106.55770008452237,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 106.64170002564788,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 170.32409994862974,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 184.3890999443829,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 145.0183999259025,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 160.98210006020963,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 128.0869001056999,
+        "arguana:test-economy-beghwbh-con03a": 108.19460009224713
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 109.09659997560084,
+        "arguana:test-culture-mmciahbans-pro01a": 117.46999993920326,
+        "arguana:test-culture-mthbah-pro02a": 112.08769981749356,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 120.50600000657141,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 114.97290013357997,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 104.53839995898306,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 141.00029994733632,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 122.57320014759898,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 126.22330011799932,
+        "arguana:test-economy-beghwbh-con03a": 111.18949996307492
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0301999282091856,
+        "arguana:test-culture-mmciahbans-pro01a": 1.052799867466092,
+        "arguana:test-culture-mthbah-pro02a": 143.91169999726117,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 1.7315000295639038,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 131.14270009100437,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 2.087299944832921,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.936900032684207,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 120.17439980991185,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 109.56540005281568,
+        "arguana:test-economy-beghwbh-con03a": 1.7580001149326563
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 2.228100085631013,
+        "arguana:test-culture-mmciahbans-pro01a": 1.890100073069334,
+        "arguana:test-culture-mthbah-pro02a": 1.4765998348593712,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.9910999797284603,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 2.1220999769866467,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 1.7234999686479568,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.9144998621195555,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.8632999379187822,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 1.2787999585270882,
+        "arguana:test-economy-beghwbh-con03a": 1.0062998626381159
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.806800089776516,
+        "arguana:test-culture-mmciahbans-pro01a": 0.947300111874938,
+        "arguana:test-culture-mthbah-pro02a": 1.0632998310029507,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 1.0464000515639782,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 1.138199819251895,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 1.3137999922037125,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 1.6391000244766474,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 1.121200155466795,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.969999935477972,
+        "arguana:test-economy-beghwbh-con03a": 1.1938998941332102
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.9363999124616385,
+        "arguana:test-culture-mmciahbans-pro01a": 0.943200197070837,
+        "arguana:test-culture-mthbah-pro02a": 0.8006999269127846,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 2.267200034111738,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 1.872899942100048,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 1.6362001188099384,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 1.1224998161196709,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 1.0712000075727701,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 1.3296999968588352,
+        "arguana:test-economy-beghwbh-con03a": 1.0472999420017004
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 6.44210004247725,
+        "arguana:test-culture-mmciahbans-pro01a": 6.661399966105819,
+        "arguana:test-culture-mthbah-pro02a": 9.222899796441197,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 15.295900171622634,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 21.30570006556809,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 9.098799899220467,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 6.991800153627992,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 8.102100109681487,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 12.139500118792057,
+        "arguana:test-economy-beghwbh-con03a": 8.744599996134639
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 7.6206999365240335,
+        "arguana:test-culture-mmciahbans-pro01a": 13.504500035196543,
+        "arguana:test-culture-mthbah-pro02a": 8.423499995842576,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 11.515899794176221,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 17.297500045970082,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 7.445999886840582,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 12.782099889591336,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 6.109100067988038,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 6.53789984062314,
+        "arguana:test-economy-beghwbh-con03a": 8.353800047188997
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 10.560799855738878,
+        "arguana:test-culture-mmciahbans-pro01a": 6.946999812498689,
+        "arguana:test-culture-mthbah-pro02a": 7.637399947270751,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 11.524199973791838,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 17.12750014849007,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 6.820800015702844,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 6.728499894961715,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 5.933699896559119,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 5.4472999181598425,
+        "arguana:test-economy-beghwbh-con03a": 10.150599991902709
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.4371001161634922,
+        "arguana:test-culture-mmciahbans-pro01a": 1.3656001538038254,
+        "arguana:test-culture-mthbah-pro02a": 2.114300150424242,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 1.1406999547034502,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 1.3130998704582453,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.9620999917387962,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 1.0969999711960554,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.8262998890131712,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7538001518696547,
+        "arguana:test-economy-beghwbh-con03a": 1.0931999422609806
+      }
+    },
+    "confidence_proxy": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341645,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7855938862584247,
+        "arguana:test-culture-mthbah-pro02a": 0.7848803177489042,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7841538776891598,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7864628282426306,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7827624515654189,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7875334660039486,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7869201468368625,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7834263748118652,
+        "arguana:test-economy-beghwbh-con03a": 0.7838503912218892
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341645,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7855938862584247,
+        "arguana:test-culture-mthbah-pro02a": 0.7848803177489042,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7841538776891598,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7864628282426306,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7827624515654189,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7875334660039486,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7869201468368625,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7834263748118652,
+        "arguana:test-economy-beghwbh-con03a": 0.7838503912218892
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7802928712960042,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7862038637054966,
+        "arguana:test-culture-mthbah-pro02a": 0.7843654253401057,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7802257906910477,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7846713929999785,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7830946279186993,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7898435503969042,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7888592175385641,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.78262510893662,
+        "arguana:test-economy-beghwbh-con03a": 0.7841742980274137
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7802928712960042,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7862038637054966,
+        "arguana:test-culture-mthbah-pro02a": 0.7843654253401057,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7802257906910477,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7846713929999785,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7830946279186993,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7898435503969042,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7888592175385641,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.78262510893662,
+        "arguana:test-economy-beghwbh-con03a": 0.7841742980274137
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341644,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7855938862584247,
+        "arguana:test-culture-mthbah-pro02a": 0.7848803177489039,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7841538776891597,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7864628282426305,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7827624515654188,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7875334660039485,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7869201468368624,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7834263748118651,
+        "arguana:test-economy-beghwbh-con03a": 0.783850391221889
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341644,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7855938862584247,
+        "arguana:test-culture-mthbah-pro02a": 0.7848803177489039,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7841538776891597,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7864628282426305,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7827624515654188,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7875334660039485,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7869201468368624,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7834263748118651,
+        "arguana:test-economy-beghwbh-con03a": 0.783850391221889
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7841732011432437,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7862038637054966,
+        "arguana:test-culture-mthbah-pro02a": 0.7861051520158224,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7868818164163753,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.79034608772503,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7830946279186993,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7898435503969042,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.790036211477895,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7845395967298313,
+        "arguana:test-economy-beghwbh-con03a": 0.7846315453613053
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7839541556532446,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7858642237363331,
+        "arguana:test-culture-mthbah-pro02a": 0.7852352886779641,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7861179211882157,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7875087403625043,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7830138846705814,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7881648913028649,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7894477145082296,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7838270077494878,
+        "arguana:test-economy-beghwbh-con03a": 0.7844029216943595
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7839544389436883,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7858649092254082,
+        "arguana:test-culture-mthbah-pro02a": 0.7852397754848135,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7861213917836682,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7875568472953532,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7830139230422786,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7881817685908115,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7894497980596606,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7838300045321327,
+        "arguana:test-economy-beghwbh-con03a": 0.7844032307667167
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341644,
+        "arguana:test-culture-mmciahbans-pro01a": 0.7855938862584247,
+        "arguana:test-culture-mthbah-pro02a": 0.7848803177489039,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 0.7841538776891597,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 0.7864628282426305,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 0.7827624515654188,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 0.7875334660039485,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 0.7869201468368624,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 0.7834263748118651,
+        "arguana:test-economy-beghwbh-con03a": 0.783850391221889
+      }
+    },
+    "specialist_count_selected": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0,
+        "arguana:test-culture-mmciahbans-pro01a": 3.0,
+        "arguana:test-culture-mthbah-pro02a": 3.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 3.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 3.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 3.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 3.0,
+        "arguana:test-economy-beghwbh-con03a": 3.0
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0,
+        "arguana:test-culture-mmciahbans-pro01a": 3.0,
+        "arguana:test-culture-mthbah-pro02a": 3.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 3.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 3.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 3.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 3.0,
+        "arguana:test-economy-beghwbh-con03a": 3.0
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0,
+        "arguana:test-culture-mmciahbans-pro01a": 1.0,
+        "arguana:test-culture-mthbah-pro02a": 1.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 1.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 1.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 1.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 1.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 1.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 1.0,
+        "arguana:test-economy-beghwbh-con03a": 1.0
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0,
+        "arguana:test-culture-mmciahbans-pro01a": 1.0,
+        "arguana:test-culture-mthbah-pro02a": 1.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 1.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 1.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 1.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 1.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 1.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 1.0,
+        "arguana:test-economy-beghwbh-con03a": 1.0
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0,
+        "arguana:test-culture-mmciahbans-pro01a": 3.0,
+        "arguana:test-culture-mthbah-pro02a": 3.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 3.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 3.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 3.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 3.0,
+        "arguana:test-economy-beghwbh-con03a": 3.0
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0,
+        "arguana:test-culture-mmciahbans-pro01a": 3.0,
+        "arguana:test-culture-mthbah-pro02a": 3.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 3.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 3.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 3.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 3.0,
+        "arguana:test-economy-beghwbh-con03a": 3.0
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0,
+        "arguana:test-culture-mmciahbans-pro01a": 1.0,
+        "arguana:test-culture-mthbah-pro02a": 1.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 1.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 1.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 1.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 1.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 1.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 1.0,
+        "arguana:test-economy-beghwbh-con03a": 1.0
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 2.0,
+        "arguana:test-culture-mmciahbans-pro01a": 2.0,
+        "arguana:test-culture-mthbah-pro02a": 2.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 2.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 2.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 2.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 2.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 2.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 2.0,
+        "arguana:test-economy-beghwbh-con03a": 2.0
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 2.0,
+        "arguana:test-culture-mmciahbans-pro01a": 2.0,
+        "arguana:test-culture-mthbah-pro02a": 2.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 2.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 2.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 2.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 2.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 2.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 2.0,
+        "arguana:test-economy-beghwbh-con03a": 2.0
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0,
+        "arguana:test-culture-mmciahbans-pro01a": 3.0,
+        "arguana:test-culture-mthbah-pro02a": 3.0,
+        "arguana:test-culture-thbcsbptwhht-pro02a": 3.0,
+        "arguana:test-culture-tlhrilsfhwr-pro03a": 3.0,
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": 3.0,
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": 3.0,
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": 3.0,
+        "arguana:test-economy-beghwbh-con03a": 3.0
+      }
+    },
+    "policy_usage": {
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.0025832491594423167,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 0.984418824512452,
+            "uncertainty_dispersion": 0.010218365662446533
+          }
+        },
+        "arguana:test-culture-mmciahbans-pro01a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.004028432539715604,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 1.0256018546646886,
+            "uncertainty_dispersion": 0.002803667487814483
+          }
+        },
+        "arguana:test-culture-mthbah-pro02a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.01026318089287489,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 1.0489073288293635,
+            "uncertainty_dispersion": 0.0051472740395577645
+          }
+        },
+        "arguana:test-culture-thbcsbptwhht-pro02a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.009045478299324564,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 1.0090237088396201,
+            "uncertainty_dispersion": 0.016852471770006025
+          }
+        },
+        "arguana:test-culture-tlhrilsfhwr-pro03a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.03334444279781548,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 0.9862602469860818,
+            "uncertainty_dispersion": 0.016326031986397763
+          }
+        },
+        "arguana:test-digital-freedoms-aihwbasmn-pro03a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.0009500105888104895,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 0.9992156738857062,
+            "uncertainty_dispersion": 0.0021273174578672048
+          }
+        },
+        "arguana:test-digital-freedoms-efsappgdfp-pro02a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.019907904219409505,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 0.9519872207711545,
+            "uncertainty_dispersion": 0.009762182879449171
+          }
+        },
+        "arguana:test-digital-freedoms-efsappgdfp-pro04a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.0070559436235252205,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 1.0035446659475131,
+            "uncertainty_dispersion": 0.021572410627930784
+          }
+        },
+        "arguana:test-digital-freedoms-piidfaihbg-pro02a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.008375746975093896,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 1.036205040065801,
+            "uncertainty_dispersion": 0.0047838769421189396
+          }
+        },
+        "arguana:test-economy-beghwbh-con03a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.002700114960963278,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 1.0614537697170787,
+            "uncertainty_dispersion": 0.004744321030342209
+          }
+        }
+      }
+    },
+    "query_metadata": {
+      "arguana:test-culture-ahrtsdlgra-pro03a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.28157008321642063,
+          "biomedical": 0.2759413059748063,
+          "finance": 0.2752284808280915
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.5515136713987445,
+          "biomedical": 3.62395907516398,
+          "finance": 3.6333449103496047
+        },
+        "uncertainty_spread": 0.006341602388329148,
+        "router_top1_precision": 3.6333449103496047,
+        "router_top2_precision": 3.62395907516398,
+        "router_confidence": 0.3361463784178143,
+        "router_margin": 0.0025832491594423167,
+        "specialist_disagreement": 0.9999530178260563
+      },
+      "arguana:test-culture-mmciahbans-pro01a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.2719347311355738,
+          "biomedical": 0.2737990057269358,
+          "finance": 0.273034632734551
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.6773530024064756,
+          "biomedical": 3.652314212555309,
+          "finance": 3.6625390339115604
+        },
+        "uncertainty_spread": 0.0018642745913619585,
+        "router_top1_precision": 3.6773530024064756,
+        "router_top2_precision": 3.6625390339115604,
+        "router_confidence": 0.33454184893805,
+        "router_margin": 0.004028432539715604,
+        "specialist_disagreement": 0.9999964188580731
+      },
+      "arguana:test-culture-mthbah-pro02a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.2749159609711173,
+          "biomedical": 0.2720944487333322,
+          "finance": 0.2752330752918875
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.6374752359505966,
+          "biomedical": 3.675194421110943,
+          "finance": 3.633284258948492
+        },
+        "uncertainty_spread": 0.003138626558555291,
+        "router_top1_precision": 3.675194421110943,
+        "router_top2_precision": 3.6374752359505966,
+        "router_confidence": 0.3357582581939654,
+        "router_margin": 0.01026318089287489,
+        "specialist_disagreement": 0.9999878710772195
+      },
+      "arguana:test-culture-thbcsbptwhht-pro02a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.2816802673419676,
+          "biomedical": 0.2708388720357139,
+          "finance": 0.2733111016748785
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.550124435184423,
+          "biomedical": 3.6922321839685406,
+          "finance": 3.6588341778723854
+        },
+        "uncertainty_spread": 0.01084139530625372,
+        "router_top1_precision": 3.6922321839685406,
+        "router_top2_precision": 3.6588341778723854,
+        "router_confidence": 0.33869989551747454,
+        "router_margin": 0.009045478299324564,
+        "specialist_disagreement": 0.9998727293481283
+      },
+      "arguana:test-culture-tlhrilsfhwr-pro03a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.27441883178227144,
+          "biomedical": 0.2749068934173966,
+          "finance": 0.26526848874326414
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.64406478048641,
+          "biomedical": 3.6375952147612396,
+          "finance": 3.7697655109266823
+        },
+        "uncertainty_spread": 0.009638404674132461,
+        "router_top1_precision": 3.7697655109266823,
+        "router_top2_precision": 3.64406478048641,
+        "router_confidence": 0.34111124477295246,
+        "router_margin": 0.03334444279781548,
+        "specialist_disagreement": 0.9998763388487674
+      },
+      "arguana:test-digital-freedoms-aihwbasmn-pro03a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.27698488068777777,
+          "biomedical": 0.2783480301440683,
+          "finance": 0.2772482694795127
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.6103053622165664,
+          "biomedical": 3.5926246702102285,
+          "finance": 3.6068755338936214
+        },
+        "uncertainty_spread": 0.0013631494562905133,
+        "router_top1_precision": 3.6103053622165664,
+        "router_top2_precision": 3.6068755338936214,
+        "router_confidence": 0.3339843015738431,
+        "router_margin": 0.0009500105888104895,
+        "specialist_disagreement": 0.9999979447547178
+      },
+      "arguana:test-digital-freedoms-efsappgdfp-pro02a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.2660735148087111,
+          "biomedical": 0.27182674820359537,
+          "finance": 0.27147807430973914
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.7583597928524846,
+          "biomedical": 3.6788138275892206,
+          "finance": 3.6835387260742976
+        },
+        "uncertainty_spread": 0.005753233394884261,
+        "router_top1_precision": 3.7583597928524846,
+        "router_top2_precision": 3.6835387260742976,
+        "router_confidence": 0.33796034604113623,
+        "router_margin": 0.019907904219409505,
+        "specialist_disagreement": 0.9999561293355033
+      },
+      "arguana:test-digital-freedoms-efsappgdfp-pro04a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.2676533122351633,
+          "biomedical": 0.2657647655533822,
+          "finance": 0.2789931577690377
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.736176442761106,
+          "biomedical": 3.7627260254675763,
+          "finance": 3.5843172929274565
+        },
+        "uncertainty_spread": 0.013228392215655527,
+        "router_top1_precision": 3.7627260254675763,
+        "router_top2_precision": 3.736176442761106,
+        "router_confidence": 0.33949755635586804,
+        "router_margin": 0.0070559436235252205,
+        "specialist_disagreement": 0.9997930462974938
+      },
+      "arguana:test-digital-freedoms-piidfaihbg-pro02a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.27775098010685456,
+          "biomedical": 0.2746329237788184,
+          "finance": 0.2769526087538327
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.6003473313227787,
+          "biomedical": 3.6412240245651377,
+          "finance": 3.610726053455747
+        },
+        "uncertainty_spread": 0.003118056328036134,
+        "router_top1_precision": 3.6412240245651377,
+        "router_top2_precision": 3.610726053455747,
+        "router_confidence": 0.3355256391545351,
+        "router_margin": 0.008375746975093896,
+        "specialist_disagreement": 0.9999895409847608
+      },
+      "arguana:test-economy-beghwbh-con03a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.275226697069127,
+          "biomedical": 0.27448355334671415,
+          "finance": 0.27755473117442125
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.633368458252566,
+          "biomedical": 3.643205532015425,
+          "finance": 3.6028930069708625
+        },
+        "uncertainty_spread": 0.0030711778277071056,
+        "router_top1_precision": 3.643205532015425,
+        "router_top2_precision": 3.633368458252566,
+        "router_confidence": 0.3348698546482148,
+        "router_margin": 0.002700114960963278,
+        "specialist_disagreement": 0.9999897993437041
+      }
+    }
+  },
+  "runtime_diagnostics": {
+    "model_loading_ms": 427.9318999033421,
+    "strategy_scoring_ms": {
+      "mean": 1482.631599996239,
+      "kalman": 1255.7188000064343,
+      "best_single_specialist": 1807.9617000184953,
+      "single_generalist_model": 92.06340019591153,
+      "uniform_mean_fusion": 98.05859997868538,
+      "fixed_weighted_mean_fusion": 97.53410005941987,
+      "router_only_top1": 281.7707001231611,
+      "router_only_topk_mean": 274.74260004237294,
+      "adaptive_route_or_fuse": 314.7658999077976,
+      "learned_linear_combiner": 94.13149999454618
+    },
+    "embedding_ms": 1716.8957984540612,
+    "fusion_ms": 2624.2557000368834
+  },
+  "comparison_table": [
+    {
+      "strategy": "mean",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "kalman",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "best_single_specialist",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "single_generalist_model",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "uniform_mean_fusion",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "fixed_weighted_mean_fusion",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "router_only_top1",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "router_only_topk_mean",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "adaptive_route_or_fuse",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "learned_linear_combiner",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    }
+  ],
+  "kalman_guardrail": {
+    "primary_metric": "mrr",
+    "kalman_score": 0.0,
+    "best_non_kalman_strategy": "mean",
+    "best_non_kalman_score": 0.0,
+    "kalman_minus_best_non_kalman": 0.0
+  },
+  "delta_last_minus_first": {
+    "recall@1": 0.0,
+    "recall@5": 0.0,
+    "recall@10": 0.0,
+    "mrr": 0.0,
+    "ndcg@10": 0.0
+  }
+}

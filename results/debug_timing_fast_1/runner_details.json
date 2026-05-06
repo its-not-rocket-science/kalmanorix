@@ -1,0 +1,1215 @@
+{
+  "name": "canonical-benchmark",
+  "experiment_type": "real_mixed",
+  "seed": {
+    "python": 42,
+    "numpy": 42,
+    "torch": 42
+  },
+  "dataset": {
+    "path": "benchmarks\\mixed_beir_v1.2.0\\mixed_benchmark.parquet",
+    "split": "test",
+    "max_queries": 1
+  },
+  "specialists": [
+    {
+      "name": "general_qa",
+      "domain": "general_qa",
+      "model_name": "sentence-transformers/all-mpnet-base-v2"
+    },
+    {
+      "name": "biomedical",
+      "domain": "biomedical",
+      "model_name": "emilyalsentzer/Bio_ClinicalBERT"
+    },
+    {
+      "name": "finance",
+      "domain": "finance",
+      "model_name": "ProsusAI/finbert"
+    }
+  ],
+  "results": {
+    "mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 106.90769995562732,
+          "median": 106.90769995562732
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "kalman": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 109.39380014315248,
+          "median": 109.39380014315248
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "best_single_specialist": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 1.0236999951303005,
+          "median": 1.0236999951303005
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "single_generalist_model": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 1.2260000221431255,
+          "median": 1.2260000221431255
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "uniform_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 0.9645000100135803,
+          "median": 0.9645000100135803
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "fixed_weighted_mean_fusion": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 2.094399882480502,
+          "median": 2.094399882480502
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "router_only_top1": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 7.297599921002984,
+          "median": 7.297599921002984
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 1.0,
+          "median": 1.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "router_only_topk_mean": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 12.724100146442652,
+          "median": 12.724100146442652
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "adaptive_route_or_fuse": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 11.188399977982044,
+          "median": 11.188399977982044
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 2.0,
+          "median": 2.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    },
+    "learned_linear_combiner": {
+      "protocol_version": "preregistered_eval_v1",
+      "protocol_sha256": "9d44e5b57b51516be0a8a55858eb95d754c3be10003d8d0e4782a9dd31a1defa",
+      "num_queries": 1,
+      "global_primary": {
+        "recall@1": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "recall@10": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "mrr": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "ndcg@10": {
+          "mean": 0.0,
+          "median": 0.0
+        }
+      },
+      "global_secondary": {
+        "latency_ms": {
+          "mean": 0.9534999262541533,
+          "median": 0.9534999262541533
+        },
+        "flops_proxy": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "peak_memory_mb": {
+          "mean": 0.0,
+          "median": 0.0
+        },
+        "specialist_count_selected": {
+          "mean": 3.0,
+          "median": 3.0
+        }
+      },
+      "per_domain_primary": {
+        "argumentation": {
+          "recall@1": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@5": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "recall@10": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "mrr": {
+            "mean": 0.0,
+            "median": 0.0
+          },
+          "ndcg@10": {
+            "mean": 0.0,
+            "median": 0.0
+          }
+        }
+      }
+    }
+  },
+  "query_level": {
+    "domains": {
+      "arguana:test-culture-ahrtsdlgra-pro03a": "argumentation"
+    },
+    "ground_truth": {
+      "arguana:test-culture-ahrtsdlgra-pro03a": [
+        "arguana:test-culture-ahrtsdlgra-pro03b"
+      ]
+    },
+    "rankings": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ]
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "fever:P21_holin_family",
+          "nq:doc302599",
+          "fever:Renzo_Martens",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ]
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "dbpedia:<dbpedia:Washingley>",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:Fred_Dallmayr",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Club_Me",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Renzo_Martens",
+          "nq:doc302599",
+          "fever:Andrea_Joyce",
+          "nq:doc1329818",
+          "fever:P21_holin_family",
+          "fever:House_Calls",
+          "fever:Milton_Jes\u00fas_Puerto",
+          "nq:doc1314787"
+        ]
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "dbpedia:<dbpedia:Washingley>",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:Fred_Dallmayr",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Club_Me",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Renzo_Martens",
+          "nq:doc302599",
+          "fever:Andrea_Joyce",
+          "nq:doc1329818",
+          "fever:P21_holin_family",
+          "fever:House_Calls",
+          "fever:Milton_Jes\u00fas_Puerto",
+          "nq:doc1314787"
+        ]
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ]
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ]
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "nq:doc1329818",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:House_Calls",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Renzo_Martens",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:P21_holin_family",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "fever:Milton_Jes\u00fas_Puerto",
+          "nq:doc302599",
+          "dbpedia:<dbpedia:Washingley>",
+          "arguana:training-education-tfsdfkhwabvh-con04a"
+        ]
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "fever:Fred_Dallmayr",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Andrea_Joyce",
+          "fever:P21_holin_family",
+          "nq:doc1314787",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:House_Calls",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1329818",
+          "nq:doc302599",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "fever:Club_Me",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Renzo_Martens",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ]
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "fever:Fred_Dallmayr",
+          "arguana:training-international-aghbuidrch-con03b",
+          "fever:Andrea_Joyce",
+          "fever:P21_holin_family",
+          "nq:doc1314787",
+          "fever:Chemung_County_Sheriff's_Office",
+          "fever:House_Calls",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1329818",
+          "nq:doc302599",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "fever:Club_Me",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "fever:Renzo_Martens",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ]
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": [
+          "fever:Fred_Dallmayr",
+          "arguana:training-philosophy-iilepphbf-pro03a",
+          "arguana:training-international-aghbuidrch-con03b",
+          "arguana:test-free-speech-debate-radhbsshr-con02a",
+          "dbpedia:<dbpedia:Issam_Abu_Jamra>",
+          "nq:doc1329818",
+          "arguana:training-education-tfsdfkhwabvh-con04a",
+          "nq:doc1314787",
+          "fever:Club_Me",
+          "fever:Andrea_Joyce",
+          "dbpedia:<dbpedia:Schweizer_SGP_1-1>",
+          "fever:House_Calls",
+          "dbpedia:<dbpedia:Washingley>",
+          "fever:Monastery_of_Ucl\u00e9s",
+          "nq:doc302599",
+          "fever:P21_holin_family",
+          "fever:Renzo_Martens",
+          "fever:Chemung_County_Sheriff's_Office",
+          "arguana:test-philosophy-pppthbtcb-con01a",
+          "fever:Milton_Jes\u00fas_Puerto"
+        ]
+      }
+    },
+    "latency_ms": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 106.90769995562732
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 109.39380014315248
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0236999951303005
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.2260000221431255
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.9645000100135803
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 2.094399882480502
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 7.297599921002984
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 12.724100146442652
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 11.188399977982044
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.9534999262541533
+      }
+    },
+    "confidence_proxy": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341645
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341645
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7802928712960042
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7802928712960042
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341644
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341644
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7841732011432437
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7839541556532446
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7839544389436883
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 0.7827337275341644
+      }
+    },
+    "specialist_count_selected": {
+      "mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0
+      },
+      "kalman": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0
+      },
+      "best_single_specialist": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0
+      },
+      "single_generalist_model": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0
+      },
+      "uniform_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0
+      },
+      "fixed_weighted_mean_fusion": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0
+      },
+      "router_only_top1": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 1.0
+      },
+      "router_only_topk_mean": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 2.0
+      },
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 2.0
+      },
+      "learned_linear_combiner": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": 3.0
+      }
+    },
+    "policy_usage": {
+      "adaptive_route_or_fuse": {
+        "arguana:test-culture-ahrtsdlgra-pro03a": {
+          "mode": "kalman_fusion",
+          "selector_type": "rule",
+          "signals": {
+            "confidence_gap": 0.0025832491594423167,
+            "selected_specialist_count": 3,
+            "specialist_disagreement": 0.984418824512452,
+            "uncertainty_dispersion": 0.010218365662446533
+          }
+        }
+      }
+    },
+    "query_metadata": {
+      "arguana:test-culture-ahrtsdlgra-pro03a": {
+        "dominant_domain": "argumentation",
+        "secondary_domain": null,
+        "query_category": "original",
+        "ambiguity_category": "none",
+        "ambiguity_score": 0.0,
+        "fusion_usefulness_bucket": "low",
+        "is_multi_domain": false,
+        "sigma2_by_specialist": {
+          "general_qa": 0.28157008321642063,
+          "biomedical": 0.2759413059748063,
+          "finance": 0.2752284808280915
+        },
+        "precision_by_specialist": {
+          "general_qa": 3.5515136713987445,
+          "biomedical": 3.62395907516398,
+          "finance": 3.6333449103496047
+        },
+        "uncertainty_spread": 0.006341602388329148,
+        "router_top1_precision": 3.6333449103496047,
+        "router_top2_precision": 3.62395907516398,
+        "router_confidence": 0.3361463784178143,
+        "router_margin": 0.0025832491594423167,
+        "specialist_disagreement": 0.9999530178260563
+      }
+    }
+  },
+  "runtime_diagnostics": {
+    "model_loading_ms": 408.951299963519,
+    "strategy_scoring_ms": {
+      "mean": 112.70749988034368,
+      "kalman": 115.77889998443425,
+      "best_single_specialist": 117.10139992646873,
+      "single_generalist_model": 7.224000059068203,
+      "uniform_mean_fusion": 8.459199918434024,
+      "fixed_weighted_mean_fusion": 8.212900022044778,
+      "router_only_top1": 23.063099943101406,
+      "router_only_topk_mean": 27.619000058621168,
+      "adaptive_route_or_fuse": 28.88870006427169,
+      "learned_linear_combiner": 7.061100099235773
+    },
+    "embedding_ms": 111.67280352674425,
+    "fusion_ms": 222.15860057622194
+  },
+  "comparison_table": [
+    {
+      "strategy": "mean",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "kalman",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "best_single_specialist",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "single_generalist_model",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "uniform_mean_fusion",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "fixed_weighted_mean_fusion",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "router_only_top1",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "router_only_topk_mean",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "adaptive_route_or_fuse",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    },
+    {
+      "strategy": "learned_linear_combiner",
+      "mrr_mean": 0.0,
+      "recall@1_mean": 0.0,
+      "recall@5_mean": 0.0,
+      "delta_vs_kalman_mrr": 0.0
+    }
+  ],
+  "kalman_guardrail": {
+    "primary_metric": "mrr",
+    "kalman_score": 0.0,
+    "best_non_kalman_strategy": "mean",
+    "best_non_kalman_score": 0.0,
+    "kalman_minus_best_non_kalman": 0.0
+  },
+  "delta_last_minus_first": {
+    "recall@1": 0.0,
+    "recall@5": 0.0,
+    "recall@10": 0.0,
+    "mrr": 0.0,
+    "ndcg@10": 0.0
+  }
+}
