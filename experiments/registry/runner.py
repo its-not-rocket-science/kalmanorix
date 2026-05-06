@@ -164,7 +164,10 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         )
         return float(np.sum(weights * inv_var)), float(np.count_nonzero(weights > 0.0))
 
+    force_hash_embedder = bool(config.models.options.get("force_hash_embedder", False))
     checkpoint_every = int(config.evaluation.options.get("checkpoint_every", 0) or 0)
+    if checkpoint_every <= 0 and not force_hash_embedder:
+        checkpoint_every = 1
     checkpoint_dir_opt = config.evaluation.options.get("checkpoint_dir")
     resume = bool(config.evaluation.options.get("resume", False))
     force_resume = bool(config.evaluation.options.get("force_resume", False))
@@ -222,9 +225,7 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         "split": config.dataset.split,
         "max_queries": config.dataset.max_queries,
         "max_candidates": config.dataset.options.get("max_candidates"),
-        "force_hash_embedder": bool(
-            config.models.options.get("force_hash_embedder", False)
-        ),
+        "force_hash_embedder": force_hash_embedder,
         "seed": config.seed.__dict__,
         "specialists": config.models.specialists,
         "models_kind": config.models.kind,
@@ -238,8 +239,17 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
     metadata = {
         "schema_version": CHECKPOINT_SCHEMA_VERSION,
         "status": "running",
+        "benchmark_path": str(config.dataset.path.resolve()),
+        "split": config.dataset.split,
+        "max_queries": config.dataset.max_queries,
+        "max_candidates": config.dataset.options.get("max_candidates"),
+        "seed": config.seed.__dict__,
+        "fast_local_hash_mode": force_hash_embedder,
+        "device": config.models.device,
         "total_queries": len(rows),
         "completed_queries": 0,
+        "completed_query_ids": [],
+        "failed_query_ids": [],
         "config_fingerprint": config_fingerprint,
         "config_validation": config_fingerprint_payload,
         "updated_at_unix": time.time(),
@@ -254,41 +264,56 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
                 "Checkpoint metadata mismatch. Pass --force-resume to override and continue."
             )
         metadata = loaded_meta
+        metadata.setdefault("schema_version", CHECKPOINT_SCHEMA_VERSION)
+        metadata.setdefault("completed_query_ids", [])
+        metadata.setdefault("failed_query_ids", [])
+        metadata.setdefault("benchmark_path", str(config.dataset.path.resolve()))
+        metadata.setdefault("split", config.dataset.split)
+        metadata.setdefault("max_queries", config.dataset.max_queries)
+        metadata.setdefault(
+            "max_candidates", config.dataset.options.get("max_candidates")
+        )
+        metadata.setdefault("seed", config.seed.__dict__)
+        metadata.setdefault("fast_local_hash_mode", force_hash_embedder)
+        metadata.setdefault("device", config.models.device)
     else:
         _atomic_write_json(checkpoint_meta_path, metadata)
 
-    for strategy_name in config.fusion.strategies:
-        strategy_start = time.perf_counter()
-        scout, pan = build_strategy(
-            name=strategy_name, routing_mode=config.fusion.routing_mode
-        )
-        rankings: dict[str, QueryRanking] = {}
-        latencies: dict[str, float] = {}
-        confidences: dict[str, float] = {}
-        specialist_counts: dict[str, float] = {}
-        for row in rows:
-            selected_modules = scout.select(query=row["query_text"], village=village)
-            ranked_ids, latency = rank_query(
-                query_text=row["query_text"],
-                candidates=row["candidate_documents"],
-                village=village,
-                scout=scout,
-                pan=pan,
+    if checkpoint_every <= 0 and not resume:
+        for strategy_name in config.fusion.strategies:
+            strategy_start = time.perf_counter()
+            scout, pan = build_strategy(
+                name=strategy_name, routing_mode=config.fusion.routing_mode
             )
-            rankings[row["query_id"]] = QueryRanking(doc_ids=tuple(ranked_ids))
-            latencies[row["query_id"]] = latency
-            confidences[row["query_id"]] = _confidence_from_selected(
-                query_text=row["query_text"],
-                selected_modules=selected_modules,
-            )
-            specialist_counts[row["query_id"]] = float(len(selected_modules))
-        rankings_by_strategy[strategy_name] = rankings
-        latencies_by_strategy[strategy_name] = latencies
-        confidence_by_strategy[strategy_name] = confidences
-        specialist_count_by_strategy[strategy_name] = specialist_counts
-        strategy_timings_ms[strategy_name] = (
-            time.perf_counter() - strategy_start
-        ) * 1000.0
+            rankings: dict[str, QueryRanking] = {}
+            latencies: dict[str, float] = {}
+            confidences: dict[str, float] = {}
+            specialist_counts: dict[str, float] = {}
+            for row in rows:
+                selected_modules = scout.select(
+                    query=row["query_text"], village=village
+                )
+                ranked_ids, latency = rank_query(
+                    query_text=row["query_text"],
+                    candidates=row["candidate_documents"],
+                    village=village,
+                    scout=scout,
+                    pan=pan,
+                )
+                rankings[row["query_id"]] = QueryRanking(doc_ids=tuple(ranked_ids))
+                latencies[row["query_id"]] = latency
+                confidences[row["query_id"]] = _confidence_from_selected(
+                    query_text=row["query_text"],
+                    selected_modules=selected_modules,
+                )
+                specialist_counts[row["query_id"]] = float(len(selected_modules))
+            rankings_by_strategy[strategy_name] = rankings
+            latencies_by_strategy[strategy_name] = latencies
+            confidence_by_strategy[strategy_name] = confidences
+            specialist_count_by_strategy[strategy_name] = specialist_counts
+            strategy_timings_ms[strategy_name] = (
+                time.perf_counter() - strategy_start
+            ) * 1000.0
 
     for row in rows:
         query_text = row["query_text"]
@@ -348,44 +373,45 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         }
 
     baseline_strategies = build_retrieval_baselines(config.fusion.options)
-    for strategy in baseline_strategies:
-        strategy_start = time.perf_counter()
-        strategy.fit(rows=rows, village=village, options=config.fusion.options)
-        rankings = {}
-        latencies = {}
-        confidences = {}
-        specialist_counts = {}
-        policy_usage: dict[str, Any] = {}
-        for row in rows:
-            ranked_ids, latency = rank_query_with_baseline(
-                query_text=row["query_text"],
-                candidates=row["candidate_documents"],
-                village=village,
-                strategy=strategy,
-            )
-            rankings[row["query_id"]] = QueryRanking(doc_ids=tuple(ranked_ids))
-            latencies[row["query_id"]] = latency
-            confidence, count = _confidence_from_baseline(
-                query_text=row["query_text"],
-                strategy=strategy,
-                village_obj=village,
-            )
-            confidences[row["query_id"]] = confidence
-            specialist_counts[row["query_id"]] = count
-            diagnostics = strategy.diagnostics_for_query(
-                query_text=row["query_text"], modules=village.modules
-            )
-            if diagnostics is not None:
-                policy_usage[row["query_id"]] = diagnostics
-        rankings_by_strategy[strategy.name] = rankings
-        latencies_by_strategy[strategy.name] = latencies
-        confidence_by_strategy[strategy.name] = confidences
-        specialist_count_by_strategy[strategy.name] = specialist_counts
-        if policy_usage:
-            policy_usage_by_strategy[strategy.name] = policy_usage
-        strategy_timings_ms[strategy.name] = (
-            time.perf_counter() - strategy_start
-        ) * 1000.0
+    if checkpoint_every <= 0 and not resume:
+        for strategy in baseline_strategies:
+            strategy_start = time.perf_counter()
+            strategy.fit(rows=rows, village=village, options=config.fusion.options)
+            rankings = {}
+            latencies = {}
+            confidences = {}
+            specialist_counts = {}
+            policy_usage: dict[str, Any] = {}
+            for row in rows:
+                ranked_ids, latency = rank_query_with_baseline(
+                    query_text=row["query_text"],
+                    candidates=row["candidate_documents"],
+                    village=village,
+                    strategy=strategy,
+                )
+                rankings[row["query_id"]] = QueryRanking(doc_ids=tuple(ranked_ids))
+                latencies[row["query_id"]] = latency
+                confidence, count = _confidence_from_baseline(
+                    query_text=row["query_text"],
+                    strategy=strategy,
+                    village_obj=village,
+                )
+                confidences[row["query_id"]] = confidence
+                specialist_counts[row["query_id"]] = count
+                diagnostics = strategy.diagnostics_for_query(
+                    query_text=row["query_text"], modules=village.modules
+                )
+                if diagnostics is not None:
+                    policy_usage[row["query_id"]] = diagnostics
+            rankings_by_strategy[strategy.name] = rankings
+            latencies_by_strategy[strategy.name] = latencies
+            confidence_by_strategy[strategy.name] = confidences
+            specialist_count_by_strategy[strategy.name] = specialist_counts
+            if policy_usage:
+                policy_usage_by_strategy[strategy.name] = policy_usage
+            strategy_timings_ms[strategy.name] = (
+                time.perf_counter() - strategy_start
+            ) * 1000.0
 
     if checkpoint_every > 0 or resume:
         strategy_objects = {
@@ -491,14 +517,19 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
                     "confidence_proxy": per_conf,
                     "specialist_count_selected": per_count,
                 }
+                completed_ids.add(query_id)
                 completed_count += 1
                 if checkpoint_every > 0 and completed_count % checkpoint_every == 0:
-                    metadata["completed_queries"] = len(completed_ids) + completed_count
+                    metadata["completed_queries"] = len(completed_ids)
+                    metadata["completed_query_ids"] = sorted(completed_ids)
+                    metadata["failed_query_ids"] = metadata.get("failed_query_ids", [])
                     metadata["updated_at_unix"] = time.time()
                     _atomic_write_json(checkpoint_meta_path, metadata)
         except KeyboardInterrupt as exc:
             metadata["status"] = "interrupted"
-            metadata["completed_queries"] = len(completed_ids) + completed_count
+            metadata["completed_queries"] = len(completed_ids)
+            metadata["completed_query_ids"] = sorted(completed_ids)
+            metadata["failed_query_ids"] = metadata.get("failed_query_ids", [])
             metadata["updated_at_unix"] = time.time()
             _atomic_write_json(checkpoint_meta_path, metadata)
             resume_hint = (
@@ -509,7 +540,9 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
             raise RuntimeError(
                 f"Interrupted by user. Resume with exact command suffix: {resume_hint}"
             ) from exc
-        metadata["completed_queries"] = len(completed_ids) + completed_count
+        metadata["completed_queries"] = len(completed_ids)
+        metadata["completed_query_ids"] = sorted(completed_ids)
+        metadata["failed_query_ids"] = metadata.get("failed_query_ids", [])
         metadata["updated_at_unix"] = time.time()
         _atomic_write_json(checkpoint_meta_path, metadata)
 
@@ -614,6 +647,17 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         "delta_last_minus_first": delta,
     }
     metadata["status"] = "complete"
+    metadata.setdefault("benchmark_path", str(config.dataset.path.resolve()))
+    metadata.setdefault("split", config.dataset.split)
+    metadata.setdefault("max_queries", config.dataset.max_queries)
+    metadata.setdefault("max_candidates", config.dataset.options.get("max_candidates"))
+    metadata.setdefault("seed", config.seed.__dict__)
+    metadata.setdefault("fast_local_hash_mode", force_hash_embedder)
+    metadata.setdefault("device", config.models.device)
+    metadata.setdefault(
+        "completed_query_ids", sorted([row["query_id"] for row in rows])
+    )
+    metadata.setdefault("failed_query_ids", [])
     metadata["updated_at_unix"] = time.time()
     _atomic_write_json(checkpoint_meta_path, metadata)
     output["checkpoint"] = {
