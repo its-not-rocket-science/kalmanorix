@@ -1117,7 +1117,7 @@ def _render_report(summary: dict[str, Any]) -> str:
     if non_claim_ready:
         lines.extend(
             [
-                "> ⚠️ **Do not interpret this artifact as proof of Kalman-vs-mean superiority.**",
+                "> [WARNING] **Do not interpret this artifact as proof of Kalman-vs-mean superiority.**",
                 "",
             ]
         )
@@ -1127,7 +1127,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             f"- Benchmark: `{summary['benchmark']['path']}`",
             f"- Split evaluated: `{summary['benchmark']['evaluated_split']}`",
             f"- Available split counts: {summary['benchmark']['split_counts']}",
-            f"- **Benchmark status:** `{benchmark_status['status']}` — {benchmark_status['status_note']}",
+            f"- **Benchmark status:** `{benchmark_status['status']}` - {benchmark_status['status_note']}",
             f"- Specialists: {', '.join(summary['specialists'])}",
             f"- LearnedGateFuser included: `{summary['comparisons']['LearnedGateFuser']['included']}`",
             "",
@@ -1201,7 +1201,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "",
             "| Rule | Threshold | Observed | Pass |",
             "|---|---:|---:|---|",
-            "| Primary metric (nDCG@10 Δ mean) | >= {threshold:.4f} | {observed_value:.6f} | {passed} |".format(
+            "| Primary metric (nDCG@10 delta mean) | >= {threshold:.4f} | {observed_value:.6f} | {passed} |".format(
                 threshold=rules["minimum_effect_size"],
                 observed_value=observed["primary_metric_delta"],
                 passed="yes" if checks["effect_size_ok"] else "no",
@@ -1226,7 +1226,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "",
             f"- Number of evaluated test queries: **{power_diag['num_test_queries']}**",
             f"- Per-domain evaluated test counts: `{power_diag['per_domain_test_counts']}`",
-            f"- Observed primary effect size (nDCG@10 Δ mean): `{power_diag['observed_effect_size']:.6f}`",
+            f"- Observed primary effect size (nDCG@10 delta mean): `{power_diag['observed_effect_size']:.6f}`",
             f"- Detectable effect threshold estimate (80% power, α=0.05, paired-normal approximation): `{power_diag['detectable_effect_threshold_estimate']:.6f}`",
             f"- Target effect for decision rule: `{power_diag['target_effect_size']:.6f}`",
             f"- Sufficiently powered for target effect: `{power_diag['is_sufficiently_powered_for_target_effect']}`",
@@ -1259,25 +1259,25 @@ def _render_report(summary: dict[str, Any]) -> str:
     )
     if not adequacy["paired_significance_testing"]["adequate"]:
         lines.append(
-            "- ⚠️ WARNING: test query count is too small for reliable paired significance claims."
+            "- WARNING: test query count is too small for reliable paired significance claims."
         )
     if not adequacy["uncertainty_calibration"]["adequate"]:
         lines.append(
-            "- ⚠️ WARNING: validation split is too small for stable calibration claims."
+            "- WARNING: validation split is too small for stable calibration claims."
         )
     if not adequacy["per_domain_analysis"]["adequate"]:
         lines.append(
-            "- ⚠️ WARNING: per-domain test coverage is too thin for domain-level inference."
+            "- WARNING: per-domain test coverage is too thin for domain-level inference."
         )
     if failed_checks:
-        lines.append("- ⚠️ benchmark_status guardrail failures:")
+        lines.append("- benchmark_status guardrail failures:")
         lines.extend(f"  - {message}" for message in failed_checks)
     lines.extend(
         [
             "",
             "## Paired Statistical Test: KalmanorixFuser vs MeanFuser",
             "",
-            "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |",
+            "| Metric | delta mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |",
             "|---|---:|---|---:|---:|",
         ]
     )
@@ -1299,7 +1299,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "",
             "## Kalman vs simple and learned weighting baselines",
             "",
-            "| Comparison | Δ nDCG@10 (Kalman-baseline) | 95% CI | Holm-adjusted p | Decision |",
+            "| Comparison | delta nDCG@10 (Kalman-baseline) | 95% CI | Holm-adjusted p | Decision |",
             "|---|---:|---|---:|---|",
         ]
     )
@@ -1347,7 +1347,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             f"- **kalman_vs_router_only_top1:** `{summary['decision']['kalman_vs_router_only_top1']['verdict']}`",
             f"- **kalman_vs_learned_linear_combiner:** `{summary['decision']['kalman_vs_learned_linear_combiner']['verdict']}`",
             "- Interpretation: `benchmark_status` grades evidence readiness (`toy`, `underpowered`, `minimally_powered`, `claim_ready`) while verdict preserves the existing Kalman-vs-baseline decision rule.",
-            "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 Δ <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
+            "- Rule logic: `supported` if all checks pass; `unsupported` if nDCG@10 delta <= 0 and Holm-adjusted p <= threshold; otherwise inconclusive is split into `inconclusive_underpowered` vs `inconclusive_sufficiently_powered` from the detectable-effect threshold estimate.",
         ]
     )
     claim_decision = summary.get("claim_success_decision")
@@ -1377,7 +1377,7 @@ def _render_report(summary: dict[str, Any]) -> str:
                 f"- Latency ratio consistency (Kalman/Mean vs <= {replication['latency_ratio_threshold_vs_mean']:.3f}): `{replication['latency_ratio_consistency']}`",
                 "- Note: pooled summaries below are descriptive across replications and are not a formal meta-analytic significance test.",
                 "",
-                "| Run | Seed | Verdict | Δ nDCG@10 | Holm-adjusted p | Latency ratio |",
+                "| Run | Seed | Verdict | delta nDCG@10 | Holm-adjusted p | Latency ratio |",
                 "|---|---:|---|---:|---:|---:|",
             ]
         )
@@ -1398,8 +1398,8 @@ def _render_report(summary: dict[str, Any]) -> str:
                 "",
                 "| Pooled descriptor | Value |",
                 "|---|---:|",
-                f"| Query-count weighted mean Δ nDCG@10 | {pooled['weighted_mean_delta_ndcg10']:.6f} |",
-                f"| Median run-level Δ nDCG@10 | {pooled['median_delta_ndcg10']:.6f} |",
+                f"| Query-count weighted mean delta nDCG@10 | {pooled['weighted_mean_delta_ndcg10']:.6f} |",
+                f"| Median run-level delta nDCG@10 | {pooled['median_delta_ndcg10']:.6f} |",
                 f"| Median run-level Holm-adjusted p | {pooled['median_adjusted_p_value_ndcg10']:.6f} |",
             ]
         )
@@ -1422,7 +1422,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             lines.extend(f"  - {warning}" for warning in confirmatory["warnings"])
         if confirmatory["n_queries"] < confirmatory["minimum_pairs_for_inference"]:
             lines.append(
-                "- ⚠️ WARNING: confirmatory slice is underpowered; do not use this slice for inferential superiority claims."
+                "- WARNING: confirmatory slice is underpowered; do not use this slice for inferential superiority claims."
             )
         lines.extend(
             [
@@ -1450,7 +1450,7 @@ def _render_report(summary: dict[str, Any]) -> str:
                 f"- **kalman_vs_mean:** `{confirmatory['verdicts']['kalman_vs_mean']['status']}`",
                 f"- **kalman_vs_weighted_mean:** `{confirmatory['verdicts']['kalman_vs_weighted_mean']['status']}`",
                 f"- **kalman_vs_router_only_top1:** `{confirmatory['verdicts']['kalman_vs_router_only_top1']['status']}`",
-                "- Hard rule for the claim “Kalman fusion beats mean” in the confirmatory slice: require all three pairwise comparisons to pass all of these checks on nDCG@10: positive delta, Holm-adjusted p <= threshold, CI excludes 0, and practical effect-size floor met.",
+                '- Hard rule for the claim "Kalman fusion beats mean" in the confirmatory slice: require all three pairwise comparisons to pass all of these checks on nDCG@10: positive delta, Holm-adjusted p <= threshold, CI excludes 0, and practical effect-size floor met.',
                 "- Therefore the confirmatory slice is `supported` only when all required pairwise comparisons pass; otherwise it is `unsupported` (or `inconclusive_*` if underpowered or unresolved).",
             ]
         )
@@ -1464,7 +1464,7 @@ def _render_report(summary: dict[str, Any]) -> str:
                     "",
                     "### Confirmatory paired statistical tests (Kalman vs baselines)",
                     "",
-                    "| Comparison | Metric | Δ mean (Kalman-Baseline) | 95% CI | p | Holm-adjusted p |",
+                    "| Comparison | Metric | delta mean (Kalman-Baseline) | 95% CI | p | Holm-adjusted p |",
                     "|---|---|---:|---|---:|---:|",
                 ]
             )
@@ -1561,7 +1561,7 @@ def _render_report(summary: dict[str, Any]) -> str:
                     "",
                     "### Hostile paired statistical tests (Kalman vs baselines)",
                     "",
-                    "| Comparison | Metric | Δ mean (Kalman-Baseline) | 95% CI | p | Holm-adjusted p |",
+                    "| Comparison | Metric | delta mean (Kalman-Baseline) | 95% CI | p | Holm-adjusted p |",
                     "|---|---|---:|---|---:|---:|",
                 ]
             )
@@ -1588,7 +1588,7 @@ def _render_report(summary: dict[str, Any]) -> str:
                 "",
                 "## Bucketed Analysis (Exploratory unless significance criteria are met)",
                 "",
-                "| Bucket | n | Mean | Kalman | Hard routing | Top-k mean | Δ(K-M) nDCG@10 | Δ(K-Hard) | Δ(K-TopK) | Significance status |",
+                "| Bucket | n | Mean | Kalman | Hard routing | Top-k mean | delta(K-M) nDCG@10 | delta(K-Hard) | delta(K-TopK) | Significance status |",
                 "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|",
             ]
         )
