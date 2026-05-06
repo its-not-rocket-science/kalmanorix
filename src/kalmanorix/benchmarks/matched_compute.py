@@ -566,7 +566,7 @@ def run_matched_compute_benchmark(
         "- Training budget proxy uses `6 * params_proxy * tokens * epochs`.",
         f"- Specialists: {assumptions.n_specialists} models, {assumptions.specialist_epochs} epoch each.",
         f"- Monolith: {assumptions.monolith_epochs} epochs (chosen to match training compute).",
-        f"- Inference FLOPs proxy includes specialist invocation cost and routing overhead.",
+        "- Inference FLOPs proxy includes specialist invocation cost and routing overhead.",
         "",
         "## Results",
         "",

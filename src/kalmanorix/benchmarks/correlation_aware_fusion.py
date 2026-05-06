@@ -353,7 +353,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "",
             "## Correlated slice definition",
             "",
-            f"- Query-level correlated score: `||mean(residuals)|| / mean(||residual_i||)`.",
+            "- Query-level correlated score: `||mean(residuals)|| / mean(||residual_i||)`.",
             f"- Correlated if score ≥ `{summary['correlated_definition']['threshold']:.2f}`.",
             f"- Correlated queries on test: `{summary['correlated_definition']['n_correlated_test_queries']}` / `{summary['test_split']['n_queries']}`.",
             "",
