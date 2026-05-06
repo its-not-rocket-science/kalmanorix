@@ -1,0 +1,130 @@
+\documentclass[10pt]{article}
+\usepackage{tmlr}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{url}
+\usepackage{graphicx}
+
+% Anonymous submission by default for TMLR/OpenReview double-blind review.
+
+\title{When Uncertainty-Weighted Fusion Does Not Help: A Claim-Ready Mixed-Domain Retrieval Study}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present a negative empirical study of uncertainty-weighted fusion for mixed-domain retrieval. The study is run under a pre-declared benchmark governance protocol with a hard claim gate. On the claim-ready benchmark split, we evaluate 1,193 paired test queries and find no evidence that the Kalmanorix fusion variant improves over a simple mean fusion baseline on the primary metric, nDCG@10. The paired delta for Kalman-minus-mean is $-0.000203$ with Holm-adjusted $p=1.0$, while absolute scores are 0.0943 for MeanFuser and 0.0941 for KalmanorixFuser. A router-only top-1 strategy reaches 0.0979 nDCG@10 in this configuration. The hard claim gate is therefore blocked, and the confirmatory slice query count is 0. 
+
+This manuscript is a \emph{TMLR draft}. We consider the current evidence probably not submission-ready until the protocol is replicated with at least one non-fast-local neural embedding run or an external benchmark configuration. The contribution is a careful falsification result and a benchmark-governance template for negative findings, rather than a broad generalisation claim.
+\end{abstract}
+
+\section{Introduction}
+Negative results are often under-reported in retrieval system development, even though robust model selection depends on identifying methods that do not transfer beyond optimistic pilot settings. We investigate uncertainty-weighted fusion in a mixed-domain retrieval pipeline and test whether it improves ranking effectiveness relative to a transparent, strong baseline.
+
+Our framing is deliberately conservative: we do not ask whether uncertainty weighting can \emph{ever} help, but whether it helps under a pre-registered evaluation design with explicit gates for claim readiness. The study is implemented as a paired comparison over query-level outcomes and multiple-testing control \citep{holm1979}. 
+
+TMLR uses OpenReview with a double-blind reviewing process and permits supplementary material for reproducibility. Accordingly, this draft is anonymised and avoids repository-identifying URLs in the submission body.
+
+\paragraph{Main outcome.}
+Under the claim-ready benchmark status, uncertainty-weighted Kalmanorix fusion does not outperform mean fusion on nDCG@10. The hard claim gate remains blocked.
+
+\section{Hypotheses and Decision Rules}
+\subsection{Primary hypothesis}
+\textbf{H1 (confirmatory).} KalmanorixFuser improves nDCG@10 over MeanFuser on the claim-ready paired test set.
+
+\subsection{Null and test direction}
+The confirmatory null is that the median paired effect is non-positive (or equivalently that observed gains are attributable to chance under the specified paired test). We use a paired non-parametric signed-rank framework for directional sensitivity \citep{wilcoxon1945}. % TODO: add citation for exact two-sided/one-sided implementation reference used in code.
+
+\subsection{Hard claim gate}
+A claim of improvement is allowed only if all conditions hold:
+\begin{enumerate}
+  \item Benchmark status is \texttt{claim\_ready}.
+  \item Confirmatory slice has non-zero query count and meets minimum power threshold.
+  \item Primary metric effect is positive and statistically supported after Holm correction.
+  \item No protocol violations are detected in the pre-registered analysis script.
+\end{enumerate}
+
+In this run, the gate is blocked.
+
+\input{tables/decision_rules}
+
+\section{Benchmark Construction}
+The benchmark is mixed-domain and evaluated using paired queries to reduce nuisance variance from query composition changes. The claim-ready test pool contains 1,193 paired test queries. Ranking quality is measured with nDCG@10 \citep{jarvelin2002}.
+
+The benchmark-governance layer distinguishes exploratory from confirmatory analyses and enforces blocking conditions when confirmatory slices are empty. Here, confirmatory slice query count is 0, which prevents claim promotion regardless of exploratory signals.
+
+We align with retrieval evaluation practice established by Cranfield/TREC-style paradigms (e.g., test collections, relevance judgements, and ranked-list metrics) \citep{voorhees2016}. % TODO: add additional benchmark-construction citation if a specific mixed-domain design paper is adopted.
+
+\section{Fusion and Routing Methods}
+We compare:
+\begin{itemize}
+  \item \textbf{MeanFuser}: arithmetic mean fusion baseline.
+  \item \textbf{KalmanorixFuser}: uncertainty-weighted fusion inspired by recursive state-estimation weighting \citep{kalman1960}.
+  \item \textbf{router\_only\_top1}: non-fusion routing that selects a single backend per query.
+\end{itemize}
+
+Where neural embedding backends are referenced, we follow standard sentence-level dense retrieval conventions \citep{reimers2019} and heterogeneous benchmark expectations similar to BEIR \citep{thakur2021beir}.
+
+\section{Pre-registered Statistical Protocol}
+The protocol uses paired query-level comparisons, with nDCG@10 as the primary endpoint. We report:
+\begin{itemize}
+  \item paired mean delta (Kalman minus mean),
+  \item signed-rank significance (with multiplicity correction by Holm), and
+  \item bootstrap uncertainty summaries where appropriate \citep{efron1979bootstrap}. % TODO: cite the exact bootstrap CI variant once fixed in camera-ready draft.
+\end{itemize}
+
+Multiplicity is controlled across confirmatory hypotheses using Holm's step-down procedure \citep{holm1979}.
+
+\section{Results}
+Table~\ref{tab:main-results} summarises the core outcomes.
+
+\input{tables/main_results}
+
+\paragraph{Primary contrast.}
+Kalman-minus-mean nDCG@10 delta is $-0.000203$, with Holm-adjusted $p=1.0$. This does not support H1.
+
+\paragraph{Absolute effectiveness.}
+MeanFuser reaches 0.0943 nDCG@10, KalmanorixFuser reaches 0.0941, and router\_only\_top1 reaches 0.0979.
+
+\paragraph{Governance outcome.}
+Benchmark status is \texttt{claim\_ready}, but hard claim gate is \texttt{blocked}. Confirmatory slice query count is 0, preventing confirmatory promotion.
+
+\section{Discussion}
+This result is a falsification of an expected gain \emph{in this configured setting}, not evidence that uncertainty-weighted fusion is uniformly ineffective. The negative finding is informative because it survives paired testing and multiplicity control, and because governance constraints prevent narrative drift when confirmatory support is absent.
+
+The stronger router-only score suggests that model selection and routing calibration may currently matter more than fusion weighting in this pipeline. This motivates follow-up work on routing confidence calibration, domain-adaptive backend allocation, and error decomposition by query type.
+
+\section{Limitations}
+The present run is limited by configuration scope. In particular, evidence is likely insufficient for submission-grade claims until replication includes at least one non-fast-local neural embedding run or an external benchmark configuration. We therefore treat conclusions as conditional on the current pipeline and evaluation envelope.
+
+\section{Reproducibility Statement}
+TMLR permits supplementary materials, and this study is designed to use them for reproducibility artifacts (configs, scripts, per-query outputs, and statistical notebooks). The draft remains anonymised for OpenReview double-blind handling.
+
+For camera-ready or public release, authors should provide deterministic seeds, environment manifests, and archival packaging of benchmark splits where licensing permits. % TODO: cite a reproducibility checklist source if mandated by final venue guidance.
+
+\section{Broader Impact Statement}
+A disciplined negative result can reduce wasted experimentation and overclaiming in retrieval research. By making claim gates explicit, we encourage publication of null findings and clearer separation between exploratory and confirmatory evidence.
+
+Potential risks include overgeneralisation from a single configuration. We explicitly avoid that interpretation and recommend replication before any stronger claim.
+
+\bibliography{references}
+
+\appendix
+
+\section{Full metric table}
+Placeholder for extended per-metric and per-system tables.
+
+\section{Bucketed exploratory analysis}
+Placeholder for exploratory buckets (e.g., query length, domain tags, ambiguity classes).
+
+\section{Timing and fast-local diagnostics}
+Placeholder for latency, throughput, and fast-local diagnostic plots/tables.
+
+\section{Confirmatory and hostile slice definitions}
+Placeholder for formal slice predicates, gating thresholds, and exclusion logic.
+
+\end{document}

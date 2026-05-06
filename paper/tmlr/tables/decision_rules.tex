@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{Decision rules for confirmatory claim readiness.}
+\label{tab:decision-rules}
+\begin{tabular}{p{0.36\linewidth}p{0.2\linewidth}p{0.34\linewidth}}
+\toprule
+Rule & Status (this run) & Interpretation \\
+\midrule
+Benchmark marked \texttt{claim\_ready} & Pass & Evaluation context is eligible for confirmatory checks. \\
+Confirmatory slice has non-zero count & Fail & Observed count is 0, so confirmatory claim path is closed. \\
+Primary effect $\Delta$ nDCG@10 $>$ 0 & Fail & Observed effect is $-0.000203$. \\
+Holm-adjusted significance threshold met & Fail & Adjusted $p=1.0$ does not support improvement. \\
+No protocol violations & Pass & No violations reported in run summary. \\
+\midrule
+Hard claim gate & \texttt{blocked} & Improvement claim is disallowed. \\
+\bottomrule
+\end{tabular}
+\end{table}
