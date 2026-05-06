@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{Core retrieval outcomes on the claim-ready paired test set. Higher is better for nDCG@10.}
+\label{tab:main-results}
+\begin{tabular}{lcc}
+\toprule
+System / Contrast & Value & Notes \\
+\midrule
+Benchmark status & \texttt{claim\_ready} & Governance state \\
+Paired test queries & 1193 & Query count \\
+MeanFuser nDCG@10 & 0.0943 & Baseline \\
+KalmanorixFuser nDCG@10 & 0.0941 & Uncertainty-weighted fusion \\
+router\_only\_top1 nDCG@10 & 0.0979 & Non-fusion routing \\
+Kalman-minus-mean $\Delta$ nDCG@10 & $-0.000203$ & Primary contrast \\
+Holm-adjusted $p$ & 1.0 & Multiple-testing controlled \\
+Hard claim gate & \texttt{blocked} & Claim not promoted \\
+Confirmatory slice query count & 0 & Gate-blocking condition \\
+\bottomrule
+\end{tabular}
+\end{table}
