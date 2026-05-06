@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\title{When Uncertainty-Weighted Fusion Fails to Improve Retrieval:\\
+A Claim-Ready Negative Result on Mixed-Domain Benchmarking}
+\author{Kalmanorix Project Team}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Negative results are important in retrieval science, especially when they arise under claim-ready evaluation conditions. We report an empirical preprint on a mixed-domain benchmark configuration in which Kalman-style uncertainty-weighted fusion did not outperform simple mean fusion. On the canonical test split (1193 paired queries; validation split: 634; minimum per-domain test count: 126), MeanFuser reached nDCG@10 of 0.0943 whereas KalmanorixFuser reached 0.0941 (difference: $-0.000203$). The Holm-adjusted p-value for nDCG@10 was 1.0, and the Kalman/Mean latency ratio was approximately 1.022. A hard routing baseline achieved nDCG@10 of 0.0979 and ranked first among observed baselines by nDCG@10. The pre-declared confirmatory slice had zero eligible queries, so it could not support inferential claims; consequently, the hard claim gate decision was blocked. Our claim is deliberately narrow: in this benchmark and fast-local deterministic embedding configuration, uncertainty-weighted Kalman fusion offered no practical or statistically significant advantage over mean fusion, while hard routing was the strongest observed baseline.
+\end{abstract}
+
+\section{Introduction}
+Fusion schemes for retrieval are often motivated by the intuition that uncertainty-aware weighting should improve robustness over naive averaging. Kalman filtering provides a principled linear-Gaussian framework for state estimation under uncertainty \cite{kalman1960}. In retrieval, however, whether this inductive bias translates into measurable quality gains depends on data regime, routing behaviour, embedding quality, and evaluation protocol.
+
+This paper reports a negative result from the Kalmanorix canonical mixed-domain benchmark run. The benchmark status is \texttt{claim\_ready}, indicating adequate sample-size and detectable-effect headroom for stronger interpretation under the project rules. Yet the central superiority claim (Kalman beats mean) did not pass: the observed nDCG@10 delta was near zero and non-significant after multiple-comparison correction.
+
+We emphasise scope. We do \emph{not} claim Kalman-style fusion is universally inferior. We claim only that in this benchmark configuration and fast-local deterministic hash embedding mode, we find no practical or statistically significant advantage over mean fusion.
+
+\section{Related Work}
+The methodological ingredients are standard. Kalman filtering originates in linear estimation theory \cite{kalman1960}. Retrieval quality is assessed with graded-relevance ranking metrics such as nDCG \cite{jarvelin2002}. BEIR provides a heterogeneous zero-shot retrieval benchmark family that motivates cross-domain stress-testing \cite{thakur2021beir}. For inferential testing under paired query outcomes we use the Wilcoxon signed-rank framework \cite{wilcoxon1945}, bootstrap confidence intervals \cite{efron1994}, and Holm correction for family-wise error control \cite{holm1979}.
+
+Because embedding choice can dominate downstream fusion effects, we separate this evaluation's fast-local deterministic hash embedding mode from neural embedding contexts (e.g., Sentence-BERT \cite{reimers2019}). The present result should not be conflated with neural-encoder evaluations.
+
+\section{Benchmark and Experimental Protocol}
+\subsection{Data and benchmark construction}
+The evaluated artefact is a mixed-domain benchmark manifest (version \texttt{mixed\_beir\_v1.2.0}) built from BEIR subsets, including NQ, SciFact, FiQA, ArguAna, FEVER, and DBPedia Entity. The manifest records dataset provenance, split policy, and artefact hashes. The canonical report evaluates the \texttt{test} split with available counts train=5078, validation=634, test=1193.
+
+\subsection{Evidence readiness and gating}
+The canonical report marks benchmark status as \texttt{claim\_ready}. Sample adequacy checks indicate: 1193 paired test queries, 634 validation queries, and minimum per-domain test count of 126. These exceed minimum thresholds used for claim-readiness in the project.
+
+A stricter hard claim gate is applied to the statement \emph{``Kalman fusion beats mean fusion''}. This gate additionally requires a supported pre-declared confirmatory slice and supported baseline comparisons; in this run, the final hard gate decision is \texttt{blocked}.
+
+\subsection{Primary comparison and statistics}
+The primary quality metric is nDCG@10. We report bootstrap 95\% confidence intervals and paired significance with multiplicity correction (Holm). The confirmatory slice is pre-declared by disagreement, uncertainty spread, router confidence, and multi-domain constraints; however, the slice includes zero queries in this run.
+
+\section{Methods}
+\subsection{Fusion and routing baselines}
+We compare:\
+(i) \textbf{MeanFuser}: unweighted averaging across specialist signals;\
+(ii) \textbf{KalmanorixFuser}: uncertainty-weighted fusion inspired by Kalman update logic;\
+(iii) \textbf{Hard routing baseline}: route to a single top specialist.
+
+Additional baselines appear in the canonical artefacts, but these three are central to the claim question.
+
+\subsection{Evaluation setting}
+This preprint summarises the canonical fast-local configuration. In this setup, embeddings and retrieval features are generated in a deterministic local mode intended for rapid, reproducible benchmarking. This is distinct from neural embedding evaluation (for example SBERT-style dense encoders), and conclusions here should be interpreted accordingly.
+
+\section{Results}
+Table~\ref{tab:main} summarises the key quantitative outcomes required by the claim question.
+
+\begin{table}[ht]
+\centering
+\caption{Key outcomes on canonical mixed-domain test split.}
+\label{tab:main}
+\begin{tabular}{lccc}
+\toprule
+Method & nDCG@10 & Relative latency vs Mean & Rank by nDCG@10 \\
+\midrule
+MeanFuser & 0.0943 & 1.000 & 4th \\
+KalmanorixFuser & 0.0941 & $\approx$1.022 & 5th \\
+Hard routing baseline & 0.0979 & much lower absolute latency & 1st \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Kalman-minus-mean nDCG@10 delta is $-0.000203$, with Holm-adjusted p-value of 1.0. Hence, neither practical improvement nor statistical support is observed for Kalman over mean in this run. The latency ratio Kalman/Mean is approximately 1.022, indicating slightly higher latency for Kalman without quality gain.
+
+The pre-declared confirmatory slice contains 0 queries (minimum required for inferential claims: 20), therefore inferential testing on that slice is skipped and cannot support the claim. As a result, the hard claim gate remains blocked despite the global benchmark being claim-ready.
+
+\section{Analysis: Routing Rather Than Fusion}
+The strongest observed baseline is hard routing (nDCG@10 = 0.0979), which ranks first by nDCG@10 in the canonical ranking snapshot. This pattern suggests that, for this benchmark configuration, selecting one specialist may be more effective than blending specialist outputs with either simple mean or uncertainty-weighted Kalman fusion.
+
+A plausible interpretation is that when specialist disagreement does not encode recoverable complementary relevance, fusion may dilute strong single-specialist signals. Hard routing may then benefit from decisiveness, especially when routing confidence and specialist specialisation align with domain structure. This interpretation remains hypothesis-generating rather than confirmed mechanism.
+
+\section{Threats to Validity}
+\begin{itemize}
+    \item \textbf{Configuration specificity.} Findings are limited to the canonical mixed-domain benchmark and fast-local deterministic embedding mode.
+    \item \textbf{External generalisation.} No claim is made about other domains, model families, or production traffic.
+    \item \textbf{Correlated metrics.} Multiple ranking metrics are correlated; Holm correction mitigates but does not eliminate interpretive complexity.
+    \item \textbf{Confirmatory slice sparsity.} Zero-query confirmatory slice prevents confirmatory inferential support for the central claim.
+\end{itemize}
+
+\section{Reproducibility}
+All quantitative statements in this preprint are taken from committed benchmark artefacts: canonical report and JSON summary, benchmark manifest, and repository evidence-status documentation. To reproduce this readout, one should use the same benchmark version, split, seed, and evaluation scripts, and verify the same counts and decision outputs.
+
+For arXiv packaging, include the \texttt{.tex} source, \texttt{.bib} (or generated \texttt{.bbl}), and any local figures/style files needed to compile.
+
+\section{Conclusion}
+In this claim-ready benchmark configuration, Kalmanorix uncertainty-weighted fusion does not beat mean fusion on the primary metric: MeanFuser nDCG@10 is 0.0943, KalmanorixFuser is 0.0941, and the delta is $-0.000203$ with Holm-adjusted p-value 1.0. Hard routing is the strongest observed baseline (nDCG@10 0.0979, first-ranked). The confirmatory slice is empty (0 queries), so the hard claim gate is blocked. The appropriate conclusion is not that Kalman fusion is generally ineffective, but that under this mixed-domain fast-local configuration it provides no demonstrated practical or statistical advantage over mean fusion.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
