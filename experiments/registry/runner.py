@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import random
 import sys
 import time
@@ -161,6 +162,41 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         )
         return float(np.sum(weights * inv_var)), float(np.count_nonzero(weights > 0.0))
 
+    checkpoint_every = int(config.evaluation.options.get("checkpoint_every", 0) or 0)
+    checkpoint_dir_opt = config.evaluation.options.get("checkpoint_dir")
+    resume = bool(config.evaluation.options.get("resume", False))
+    checkpoint_dir = (
+        Path(checkpoint_dir_opt)
+        if checkpoint_dir_opt
+        else config.dataset.path.parent / ".checkpoints"
+    )
+    checkpoint_meta_path = checkpoint_dir / "checkpoint_metadata.json"
+
+    def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        tmp.replace(path)
+
+    def _checkpoint_file_for_query(query_id: str) -> Path:
+        return checkpoint_dir / f"{query_id}.jsonl"
+
+    def _load_checkpoint_record(query_id: str) -> dict[str, Any] | None:
+        path = _checkpoint_file_for_query(query_id)
+        if not path.exists():
+            return None
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if not lines:
+            return None
+        return json.loads(lines[-1])
+
+    def _write_checkpoint_record(query_id: str, payload: dict[str, Any]) -> None:
+        path = _checkpoint_file_for_query(query_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(json.dumps(payload, ensure_ascii=False) + "\n", encoding="utf-8")
+        tmp.replace(path)
+
     for strategy_name in config.fusion.strategies:
         strategy_start = time.perf_counter()
         scout, pan = build_strategy(
@@ -290,6 +326,114 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         strategy_timings_ms[strategy.name] = (
             time.perf_counter() - strategy_start
         ) * 1000.0
+
+    if checkpoint_every > 0:
+        strategy_objects = {
+            name: build_strategy(name=name, routing_mode=config.fusion.routing_mode)
+            for name in config.fusion.strategies
+        }
+        baseline_objects = build_retrieval_baselines(config.fusion.options)
+        for baseline in baseline_objects:
+            baseline.fit(rows=rows, village=village, options=config.fusion.options)
+        completed_ids: set[str] = set()
+        if resume:
+            for row in rows:
+                if _checkpoint_file_for_query(row["query_id"]).exists():
+                    completed_ids.add(row["query_id"])
+        completed_count = 0
+        for row in rows:
+            query_id = row["query_id"]
+            if query_id in completed_ids:
+                record = _load_checkpoint_record(query_id)
+                if record is None:
+                    continue
+                for strategy_name, rank_payload in record["rankings"].items():
+                    rankings_by_strategy.setdefault(strategy_name, {})[query_id] = (
+                        QueryRanking(doc_ids=tuple(rank_payload))
+                    )
+                    latencies_by_strategy.setdefault(strategy_name, {})[query_id] = (
+                        float(record["latency_ms"][strategy_name])
+                    )
+                    confidence_by_strategy.setdefault(strategy_name, {})[query_id] = (
+                        float(record["confidence_proxy"][strategy_name])
+                    )
+                    specialist_count_by_strategy.setdefault(strategy_name, {})[
+                        query_id
+                    ] = float(record["specialist_count_selected"][strategy_name])
+                continue
+            per_rankings: dict[str, list[str]] = {}
+            per_latency: dict[str, float] = {}
+            per_conf: dict[str, float] = {}
+            per_count: dict[str, float] = {}
+            for strategy_name, (scout, pan) in strategy_objects.items():
+                selected_modules = scout.select(
+                    query=row["query_text"], village=village
+                )
+                ranked_ids, latency = rank_query(
+                    query_text=row["query_text"],
+                    candidates=row["candidate_documents"],
+                    village=village,
+                    scout=scout,
+                    pan=pan,
+                )
+                per_rankings[strategy_name] = list(ranked_ids)
+                per_latency[strategy_name] = float(latency)
+                per_conf[strategy_name] = _confidence_from_selected(
+                    query_text=row["query_text"], selected_modules=selected_modules
+                )
+                per_count[strategy_name] = float(len(selected_modules))
+            for baseline in baseline_objects:
+                ranked_ids, latency = rank_query_with_baseline(
+                    query_text=row["query_text"],
+                    candidates=row["candidate_documents"],
+                    village=village,
+                    strategy=baseline,
+                )
+                conf, count = _confidence_from_baseline(
+                    query_text=row["query_text"], strategy=baseline, village_obj=village
+                )
+                per_rankings[baseline.name] = list(ranked_ids)
+                per_latency[baseline.name] = float(latency)
+                per_conf[baseline.name] = float(conf)
+                per_count[baseline.name] = float(count)
+            for strategy_name, rank_payload in per_rankings.items():
+                rankings_by_strategy.setdefault(strategy_name, {})[query_id] = (
+                    QueryRanking(doc_ids=tuple(rank_payload))
+                )
+                latencies_by_strategy.setdefault(strategy_name, {})[query_id] = (
+                    per_latency[strategy_name]
+                )
+                confidence_by_strategy.setdefault(strategy_name, {})[query_id] = (
+                    per_conf[strategy_name]
+                )
+                specialist_count_by_strategy.setdefault(strategy_name, {})[query_id] = (
+                    per_count[strategy_name]
+                )
+            _write_checkpoint_record(
+                query_id,
+                {
+                    "query_id": query_id,
+                    "rankings": per_rankings,
+                    "latency_ms": per_latency,
+                    "confidence_proxy": per_conf,
+                    "specialist_count_selected": per_count,
+                },
+            )
+            completed_count += 1
+            if completed_count % checkpoint_every == 0:
+                _atomic_write_json(
+                    checkpoint_meta_path,
+                    {
+                        "completed_query_ids": sorted(
+                            {
+                                row_["query_id"]
+                                for row_ in rows
+                                if _checkpoint_file_for_query(row_["query_id"]).exists()
+                            }
+                        ),
+                        "total_queries": len(rows),
+                    },
+                )
 
     reports = evaluate_locked(
         rows=rows,
