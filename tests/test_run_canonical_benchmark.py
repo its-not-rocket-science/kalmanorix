@@ -199,6 +199,40 @@ def test_canonical_benchmark_writes_artifacts(
     assert "two-specialist" in summary["comparisons"]["LearnedGateFuser"]["reason"]
 
 
+def test_canonical_report_is_utf8_and_mojibake_free(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(
+        canonical,
+        "_load_split_counts",
+        lambda _: {"train": 8, "validation": 4, "test": 3},
+    )
+    monkeypatch.setattr(
+        canonical,
+        "load_experiment_config",
+        lambda cfg_path: {"cfg_path": str(cfg_path)},
+    )
+    monkeypatch.setattr(canonical, "run_experiment", lambda cfg: _fake_details())
+
+    output_dir = tmp_path / "results"
+    canonical.run_canonical_benchmark(
+        benchmark_path=tmp_path / "dummy.parquet",
+        output_dir=output_dir,
+        split="test",
+        max_queries=3,
+        device="cpu",
+        seed=7,
+        num_resamples=300,
+    )
+
+    report_path = output_dir / "report.md"
+    raw_report = report_path.read_bytes()
+    decoded = raw_report.decode("utf-8")
+
+    for bad_sequence in ("ÎΔ", "Î”", "â€”", "âš"):
+        assert bad_sequence not in decoded
+
+
 def test_canonical_benchmark_requires_core_baselines(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -328,7 +362,7 @@ def test_canonical_report_includes_paired_statistics_section(
     assert "## Power-Oriented Diagnostics (KalmanorixFuser vs MeanFuser)" in report_text
     assert "## Sample Size Adequacy Checks" in report_text
     assert (
-        "| Metric | Δ mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |"
+        "| Metric | delta mean (Kalman-Mean) | 95% CI | p | Holm-adjusted p |"
         in report_text
     )
     assert "## Kalman vs simple and learned weighting baselines" in report_text
