@@ -19,6 +19,7 @@ class QueryMetrics:
     recall1: float
     recall5: float
     recall10: float
+    recall100: float
     mrr5: float
     mrr10: float
     top1_success: float
@@ -56,6 +57,7 @@ def evaluate_query(ranked: list[str], relevant: set[str]) -> QueryMetrics:
         recall1=recall_at_k(ranked, relevant, 1),
         recall5=recall_at_k(ranked, relevant, 5),
         recall10=recall_at_k(ranked, relevant, 10),
+        recall100=recall_at_k(ranked, relevant, 100),
         mrr5=mrr_at_k(ranked, relevant, 5),
         mrr10=mrr_at_k(ranked, relevant, 10),
         top1_success=1.0 if ranked[:1] and ranked[0] in relevant else 0.0,
@@ -79,6 +81,7 @@ def aggregate_strategy_metrics(
     recall1 = [row.recall1 for row in evaluated]
     recall5 = [row.recall5 for row in evaluated]
     recall10 = [row.recall10 for row in evaluated]
+    recall100 = [row.recall100 for row in evaluated]
     mrr5 = [row.mrr5 for row in evaluated]
     mrr10 = [row.mrr10 for row in evaluated]
     top1_success = [row.top1_success for row in evaluated]
@@ -106,6 +109,7 @@ def aggregate_strategy_metrics(
             "recall@1": _with_ci(recall1, seed + 16),
             "recall@5": _with_ci(recall5, seed + 22),
             "recall@10": _with_ci(recall10, seed + 28),
+            "recall@100": _with_ci(recall100, seed + 31),
             "mrr@5": _with_ci(mrr5, seed + 33),
             "mrr@10": _with_ci(mrr10, seed + 39),
             "top1_success": _with_ci(top1_success, seed + 44),
@@ -118,6 +122,7 @@ def aggregate_strategy_metrics(
             "recall@1": recall1,
             "recall@5": recall5,
             "recall@10": recall10,
+            "recall@100": recall100,
             "mrr@5": mrr5,
             "mrr@10": mrr10,
             "top1_success": top1_success,
