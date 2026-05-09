@@ -871,6 +871,9 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
     power_diag = summary["power_diagnostics"]["kalman_vs_mean"]
     test_count = int(power_diag["num_test_queries"])
     min_domain_count = int(adequacy["per_domain_analysis"]["minimum_domain_count"])
+    missing_expected_domains = list(
+        adequacy["per_domain_analysis"].get("missing_expected_domains", [])
+    )
     validation_count = int(adequacy["uncertainty_calibration"]["available_queries"])
     detectable_effect = float(power_diag["detectable_effect_threshold_estimate"])
     target_effect = float(power_diag["target_effect_size"])
@@ -935,6 +938,10 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
         if not minimally_powered_checks["detectable_effect_ok"]:
             failed_checks.append(
                 "detectable_effect_threshold_estimate is above the target_effect_size."
+            )
+        if missing_expected_domains:
+            failed_checks.append(
+                "missing expected test domains: " + ", ".join(missing_expected_domains)
             )
         claim_ready_checks = {
             "test_query_count_claim_ready": bool(
@@ -1228,6 +1235,7 @@ def _render_report(summary: dict[str, Any]) -> str:
             "",
             f"- Number of evaluated test queries: **{power_diag['num_test_queries']}**",
             f"- Per-domain evaluated test counts: `{power_diag['per_domain_test_counts']}`",
+            f"- Expected domain count: `{adequacy['per_domain_analysis'].get('expected_domain_count', 0)}`; evaluated domain count: `{adequacy['per_domain_analysis'].get('evaluated_domain_count', 0)}`",
             f"- Observed primary effect size (nDCG@10 delta mean): `{power_diag['observed_effect_size']:.6f}`",
             f"- Detectable effect threshold estimate (80% power, α=0.05, paired-normal approximation): `{power_diag['detectable_effect_threshold_estimate']:.6f}`",
             f"- Target effect for decision rule: `{power_diag['target_effect_size']:.6f}`",
@@ -1294,6 +1302,25 @@ def _render_report(summary: dict[str, Any]) -> str:
                 p=metric_payload["p_value"],
                 padj=metric_payload["adjusted_p_value"],
             )
+        )
+
+    if summary.get("oracle_recall_by_k"):
+        lines.extend(["", "## Candidate Oracle Recall", ""])
+        for key, value in summary["oracle_recall_by_k"].items():
+            lines.append(f"- {key}: `{None if value is None else round(value, 6)}`")
+
+    kalman_query_level = methods.get("kalman", {}).get("query_level")
+    mean_query_level = methods.get("mean", {}).get("query_level")
+    if (
+        kalman_query_level is not None
+        and mean_query_level is not None
+        and kalman_query_level == mean_query_level
+    ):
+        lines.extend(
+            [
+                "",
+                "> WARNING: Kalman and mean produced identical query-level rankings/metrics; fusion is not adding signal in this run.",
+            ]
         )
 
     lines.extend(
@@ -1781,6 +1808,7 @@ def run_canonical_benchmark(
     checkpoint_every: int = 0,
     checkpoint_dir: Path | None = None,
     allow_partial_report: bool = False,
+    domain_balanced: bool = False,
 ) -> dict[str, Any]:
     overall_start = time.perf_counter()
     split_counts = _load_split_counts(benchmark_path)
@@ -1803,6 +1831,7 @@ def run_canonical_benchmark(
                 "max_candidates_full": max_candidates_full,
                 "stream": stream_dataset,
                 "row_batch_size": row_batch_size,
+                "domain_balanced": domain_balanced,
             },
         },
         "models": {
@@ -1853,6 +1882,7 @@ def run_canonical_benchmark(
     )
     oracle_total = oracle_payload.get("queries_total")
     oracle_recall_at_k: float | None = None
+    oracle_recall_by_k: dict[str, float | None] = {}
     if (
         isinstance(oracle_hits, int)
         and isinstance(oracle_total, int)
@@ -1866,6 +1896,15 @@ def run_canonical_benchmark(
                 "Ground-truth appears in the candidate pool for too few queries, which "
                 "indicates retrieval is likely broken upstream."
             )
+    for k in (1, 5, 10, 20, 50, 100):
+        hits_k = oracle_payload.get(f"queries_with_hit_top_{k}")
+        oracle_recall_by_k[f"oracle_recall@{k}"] = (
+            float(hits_k) / float(oracle_total)
+            if isinstance(hits_k, int)
+            and isinstance(oracle_total, int)
+            and oracle_total > 0
+            else None
+        )
 
     (output_dir / "runner_details.json").write_text(
         json.dumps(details, indent=2), encoding="utf-8"
@@ -2022,6 +2061,13 @@ def run_canonical_benchmark(
         }
     n_test = int(len(kalman_metrics[primary_metric]))
 
+    expected_domains = sorted(
+        str(d) for d, c in split_counts.get("test_domains", {}).items() if int(c) > 0
+    )
+    evaluated_domains = sorted(per_domain_test_counts)
+    missing_expected_domains = sorted(
+        set(expected_domains).difference(evaluated_domains)
+    )
     min_domain_count = (
         min(per_domain_test_counts.values()) if per_domain_test_counts else 0
     )
@@ -2043,6 +2089,9 @@ def run_canonical_benchmark(
         "per_domain_analysis": {
             "minimum_domain_count": int(min_domain_count),
             "per_domain_counts": dict(sorted(per_domain_test_counts.items())),
+            "expected_domain_count": len(expected_domains),
+            "evaluated_domain_count": len(evaluated_domains),
+            "missing_expected_domains": missing_expected_domains,
             "minimum_required_per_domain": PER_DOMAIN_MIN_QUERIES,
             "adequate": bool(min_domain_count >= PER_DOMAIN_MIN_QUERIES),
             "note": "Lowest-count domain determines whether per-domain inference is stable.",
@@ -2157,6 +2206,7 @@ def run_canonical_benchmark(
                 None if oracle_recall_at_k is None else oracle_recall_at_k * 100.0
             ),
         },
+        "oracle_recall_by_k": oracle_recall_by_k,
         "seed": seed,
         "num_resamples": num_resamples,
         "specialists": [spec["name"] for spec in DEFAULT_REAL_SPECIALISTS],
@@ -2336,6 +2386,11 @@ def main() -> None:
         help="Batch size for --stream-dataset parquet loading.",
     )
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--domain-balanced",
+        action="store_true",
+        help="Deterministically sample approximately equal test queries per domain.",
+    )
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--force-resume", action="store_true")
     parser.add_argument("--checkpoint-every", type=int, default=None)
@@ -2431,6 +2486,7 @@ def main() -> None:
             checkpoint_every=checkpoint_every,
             checkpoint_dir=args.checkpoint_dir,
             allow_partial_report=args.allow_partial_report,
+            domain_balanced=args.domain_balanced,
         )
     else:
         runs_dir = args.output_dir / "replication_runs"
@@ -2467,6 +2523,7 @@ def main() -> None:
                     else None
                 ),
                 allow_partial_report=args.allow_partial_report,
+                domain_balanced=args.domain_balanced,
             )
             run_summaries.append(run_summary)
         summary = run_summaries[0]

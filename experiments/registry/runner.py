@@ -212,6 +212,8 @@ def _run_real_mixed(config: BenchmarkExperimentConfig) -> dict[str, Any]:
         max_candidates=max_candidates,
         stream=stream_dataset,
         row_batch_size=int(config.dataset.options.get("row_batch_size", 4096)),
+        domain_balanced=bool(config.dataset.options.get("domain_balanced", False)),
+        seed=int(config.seed.python),
     )
     reset_runtime_caches()
     model_start = time.perf_counter()
