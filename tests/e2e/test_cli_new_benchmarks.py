@@ -12,6 +12,68 @@ from experiments import run_kalman_latency_optimization as latency_cli
 from experiments import run_uncertainty_calibration as unc_cli
 
 
+def _write_tiny_benchmark_parquet(path: Path, *, n_test_queries: int = 16) -> Path:
+    rows = []
+    split_plan = (["train"] * 2) + (["validation"] * 2) + (["test"] * n_test_queries)
+    for idx, split in enumerate(split_plan):
+        qid = f"q{idx}"
+        pos_id = f"d{idx}_pos"
+        rows.append(
+            {
+                "query_id": qid,
+                "query_text": f"query text {idx}",
+                "candidate_documents": [
+                    {
+                        "doc_id": pos_id,
+                        "title": "positive",
+                        "text": f"document text positive {idx}",
+                        "domain": "general_qa",
+                        "source_dataset": "tiny_fixture",
+                    },
+                    {
+                        "doc_id": f"d{idx}_neg1",
+                        "title": "negative one",
+                        "text": f"document text negative one {idx}",
+                        "domain": "finance",
+                        "source_dataset": "tiny_fixture",
+                    },
+                    {
+                        "doc_id": f"d{idx}_neg2",
+                        "title": "negative two",
+                        "text": f"document text negative two {idx}",
+                        "domain": "biomedical",
+                        "source_dataset": "tiny_fixture",
+                    },
+                ],
+                "ground_truth_relevant_ids": [pos_id],
+                "domain_label": "general_qa",
+                "source_dataset": "tiny_fixture",
+                "split": split,
+                "contains_cross_domain_hard_negatives": True,
+                "dominant_domain": "general_qa",
+                "secondary_domain": "finance",
+                "query_category": "original",
+                "ambiguity_category": "none",
+                "ambiguity_score": 0.0,
+                "fusion_usefulness_bucket": "low",
+                "is_synthetic": False,
+                "provenance_note": "tiny e2e fixture",
+            }
+        )
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        pq.write_table(pa.Table.from_pylist(rows), path)
+        return path
+    except ModuleNotFoundError:
+        json_path = path.with_suffix(".json")
+        json_path.write_text(json.dumps(rows), encoding="utf-8")
+        return json_path
+
+
 @pytest.mark.e2e
 def test_cli_correlation_aware_fusion_writes_artifacts(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -63,7 +125,7 @@ def test_cli_canonical_benchmark_v2_writes_artifacts(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     out = tmp_path / "canonical"
-    benchmark_path = Path("benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet")
+    benchmark_path = _write_tiny_benchmark_parquet(tmp_path / "tiny_benchmark.parquet")
     monkeypatch.setattr(
         sys,
         "argv",
@@ -126,7 +188,7 @@ def test_cli_latency_benchmark_writes_artifacts(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     out = tmp_path / "latency"
-    benchmark_path = Path("benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet")
+    benchmark_path = _write_tiny_benchmark_parquet(tmp_path / "tiny_benchmark.parquet")
     monkeypatch.setattr(
         sys,
         "argv",
