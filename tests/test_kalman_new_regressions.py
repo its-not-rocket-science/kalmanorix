@@ -182,6 +182,22 @@ def test_snapshot_uncertainty_calibration_markdown(tmp_path: Path) -> None:
     assert report == expected
 
 
+def test_uncertainty_calibration_markdown_is_deterministic(tmp_path: Path) -> None:
+    out_a = tmp_path / "run_a"
+    out_b = tmp_path / "run_b"
+
+    kwargs = dict(
+        objectives=("rank_error_proxy",),
+        power_config=ValidationPowerConfig(query_expansion_multiplier=6),
+    )
+    run_uncertainty_calibration_objective_study(out_a, **kwargs)
+    run_uncertainty_calibration_objective_study(out_b, **kwargs)
+
+    report_a = (out_a / "report.md").read_text(encoding="utf-8")
+    report_b = (out_b / "report.md").read_text(encoding="utf-8")
+    assert report_a == report_b
+
+
 def test_snapshot_covariance_ablation_markdown(tmp_path: Path) -> None:
     out = tmp_path / "kalman_covariance_ablation"
     run_kalman_covariance_ablation(
