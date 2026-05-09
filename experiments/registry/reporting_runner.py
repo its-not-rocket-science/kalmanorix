@@ -101,6 +101,10 @@ def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
+def _to_posix_path(path: str) -> str:
+    return Path(path).as_posix()
+
+
 def _render_markdown(
     *,
     template_dir: Path,
@@ -129,12 +133,16 @@ def _render_markdown(
         ],
     )
 
+    markdown_figure_paths = {
+        key: _to_posix_path(path) for key, path in figure_paths.items()
+    }
+
     return "\n\n".join(
         [
             overall_tpl.format(table=_as_table(overall_rows)),
             sig_tpl.format(table=_as_table(significance_rows)),
             "## Calibration Summary\n\n" + _as_table(calibration_rows),
-            fig_tpl.format(**figure_paths),
+            fig_tpl.format(**markdown_figure_paths),
             safeguarded_findings,
         ]
     )
