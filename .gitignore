@@ -15,11 +15,10 @@ experiments/debug_*.py
 experiments/test_*.py
 experiments/analyze_*.py
 experiments/data/cache/
-benchmarks/**/corpus.parquet
-benchmarks/**/queries.parquet
-benchmarks/**/qrels.parquet
-benchmarks/**/splits.parquet
-benchmarks/**/mixed_benchmark.parquet
+results/
+benchmarks/**/.checkpoints/
+benchmarks/**/*.parquet
+benchmarks/**/*.json
 .claude/settings.local.json
 .claude/
 site/
