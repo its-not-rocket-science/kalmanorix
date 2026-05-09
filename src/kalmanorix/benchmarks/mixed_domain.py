@@ -169,7 +169,14 @@ def _load_beir_triplet(spec_or_dataset: dict[str, Any] | str) -> tuple[Any, Any,
     def _component_settings(
         component: str, *, default_config: str | None, default_split: str
     ) -> tuple[str, str, list[str | None]]:
-        dataset_name = str(spec.get(f"{component}_hf_name") or spec["hf_name"])
+        if component == "qrels":
+            dataset_name = str(
+                spec.get("qrels_hf_name")
+                or spec.get("qrels_dataset")
+                or f"{spec['hf_name']}-qrels"
+            )
+        else:
+            dataset_name = str(spec.get(f"{component}_hf_name") or spec["hf_name"])
         split_name = str(spec.get(f"{component}_split") or default_split)
 
         explicit_config_key = f"{component}_config"
