@@ -63,6 +63,8 @@ def test_reporting_runner_generates_artifacts(tmp_path) -> None:
 
     rendered = (out_dir / "summary.md").read_text(encoding="utf-8")
     normalized = rendered.replace(str(out_dir), "<OUT_DIR>")
+    assert "<OUT_DIR>/figures/latency_memory_tradeoff.png" in normalized
+    assert "<OUT_DIR>\\figures\\latency_memory_tradeoff.png" not in normalized
     expected = (
         Path(__file__).parent / "snapshots" / "reporting_runner_summary_expected.md"
     ).read_text(encoding="utf-8")
