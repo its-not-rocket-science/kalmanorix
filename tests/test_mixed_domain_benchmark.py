@@ -312,12 +312,12 @@ def test_load_beir_triplet_qrels_none_uses_candidates_fallback(monkeypatch) -> N
     corpus, queries, qrels = _load_beir_triplet(spec)
     assert corpus == ("BeIR/nq", "corpus", "corpus")
     assert queries == ("BeIR/nq", "queries", "queries")
-    assert qrels == ("BeIR/nq", "default", "test")
+    assert qrels == ("BeIR/nq-qrels", "default", "test")
     assert captured_calls == [
         ("BeIR/nq", "corpus", "corpus"),
         ("BeIR/nq", "queries", "queries"),
-        ("BeIR/nq", "qrels", "test"),
-        ("BeIR/nq", "default", "test"),
+        ("BeIR/nq-qrels", "qrels", "test"),
+        ("BeIR/nq-qrels", "default", "test"),
     ]
 
 
@@ -343,11 +343,34 @@ def test_load_beir_triplet_supports_explicit_component_qrels(monkeypatch) -> Non
     corpus, queries, qrels = _load_beir_triplet(spec)
     assert corpus == ("BeIR/nq", "corpus", "corpus")
     assert queries == ("BeIR/nq", "queries", "queries")
-    assert qrels == ("BeIR/nq", "default", "test")
+    assert qrels == ("BeIR/nq-qrels", "default", "test")
     assert captured_calls == [
         ("BeIR/nq", "corpus", "corpus"),
         ("BeIR/nq", "queries", "queries"),
-        ("BeIR/nq", "default", "test"),
+        ("BeIR/nq-qrels", "default", "test"),
+    ]
+
+
+def test_load_beir_triplet_infers_qrels_dataset_suffix(monkeypatch) -> None:
+    captured_calls = []
+
+    def _fake_load_split(dataset_name: str, config: str | None, split_name: str):
+        captured_calls.append((dataset_name, config, split_name))
+        return (dataset_name, config, split_name)
+
+    monkeypatch.setattr(
+        "kalmanorix.benchmarks.mixed_domain._load_split",
+        _fake_load_split,
+    )
+
+    corpus, queries, qrels = _load_beir_triplet({"hf_name": "BeIR/nq"})
+    assert corpus == ("BeIR/nq", "corpus", "corpus")
+    assert queries == ("BeIR/nq", "queries", "queries")
+    assert qrels == ("BeIR/nq-qrels", "qrels", "test")
+    assert captured_calls == [
+        ("BeIR/nq", "corpus", "corpus"),
+        ("BeIR/nq", "queries", "queries"),
+        ("BeIR/nq-qrels", "qrels", "test"),
     ]
 
 
@@ -365,7 +388,7 @@ def test_load_beir_triplet_reports_failed_component(monkeypatch) -> None:
     with pytest.raises(
         RuntimeError,
         match=(
-            "Failed loading qrels for dataset='BeIR/nq', split='test'. "
+            "Failed loading qrels for dataset='BeIR/nq-qrels', split='test'. "
             r"Attempted configs: \['qrels', 'default'\]"
         ),
     ):
@@ -379,7 +402,7 @@ def test_load_beir_triplet_smoke_beir_nq() -> None:
         pytest.skip("huggingface datasets package is unavailable in this environment")
 
     corpus_ds, queries_ds, qrels_ds = _load_beir_triplet(
-        {"hf_name": "BeIR/nq", "qrels_split": "test"}
+        {"hf_name": "BeIR/nq", "qrels_hf_name": "BeIR/nq-qrels", "qrels_split": "test"}
     )
 
     assert len(corpus_ds) > 0
