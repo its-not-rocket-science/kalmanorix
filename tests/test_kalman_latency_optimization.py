@@ -186,3 +186,63 @@ def test_panoramix_shared_path_computes_each_embedding_once_per_query() -> None:
     assert [embed.calls for embed in embeds] == [1, 1, 1]
     assert [s.calls for s in sigma2] == [0, 0, 0]
     assert [s.embedding_calls for s in sigma2] == [1, 1, 1]
+
+
+def test_run_canonical_benchmark_uses_sys_executable_and_merges_pythonpath(
+    tmp_path, monkeypatch
+) -> None:
+    import json
+    import os
+    import sys
+    from pathlib import Path
+
+    from experiments import run_kalman_latency_optimization as latency
+
+    out_dir = tmp_path / "out"
+    canonical_out = out_dir / "canonical"
+    canonical_out.mkdir(parents=True)
+    (canonical_out / "summary.json").write_text(
+        json.dumps(
+            {
+                "decision": {
+                    "kalman_vs_mean": {
+                        "verdict": "supported",
+                        "observed": {
+                            "latency_ratio_vs_mean": 1.0,
+                            "primary_metric_delta": 0.0,
+                            "primary_metric_adjusted_p_value": 1.0,
+                        },
+                        "rules": {"max_latency_ratio_vs_mean": 1.05},
+                        "checks": {"latency_ratio_ok": True},
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("PYTHONPATH", "existing_path")
+    monkeypatch.chdir(tmp_path)
+
+    captured: dict[str, object] = {}
+
+    def _fake_run(cmd, check, env):
+        captured["cmd"] = cmd
+        captured["check"] = check
+        captured["env"] = env
+
+    monkeypatch.setattr(latency.subprocess, "run", _fake_run)
+
+    result = latency._run_canonical_benchmark(
+        out_dir=out_dir,
+        benchmark_path=Path("tiny.parquet"),
+        max_queries=5,
+    )
+
+    assert result["decision_verdict"] == "supported"
+    assert captured["cmd"][0] == sys.executable
+    assert captured["cmd"][1] == str(Path("experiments") / "run_canonical_benchmark.py")
+    expected_pythonpath = os.pathsep.join(
+        [str(tmp_path), str(tmp_path / "src"), "existing_path"]
+    )
+    assert captured["env"]["PYTHONPATH"] == expected_pythonpath

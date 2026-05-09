@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import subprocess
+import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -250,8 +251,8 @@ def _run_canonical_benchmark(
 ) -> dict[str, object]:
     canonical_out = out_dir / "canonical"
     cmd = [
-        "python",
-        "experiments/run_canonical_benchmark.py",
+        sys.executable,
+        str(Path("experiments") / "run_canonical_benchmark.py"),
         "--benchmark-path",
         str(benchmark_path),
         "--split",
@@ -262,7 +263,13 @@ def _run_canonical_benchmark(
         str(canonical_out),
     ]
     env = os.environ.copy()
-    env["PYTHONPATH"] = ".:src"
+    repo_root = str(Path.cwd())
+    src_dir = str(Path.cwd() / "src")
+    existing_pythonpath = env.get("PYTHONPATH", "")
+    pythonpath_entries = [repo_root, src_dir]
+    if existing_pythonpath:
+        pythonpath_entries.append(existing_pythonpath)
+    env["PYTHONPATH"] = os.pathsep.join(pythonpath_entries)
     subprocess.run(cmd, check=True, env=env)
     canonical_summary = json.loads(
         (canonical_out / "summary.json").read_text(encoding="utf-8")
