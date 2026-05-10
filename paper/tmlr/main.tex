@@ -10,27 +10,38 @@
 
 % Anonymous submission by default for TMLR/OpenReview double-blind review.
 
-\title{When Uncertainty-Weighted Fusion Does Not Help: A Claim-Ready Mixed-Domain Retrieval Study}
+\title{A Statistically Powered Negative-Result Retrieval Study:\\
+Kalman-Style Fusion Fails to Reliably Beat Strong Mean Fusion}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-We present a negative empirical study of uncertainty-weighted fusion for mixed-domain retrieval. The study is run under a pre-declared benchmark governance protocol with a hard claim gate. On the claim-ready benchmark split, we evaluate 1,193 paired test queries and find no evidence that the Kalmanorix fusion variant improves over a simple mean fusion baseline on the primary metric, nDCG@10. The paired delta for Kalman-minus-mean is $-0.000203$ with Holm-adjusted $p=1.0$, while absolute scores are 0.0943 for MeanFuser and 0.0941 for KalmanorixFuser. A router-only top-1 strategy reaches 0.0979 nDCG@10 in this configuration. The hard claim gate is therefore blocked, and the confirmatory slice query count is 0. 
+We report a statistically powered negative-result study of retrieval fusion, not a new state-of-the-art retriever. The core contribution is an evaluation methodology for fusion systems under domain-balanced benchmarking, paired query-level testing, Holm multiple-testing correction, pre-declared effect-size thresholds, confirmatory slices, calibrated uncertainty reporting, and latency-aware analysis. On a claim-ready mixed-domain benchmark with 1,193 paired test queries, Kalman-style uncertainty-weighted fusion does not produce statistically reliable gains over a strong mean-fusion baseline on nDCG@10: the paired Kalman-minus-mean delta is $-0.000203$ with Holm-adjusted $p=1.0$ (MeanFuser 0.0943, KalmanorixFuser 0.0941). A router-only top-1 baseline reaches 0.0979.
 
-This manuscript is a \emph{TMLR draft}. We consider the current evidence probably not submission-ready until the protocol is replicated with at least one non-fast-local neural embedding run or an external benchmark configuration. The contribution is a careful falsification result and a benchmark-governance template for negative findings, rather than a broad generalisation claim.
+The confirmatory slice is empty in this run and therefore cannot support superiority claims; the hard claim gate remains blocked by design. We frame this as evidence against overclaiming small retrieval differences without powered, domain-balanced, and multiplicity-controlled evaluation.
 \end{abstract}
 
 \section{Introduction}
-Negative results are often under-reported in retrieval system development, even though robust model selection depends on identifying methods that do not transfer beyond optimistic pilot settings. We investigate uncertainty-weighted fusion in a mixed-domain retrieval pipeline and test whether it improves ranking effectiveness relative to a transparent, strong baseline.
+Small reported improvements in retrieval are common, but many are fragile to benchmark composition, multiple testing, or underpowered comparisons. This paper takes a skeptical, reproducibility-first stance: the goal is not to introduce a better retriever, but to test whether a plausible fusion upgrade survives a disciplined inferential protocol.
 
-Our framing is deliberately conservative: we do not ask whether uncertainty weighting can \emph{ever} help, but whether it helps under a pre-registered evaluation design with explicit gates for claim readiness. The study is implemented as a paired comparison over query-level outcomes and multiple-testing control \citep{holm1979}. 
+We evaluate Kalman-style uncertainty-weighted fusion against a strong mean-fusion baseline on a domain-balanced mixed-domain benchmark. Our design emphasizes paired query-level tests, statistical power at the benchmark level, explicit effect-size floors, Holm-controlled family-wise error \citep{holm1979}, confirmatory slices, uncertainty calibration outputs, and latency-aware reporting. This structure is intended to reduce the risk of declaring practical wins from negligible deltas.
+
+The empirical conclusion is negative. On 1,193 paired test queries, Kalman-style fusion does not deliver statistically reliable gains over mean fusion on the primary endpoint (nDCG@10), and the confirmatory slice cannot be used for claim promotion in this run.
 
 TMLR uses OpenReview with a double-blind reviewing process and permits supplementary material for reproducibility. Accordingly, this draft is anonymised and avoids repository-identifying URLs in the submission body.
 
 \paragraph{Main outcome.}
 Under the claim-ready benchmark status, uncertainty-weighted Kalmanorix fusion does not outperform mean fusion on nDCG@10. The hard claim gate remains blocked.
+
+\section{Contributions}
+\begin{itemize}
+  \item \textbf{Methodological contribution (primary).} A reproducibility-oriented evaluation template for retrieval fusion that combines domain-balanced benchmarking, paired testing, Holm correction, effect-size thresholds, confirmatory slices, and calibrated uncertainty reporting.
+  \item \textbf{Decision-theoretic reporting.} A latency-aware claim framework that requires both quality and efficiency context before interpreting small ranking differences.
+  \item \textbf{Powered negative result (empirical).} On a 1,193-query paired benchmark, Kalman-style fusion shows no statistically reliable improvement over strong mean fusion on nDCG@10.
+  \item \textbf{Anti-overclaim evidence.} A concrete example showing why tiny retrieval deltas should not be promoted without multiplicity control, confirmatory support, and practical-effect constraints.
+\end{itemize}
 
 \section{Hypotheses and Decision Rules}
 \subsection{Primary hypothesis}
@@ -98,8 +109,14 @@ This result is a falsification of an expected gain \emph{in this configured sett
 
 The stronger router-only score suggests that model selection and routing calibration may currently matter more than fusion weighting in this pipeline. This motivates follow-up work on routing confidence calibration, domain-adaptive backend allocation, and error decomposition by query type.
 
-\section{Limitations}
-The present run is limited by configuration scope. In particular, evidence is likely insufficient for submission-grade claims until replication includes at least one non-fast-local neural embedding run or an external benchmark configuration. We therefore treat conclusions as conditional on the current pipeline and evaluation envelope.
+\section{Threat Model and Limitations}
+Our threat model centers on \emph{false-positive improvement claims} in retrieval benchmarking. Key risks include benchmark imbalance, slice fishing, multiplicity inflation, and interpreting tiny deltas without uncertainty or latency context. The protocol addresses these risks, but important limitations remain:
+\begin{itemize}
+  \item \textbf{Configuration scope.} The result is conditional on the current mixed-domain setup and fast-local configuration.
+  \item \textbf{Generalization limits.} We do not claim Kalman-style fusion is universally ineffective across model families or domains.
+  \item \textbf{Confirmatory sparsity.} The empty confirmatory slice blocks confirmatory promotion and limits fine-grained causal interpretation.
+  \item \textbf{Benchmark dependence.} Even domain-balanced mixtures can miss production distribution shifts; external replication remains necessary.
+\end{itemize}
 
 \section{Reproducibility Statement}
 TMLR permits supplementary materials, and this study is designed to use them for reproducibility artifacts (configs, scripts, per-query outputs, and statistical notebooks). The draft remains anonymised for OpenReview double-blind handling.
