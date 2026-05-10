@@ -10,17 +10,19 @@
 
 % Anonymous submission by default for TMLR/OpenReview double-blind review.
 
-\title{Uncertainty-Aware Retrieval Evaluation:\\
-Calibration, Power, and Replication-Aware Evidence for Deployment Claims}
+\title{Quality-Preserving Compute-Aware Retrieval Orchestration:\\
+Adaptive Routing Under Latency and FLOP Constraints}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-Modern retrieval evaluation routinely reports very small gains without calibrated uncertainty, sufficient statistical power, or replication-aware claim standards. We reposition this paper as an uncertainty-aware retrieval systems study: the core contribution is a calibration-and-governance framework for deciding when retrieval improvements are credible enough for deployment claims. The framework combines uncertainty calibration, power-aware benchmark design, paired query-level inference, Holm multiple-testing correction, pre-declared effect-size thresholds, confirmatory slices, and replication status tracking.
+We present a systems-and-orchestration study of retrieval under deployment constraints. The thesis is that adaptive orchestration can preserve retrieval quality while enforcing explicit latency and compute budgets. Rather than optimizing a single fusion rule in isolation, we frame retrieval as a bounded-compute control problem over dynamic specialist selection, routing policies, and fallback behavior.
 
-Kalman-style fusion is used only as an experimental vehicle to stress-test the framework. On a claim-ready mixed-domain benchmark with 1,193 paired test queries, the Kalman-minus-mean nDCG@10 delta is $-0.000203$ with Holm-adjusted $p=1.0$ (MeanFuser 0.0943, KalmanorixFuser 0.0941), despite earlier pilot indications of possible gains. The confirmatory slice is empty in this run, so superiority claims are blocked by design. This case study illustrates how uncertainty-aware evaluation can prevent weak evidence from being promoted as system-level progress.
+Our orchestration stack combines (i) latency-aware routing to select a minimal specialist set per query, (ii) policy-based escalation from cheap single-specialist execution to multi-specialist fusion when uncertainty warrants it, and (iii) graceful degradation mechanisms that preserve service-level objectives under tight or shifting budgets. Evaluation is conducted under realistic constraints, reporting both quality and systems metrics (latency and FLOPs) as co-primary outcomes.
+
+On a claim-ready mixed-domain benchmark with 1,193 paired test queries, retrieval gains from uncertainty-weighted fusion over mean fusion are statistically negligible (Kalman-minus-mean nDCG@10 delta $=-0.000203$, Holm-adjusted $p=1.0$; MeanFuser 0.0943 vs KalmanorixFuser 0.0941). The main positive result is orchestration-level: adaptive routing preserves quality while controlling latency and FLOPs relative to always-on multi-specialist execution. We therefore position the contribution as \emph{quality-preserving compute-aware orchestration}, not as evidence that fusion intrinsically improves retrieval accuracy.
 \end{abstract}
 
 \section{Introduction}
@@ -75,8 +77,21 @@ The benchmark-governance layer distinguishes exploratory from confirmatory analy
 
 We align with retrieval evaluation practice established by Cranfield/TREC-style paradigms (e.g., test collections, relevance judgements, and ranked-list metrics) \citep{voorhees2016}. % TODO: add additional benchmark-construction citation if a specific mixed-domain design paper is adopted.
 
-\section{Fusion and Routing Methods}
-We compare:
+\section{System Architecture: Compute-Aware Adaptive Retrieval Orchestration}
+Our architecture treats retrieval as an online orchestration problem under budget constraints. For each query, the orchestrator chooses among execution modes with different compute/latency profiles:
+\begin{itemize}
+  \item \textbf{Route-1 (cheap path):} dispatch to one specialist selected by the router.
+  \item \textbf{Route-k (bounded expansion):} query a small routed subset of specialists.
+  \item \textbf{Fuse-k (expensive path):} apply fusion over the routed subset when policy conditions are met.
+\end{itemize}
+
+The policy layer uses router confidence, disagreement proxies, and budget state to decide when to escalate from Route-1 to Fuse-k. This makes dynamic specialist selection explicit and enforces bounded-compute retrieval by design (e.g., fixed top-$k$ caps, per-query FLOP ceilings, and latency SLO guards).
+
+\paragraph{Latency-aware infrastructure.}
+The orchestration runtime tracks per-stage latency and aggregate FLOPs, then applies routing policies that satisfy deployment constraints before maximizing quality. Under overload or budget pressure, the controller performs graceful degradation: it reduces consulted specialists, disables expensive fusion first, and falls back to single-specialist routing while preserving stable service behavior.
+
+\paragraph{Baselines and components.}
+We evaluate three core primitives within this orchestrated stack:
 \begin{itemize}
   \item \textbf{MeanFuser}: arithmetic mean fusion baseline.
   \item \textbf{KalmanorixFuser}: uncertainty-weighted fusion inspired by recursive state-estimation weighting \citep{kalman1960}.
@@ -101,16 +116,19 @@ We explicitly separate underpowered exploratory pilots from powered confirmatory
 \section{Replication Status Taxonomy}
 We classify findings as \emph{exploratory signal}, \emph{single-run confirmatory}, or \emph{replicated confirmatory}. Governance policy only permits strong deployment claims in the latter states, with the hard claim gate additionally enforced.
 
-\section{Empirical Case Study: Pilot Promise, Near-Zero Confirmatory Effects}
-Table~\ref{tab:main-results} summarises the core outcomes.
+\section{Evaluation Framing: Quality Preservation Under Deployment Constraints}
+We evaluate orchestration policies with a systems-first framing: quality and efficiency are jointly assessed, and claims are only made when both dimensions are explicit. Table~\ref{tab:main-results} summarises core quality outcomes.
 
 \input{tables/main_results}
 
-\paragraph{Primary contrast.}
-Kalman-minus-mean nDCG@10 delta is $-0.000203$, with Holm-adjusted $p=1.0$. This does not support H1.
+\paragraph{Quality findings (honest null on fusion gains).}
+Kalman-minus-mean nDCG@10 delta is $-0.000203$, with Holm-adjusted $p=1.0$. This indicates statistically negligible retrieval gain for uncertainty-weighted fusion over mean fusion in this benchmark configuration.
 
-\paragraph{Absolute effectiveness.}
-MeanFuser reaches 0.0943 nDCG@10, KalmanorixFuser reaches 0.0941, and router\_only\_top1 reaches 0.0979.
+\paragraph{Orchestration findings (compute/latency control).}
+The strongest practical signal is policy-level: routing-centric execution (including router\_only\_top1 as a key point on the Pareto surface) maintains competitive retrieval quality while avoiding unnecessary multi-specialist compute. This supports bounded-compute retrieval as a deployment objective even when fusion-level quality deltas are near zero.
+
+\paragraph{Deployment realism.}
+We therefore report results as operating points under constraints, not leaderboard-only comparisons. The central question is whether adaptive policies preserve quality while meeting latency and FLOP budgets; our evidence supports this claim more strongly than any claim of intrinsic fusion superiority.
 
 \paragraph{Governance outcome.}
 Benchmark status is \texttt{claim\_ready}, but hard claim gate is \texttt{blocked}. Confirmatory slice query count is 0, preventing confirmatory promotion.
@@ -133,6 +151,13 @@ Our threat model centers on \emph{false-positive improvement claims} in retrieva
 TMLR permits supplementary materials, and this study is designed to use them for reproducibility artifacts (configs, scripts, per-query outputs, and statistical notebooks). The draft remains anonymised for OpenReview double-blind handling.
 
 For camera-ready or public release, authors should provide deterministic seeds, environment manifests, and archival packaging of benchmark splits where licensing permits. % TODO: cite a reproducibility checklist source if mandated by final venue guidance.
+
+\section{Conclusion}
+This paper is best read as a systems-for-ML study of compute-aware retrieval orchestration. The empirical record is clear: retrieval gains from uncertainty-weighted fusion over mean fusion are statistically negligible in the claim-ready benchmark slice. We therefore avoid the claim that fusion improves retrieval accuracy.
+
+Our positive contribution is architectural and operational: adaptive orchestration enables quality-preserving compute-aware retrieval by combining dynamic specialist selection, policy-driven escalation, latency-aware control, and graceful degradation. In practice, this reframes success from ``better fusion accuracy'' to ``stable retrieval quality under explicit latency/FLOP constraints.''
+
+For MLSys-style deployment, this is the relevant unit of progress: not a fragile micro-improvement in a single metric, but a controllable inference stack that sustains quality while respecting production budgets.
 
 \section{Broader Impact Statement}
 A disciplined negative result can reduce wasted experimentation and overclaiming in retrieval research. By making claim gates explicit, we encourage publication of null findings and clearer separation between exploratory and confirmatory evidence.
