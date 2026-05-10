@@ -97,6 +97,8 @@ For retrieval metrics, statistical and practical significance can diverge. We th
 \end{itemize}
 A tiny near-zero delta with null adjusted significance is treated as no demonstrated benefit, even if numerically nonzero.
 
+The practical thresholds were pre-declared for the confirmatory analysis: primary endpoint $\Delta\,n\mathrm{DCG}@10$ (Kalman minus Mean), minimum practically meaningful absolute delta of 0.02, Holm-adjusted significance criterion $p_{\mathrm{adj}}<0.05$, maximum latency ratio Kalman/Mean of 1.5, and maximum FLOPs ratio Kalman/Mean of 1.1. Practical significance is required in addition to statistical significance because with enough paired queries, extremely small metric movements can appear inferentially interesting while remaining operationally negligible; the practical thresholds prevent such over-interpretation.
+
 \subsection{Why claim-gating exists}
 Claim-gating prevents selective relaxation of standards after inspecting outcomes. A positive claim requires all gate conditions to pass jointly, reducing researcher degrees of freedom and improving downstream reproducibility.
 
@@ -104,13 +106,13 @@ Claim-gating prevents selective relaxation of standards after inspecting outcome
 \input{tables/main_results}
 
 \paragraph{Primary endpoint (nDCG@10).}
-The Kalman-minus-mean delta is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$. This does not support H1 and is practically negligible in magnitude.
+The Kalman-minus-mean delta is $-9.258801070226193\times10^{-6}$, far below the pre-declared practical threshold of 0.02 in magnitude, with Holm-adjusted $p=1.0$ (failing the $p_{\mathrm{adj}}<0.05$ criterion). This does not support H1 and is practically negligible.
 
 \paragraph{Secondary retrieval endpoint (Recall@100).}
 The delta is exactly $0.0$, indicating no measurable retrieval-depth improvement at this operating point.
 
 \paragraph{Efficiency outcomes.}
-Latency ratio is $1.0722551296204925$ while FLOPs ratio is $1.0$, indicating slower runtime at matched floating-point operation count.
+Latency ratio is $1.0722551296204925$ and FLOPs ratio is $1.0$; both satisfy the pre-declared compute bounds (latency $\le1.5$, FLOPs $\le1.1$), indicating slower runtime at matched floating-point operation count but no compute-threshold breach.
 
 \paragraph{Gate status.}
 The claim gate remains blocked because the primary direction is non-positive and adjusted significance is absent under the confirmatory protocol. Accordingly, no retrieval-improvement claim is made despite claim-ready benchmark status.
