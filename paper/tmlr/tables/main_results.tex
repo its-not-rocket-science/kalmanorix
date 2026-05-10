@@ -1,13 +1,17 @@
-\begin{tabular}{lccccc}
+\begin{table}[t]
+\centering
+\caption{Primary and secondary outcomes for the domain-balanced C100 paired run ($n_{\text{pairs}}=1193$). Deltas are Kalman minus mean.}
+\label{tab:main-results}
+\begin{tabular}{lc}
 \toprule
-Method & nDCG@10 & MRR@10 & Recall@10 & latency (ms) & FLOPs proxy \\ 
+Quantity & Value \\
 \midrule
-KalmanorixFuser & 0.0941 & 0.1025 & 0.1358 & 202.858 & 3.000 \\
-MeanFuser & 0.0943 & 0.1022 & 0.1362 & 198.558 & 3.000 \\
-fixed weighted mean baseline & 0.0940 & 0.1018 & 0.1363 & 2.004 & 3.000 \\
-hard routing baseline & 0.0979 & 0.1147 & 0.1299 & 6.433 & 1.000 \\
-learned linear combiner & 0.0934 & 0.1058 & 0.1334 & 1.942 & 2.000 \\
-single generalist model & 0.0952 & 0.1090 & 0.1287 & 2.108 & 1.000 \\
-all-routing + mean baseline & 0.0940 & 0.1018 & 0.1363 & 2.043 & 3.000 \\
+$n_{\text{pairs}}$ & 1193 \\
+$n\mathrm{DCG}@10$ delta & $-9.258801070226193\times10^{-6}$ \\
+Holm-adjusted $p$ & 1.0 \\
+Recall@100 delta & 0.0 \\
+Latency ratio (Kalman / mean) & 1.0722551296204925 \\
+FLOPs ratio (Kalman / mean) & 1.0 \\
 \bottomrule
 \end{tabular}
+\end{table}
