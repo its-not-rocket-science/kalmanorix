@@ -20,7 +20,9 @@ bibliography: paper.bib
 
 Kalmanorix is MIT-licensed research software for reproducible retrieval benchmarking and evaluation governance. It provides a command-line framework that links benchmark construction, paired retrieval evaluation, uncertainty-aware analysis, statistical testing, and publication-ready artifact generation in one reproducible workflow. The contribution is infrastructure for producing auditable evidence, not a claim of state-of-the-art retrieval performance [@thakur2021beir; @jarvelin2002cumulated].
 
-Current repository benchmarks show negligible effect sizes and non-significant corrected deltas in the final powered setting. Kalmanorix preserves these null/negative outcomes as first-class outputs and propagates them through reports to discourage overclaiming.
+Current canonical evidence is a **powered negative result** in a **domain-balanced** confirmatory slice: paired evaluation at $n\_pairs=1193$ with `max_candidates=100` reports negligible $\Delta$ nDCG@10, Holm-adjusted $p=1.0$, recall@100 delta $0.0$, and documented latency/FLOPs ratios. This supports **claim-ready** governance with a blocked improvement claim under explicit **claim-gating** and **uncertainty-aware evaluation**.
+
+Kalmanorix preserves these null/negative outcomes as first-class outputs and propagates them through reports to discourage overclaiming.
 
 # Statement of need
 

@@ -64,7 +64,7 @@ The protocol distinguishes:
   \item \textbf{Exploratory slice:} useful for diagnosis, error analysis, and hypothesis generation.
   \item \textbf{Confirmatory slice:} reserved for claim-bearing inference under prespecified rules.
 \end{itemize}
-In this run, confirmatory slice count is zero; therefore confirmatory claim promotion is unavailable by design. This is treated as a governance limitation, not ignored post hoc.
+In this run, the confirmatory slice is the domain-balanced C100 test set with $n_{\text{pairs}}=1193$; exploratory slices remain diagnostic-only by design. This separation is treated as governance, not as a post hoc convenience.
 
 \subsection{Claim-ready benchmark criteria}
 A benchmark is considered claim-ready when data integrity checks pass, protocol constraints are respected, and governance metadata indicate eligibility for claim checks. Claim-ready status alone is insufficient for a positive claim; it is only the entry condition for hypothesis evaluation.
@@ -105,7 +105,7 @@ The delta is exactly $0.0$, indicating no measurable retrieval-depth improvement
 Latency ratio is $1.0722551296204925$ while FLOPs ratio is $1.0$, indicating slower runtime at matched floating-point operation count.
 
 \paragraph{Gate status.}
-The claim gate is blocked because confirmatory count is zero, the primary direction is non-positive, and adjusted significance is absent. Accordingly, no retrieval-improvement claim is made.
+The claim gate remains blocked because the primary direction is non-positive and adjusted significance is absent under the confirmatory protocol. Accordingly, no retrieval-improvement claim is made despite claim-ready benchmark status.
 
 \section{Negative Results and Scientific Reporting}
 Negative findings are scientifically valuable when they are well powered, transparently analyzed, and tied to explicit hypotheses. Suppressing such outcomes contributes to publication bias and distorts the literature toward fragile positive deltas.
@@ -138,7 +138,7 @@ For evaluators, the key implication is procedural. Small retrieval deltas should
 \section{Limitations}
 \begin{itemize}
   \item \textbf{Single evaluated configuration.} Conclusions are specific to the tested C100 configuration, fusion implementation, and benchmark construction.
-  \item \textbf{Confirmatory slice unavailable.} Confirmatory count is 0; this prevents confirmatory claim promotion and limits inferential strength.
+  \item \textbf{Confirmatory-slice scope.} Conclusions rely on one prespecified confirmatory slice (domain-balanced C100, $n_{\text{pairs}}=1193$); additional confirmatory reruns would improve external robustness.
   \item \textbf{External validity constraints.} Additional corpora, alternative retrievers, and independent reruns are needed before broader generalization.
   \item \textbf{Parameterization scope.} The fixed \texttt{max\_candidates=100} choice improves comparability but does not characterize behavior across all candidate budgets.
 \end{itemize}
