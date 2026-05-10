@@ -30,6 +30,9 @@ We present the final Kalmanorix mixed-domain benchmark outcome as a powered nega
 
 This result should not be read as universal evidence against uncertainty-aware fusion. Instead, it supports a narrower and methodologically important statement: in this benchmarked setting, any expected gain is too small to separate from zero despite sufficient power for pre-specified practical effect scales. The paper therefore contributes primarily to evaluation practice: powered confirmatory testing, explicit multiplicity control, uncertainty-aware reporting, and compute-aware interpretation.
 
+\paragraph{What this paper does not claim.}
+We do not claim that uncertainty-aware fusion is universally ineffective, nor that Kalman fusion is inferior in all settings. Our conclusion is limited to the evaluated mixed-domain benchmark under the C100 candidate budget (\texttt{max\_candidates=100}), domain-balanced protocol, and tested embedding regime. The claim we do make is narrower: under this powered, claim-gated protocol, the hypothesized superiority of Kalman-style fusion over mean fusion is not supported.
+
 \section{Related Work}
 The methodological building blocks are established. Kalman filtering originates in linear estimation theory \cite{kalman1960}. Retrieval quality is assessed with graded-relevance ranking metrics such as nDCG \cite{jarvelin2002}. BEIR motivates heterogeneous zero-shot retrieval benchmarking \cite{thakur2021beir}. For inference on paired query outcomes, we use Wilcoxon signed-rank testing \cite{wilcoxon1945}, bootstrap confidence intervals \cite{efron1994}, and Holm correction for family-wise error control \cite{holm1979}.
 
