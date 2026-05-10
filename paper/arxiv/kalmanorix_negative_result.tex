@@ -20,7 +20,7 @@ Uncertainty-Aware, Domain-Balanced Evaluation at 1,193 Queries}
 \maketitle
 
 \begin{abstract}
-This paper reports a powered negative result from a domain-balanced retrieval benchmark designed for inferential reliability rather than optimistic effect discovery. On a 1,193-query paired test set (validation split: 634; minimum per-domain test count: 126), uncertainty-weighted Kalman-style fusion and mean fusion are indistinguishable on the primary metric nDCG@10: MeanFuser 0.0943 vs KalmanorixFuser 0.0941 (delta $-0.000203$). Holm-adjusted p-values are 1.0, estimated effect sizes are negligible, and confidence intervals are consistent with approximately zero practical difference. Compute overhead is bounded and acceptable (latency ratio Kalman/Mean $\approx$1.022; FLOPs ratio acceptable), so the result is not confounded by prohibitive runtime distortion. The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}: the study had enough power to detect practically meaningful effects under pre-registered thresholds, but no such effect appeared. We therefore frame the contribution as a reproducible evaluation methodology---paired testing, multiplicity control, domain balancing, and uncertainty-aware reporting---with Kalman fusion as an experimental vehicle rather than a superiority claim.
+This paper reports a powered negative result from a domain-balanced retrieval benchmark designed for inferential reliability rather than optimistic effect discovery. On a 1,193-query paired test set (validation split: 634; minimum per-domain test count: 126), using the latest canonical domain-balanced configuration (\texttt{domain-balanced=true}, \texttt{max\_candidates=100}), uncertainty-weighted Kalman-style fusion and mean fusion are indistinguishable on the primary metric nDCG@10 (Kalman-minus-Mean delta $-9.258801070226193\times10^{-6}$). Holm-adjusted p-values are 1.0, estimated effect sizes are negligible, and confidence intervals are consistent with approximately zero practical difference. Secondary metrics agree with this null pattern (recall@100 delta 0.0). Compute overhead is bounded and acceptable (latency ratio Kalman/Mean $\approx$1.0722551296204925; FLOPs ratio 1.0), so the result is not confounded by prohibitive runtime distortion. The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}: the study had enough power to detect practically meaningful effects under pre-registered thresholds, but no such effect appeared. We therefore frame the contribution as a reproducible evaluation methodology---paired testing, multiplicity control, domain balancing, and uncertainty-aware reporting---with Kalman fusion as an experimental vehicle rather than a superiority claim.
 \end{abstract}
 
 \section{Introduction}
@@ -37,7 +37,7 @@ Because representation quality can dominate downstream fusion effects, we separa
 
 \section{Benchmark and Experimental Protocol}
 \subsection{Data and benchmark construction}
-The benchmark manifest (\texttt{mixed\_beir\_v1.2.0}) is assembled from BEIR-style subsets including NQ, SciFact, FiQA, ArguAna, FEVER, and DBPedia Entity. The canonical split used here contains train=5078, validation=634, and test=1193 queries, with minimum per-domain test count of 126.
+The benchmark manifest (\texttt{mixed\_beir\_v1.2.0}) is assembled from BEIR-style subsets including NQ, SciFact, FiQA, ArguAna, FEVER, and DBPedia Entity. The canonical split used here contains train=5078, validation=634, and test=1193 queries, with minimum per-domain test count of 126. The final claim-ready run is explicitly domain-balanced with \texttt{max\_candidates=100}.
 
 \subsection{Primary estimand and powered design}
 The primary estimand is the paired difference in nDCG@10 between KalmanorixFuser and MeanFuser on the test split. The benchmark is designed to support claim-ready inference through query-level pairing, balanced domain coverage, and minimum sample constraints.
@@ -62,24 +62,24 @@ We compare (i) \textbf{MeanFuser}, (ii) \textbf{KalmanorixFuser} (uncertainty-we
 Beyond quality metrics, we track latency and FLOPs behavior to ensure conclusions are not detached from deployment constraints. This supports a compute-aware orchestration framing: evaluation should jointly report effectiveness and operational cost.
 
 \section{Results and Interpretation}
-Table~\ref{tab:main} summarises the primary outcomes.
+Table~\ref{tab:main} summarises the primary outcomes for the final canonical C100 domain-balanced run.
 
 \begin{table}[ht]
 \centering
-\caption{Key outcomes on canonical mixed-domain test split.}
+\caption{Key outcomes on the final canonical mixed-domain C100 domain-balanced test run (\texttt{n\_pairs=1193}, primary metric nDCG@10).}
 \label{tab:main}
 \begin{tabular}{lccc}
 \toprule
 Method & nDCG@10 & Relative latency vs Mean & Rank by nDCG@10 \\
 \midrule
-MeanFuser & 0.0943 & 1.000 & 4th \\
-KalmanorixFuser & 0.0941 & $\approx$1.022 & 5th \\
-Hard routing baseline & 0.0979 & much lower absolute latency & 1st \\
+MeanFuser & baseline (reference) & 1.000 & tied \\
+KalmanorixFuser & baseline $-\,9.258801070226193\times10^{-6}$ & $\approx$1.0722551296204925 & tied \\
+Hard routing baseline & diagnostic-only (not part of final paired claim) & much lower absolute latency & n/a \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The Kalman-minus-mean delta on nDCG@10 is $-0.000203$ (approximately zero). Holm-adjusted p-values are 1.0, effect sizes are negligible, and interval estimates are consistent with no practically relevant advantage. Latency and FLOPs ratios remain within acceptable bounds, indicating the null quality result is not an artefact of pathological compute inflation. We therefore classify the outcome as \texttt{inconclusive\_sufficiently\_powered}: sufficiently powered design, no detected meaningful effect.
+The Kalman-minus-Mean delta on nDCG@10 is $-9.258801070226193\times10^{-6}$ (effectively zero). Holm-adjusted p-value is 1.0, effect sizes are negligible, and interval estimates are consistent with no practically relevant advantage. The recall@100 delta is exactly 0.0. Latency and FLOPs ratios (1.0722551296204925 and 1.0, respectively) remain within acceptable bounds, indicating the null quality result is not an artefact of pathological compute inflation. We therefore classify the outcome as \texttt{inconclusive\_sufficiently\_powered}: sufficiently powered design, no detected meaningful effect.
 
 \subsection{Why pilot-scale improvements disappeared under powered evaluation}
 Several mechanisms plausibly explain why early, smaller-sample improvements did not survive final evaluation:
@@ -92,6 +92,9 @@ Several mechanisms plausibly explain why early, smaller-sample improvements did 
 \end{itemize}
 
 These points motivate powered, domain-balanced, uncertainty-first reporting as a default, especially when claimed gains are small.
+
+\subsection{Distinguishing diagnostic runs from the canonical result}
+Earlier diagnostic experiments (including smaller c40 and non-balanced settings) were used for debugging and sensitivity checks, not final inference. Those runs can show larger apparent deltas because of reduced sample size and composition drift. The final reported claim is based only on the canonical C100, domain-balanced, \texttt{max\_candidates=100} configuration with \texttt{n\_pairs=1193}.
 
 \section{Discussion}
 The substantive contribution is not that one fusion rule ``wins.'' Instead, the contribution is a replicable retrieval evaluation workflow that makes negative outcomes informative: paired inference, Holm correction, effect-size reporting, confidence intervals, domain-balance constraints, and compute-aware diagnostics.
@@ -107,7 +110,7 @@ From this perspective, Kalman fusion is a useful \emph{instrument} for stress-te
 \end{itemize}
 
 \section{Conclusion}
-On a 1,193-query powered, domain-balanced benchmark, uncertainty-weighted Kalman fusion does not show a statistically or practically meaningful nDCG@10 improvement over mean fusion. Adjusted p-values are 1.0, effect sizes are negligible, and confidence intervals support a near-zero delta interpretation. The correct reading is a powered negative result: \texttt{inconclusive\_sufficiently\_powered} for superiority, not evidence of universal inferiority.
+On a 1,193-query powered, domain-balanced benchmark (canonical C100 with \texttt{max\_candidates=100}), uncertainty-weighted Kalman fusion does not show a statistically or practically meaningful nDCG@10 improvement over mean fusion (delta $-9.258801070226193\times10^{-6}$). Adjusted p-values are 1.0, effect sizes are negligible, and confidence intervals support a near-zero delta interpretation. The correct reading is a powered negative result: \texttt{inconclusive\_sufficiently\_powered} for superiority, not evidence of universal inferiority.
 
 Accordingly, we position this work as (i) a retrieval evaluation methodology, (ii) an uncertainty-aware benchmarking framework, and (iii) a compute-aware orchestration framework. We recommend that future IR claims involving small deltas adopt the same discipline before asserting architectural superiority.
 
