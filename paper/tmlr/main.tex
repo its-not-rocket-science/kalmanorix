@@ -129,13 +129,13 @@ For reproducibility, preserving negative evidence has two benefits. First, it na
 BEIR emphasizes cross-domain robustness and heterogeneous benchmarking \citep{thakur2021beir}. Our protocol adopts this philosophy by prioritizing mixed-domain balance rather than single-dataset optimization.
 
 \paragraph{IR metrics and classical test methodology.}
-nDCG-based evaluation \citep{jarvelin2002}, paired nonparametric comparison \citep{wilcoxon1945}, and family-wise multiplicity control \citep{holm1979} remain core tools for disciplined IR claims.
+nDCG-based evaluation \citep{jarvelin2002}, paired nonparametric comparison \citep{wilcoxon1945}, and family-wise multiplicity control \citep{holm1979} remain core tools for disciplined IR claims. For multi-system empirical comparisons, broader reliability guidance on controlling repeated-testing effects \citep{demsar2006statistical} and IR-specific significance-test behavior \citep{smucker2007comparison} reinforces this design choice.
 
 \paragraph{Uncertainty-aware empirical reporting.}
 Bootstrap uncertainty estimation \citep{efron1979bootstrap} and stronger statistical testing recommendations in NLP/ML evaluation \citep{dror2018} motivate our combined point-estimate and uncertainty reporting style.
 
 \paragraph{Replication and overclaim risk in ML.}
-Broader concerns on reproducibility and empirical claim quality in machine learning \citep{pineau2021improving} support conservative reporting choices, especially when observed deltas are near zero.
+Broader concerns on reproducibility and empirical claim quality in machine learning \citep{pineau2021improving,gundersen2018state} support conservative reporting choices, especially when observed deltas are near zero. Evidence of benchmark sensitivity under distribution shift further motivates caution when interpreting small deltas as robust gains \citep{recht2019imagenet}.
 
 \paragraph{Efficiency-aware retrieval deployment.}
 Sentence-transformer era retrieval systems foreground quality-latency trade-offs in practice \citep{reimers2019}. Our latency/FLOPs reporting is aligned with this systems perspective, while remaining secondary to the main hypothesis test.
