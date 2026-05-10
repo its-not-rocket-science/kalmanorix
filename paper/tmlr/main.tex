@@ -10,23 +10,23 @@
 
 % Anonymous submission by default for TMLR/OpenReview double-blind review.
 
-\title{A Statistically Powered Negative-Result Retrieval Study:\\
-Kalman-Style Fusion Fails to Reliably Beat Strong Mean Fusion}
+\title{Uncertainty-Aware Retrieval Evaluation:\\
+Calibration, Power, and Replication-Aware Evidence for Deployment Claims}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-We report a statistically powered negative-result study of retrieval fusion, not a new state-of-the-art retriever. The core contribution is an evaluation methodology for fusion systems under domain-balanced benchmarking, paired query-level testing, Holm multiple-testing correction, pre-declared effect-size thresholds, confirmatory slices, calibrated uncertainty reporting, and latency-aware analysis. On a claim-ready mixed-domain benchmark with 1,193 paired test queries, Kalman-style uncertainty-weighted fusion does not produce statistically reliable gains over a strong mean-fusion baseline on nDCG@10: the paired Kalman-minus-mean delta is $-0.000203$ with Holm-adjusted $p=1.0$ (MeanFuser 0.0943, KalmanorixFuser 0.0941). A router-only top-1 baseline reaches 0.0979.
+Modern retrieval evaluation routinely reports very small gains without calibrated uncertainty, sufficient statistical power, or replication-aware claim standards. We reposition this paper as an uncertainty-aware retrieval systems study: the core contribution is a calibration-and-governance framework for deciding when retrieval improvements are credible enough for deployment claims. The framework combines uncertainty calibration, power-aware benchmark design, paired query-level inference, Holm multiple-testing correction, pre-declared effect-size thresholds, confirmatory slices, and replication status tracking.
 
-The confirmatory slice is empty in this run and therefore cannot support superiority claims; the hard claim gate remains blocked by design. We frame this as evidence against overclaiming small retrieval differences without powered, domain-balanced, and multiplicity-controlled evaluation.
+Kalman-style fusion is used only as an experimental vehicle to stress-test the framework. On a claim-ready mixed-domain benchmark with 1,193 paired test queries, the Kalman-minus-mean nDCG@10 delta is $-0.000203$ with Holm-adjusted $p=1.0$ (MeanFuser 0.0943, KalmanorixFuser 0.0941), despite earlier pilot indications of possible gains. The confirmatory slice is empty in this run, so superiority claims are blocked by design. This case study illustrates how uncertainty-aware evaluation can prevent weak evidence from being promoted as system-level progress.
 \end{abstract}
 
 \section{Introduction}
-Small reported improvements in retrieval are common, but many are fragile to benchmark composition, multiple testing, or underpowered comparisons. This paper takes a skeptical, reproducibility-first stance: the goal is not to introduce a better retriever, but to test whether a plausible fusion upgrade survives a disciplined inferential protocol.
+Small reported improvements in retrieval are common, but many are fragile to benchmark composition, multiplicity, or underpowered comparisons. Our central thesis is that modern retrieval evaluation often lacks calibrated uncertainty estimation and therefore overstates weak improvements. This paper takes a skeptical, systems-evaluation stance: the goal is not to introduce a better fusion rule, but to define evidence standards for uncertainty-aware retrieval claims.
 
-We evaluate Kalman-style uncertainty-weighted fusion against a strong mean-fusion baseline on a domain-balanced mixed-domain benchmark. Our design emphasizes paired query-level tests, statistical power at the benchmark level, explicit effect-size floors, Holm-controlled family-wise error \citep{holm1979}, confirmatory slices, uncertainty calibration outputs, and latency-aware reporting. This structure is intended to reduce the risk of declaring practical wins from negligible deltas.
+We evaluate Kalman-style uncertainty-weighted fusion against a strong mean-fusion baseline on a domain-balanced mixed-domain benchmark, but treat this comparison as a vehicle for method validation rather than a fusion contribution. Our design emphasizes calibrated confidence proxies, powered versus underpowered benchmark regimes, paired query-level tests, explicit effect-size floors, Holm-controlled family-wise error \citep{holm1979}, replication-aware reporting, and latency-aware interpretation. This structure is intended to reduce the risk of declaring practical wins from negligible deltas.
 
 The empirical conclusion is negative. On 1,193 paired test queries, Kalman-style fusion does not deliver statistically reliable gains over mean fusion on the primary endpoint (nDCG@10), and the confirmatory slice cannot be used for claim promotion in this run.
 
@@ -35,15 +35,20 @@ TMLR uses OpenReview with a double-blind reviewing process and permits supplemen
 \paragraph{Main outcome.}
 Under the claim-ready benchmark status, uncertainty-weighted Kalmanorix fusion does not outperform mean fusion on nDCG@10. The hard claim gate remains blocked.
 
-\section{Contributions}
+\section{Contributions and Paper Structure}
 \begin{itemize}
-  \item \textbf{Methodological contribution (primary).} A reproducibility-oriented evaluation template for retrieval fusion that combines domain-balanced benchmarking, paired testing, Holm correction, effect-size thresholds, confirmatory slices, and calibrated uncertainty reporting.
-  \item \textbf{Decision-theoretic reporting.} A latency-aware claim framework that requires both quality and efficiency context before interpreting small ranking differences.
-  \item \textbf{Powered negative result (empirical).} On a 1,193-query paired benchmark, Kalman-style fusion shows no statistically reliable improvement over strong mean fusion on nDCG@10.
-  \item \textbf{Anti-overclaim evidence.} A concrete example showing why tiny retrieval deltas should not be promoted without multiplicity control, confirmatory support, and practical-effect constraints.
+  \item \textbf{Uncertainty calibration for retrieval systems (primary).} A framework for calibrating confidence proxies and reporting uncertainty in forms suitable for system-governance decisions.
+  \item \textbf{Validation-powered benchmarking.} A protocol that separates powered from underpowered regimes and ties claim strength to power, multiplicity control, and minimum practical effect sizes.
+  \item \textbf{Replication-aware reporting taxonomy.} A benchmark-governance layer that assigns replication status and blocks deployment claims when confirmatory evidence is absent.
+  \item \textbf{Negative empirical case study.} A concrete retrieval example where promising pilot signals collapse to near-zero effects under powered confirmatory evaluation.
 \end{itemize}
 
-\section{Hypotheses and Decision Rules}
+\noindent\textbf{Paper roadmap.} Section 2 motivates unreliable small retrieval gains. Section 3 formalizes statistical instability in retrieval benchmarking. Section 4 introduces the uncertainty calibration framework. Section 5 defines validation-powered benchmarking. Section 6 presents replication status taxonomy and governance. Section 7 reports the empirical case study.
+
+\section{Motivation: Unreliable Small Retrieval Gains}
+In production retrieval systems, weak benchmark gains are often treated as meaningful without calibrated uncertainty or sufficient validation power. This mismatch between claim strength and evidence quality creates deployment risk and hinders reliable progress in evaluation-focused ML venues.
+
+\section{Statistical Instability in Retrieval Benchmarking}
 \subsection{Primary hypothesis}
 \textbf{H1 (confirmatory).} KalmanorixFuser improves nDCG@10 over MeanFuser on the claim-ready paired test set.
 
@@ -80,8 +85,8 @@ We compare:
 
 Where neural embedding backends are referenced, we follow standard sentence-level dense retrieval conventions \citep{reimers2019} and heterogeneous benchmark expectations similar to BEIR \citep{thakur2021beir}.
 
-\section{Pre-registered Statistical Protocol}
-The protocol uses paired query-level comparisons, with nDCG@10 as the primary endpoint. We report:
+\section{Calibration Framework}
+The calibration framework combines paired statistical inference with uncertainty proxies that can be interpreted operationally. The protocol uses paired query-level comparisons, with nDCG@10 as the primary endpoint. We report:
 \begin{itemize}
   \item paired mean delta (Kalman minus mean),
   \item signed-rank significance (with multiplicity correction by Holm), and
@@ -90,7 +95,13 @@ The protocol uses paired query-level comparisons, with nDCG@10 as the primary en
 
 Multiplicity is controlled across confirmatory hypotheses using Holm's step-down procedure \citep{holm1979}.
 
-\section{Results}
+\section{Validation-Powered Benchmarking}
+We explicitly separate underpowered exploratory pilots from powered confirmatory evaluation. Exploratory runs may nominate hypotheses, but deployment-grade claims require powered confirmatory slices, prespecified effect thresholds, and multiplicity-controlled inference.
+
+\section{Replication Status Taxonomy}
+We classify findings as \emph{exploratory signal}, \emph{single-run confirmatory}, or \emph{replicated confirmatory}. Governance policy only permits strong deployment claims in the latter states, with the hard claim gate additionally enforced.
+
+\section{Empirical Case Study: Pilot Promise, Near-Zero Confirmatory Effects}
 Table~\ref{tab:main-results} summarises the core outcomes.
 
 \input{tables/main_results}
