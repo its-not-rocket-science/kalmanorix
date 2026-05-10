@@ -1,5 +1,5 @@
 ---
-title: "Kalmanorix: specialist embedding fusion and uncertainty-aware routing research software"
+title: "Kalmanorix: reproducible benchmarking and uncertainty-aware evaluation infrastructure for retrieval research"
 tags:
   - information retrieval
   - embeddings
@@ -22,58 +22,56 @@ bibliography: paper.bib
 
 # Summary
 
-Kalmanorix is public research software for specialist embedding fusion, uncertainty-aware retrieval experimentation, routing evaluation, and benchmark governance. The project is distributed under the MIT Licence and exposes package metadata and build configuration in `pyproject.toml`, including command-line entry points that support full experiment workflows from benchmark construction to report generation. Rather than presenting one-off experiment scripts, Kalmanorix provides a reproducible software substrate for comparing fusion and routing choices under explicit decision rules.
+Kalmanorix is public MIT-licensed research software for reproducible retrieval evaluation and benchmarking. The package provides command-line workflows that connect benchmark construction, paired retrieval evaluation, uncertainty calibration, statistical testing, and publication-oriented artifact generation in a single reproducible pipeline. Its primary contribution is infrastructure: it standardizes how retrieval experiments are run, audited, and reported across benchmark versions and contributors.
 
-The framework addresses a common issue in retrieval research: experimental pipelines are often difficult to reproduce, and decision criteria are frequently under-specified. Kalmanorix focuses on transparent benchmark artefacts, repeatable command-line workflows, and status-oriented reporting that captures both positive and negative outcomes. Empirical findings are documented in repository artefacts and reports, but those findings are intentionally treated as separate from this software paper; the contribution here is the research software itself and its governance scaffolding.
-
-Kalmanorix includes CLI pathways for mixed benchmark building, canonical benchmark execution, report generation, routing evaluation, and benchmark utilities. These interfaces support disciplined comparisons across specialist fusion variants and routing settings while preserving provenance for later audit or re-analysis. The software therefore functions both as an experimentation platform and as an evidence-management layer for retrieval research [@thakur2021beir; @jarvelin2002cumulated].
+Recent powered benchmark outcomes in this repository indicate negligible effect sizes, statistically insignificant retrieval deltas after multiple-comparison correction, latency-neutral operation, and acceptable compute overhead. In that setting, the software contribution is not a claim of superior retrieval quality, but a practical framework for producing interpretable negative results with the same rigor as positive findings. Kalmanorix is therefore positioned as tooling for trustworthy evaluation rather than as a new state-of-the-art retrieval method [@thakur2021beir; @jarvelin2002cumulated].
 
 # Statement of need
 
-Modern embedding retrieval systems increasingly combine multiple specialist models, yet robust methods for evaluating such systems remain fragmented. Researchers need software that can: (i) build and run heterogeneous benchmarks; (ii) compare fusion strategies under uncertainty; (iii) evaluate routing policies with quality-versus-efficiency trade-offs; and (iv) preserve decision context, not only raw metric outputs.
+Retrieval teams frequently face a reproducibility gap between exploratory notebooks and claim-grade evidence. In many projects, benchmark recipes, slice definitions, statistical decisions, and efficiency measurements are scattered across ad hoc scripts, making replication and governance difficult. This is especially problematic when observed metric changes are small and sensitive to benchmark composition, multiple testing, or compute budget.
 
-Kalmanorix is designed to meet this need by providing a coherent, scriptable interface for uncertainty-aware retrieval research. The package operationalises specialist fusion workflows inspired by state-estimation thinking [@kalman1960] while remaining practical for information retrieval evaluation. It explicitly supports reproducible benchmark artefacts and explicit decision rules, enabling teams to track whether a claim is supported, unsupported, or inconclusive under declared thresholds. This is particularly important for negative-result stewardship: null or mixed outcomes remain first-class artefacts rather than disappearing from project history.
+Kalmanorix addresses this need with a reproducibility-first evaluation framework that integrates domain-balanced benchmark generation, powered paired testing, uncertainty-aware analysis, and replication-oriented reporting. The framework is designed to prevent overclaiming small retrieval gains. It codifies decision rules around Holm-corrected paired tests, confidence intervals, and effect-size thresholds so teams can distinguish “detectable improvement” from “practically negligible change” under declared criteria. It also preserves unsupported and inconclusive outcomes as first-class artifacts, improving institutional memory and reducing selective reporting.
 
-The software is also useful for research governance. By standardising experiment execution and report generation, Kalmanorix reduces ambiguity between “code that ran once” and “evidence that can be revisited”. This helps research groups maintain continuity across contributors, model updates, and benchmark revisions.
+# Feature overview
 
-# State of the field
+Kalmanorix exposes scriptable CLI pathways for the full evaluation lifecycle:
 
-The retrieval community has established strong benchmark traditions, including shared evaluation suites such as BEIR [@thakur2021beir] and ranking metrics such as nDCG that are sensitive to graded relevance [@jarvelin2002cumulated]. At the same time, practical research software often lags behind methodological advances: benchmark recipes, routing heuristics, and experimental decision criteria are frequently distributed across ad hoc notebooks or bespoke scripts.
+- **Benchmark construction and governance**: mixed-domain benchmark builders and schema-backed artifacts that preserve provenance and versioning.
+- **Canonical and slice evaluation**: repeatable paired evaluations for baseline, fusion, and routing strategies, including confirmatory slice evaluation.
+- **Statistical guardrails**: built-in support for Holm-corrected paired testing, confidence-interval reporting, and effect-size thresholding for practical significance decisions.
+- **Uncertainty and calibration tooling**: utilities for uncertainty-aware retrieval analysis and calibration summaries to contextualize ranking behavior.
+- **Compute-aware experimentation**: latency and overhead tracking integrated with quality reporting so retrieval deltas are interpreted alongside efficiency constraints.
+- **Automatic artifact generation**: machine-readable summaries plus narrative reports that capture methods, assumptions, outcomes, and claim-readiness status.
 
-Kalmanorix sits in this gap. It is not a benchmark in itself; rather, it is software infrastructure for running and governing benchmarked retrieval experiments with specialist and fused embeddings. The project builds on mature scientific Python components (notably NumPy and SciPy) for numerical operations and optimisation foundations [@harris2020array; @virtanen2020scipy]. Optional training and evaluation pathways can also leverage widely used machine-learning tooling (for example, sentence-transformers and scikit-learn) where relevant to specialist model development and analysis [@reimers2019sentencebert; @pedregosa2011scikit].
+Together, these features reposition Kalmanorix as evaluation infrastructure that emphasizes reproducibility, interpretability, and governance under realistic benchmarking constraints.
 
-By combining these established foundations with explicit benchmark lifecycle tooling, Kalmanorix contributes a missing layer: software process for reproducible retrieval experimentation, especially where uncertainty-aware fusion and routing decisions must be evaluated together.
+# Benchmarking
 
-# Software design
+Kalmanorix structures benchmarking as a governed process rather than a single leaderboard run. Benchmarks are constructed as versioned, domain-balanced artifacts and evaluated with paired protocols designed for small-delta retrieval settings. The reporting layer explicitly couples hypothesis tests with uncertainty intervals and practical-effect criteria, reducing ambiguity in interpretation.
 
-Kalmanorix is organised as a Python package with metadata declared in `pyproject.toml`, allowing repeatable installation and environment specification. The design emphasises executable research workflows through CLI entry points that map onto distinct lifecycle stages:
+In the final powered benchmark setting, observed retrieval differences were negligible in effect size and statistically non-significant after correction, while runtime behavior remained latency-neutral with acceptable compute overhead. Kalmanorix treats this powered negative-result outcome as informative evidence, not failure: the framework makes it straightforward to document when improvements are not substantiated and to propagate that decision through downstream reporting.
 
-- mixed benchmark building;
-- canonical benchmark running;
-- report generation;
-- routing evaluation;
-- benchmark utility commands for fusion and calibration workflows.
+This benchmark orientation supports replication-aware conclusions by requiring confirmatory slice evaluation, separating exploratory from confirmatory analyses, and preserving benchmark-specific scope limitations. As a result, the package helps teams avoid method overstatement when observed deltas are too small or too uncertain to justify superiority claims.
 
-This separation helps keep experimental responsibilities explicit: data/benchmark construction, method execution, and evidence reporting are addressable independently but composable in pipelines.
+# Reproducibility
 
-At the methodological layer, Kalmanorix supports specialist embedding fusion with uncertainty-aware components and routing mechanisms that trade coverage, quality, and computational cost. Importantly, evaluation outputs are structured as reproducible artefacts rather than transient logs. Decision-rule reporting is integrated so that conclusions can be interpreted relative to declared thresholds and evidence-readiness states. The result is a software workflow where outcome labels (including null and regression cases) are governed, versionable objects.
+Reproducibility is a core design goal of Kalmanorix. The package provides stable execution surfaces through documented CLI entry points, deterministic artifact layouts, and machine-readable outputs that can be re-run, diffed, and audited across revisions.
 
-From a reproducibility perspective, this design provides several advantages:
+Key reproducibility mechanisms include:
 
-1. **Determinable execution surfaces** via documented CLI entry points.
-2. **Traceable artefacts** suitable for re-inspection and longitudinal comparisons.
-3. **Decision transparency** through explicit rule-based status outputs.
-4. **Balanced evidence tracking** that retains negative and positive results alike.
+1. **Benchmark provenance controls**: explicit benchmark versions, split definitions, and artifact lineage.
+2. **Decision-rule traceability**: persisted statistical settings (including multiplicity correction), confidence-interval outputs, and effect-size thresholds used for interpretation.
+3. **Replication-aware reporting**: automatic inclusion of confirmatory slice outcomes and benchmark-status gates in generated summaries.
+4. **Calibration and uncertainty records**: persisted calibration artifacts that support uncertainty-aware interpretation and re-analysis.
+5. **Compute context capture**: integrated latency/overhead summaries so quality findings are reproducible within resource constraints.
 
-These properties make Kalmanorix appropriate for iterative research programmes in which conclusions evolve with additional data, stronger controls, or revised benchmark definitions.
+These mechanisms align the software with JOSS expectations for reusable, inspectable research infrastructure and support transparent benchmark governance over time.
 
-# Research impact statement
+# Conclusions
 
-Kalmanorix contributes impact primarily through research practice rather than a single algorithmic claim. It enables research teams to run specialist fusion and routing experiments under consistent interfaces, preserve benchmark provenance, and document decision outcomes with auditable criteria. This supports methodological rigour in settings where small metric deltas, compute constraints, and domain heterogeneity can otherwise make interpretation fragile.
+Kalmanorix contributes practical research infrastructure for retrieval benchmarking, not a universal retrieval-performance improvement claim. Its value is in enabling powered statistical evaluation, uncertainty-aware analysis, benchmark governance, and automatic reproducibility artifacts in one coherent workflow.
 
-A key impact area is benchmark governance. The software encourages explicit distinction between evidence generation and claim acceptance, reducing risk of over-interpreting underpowered or context-specific runs. It also improves institutional memory by preserving negative results and inconclusive outcomes as reproducible artefacts, which can prevent duplicate effort and support better hypothesis refinement.
-
-Empirical findings produced with Kalmanorix are intentionally documented separately in repository reports and artefacts, and should not be treated as the focus of this JOSS submission. The software paper instead documents Kalmanorix as reusable infrastructure for uncertainty-aware retrieval experimentation and routing evaluation.
+By making negative and null outcomes straightforward to preserve and communicate, the framework strengthens scientific practice in retrieval engineering. In particular, it supports cautious interpretation when effect sizes are negligible, retrieval deltas are statistically inconclusive, and efficiency trade-offs must be reported alongside quality metrics. This infrastructure-focused framing is consistent with JOSS: the software contribution is a reproducible evaluation and benchmarking framework that improves how retrieval evidence is produced, audited, and replicated.
 
 # AI usage disclosure
 
