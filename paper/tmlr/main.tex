@@ -26,6 +26,7 @@ Modern retrieval work frequently reports very small metric differences, often be
 We evaluate one specific claim under a strict protocol: does Kalman-style uncertainty-weighted fusion improve retrieval quality over mean fusion in a domain-balanced mixed-domain benchmark? The answer, for the tested setting, is negative. The measured nDCG@10 difference is near zero and slightly negative; multiplicity-adjusted significance is null; and retrieval recall remains unchanged. At equal FLOPs, latency is higher for Kalman-style fusion.
 
 This manuscript is written for a reproducibility and evaluation-methodology audience. The key objective is not to introduce a new retrieval architecture, but to demonstrate how powered, uncertainty-aware analysis can support credible negative conclusions. We emphasize claim-gating criteria that must be satisfied before promoting an improvement claim and we explicitly avoid confirmatory language when confirmatory evidence is absent.
+Figure~\ref{fig:claim-gated-pipeline} provides a compact overview of this claim-gated workflow from benchmark construction through final verdicting.
 
 \section{Contributions}
 \begin{itemize}
@@ -72,6 +73,10 @@ A benchmark is considered claim-ready when data integrity checks pass, protocol 
 \input{tables/decision_rules}
 
 \section{Statistical Methodology}
+\input{figures/claim_gate_pipeline}
+
+\noindent The stages in Figure~\ref{fig:claim-gated-pipeline} define the prespecified evidence path used for confirmatory decision-making in this study.
+
 \subsection{Paired hypothesis testing}
 We use paired query-level inference with the Wilcoxon signed-rank test \citep{wilcoxon1945} for the primary endpoint. Pairing targets within-query differences, which is appropriate when both methods process identical query sets.
 
