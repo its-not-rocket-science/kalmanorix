@@ -23,7 +23,7 @@ Before submission, verify all of the following:
 
 ## Author metadata reminders
 
-Do not submit with placeholder metadata. Replace all TODO fields in `paper.md` for:
+Do not submit with draft metadata. Before submission, replace every remaining metadata marker in `paper.md` for:
 
 - author names,
 - affiliations,
