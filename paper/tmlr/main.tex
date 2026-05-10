@@ -153,6 +153,9 @@ For evaluators, the key implication is procedural. Small retrieval deltas should
   \item \textbf{Parameterization scope.} The fixed \texttt{max\_candidates=100} choice improves comparability but does not characterize behavior across all candidate budgets.
 \end{itemize}
 
+\section{Future Work}
+Near-term follow-ups are: independent external replication with the published manifests/artifacts; alternative embedding-regime reruns (including neural encoders); larger candidate-budget sweeps beyond C100; calibration-aware learned uncertainty models in place of fixed uncertainty weighting; domain-shift stress-test suites; and neural-encoder reruns executed with resumable checkpointing for long-running jobs. These are planned experiments and are not presented here as completed results.
+
 \section{Conclusion}
 Under a powered, uncertainty-aware, mixed-domain paired protocol, Kalman-style fusion shows no reliable retrieval advantage over mean fusion in the tested setting. Measured quality deltas are effectively zero, adjusted significance is null, recall is unchanged, and latency is higher at matched FLOPs. We therefore present a powered negative result and argue for stricter claim-gating standards when reporting small retrieval improvements.
 
