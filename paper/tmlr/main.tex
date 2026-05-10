@@ -23,7 +23,7 @@ The paper's contribution is methodological: a reproducibility-oriented evaluatio
 \section{Introduction}
 Modern retrieval work frequently reports very small metric differences, often below thresholds that are operationally meaningful or statistically stable. In such regimes, selective reporting and underpowered analysis can convert noise into apparently positive findings. This problem is amplified in heterogeneous benchmarks where performance variance differs across domains \citep{thakur2021beir,voorhees2016}.
 
-We evaluate one specific claim under a strict protocol: does Kalman-style uncertainty-weighted fusion improve retrieval quality over mean fusion in a domain-balanced mixed-domain benchmark? The answer, for the tested setting, is negative. The measured nDCG@10 difference is near zero and slightly negative; multiplicity-adjusted significance is null; and retrieval recall remains unchanged. At equal FLOPs, latency is higher for Kalman-style fusion.
+We evaluate one specific claim under a strict protocol: does Kalman-style uncertainty-weighted fusion improve retrieval quality over mean fusion in a domain-balanced mixed-domain benchmark?
 
 This manuscript is written for a reproducibility and evaluation-methodology audience. The key objective is not to introduce a new retrieval architecture, but to demonstrate how powered, uncertainty-aware analysis can support credible negative conclusions. We emphasize claim-gating criteria that must be satisfied before promoting an improvement claim and we explicitly avoid confirmatory language when confirmatory evidence is absent.
 Figure~\ref{fig:claim-gated-pipeline} provides a compact overview of this claim-gated workflow from benchmark construction through final verdicting.
@@ -33,7 +33,7 @@ We do not claim that uncertainty-aware fusion is universally ineffective, nor th
 
 \section{Contributions}
 \begin{itemize}
-  \item \textbf{Powered negative empirical result.} On the domain-balanced C100 paired benchmark, Kalman-style fusion does not reliably improve nDCG@10 over mean fusion, with effectively zero practical effect and adjusted $p=1.0$.
+  \item \textbf{Powered negative empirical result.} The confirmatory C100 paired analysis yields a claim-blocked outcome for Kalman-style fusion under predeclared criteria.
   \item \textbf{Benchmark construction and evidence slicing protocol.} We document mixed-domain balancing, paired-query design, and exploratory versus confirmatory separation as prerequisites for claim-ready evaluation.
   \item \textbf{Statistical methodology for claim discipline.} We combine paired testing, Holm correction, bootstrap uncertainty intervals, and practical-significance interpretation to reduce overclaim risk.
   \item \textbf{Reporting template for null findings.} We provide a reproducible framework for publishing scientifically useful negative IR outcomes instead of suppressing them.
@@ -120,7 +120,7 @@ The claim gate remains blocked because the primary direction is non-positive and
 \section{Negative Results and Scientific Reporting}
 Negative findings are scientifically valuable when they are well powered, transparently analyzed, and tied to explicit hypotheses. Suppressing such outcomes contributes to publication bias and distorts the literature toward fragile positive deltas.
 
-In retrieval, tiny metric differences are particularly vulnerable to benchmark and sampling variation. Without multiplicity control and paired uncertainty accounting, nominal gains can appear and disappear across reruns. Reporting null outcomes under disciplined protocols helps calibrate expectations and discourages benchmark overfitting.
+In retrieval, tiny metric differences are particularly vulnerable to benchmark and sampling variation. Without multiplicity control and paired uncertainty accounting, nominal gains can appear and disappear across reruns.
 
 For reproducibility, preserving negative evidence has two benefits. First, it narrows the plausible effect range for future work under comparable conditions. Second, it provides concrete methodological baselines for how to evaluate and report uncertain improvements.
 
