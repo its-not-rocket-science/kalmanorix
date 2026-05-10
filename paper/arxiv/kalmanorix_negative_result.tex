@@ -54,6 +54,8 @@ A benchmark is treated as claim-ready only when all of the following hold: (i) s
 
 This claim-gating policy distinguishes ``measured difference'' from ``claimable improvement.'' A method is not considered superior based on point estimates alone; superiority requires inferential separation and practical relevance under the confirmatory protocol.
 
+The practical-significance thresholds were pre-declared before the confirmatory readout: the primary endpoint is $\Delta\,n\mathrm{DCG}@10$ (Kalman minus Mean), with a minimum practically meaningful magnitude of 0.02; Holm-adjusted significance must satisfy $p_{\mathrm{adj}}<0.05$; and compute overhead must remain bounded by latency ratio Kalman/Mean $\le 1.5$ and FLOPs ratio Kalman/Mean $\le 1.1$. We require this practical layer in addition to statistical significance because large paired samples can make tiny, operationally irrelevant deltas look ``significant,'' while deployment decisions depend on whether quality gains are material relative to runtime and systems cost.
+
 \subsection{Multiplicity control and uncertainty-aware reporting}
 We report:
 \begin{itemize}
@@ -94,7 +96,7 @@ Hard routing baseline & diagnostic-only (not part of final paired claim) & much 
 \end{tabular}
 \end{table}
 
-The Kalman-minus-Mean delta on nDCG@10 is $-9.258801070226193\times10^{-6}$ (effectively zero). Holm-adjusted p-value is 1.0, effect sizes are negligible, and interval estimates are consistent with no practically relevant advantage. The recall@100 delta is exactly 0.0. Latency and FLOPs ratios (1.0722551296204925 and 1.0, respectively) remain within acceptable bounds, indicating the null quality result is not an artefact of pathological compute inflation. We therefore classify the outcome as \texttt{inconclusive\_sufficiently\_powered}: sufficiently powered design, no detected meaningful effect.
+The Kalman-minus-Mean delta on nDCG@10 is $-9.258801070226193\times10^{-6}$, which is far below the pre-declared practical-effect threshold of 0.02 in magnitude. The Holm-adjusted p-value is 1.0, so the $p_{\mathrm{adj}}<0.05$ requirement is not met. The recall@100 delta is exactly 0.0. Latency and FLOPs ratios are 1.0722551296204925 and 1.0, respectively, both within the pre-declared compute limits (latency $\le1.5$, FLOPs $\le1.1$). Taken together, the practical and statistical criteria show no meaningful quality improvement despite acceptable compute overhead. We therefore classify the outcome as \texttt{inconclusive\_sufficiently\_powered}: sufficiently powered design, no detected meaningful effect.
 
 \section{Discussion}
 Powered negative results are methodologically valuable because they shrink the space of plausible claims. In this case, a benchmark that is intentionally built for confirmatory inference does not support a superiority claim for uncertainty-weighted fusion, despite adequate sensitivity for pre-specified practical effects.
