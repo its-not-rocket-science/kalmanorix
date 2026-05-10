@@ -11,7 +11,7 @@
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 
-\title{A Powered Negative Result for Retrieval Fusion:\
+\title{A Powered Negative Result for Retrieval Fusion:\\
 Uncertainty-Aware, Domain-Balanced Evaluation at 1,193 Queries}
 \author{Kalmanorix Project Team}
 \date{May 2026}
@@ -24,44 +24,56 @@ This paper reports a powered negative result from a domain-balanced retrieval be
 \end{abstract}
 
 \section{Introduction}
-Retrieval papers often report small gains under limited test budgets, then interpret those gains as architectural progress. This pattern is vulnerable to underpowering, selective metric emphasis, and multiplicity effects. Our goal is to invert that incentive structure: prioritise inferential robustness first, then discuss models.
+Retrieval benchmarking frequently operates in a regime of small deltas, many plausible metrics, and heterogeneous query domains. In that regime, selective interpretation can easily outrun inferential support. Our objective is to invert this default: first establish a powered, claim-gated evaluation design, then interpret model comparisons inside that design.
 
 We present the final Kalmanorix mixed-domain benchmark outcome as a powered negative result. Under a claim-ready data regime (1,193 paired test queries, balanced domain coverage, paired analysis), Kalman-style uncertainty-weighted fusion does not improve over mean fusion on nDCG@10. Adjusted p-values (Holm) are 1.0, effect sizes are negligible, and confidence intervals include practically null effects.
 
-This does not establish that uncertainty-aware fusion is universally ineffective. It establishes that, in this benchmarked setting, expected retrieval gains are too small to separate from zero despite sufficient power for pre-specified effect scales. We therefore reposition the paper around \emph{evaluation discipline}: uncertainty-aware benchmarking, explicit multiplicity control, and compute-aware reporting.
+This result should not be read as universal evidence against uncertainty-aware fusion. Instead, it supports a narrower and methodologically important statement: in this benchmarked setting, any expected gain is too small to separate from zero despite sufficient power for pre-specified practical effect scales. The paper therefore contributes primarily to evaluation practice: powered confirmatory testing, explicit multiplicity control, uncertainty-aware reporting, and compute-aware interpretation.
 
 \section{Related Work}
-The methodological ingredients are standard. Kalman filtering originates in linear estimation theory \cite{kalman1960}. Retrieval quality is assessed with graded-relevance ranking metrics such as nDCG \cite{jarvelin2002}. BEIR motivates heterogeneous zero-shot retrieval benchmarking \cite{thakur2021beir}. For inference under paired query outcomes we use Wilcoxon signed-rank testing \cite{wilcoxon1945}, bootstrap confidence intervals \cite{efron1994}, and Holm correction for family-wise error control \cite{holm1979}.
+The methodological building blocks are established. Kalman filtering originates in linear estimation theory \cite{kalman1960}. Retrieval quality is assessed with graded-relevance ranking metrics such as nDCG \cite{jarvelin2002}. BEIR motivates heterogeneous zero-shot retrieval benchmarking \cite{thakur2021beir}. For inference on paired query outcomes, we use Wilcoxon signed-rank testing \cite{wilcoxon1945}, bootstrap confidence intervals \cite{efron1994}, and Holm correction for family-wise error control \cite{holm1979}.
 
-Because representation quality can dominate downstream fusion effects, we separate this fast-local deterministic embedding setting from neural-encoder regimes (e.g., Sentence-BERT \cite{reimers2019}).
+Because representational quality can dominate downstream fusion behavior, we explicitly scope this work to a fast-local deterministic embedding regime and separate it from neural-encoder regimes such as Sentence-BERT \cite{reimers2019}.
 
-\section{Benchmark and Experimental Protocol}
-\subsection{Data and benchmark construction}
+\section{Benchmark Construction and Evaluation Protocol}
+\subsection{Benchmark construction}
 The benchmark manifest (\texttt{mixed\_beir\_v1.2.0}) is assembled from BEIR-style subsets including NQ, SciFact, FiQA, ArguAna, FEVER, and DBPedia Entity. The canonical split used here contains train=5078, validation=634, and test=1193 queries, with minimum per-domain test count of 126. The final claim-ready run is explicitly domain-balanced with \texttt{max\_candidates=100}.
 
-\subsection{Primary estimand and powered design}
-The primary estimand is the paired difference in nDCG@10 between KalmanorixFuser and MeanFuser on the test split. The benchmark is designed to support claim-ready inference through query-level pairing, balanced domain coverage, and minimum sample constraints.
+This construction is designed to reduce domain dominance and to improve estimator stability under paired analysis. The role of the validation split is methodological (configuration and diagnostic calibration), whereas the test split is reserved for confirmatory inference. We treat this separation as part of claim-gating rather than a reporting convenience.
 
-\subsection{Statistical analysis plan}
+\subsection{Paired protocol and primary estimand}
+The primary estimand is the paired per-query difference in nDCG@10 between KalmanorixFuser and MeanFuser on the test split. Pairing each query across methods controls for query difficulty, reducing variance relative to unpaired comparisons and directly targeting method-level differences.
+
+The confirmatory protocol is fixed for the canonical analysis: domain-balanced setting, \texttt{max\_candidates=100}, \texttt{n\_pairs=1193}, and pre-declared inferential outputs. Additional runs are exploratory diagnostics and are not used to promote or revise the confirmatory claim.
+
+\subsection{Claim-ready criteria and claim-gating}
+A benchmark is treated as claim-ready only when all of the following hold: (i) sufficient paired sample size for pre-specified practical deltas, (ii) minimum per-domain coverage constraints, (iii) confirmatory metric family declared in advance, and (iv) multiplicity-adjusted inference reported alongside effect sizes and confidence intervals.
+
+This claim-gating policy distinguishes ``measured difference'' from ``claimable improvement.'' A method is not considered superior based on point estimates alone; superiority requires inferential separation and practical relevance under the confirmatory protocol.
+
+\subsection{Multiplicity control and uncertainty-aware reporting}
 We report:
 \begin{itemize}
     \item paired tests on query-level outcomes,
-    \item Holm-corrected p-values across the pre-declared family,
+    \item Holm-corrected p-values across the pre-declared confirmatory family,
     \item effect-size estimates,
     \item bootstrap 95\% confidence intervals,
     \item compute-side diagnostics (latency and FLOPs ratios).
 \end{itemize}
 
-This analysis plan treats uncertainty quantification as first-class output, not appendix material.
+Holm correction is used to control family-wise error without the avoidable power loss of uniformly conservative alternatives. In small-delta retrieval settings, this is essential: unadjusted inspection across multiple metrics and slices can create apparent wins that are not robust. Our reporting philosophy is therefore uncertainty-first: p-values, interval estimates, and practical-significance framing are treated as first-class outputs.
 
 \section{Methods and Scope}
 \subsection{Systems compared}
-We compare (i) \textbf{MeanFuser}, (ii) \textbf{KalmanorixFuser} (uncertainty-weighted fusion), and (iii) a \textbf{hard-routing baseline}. Kalman fusion is used here as an experimental probe of whether uncertainty weighting produces measurable gains under strict evaluation.
+We compare (i) \textbf{MeanFuser}, (ii) \textbf{KalmanorixFuser} (uncertainty-weighted fusion), and (iii) a \textbf{hard-routing baseline}. Kalman fusion is used here as an experimental probe of whether uncertainty weighting yields measurable gains under strict confirmatory evaluation.
 
-\subsection{Compute-aware orchestration perspective}
-Beyond quality metrics, we track latency and FLOPs behavior to ensure conclusions are not detached from deployment constraints. This supports a compute-aware orchestration framing: evaluation should jointly report effectiveness and operational cost.
+\subsection{Confirmatory versus exploratory analyses}
+The canonical C100 domain-balanced test analysis is confirmatory. Earlier smaller-scale or non-balanced experiments are exploratory diagnostics used for debugging, sensitivity checks, and pipeline verification. We keep this distinction explicit to prevent exploratory evidence from being interpreted as claim-ready evidence.
 
-\section{Results and Interpretation}
+\subsection{Compute-aware evaluation scope}
+Beyond quality metrics, we track latency and FLOPs behavior to ensure conclusions are not detached from deployment constraints. This supports a compute-aware evaluation perspective: effectiveness and operational cost should be reported together, especially when quality deltas are near zero.
+
+\section{Results}
 Table~\ref{tab:main} summarises the primary outcomes for the final canonical C100 domain-balanced run.
 
 \begin{table}[ht]
@@ -81,38 +93,29 @@ Hard routing baseline & diagnostic-only (not part of final paired claim) & much 
 
 The Kalman-minus-Mean delta on nDCG@10 is $-9.258801070226193\times10^{-6}$ (effectively zero). Holm-adjusted p-value is 1.0, effect sizes are negligible, and interval estimates are consistent with no practically relevant advantage. The recall@100 delta is exactly 0.0. Latency and FLOPs ratios (1.0722551296204925 and 1.0, respectively) remain within acceptable bounds, indicating the null quality result is not an artefact of pathological compute inflation. We therefore classify the outcome as \texttt{inconclusive\_sufficiently\_powered}: sufficiently powered design, no detected meaningful effect.
 
-\subsection{Why pilot-scale improvements disappeared under powered evaluation}
-Several mechanisms plausibly explain why early, smaller-sample improvements did not survive final evaluation:
-\begin{itemize}
-    \item \textbf{Underpowered pilot benchmarks.} Small query sets inflate variance and produce unstable rank-ordering among close methods.
-    \item \textbf{Multiple hypothesis testing.} Without strict multiplicity correction, nominal wins are expected by chance when many metrics/slices are inspected.
-    \item \textbf{Fragile small retrieval gains.} Effects near zero are highly sensitive to query mix, domain composition, and relevance-label noise.
-    \item \textbf{Publication bias in IR benchmarking.} Positive pilot outcomes are more likely to be written up than null outcomes, exaggerating expected effect magnitudes in the literature.
-    \item \textbf{Benchmark contamination concerns.} Repeated tuning against familiar benchmark families can leak evaluation signal into design choices, shrinking external validity of apparent gains.
-\end{itemize}
-
-These points motivate powered, domain-balanced, uncertainty-first reporting as a default, especially when claimed gains are small.
-
-\subsection{Distinguishing diagnostic runs from the canonical result}
-Earlier diagnostic experiments (including smaller c40 and non-balanced settings) were used for debugging and sensitivity checks, not final inference. Those runs can show larger apparent deltas because of reduced sample size and composition drift. The final reported claim is based only on the canonical C100, domain-balanced, \texttt{max\_candidates=100} configuration with \texttt{n\_pairs=1193}.
-
 \section{Discussion}
-The substantive contribution is not that one fusion rule ``wins.'' Instead, the contribution is a replicable retrieval evaluation workflow that makes negative outcomes informative: paired inference, Holm correction, effect-size reporting, confidence intervals, domain-balance constraints, and compute-aware diagnostics.
+Powered negative results are methodologically valuable because they shrink the space of plausible claims. In this case, a benchmark that is intentionally built for confirmatory inference does not support a superiority claim for uncertainty-weighted fusion, despite adequate sensitivity for pre-specified practical effects.
 
-From this perspective, Kalman fusion is a useful \emph{instrument} for stress-testing methodology. A method that is intuitively appealing but empirically null under powered evaluation helps calibrate the field against over-interpretation of pilot results. This is valuable for reproducibility-focused venues (e.g., TMLR/SIGIR reproducibility tracks), where disciplined uncertainty accounting is central.
+This has broader implications for retrieval benchmarking culture. First, small-delta regimes are especially vulnerable to false-positive narratives when evaluation budgets are limited, metric families are broad, or exploratory analyses are retrofitted into confirmatory language. Second, claim-gated reporting can reduce this risk by requiring practical significance and inferential separation, not only favorable point estimates. Third, compute-aware reporting matters: if quality differences are negligible, deployment decisions should explicitly account for latency and systems constraints rather than abstract ranking metrics alone.
 
-\section{Limitations}
+The central contribution is therefore not a winner declaration, but a reproducible evaluation discipline in which negative findings remain informative and citable.
+
+\section{Threats to Validity}
 \begin{itemize}
-    \item \textbf{Configuration scope.} Results are bounded to this mixed-domain benchmark and fast-local deterministic embedding regime.
-    \item \textbf{Mechanistic attribution.} We identify statistical non-separation, not the full causal mechanism of fusion failure.
-    \item \textbf{Benchmark-family dependence.} Even domain-balanced designs can inherit biases from dataset family construction and relevance judgments.
-    \item \textbf{Generalisation beyond tested compute envelopes.} ``Acceptable'' latency/FLOPs ratios are environment-dependent and may shift under different hardware or indexing stacks.
+    \item \textbf{Benchmark-family dependence.} Even domain-balanced mixtures can inherit construction biases and relevance-judgment artifacts from constituent benchmark families.
+    \item \textbf{Embedding-regime dependence.} Findings are specific to the fast-local deterministic embedding regime and may not transfer to substantially different representation models.
+    \item \textbf{Query-label noise.} Imperfect relevance labels and query ambiguity can attenuate detectable effects and widen inferential uncertainty.
+    \item \textbf{Domain sampling effects.} Domain balancing reduces, but does not eliminate, sensitivity to specific sample composition within each domain.
+    \item \textbf{Tuning leakage risks.} Repeated iteration near familiar benchmark families can inadvertently leak evaluation signal into design choices, reducing external validity.
 \end{itemize}
+
+\section{Reproducibility and Artifacts}
+To support independent verification, the benchmark is represented through explicit manifests, structured JSON outputs, and paired evaluation artifacts that preserve per-query comparisons. The reporting workflow is deterministic at the pipeline level: confirmatory summaries, multiplicity-adjusted inferential outputs, and compute diagnostics are produced in a consistent machine-readable form suitable for archival reuse.
 
 \section{Conclusion}
 On a 1,193-query powered, domain-balanced benchmark (canonical C100 with \texttt{max\_candidates=100}), uncertainty-weighted Kalman fusion does not show a statistically or practically meaningful nDCG@10 improvement over mean fusion (delta $-9.258801070226193\times10^{-6}$). Adjusted p-values are 1.0, effect sizes are negligible, and confidence intervals support a near-zero delta interpretation. The correct reading is a powered negative result: \texttt{inconclusive\_sufficiently\_powered} for superiority, not evidence of universal inferiority.
 
-Accordingly, we position this work as (i) a retrieval evaluation methodology, (ii) an uncertainty-aware benchmarking framework, and (iii) a compute-aware orchestration framework. We recommend that future IR claims involving small deltas adopt the same discipline before asserting architectural superiority.
+Accordingly, we position this work as (i) a retrieval evaluation methodology, (ii) an uncertainty-aware benchmarking framework, and (iii) a compute-aware evaluation framework. We recommend that future IR claims involving small deltas adopt the same discipline before asserting architectural superiority.
 
 \bibliographystyle{plain}
 \bibliography{references}
