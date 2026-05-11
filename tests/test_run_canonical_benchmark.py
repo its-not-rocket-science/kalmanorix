@@ -140,8 +140,19 @@ def test_canonical_benchmark_writes_artifacts(
 
     summary_path = output_dir / "summary.json"
     report_path = output_dir / "report.md"
+    claim_gate_path = output_dir / "claim_gate.json"
+    paired_queries_path = output_dir / "paired_queries.parquet"
+    paired_queries_csv_path = output_dir / "paired_queries.csv"
+    baseline_matrix_json = output_dir / "baseline_matrix.json"
+    baseline_matrix_tex = output_dir / "baseline_matrix.tex"
+    runner_details_path = output_dir / "runner_details.json"
     assert summary_path.exists()
     assert report_path.exists()
+    assert claim_gate_path.exists()
+    assert paired_queries_path.exists() or paired_queries_csv_path.exists()
+    assert baseline_matrix_json.exists()
+    assert baseline_matrix_tex.exists()
+    assert runner_details_path.exists()
 
     on_disk = json.loads(summary_path.read_text(encoding="utf-8"))
     assert on_disk["benchmark"]["split_counts"] == {
@@ -150,6 +161,25 @@ def test_canonical_benchmark_writes_artifacts(
         "test": 3,
     }
     assert on_disk["oracle_recall_at_k"]["value"] == pytest.approx(1.0)
+    claim_gate = json.loads(claim_gate_path.read_text(encoding="utf-8"))
+    required_claim_gate_keys = {
+        "benchmark_status",
+        "n_pairs",
+        "domains",
+        "candidate_budget",
+        "primary_endpoint",
+        "practical_delta_threshold",
+        "adjusted_p_value_threshold",
+        "observed_primary_delta",
+        "confidence_interval",
+        "latency_ratio",
+        "flops_ratio",
+        "final_verdict",
+        "blocked_reasons",
+        "allowed_headline_sentence",
+        "prohibited_claims",
+    }
+    assert required_claim_gate_keys.issubset(claim_gate.keys())
 
 
 def test_canonical_benchmark_fails_fast_when_oracle_recall_is_too_low(
