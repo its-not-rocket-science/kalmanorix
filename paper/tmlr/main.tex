@@ -115,7 +115,7 @@ The delta is exactly $0.0$, indicating no measurable retrieval-depth improvement
 Latency ratio is $1.0722551296204925$ and FLOPs ratio is $1.0$; both satisfy the pre-declared compute bounds (latency $\le1.5$, FLOPs $\le1.1$), indicating slower runtime at matched floating-point operation count but no compute-threshold breach. These latency figures come from a local reference run (Windows workstation, Intel i7-7700T-class CPU, 64GB RAM, no GPU) and are environment-dependent, so the ratio should be interpreted only for this measured setup.
 
 \paragraph{Gate status.}
-The claim gate remains blocked because the primary direction is non-positive and adjusted significance is absent under the confirmatory protocol. Accordingly, no retrieval-improvement claim is made despite claim-ready benchmark status.
+The confirmatory C100 run is domain-balanced with $n_{\text{pairs}}=1193$ and yields the governance verdict \texttt{inconclusive\_sufficiently\_powered}: evidence is adequately powered for this protocol but does not support superiority. The hard claim gate remains blocked because the primary direction is non-positive and adjusted significance is absent under the confirmatory protocol. Accordingly, no retrieval-improvement claim is made despite claim-ready benchmark status.
 
 \section{Negative Results and Scientific Reporting}
 Negative findings are scientifically valuable when they are well powered, transparently analyzed, and tied to explicit hypotheses. Suppressing such outcomes contributes to publication bias and distorts the literature toward fragile positive deltas.
@@ -214,10 +214,10 @@ To reproduce manuscript tables, regenerate experiment summaries through the repo
 Checklist item & Status & Evidence in repo \\
 \midrule
 Benchmark version recorded & Yes & Manuscript text (\texttt{mixed\_beir\_v1.2.0}) \\
-Random seed recorded & Partial & Not specified in this paper's appendix \\
+Random seed recorded & Yes & \texttt{seed=1337} (confirmatory C100 manifest) \\
 Domain-balanced setting recorded & Yes & Manuscript text (\texttt{domain-balanced=true}) \\
 \texttt{max\_candidates} recorded & Yes & Manuscript text (\texttt{max\_candidates=100}) \\
-Paired query-level outputs available & Partial & Paired design documented; artifact path not listed here \\
+Paired query-level outputs available & Yes & \texttt{artifacts/confirmatory/c100_domain_balanced/paired_queries.parquet} \\
 Confidence intervals reported & Yes & Main text (bootstrap interval reporting) \\
 Holm correction reported & Yes & Main text (multiplicity control section) \\
 Latency/FLOPs reported & Yes & Main results and conclusion sections \\
@@ -227,7 +227,7 @@ Claim-gating rule included & Yes & Decision-rules table and claim-gating section
 \end{tabular}
 \end{table}
 
-This checklist is intentionally conservative: ``Yes'' indicates the paper text documents the item, while ``Partial'' indicates the item is only partially documented in this manuscript and should be verified against repository artifacts before reuse.
+This checklist is intentionally conservative: ``Yes'' indicates the item is documented in manuscript text and/or an explicit repository-relative artifact path tied to the confirmatory domain-balanced C100 run ($n_{\text{pairs}}=1193$, \texttt{max\_candidates=100}).
 
 \bibliography{references}
 

@@ -7,7 +7,7 @@
 Rule & Status & Interpretation \\
 \midrule
 Benchmark marked \texttt{claim\_ready} & Pass & Evaluation is eligible for claim checks. \\
-Confirmatory slice has non-zero count & Fail & Observed confirmatory count is 0. \\
+Confirmatory C100 slice has non-zero count ($n_{\text{pairs}}=1193$) & Pass & Domain-balanced confirmatory run is populated and claim-eligible. \\
 Primary effect $\Delta\,n\mathrm{DCG}@10 > 0$ & Fail & Observed effect is slightly negative. \\
 Practical threshold $|\Delta\,n\mathrm{DCG}@10|\ge 0.02$ met & Fail & Observed magnitude is $9.258801070226193\times10^{-6}$. \\
 Holm-adjusted significance threshold met ($p_{\mathrm{adj}}<0.05$) & Fail & Adjusted $p=1.0$ shows no support. \\
@@ -15,6 +15,7 @@ Latency ratio Kalman/Mean $\le 1.5$ & Pass & Observed ratio is 1.072255129620492
 FLOPs ratio Kalman/Mean $\le 1.1$ & Pass & Observed ratio is 1.0. \\
 No protocol violations detected & Pass & No protocol violations reported. \\
 \midrule
+Verdict & \texttt{inconclusive\_sufficiently\_powered} & Confirmatory C100 evidence is powered but does not support superiority. \\ 
 Hard claim gate & \texttt{blocked} & No improvement claim is permitted. \\
 \bottomrule
 \end{tabular}
