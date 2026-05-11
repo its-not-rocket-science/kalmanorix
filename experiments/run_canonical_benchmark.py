@@ -1143,6 +1143,91 @@ def _render_baseline_matrix_tex(matrix: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _build_claim_gate(summary: dict[str, Any]) -> dict[str, Any]:
+    decision = summary["decision"]["kalman_vs_mean"]
+    overall = summary["paired_statistics"]["kalman_vs_mean"]["overall"]["ndcg@10"]
+    primary_metric = CANONICAL_DECISION_RULES["primary_metric"]
+    methods = summary["methods"]
+    domains = sorted(
+        summary["power_diagnostics"]["kalman_vs_mean"]["per_domain_test_counts"]
+    )
+    blocked_reasons: list[str] = []
+    if summary["claim_success_decision"]["status"] != "allowed":
+        blocked_reasons.append("claim_success_decision_blocked")
+    if summary["benchmark_status"]["status"] != "claim_ready":
+        blocked_reasons.append(
+            f"benchmark_status_{summary['benchmark_status']['status']}"
+        )
+    if decision["verdict"] != "supported":
+        blocked_reasons.append(f"kalman_vs_mean_{decision['verdict']}")
+    return {
+        "benchmark_status": summary["benchmark_status"]["status"],
+        "n_pairs": int(overall["n_pairs"]),
+        "domains": domains,
+        "candidate_budget": summary["benchmark"]["max_queries"],
+        "primary_endpoint": primary_metric,
+        "practical_delta_threshold": float(
+            CANONICAL_DECISION_RULES["minimum_effect_size"]
+        ),
+        "adjusted_p_value_threshold": float(
+            CANONICAL_DECISION_RULES["adjusted_p_value_threshold"]
+        ),
+        "observed_primary_delta": float(overall["mean_difference"]),
+        "confidence_interval": [
+            float(overall["ci95_low"]),
+            float(overall["ci95_high"]),
+        ],
+        "latency_ratio": float(
+            methods["kalman"]["metrics"]["latency_ms"]["mean"]
+            / methods["mean"]["metrics"]["latency_ms"]["mean"]
+        ),
+        "flops_ratio": float(
+            methods["kalman"]["metrics"]["flops_proxy"]["mean"]
+            / methods["mean"]["metrics"]["flops_proxy"]["mean"]
+        ),
+        "final_verdict": summary["claim_success_decision"]["status"],
+        "blocked_reasons": blocked_reasons,
+        "allowed_headline_sentence": (
+            "Kalman fusion beats mean fusion on the pre-registered canonical benchmark."
+            if summary["claim_success_decision"]["status"] == "allowed"
+            else "Kalman fusion did not clear the canonical claim gate against mean fusion."
+        ),
+        "prohibited_claims": (
+            []
+            if summary["claim_success_decision"]["status"] == "allowed"
+            else [
+                "Kalman fusion beats mean fusion.",
+                "Kalman is significantly better than mean on canonical benchmark.",
+                "Kalman superiority over mean is established.",
+            ]
+        ),
+    }
+
+
+def _write_paired_query_table(output_dir: Path, rows: list[dict[str, Any]]) -> str:
+    parquet_path = output_dir / "paired_queries.parquet"
+    try:
+        pyarrow_spec = importlib.util.find_spec("pyarrow")
+        if pyarrow_spec is not None:
+            import pyarrow as pa
+            import pyarrow.parquet as pq
+
+            pq.write_table(pa.Table.from_pylist(rows), parquet_path)
+            return parquet_path.name
+    except Exception:
+        pass
+    csv_path = output_dir / "paired_queries.csv"
+    if not rows:
+        csv_path.write_text("", encoding="utf-8")
+        return csv_path.name
+    keys = list(rows[0].keys())
+    lines = [",".join(keys)]
+    for row in rows:
+        lines.append(",".join(str(row[k]) for k in keys))
+    csv_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return csv_path.name
+
+
 def _validate_summary_contract(summary: dict[str, Any]) -> None:
     if "benchmark_status" not in summary:
         raise ValueError("Canonical summary is missing required `benchmark_status`.")
@@ -2033,6 +2118,7 @@ def run_canonical_benchmark(
     latencies = query_level["latency_ms"]
     flops_proxy = query_level["specialist_count_selected"]
     query_metadata = query_level.get("query_metadata", {})
+    paired_rows: list[dict[str, Any]] = []
 
     raw_methods: dict[str, Any] = {}
     for method_key in sorted(rankings):
@@ -2176,6 +2262,23 @@ def run_canonical_benchmark(
             ),
         }
     n_test = int(len(kalman_metrics[primary_metric]))
+    mean_metrics = methods["mean"]["query_level"]
+    for idx, qid in enumerate(ordered_qids):
+        paired_rows.append(
+            {
+                "query_id": qid,
+                "domain": str(domains[qid]),
+                "ndcg@10_kalman": float(kalman_metrics["ndcg@10"][idx]),
+                "ndcg@10_mean": float(mean_metrics["ndcg@10"][idx]),
+                "delta_ndcg@10_kalman_minus_mean": float(
+                    kalman_metrics["ndcg@10"][idx] - mean_metrics["ndcg@10"][idx]
+                ),
+                "mrr@10_kalman": float(kalman_metrics["mrr@10"][idx]),
+                "mrr@10_mean": float(mean_metrics["mrr@10"][idx]),
+                "latency_ms_kalman": float(latencies["kalman"][qid]),
+                "latency_ms_mean": float(latencies["mean"][qid]),
+            }
+        )
 
     expected_domains = sorted(
         str(d) for d, c in split_counts.get("test_domains", {}).items() if int(c) > 0
@@ -2410,6 +2513,12 @@ def run_canonical_benchmark(
     )
     (output_dir / "baseline_matrix.tex").write_text(
         _render_baseline_matrix_tex(baseline_matrix), encoding="utf-8"
+    )
+    paired_table_name = _write_paired_query_table(output_dir, paired_rows)
+    claim_gate = _build_claim_gate(summary)
+    claim_gate["paired_query_table"] = paired_table_name
+    (output_dir / "claim_gate.json").write_text(
+        json.dumps(claim_gate, indent=2), encoding="utf-8"
     )
 
     report_write_start = time.perf_counter()
