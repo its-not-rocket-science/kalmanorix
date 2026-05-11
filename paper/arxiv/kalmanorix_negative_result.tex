@@ -9,10 +9,11 @@
 \usepackage{amsmath}
 \usepackage{siunitx}
 \usepackage{url}
+\usepackage{tcolorbox}
 \usepackage[hidelinks]{hyperref}
 
-\title{A Powered Negative Result for Retrieval Fusion:\\
-Uncertainty-Aware, Domain-Balanced Evaluation at 1,193 Queries}
+\title{A Reproducible Negative-Result Preprint:\\
+No Reliable Kalman-over-Mean Gain in Domain-Balanced Retrieval}
 \author{Kalmanorix Project Team}
 \date{May 2026}
 
@@ -20,119 +21,97 @@ Uncertainty-Aware, Domain-Balanced Evaluation at 1,193 Queries}
 \maketitle
 
 \begin{abstract}
-This paper reports a powered negative result from a domain-balanced retrieval benchmark designed for inferential reliability rather than optimistic effect discovery. On a 1,193-query paired test set (validation split: 634; minimum per-domain test count: 126), using the latest canonical domain-balanced configuration (\texttt{domain-balanced=true}, \texttt{max\_candidates=100}), uncertainty-weighted Kalman-style fusion and mean fusion are indistinguishable on the primary metric nDCG@10 (Kalman-minus-Mean delta $-9.258801070226193\times10^{-6}$). Holm-adjusted p-values are 1.0, estimated effect sizes are negligible, and confidence intervals are consistent with approximately zero practical difference. Secondary metrics agree with this null pattern (recall@100 delta 0.0). Compute overhead is bounded and acceptable (latency ratio Kalman/Mean $\approx$1.0722551296204925; FLOPs ratio 1.0), so the result is not confounded by prohibitive runtime distortion. The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}: the study had enough power to detect practically meaningful effects under pre-registered thresholds, but no such effect appeared. We therefore frame the contribution as a reproducible evaluation methodology---paired testing, multiplicity control, domain balancing, and uncertainty-aware reporting---with Kalman fusion as an experimental vehicle rather than a superiority claim.
+We report a focused negative-result preprint for mixed-domain retrieval fusion. In the canonical domain-balanced C100 confirmatory run ($n_{\text{pairs}}=1193$), Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$; recall@100 delta is 0.0. Compute overhead is bounded (latency ratio 1.0722551296204925; FLOPs ratio 1.0). The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}. This preprint emphasizes reproducibility artifacts, claim scope, and cautious interpretation rather than broad methodology claims.
 \end{abstract}
 
-\section{Introduction}
-Retrieval benchmarking frequently operates in a regime of small deltas, many plausible metrics, and heterogeneous query domains. In that regime, selective interpretation can easily outrun inferential support. Our objective is to invert this default: first establish a powered, claim-gated evaluation design, then interpret model comparisons inside that design.
+\begin{tcolorbox}[colback=gray!8,colframe=black,title=Scope of conclusion]
+This paper makes a \textbf{single bounded claim}: under the tested protocol (domain-balanced mixed-domain benchmark, \texttt{max\_candidates=100}, deterministic embedding regime), Kalman-style uncertainty fusion did \emph{not} demonstrate a reliable practical improvement over mean fusion.
 
-We present the final Kalmanorix mixed-domain benchmark outcome under a claim-ready data regime (1,193 paired test queries, balanced domain coverage, paired analysis).
+It does \textbf{not} claim that Kalman methods are universally ineffective, nor that mean fusion is always best.
+\end{tcolorbox}
 
-This result should not be read as universal evidence against uncertainty-aware fusion. Instead, it supports a narrower and methodologically important statement: in this benchmarked setting, any expected gain is too small to separate from zero despite sufficient power for pre-specified practical effect scales. The paper therefore contributes primarily to evaluation practice: powered confirmatory testing, explicit multiplicity control, uncertainty-aware reporting, and compute-aware interpretation.
+\section{Setup (confirmatory track only)}
+Benchmark: \texttt{mixed\_beir\_v1.2.0} with train=5078, validation=634, test=1193, minimum per-domain test count 126. Confirmatory settings: \texttt{domain-balanced=true}, \texttt{max\_candidates=100}, paired query-level analysis, Holm correction, and practical-effect gate.
 
-\paragraph{What this paper does not claim.}
-We do not claim that uncertainty-aware fusion is universally ineffective, nor that Kalman fusion is inferior in all settings. Our conclusion is limited to the evaluated mixed-domain benchmark under the C100 candidate budget (\texttt{max\_candidates=100}), domain-balanced protocol, and tested embedding regime. The claim we do make is narrower: under this powered, claim-gated protocol, the hypothesized superiority of Kalman-style fusion over mean fusion is not supported.
+Primary endpoint: paired $\Delta$ nDCG@10 (Kalman minus Mean). Practical threshold: $|\Delta|\ge 0.02$. Statistical threshold: Holm-adjusted $p<0.05$. Efficiency checks: latency ratio $\le 1.5$, FLOPs ratio $\le 1.1$.
 
-\section{Related Work}
-The methodological building blocks are established. Kalman filtering originates in linear estimation theory \cite{kalman1960}. Retrieval quality is assessed with graded-relevance ranking metrics such as nDCG \cite{jarvelin2002}. BEIR motivates heterogeneous zero-shot retrieval benchmarking \cite{thakur2021beir}. For inference on paired query outcomes, we use Wilcoxon signed-rank testing \cite{wilcoxon1945}, bootstrap confidence intervals \cite{efron1994}, and Holm correction for family-wise error control \cite{holm1979}. This protocol is also aligned with empirical-evaluation guidance on repeated comparisons and test selection in ML/IR \cite{demsar2006statistical,smucker2007comparison}.
-
-Because representational quality can dominate downstream fusion behavior, we explicitly scope this work to a fast-local deterministic embedding regime and separate it from neural-encoder regimes such as Sentence-BERT \cite{reimers2019}. We also adopt conservative claim language in light of reproducibility audits in ML \cite{pineau2021improving,gundersen2018state} and evidence that strong benchmark performance can degrade on refreshed test distributions \cite{recht2019imagenet}.
-
-\section{Benchmark Construction and Evaluation Protocol}
-\subsection{Benchmark construction}
-The benchmark manifest (\texttt{mixed\_beir\_v1.2.0}) is assembled from BEIR-style subsets including NQ, SciFact, FiQA, ArguAna, FEVER, and DBPedia Entity. The canonical split used here contains train=5078, validation=634, and test=1193 queries, with minimum per-domain test count of 126. The final claim-ready run is explicitly domain-balanced with \texttt{max\_candidates=100}.
-
-This construction is designed to reduce domain dominance and to improve estimator stability under paired analysis. The role of the validation split is methodological (configuration and diagnostic calibration), whereas the test split is reserved for confirmatory inference. We treat this separation as part of claim-gating rather than a reporting convenience.
-
-\subsection{Paired protocol and primary estimand}
-The primary estimand is the paired per-query difference in nDCG@10 between KalmanorixFuser and MeanFuser on the test split. Pairing each query across methods controls for query difficulty, reducing variance relative to unpaired comparisons and directly targeting method-level differences.
-
-The confirmatory protocol is fixed for the canonical analysis: domain-balanced setting, \texttt{max\_candidates=100}, \texttt{n\_pairs=1193}, and pre-declared inferential outputs. Additional runs are exploratory diagnostics and are not used to promote or revise the confirmatory claim.
-
-\subsection{Claim-ready criteria and claim-gating}
-A benchmark is treated as claim-ready only when all of the following hold: (i) sufficient paired sample size for pre-specified practical deltas, (ii) minimum per-domain coverage constraints, (iii) confirmatory metric family declared in advance, and (iv) multiplicity-adjusted inference reported alongside effect sizes and confidence intervals.
-
-This claim-gating policy distinguishes ``measured difference'' from ``claimable improvement.'' A method is not considered superior based on point estimates alone; superiority requires inferential separation and practical relevance under the confirmatory protocol.
-
-The practical-significance thresholds were pre-declared before the confirmatory readout: the primary endpoint is $\Delta\,n\mathrm{DCG}@10$ (Kalman minus Mean), with a minimum practically meaningful magnitude of 0.02; Holm-adjusted significance must satisfy $p_{\mathrm{adj}}<0.05$; and compute overhead must remain bounded by latency ratio Kalman/Mean $\le 1.5$ and FLOPs ratio Kalman/Mean $\le 1.1$. We require this practical layer in addition to statistical significance because large paired samples can make tiny, operationally irrelevant deltas look ``significant,'' while deployment decisions depend on whether quality gains are material relative to runtime and systems cost.
-
-\subsection{Multiplicity control and uncertainty-aware reporting}
-We report:
+\section{Main negative result}
+The final confirmatory outputs (from \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}) are:
 \begin{itemize}
-    \item paired tests on query-level outcomes,
-    \item Holm-corrected p-values across the pre-declared confirmatory family,
-    \item effect-size estimates,
-    \item bootstrap 95\% confidence intervals,
-    \item compute-side diagnostics (latency and FLOPs ratios).
+  \item $\Delta$ nDCG@10 $=-9.258801070226193\times10^{-6}$
+  \item Holm-adjusted $p=1.0$
+  \item $\Delta$ recall@100 $=0.0$
+  \item Latency ratio (Kalman/Mean) $=1.0722551296204925$
+  \item FLOPs ratio (Kalman/Mean) $=1.0$
+  \item Verdict: \texttt{inconclusive\_sufficiently\_powered}
 \end{itemize}
 
-Holm correction is used to control family-wise error without the avoidable power loss of uniformly conservative alternatives. In small-delta retrieval settings, this is essential: unadjusted inspection across multiple metrics and slices can create apparent wins that are not robust. Our reporting philosophy is therefore uncertainty-first: p-values, interval estimates, and practical-significance framing are treated as first-class outputs.
+Interpretation: the run had enough power for the predeclared practical effect scale, but no practically meaningful Kalman-over-Mean gain was detected.
 
-\section{Methods and Scope}
-\subsection{Systems compared}
-We compare (i) \textbf{MeanFuser}, (ii) \textbf{KalmanorixFuser} (uncertainty-weighted fusion), and (iii) a \textbf{hard-routing baseline}. Kalman fusion is used here as an experimental probe of whether uncertainty weighting yields measurable gains under strict confirmatory evaluation.
-
-\subsection{Confirmatory versus exploratory analyses}
-The canonical C100 domain-balanced test analysis is confirmatory. Earlier smaller-scale or non-balanced experiments are exploratory diagnostics used for debugging, sensitivity checks, and pipeline verification. We keep this distinction explicit to prevent exploratory evidence from being interpreted as claim-ready evidence.
-
-\subsection{Compute-aware evaluation scope}
-Beyond quality metrics, we track latency and FLOPs behavior to ensure conclusions are not detached from deployment constraints. This supports a compute-aware evaluation perspective: effectiveness and operational cost should be reported together, especially when quality deltas are near zero.
-
-\section{Results}
-Table~\ref{tab:main} summarises the primary outcomes for the final canonical C100 domain-balanced run.
-
+\section{Baseline matrix}
 \begin{table}[ht]
 \centering
-\caption{Key outcomes on the final canonical mixed-domain C100 domain-balanced test run (\texttt{n\_pairs=1193}, primary metric nDCG@10).}
-\label{tab:main}
-\begin{tabular}{lccc}
+\caption{Baseline matrix from canonical benchmark artifacts (same numbers as project evidence exports).}
+\label{tab:baseline-matrix}
+\begin{tabular}{lcc}
 \toprule
-Method & nDCG@10 & Relative latency vs Mean & Rank by nDCG@10 \\
+Method & nDCG@10 & latency (ms) \\
 \midrule
-MeanFuser & baseline (reference) & 1.000 & tied \\
-KalmanorixFuser & baseline $-\,9.258801070226193\times10^{-6}$ & $\approx$1.0722551296204925 & tied \\
-Hard routing baseline & diagnostic-only (not part of final paired claim) & much lower absolute latency & n/a \\
+KalmanorixFuser & 0.3666 & 57.319 \\
+MeanFuser & 0.3666 & 53.457 \\
+Fixed weighted mean & 0.3666 & 53.753 \\
+Hard routing (top-1) & 0.3489 & 35.972 \\
+Learned linear combiner & 0.3666 & 53.895 \\
+Single generalist & 0.3406 & 27.595 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The Kalman-minus-Mean delta on nDCG@10 is $-9.258801070226193\times10^{-6}$, which is far below the pre-declared practical-effect threshold of 0.02 in magnitude. The Holm-adjusted p-value is 1.0, so the $p_{\mathrm{adj}}<0.05$ requirement is not met. The recall@100 delta is exactly 0.0. Latency and FLOPs ratios are 1.0722551296204925 and 1.0, respectively, both within the pre-declared compute limits (latency $\le1.5$, FLOPs $\le1.1$). Latency was measured in a local reference environment (Windows workstation, Intel i7-7700T-class CPU, 64GB RAM, no GPU), so runtime ratios are environment-dependent and are not generalized beyond this setup. Taken together, the practical and statistical criteria show no meaningful quality improvement despite acceptable compute overhead. We therefore classify the outcome as \texttt{inconclusive\_sufficiently\_powered}: sufficiently powered design, no detected meaningful effect.
-
-
-\subsection{Why the null result is informative}
-The null outcome is informative because inferential and operational diagnostics point in the same direction. Effect-size detectability is near zero relative to the practical threshold, confidence-interval interpretation is compatible with negligible effects, and the practical-threshold test is not met. In addition, Kalman shows a latency penalty at matched FLOPs, so there is measurable runtime cost without measurable quality gain. This preserves mean fusion as a competitive baseline under the tested regime.
-
-\input{tables/negative_result_diagnostics}
-
-A reversal requires stronger evidence than a favorable point estimate: positive direction on the primary endpoint, practical effect magnitude, Holm-adjusted significance, non-negligible uncertainty intervals, and independent replication with acceptable compute-quality trade-offs.
-
-\section{Discussion}
-Powered negative results are methodologically valuable because they shrink the space of plausible claims.
-
-This has broader implications for retrieval benchmarking culture. First, small-delta regimes are especially vulnerable to false-positive narratives when evaluation budgets are limited, metric families are broad, or exploratory analyses are retrofitted into confirmatory language. Second, claim-gated reporting can reduce this risk by requiring practical significance and inferential separation, not only favorable point estimates. Third, compute-aware reporting matters: if quality differences are negligible, deployment decisions should explicitly account for latency and systems constraints rather than abstract ranking metrics alone.
-
-The central contribution is therefore not a winner declaration, but a reproducible evaluation discipline in which negative findings remain informative and citable.
-
-\section{Threats to Validity}
+\section{What this result does and does not mean}
+\textbf{What it supports.}
 \begin{itemize}
-    \item \textbf{Benchmark-family dependence.} Even domain-balanced mixtures can inherit construction biases and relevance-judgment artifacts from constituent benchmark families.
-    \item \textbf{Embedding-regime dependence.} Findings are specific to the fast-local deterministic embedding regime and may not transfer to substantially different representation models.
-    \item \textbf{Query-label noise.} Imperfect relevance labels and query ambiguity can attenuate detectable effects and widen inferential uncertainty.
-    \item \textbf{Domain sampling effects.} Domain balancing reduces, but does not eliminate, sensitivity to specific sample composition within each domain.
-    \item \textbf{Tuning leakage risks.} Repeated iteration near familiar benchmark families can inadvertently leak evaluation signal into design choices, reducing external validity.
+  \item In this protocol, Kalman fusion did not clear the practical-significance and multiplicity-adjusted evidence gate.
+  \item Mean fusion remains a strong low-complexity reference under the tested configuration.
 \end{itemize}
 
-\section{Reproducibility and Artifacts}
-To support independent verification, the benchmark is represented through explicit manifests, structured JSON outputs, and paired evaluation artifacts that preserve per-query comparisons. The reporting workflow is deterministic at the pipeline level: confirmatory summaries, multiplicity-adjusted inferential outputs, and compute diagnostics are produced in a consistent machine-readable form suitable for archival reuse.
-For concise reproducibility tracking, this paper records the benchmark identifier, domain-balanced setting, and \texttt{max\_candidates} configuration used for the confirmatory readout, and it reports paired query-level analysis outputs, confidence intervals, Holm-corrected inference, and latency/FLOPs diagnostics in the manuscript. Build/check commands and claim-gating rules are included in the repository paper materials; random-seed and per-artifact file-path details should be verified directly from repository metadata before strict replication.
+\textbf{What it does not support.}
+\begin{itemize}
+  \item It does not establish universal inferiority of uncertainty-aware fusion.
+  \item It does not rule out gains under different embeddings, domains, candidate budgets, or uncertainty estimators.
+\end{itemize}
 
-\section{Future Work}
-Immediate next experiments are: (i) fully independent external replication on the released manifests and paired artifacts, (ii) reruns under alternative embedding regimes (e.g., neural encoders versus the current deterministic setup), (iii) systematic scaling of candidate budgets beyond C100, (iv) calibration-aware learned uncertainty estimators replacing fixed fusion uncertainty rules, (v) explicit domain-shift stress tests with held-out distribution changes, and (vi) neural-encoder evaluation pipelines with resumable checkpointing to prevent partial-run attrition in long jobs. These are prospective protocol extensions and are not reported as completed in this study.
+\section{Reproducibility: exact commands and artifact paths}
+\textbf{Evidence source-of-truth artifacts}
+\begin{itemize}
+  \item \texttt{results/evidence\_registry.json}
+  \item \texttt{results/claim\_gate.json}
+  \item \texttt{results/canonical\_benchmark\_v3\_fast\_1200/summary.json}
+  \item \texttt{results/negative\_result\_diagnostics/report.md}
+  \item \texttt{results/negative\_result\_diagnostics/summary.json}
+\end{itemize}
 
-\section{Conclusion}
-On a 1,193-query powered, domain-balanced benchmark (canonical C100 with \texttt{max\_candidates=100}), uncertainty-weighted Kalman fusion does not show a statistically or practically meaningful nDCG@10 improvement over mean fusion (delta $-9.258801070226193\times10^{-6}$). Adjusted p-values are 1.0, effect sizes are negligible, and confidence intervals support a near-zero delta interpretation. The correct reading is a powered negative result: \texttt{inconclusive\_sufficiently\_powered} for superiority, not evidence of universal inferiority.
+\textbf{Commands}
+\begin{verbatim}
+# from repository root
+PYTHONPATH=src python scripts/build_evidence_registry.py
+python scripts/build_claim_gate.py
 
-Accordingly, we position this work as (i) a retrieval evaluation methodology, (ii) an uncertainty-aware benchmarking framework, and (iii) a compute-aware evaluation framework. We recommend that future IR claims involving small deltas adopt the same discipline before asserting architectural superiority.
+# build this arXiv preprint
+cd paper/arxiv
+pdflatex kalmanorix_negative_result.tex
+bibtex kalmanorix_negative_result
+pdflatex kalmanorix_negative_result.tex
+pdflatex kalmanorix_negative_result.tex
+
+# repository-required checks
+cd /workspace/kalmanorix
+ruff format --check .
+pytest -m "not integration and not stress"
+\end{verbatim}
+
+\section{Recommended citation and artifact use}
+When citing this preprint, cite it as a \textbf{negative-result, protocol-local empirical study}. For numeric claims, prefer artifact-backed references to:
+\texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For system-level context, include \texttt{results/canonical\_benchmark\_v3\_fast\_1200/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}. Avoid extending conclusions beyond the tested protocol unless new confirmatory evidence is provided.
 
 \bibliographystyle{plain}
 \bibliography{references}
