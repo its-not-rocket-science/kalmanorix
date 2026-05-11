@@ -1,5 +1,7 @@
 # Results
 
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
+
 This page reports only what is currently supported by committed artifacts.
 
 ## Current Evidence State

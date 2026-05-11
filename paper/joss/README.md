@@ -1,5 +1,7 @@
 # JOSS paper materials for Kalmanorix
 
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
+
 This directory contains draft JOSS paper assets for Kalmanorix research software:
 
 - `paper.md` — JOSS-format manuscript with YAML metadata and section structure.
@@ -23,7 +25,7 @@ Before submission, verify all of the following:
 
 ## Author metadata reminders
 
-Do not submit with placeholder metadata. Replace all TODO fields in `paper.md` for:
+Do not submit with draft metadata. Before submission, replace every remaining metadata marker in `paper.md` for:
 
 - author names,
 - affiliations,

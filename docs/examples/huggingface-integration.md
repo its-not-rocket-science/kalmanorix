@@ -237,7 +237,7 @@ with open("medical_specialist.pkl", "wb") as f:
 
 # Load
 with open("medical_specialist.pkl", "rb") as f:
-    loaded_sef = pickle.load(f)
+    loaded_sef = pickle.load(f)  # legacy path; unsafe unless artefact is trusted
 ```
 
 ## Performance Tips

@@ -1,7 +1,7 @@
-"""High-level fusion orchestrator.
+"""Legacy high-level fusion orchestrator.
 
-This module provides the Panoramix class, which coordinates the entire fusion
-process: routing, alignment, uncertainty estimation, and Kalman fusion.
+This module is kept for backward compatibility only.
+Use :mod:`kalmanorix.panoramix` for the canonical public orchestration API.
 """
 
 from typing import List, Dict, Any, Optional, Tuple
@@ -24,7 +24,10 @@ logger = logging.getLogger(__name__)
 
 
 class Panoramix:
-    """Main fusion engine orchestrating the Kalman update process.
+    """Legacy fusion engine orchestrating the Kalman update process.
+
+    .. deprecated:: 0.4
+       Import and use :class:`kalmanorix.panoramix.Panoramix` for new code.
 
     The Panoramix is responsible for:
     1. Receiving a query and selecting relevant specialists (via ScoutRouter)
@@ -62,6 +65,14 @@ class Panoramix:
                          If False, uses deprecated sequential Kalman updates.
             epsilon: Small constant for numerical stability
         """
+        warnings.warn(
+            "kalmanorix.kalman_engine.fuser.Panoramix is deprecated and kept "
+            "for compatibility only. Use kalmanorix.panoramix.Panoramix "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         self.router = router
         self.covariance_estimator = covariance_estimator
         self.alignment_method = alignment_method

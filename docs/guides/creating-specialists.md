@@ -197,7 +197,7 @@ with open("medical_specialist.pkl", "wb") as f:
 
 # Load
 with open("medical_specialist.pkl", "rb") as f:
-    loaded_sef = pickle.load(f)
+    loaded_sef = pickle.load(f)  # legacy path; unsafe unless artefact is trusted
 ```
 
 ### SEFModel Format (Recommended)
@@ -223,7 +223,7 @@ model.save_pretrained("./medical_bert_sef")
 
 # Load later
 from kalmanorix.models.sef import SEFModel
-loaded_model = SEFModel.from_pretrained("./medical_bert_sef")
+loaded_model = SEFModel.from_pretrained("./medical_bert_sef", embed_loader=my_embed_loader)
 sef = loaded_model.to_sef()  # Convert back to SEF
 ```
 

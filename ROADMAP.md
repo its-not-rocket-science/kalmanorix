@@ -1,5 +1,7 @@
 # Kalmanorix Roadmap
 
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
+
 **Last updated:** April 9, 2026  
 **Current version:** v0.2.0 (research prototype; API tiering update)
 

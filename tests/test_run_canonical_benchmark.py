@@ -140,8 +140,19 @@ def test_canonical_benchmark_writes_artifacts(
 
     summary_path = output_dir / "summary.json"
     report_path = output_dir / "report.md"
+    claim_gate_path = output_dir / "claim_gate.json"
+    paired_queries_path = output_dir / "paired_queries.parquet"
+    paired_queries_csv_path = output_dir / "paired_queries.csv"
+    baseline_matrix_json = output_dir / "baseline_matrix.json"
+    baseline_matrix_tex = output_dir / "baseline_matrix.tex"
+    runner_details_path = output_dir / "runner_details.json"
     assert summary_path.exists()
     assert report_path.exists()
+    assert claim_gate_path.exists()
+    assert paired_queries_path.exists() or paired_queries_csv_path.exists()
+    assert baseline_matrix_json.exists()
+    assert baseline_matrix_tex.exists()
+    assert runner_details_path.exists()
 
     on_disk = json.loads(summary_path.read_text(encoding="utf-8"))
     assert on_disk["benchmark"]["split_counts"] == {
@@ -150,6 +161,25 @@ def test_canonical_benchmark_writes_artifacts(
         "test": 3,
     }
     assert on_disk["oracle_recall_at_k"]["value"] == pytest.approx(1.0)
+    claim_gate = json.loads(claim_gate_path.read_text(encoding="utf-8"))
+    required_claim_gate_keys = {
+        "benchmark_status",
+        "n_pairs",
+        "domains",
+        "candidate_budget",
+        "primary_endpoint",
+        "practical_delta_threshold",
+        "adjusted_p_value_threshold",
+        "observed_primary_delta",
+        "confidence_interval",
+        "latency_ratio",
+        "flops_ratio",
+        "final_verdict",
+        "blocked_reasons",
+        "allowed_headline_sentence",
+        "prohibited_claims",
+    }
+    assert required_claim_gate_keys.issubset(claim_gate.keys())
 
 
 def test_canonical_benchmark_fails_fast_when_oracle_recall_is_too_low(
@@ -1025,3 +1055,107 @@ def test_resolve_replication_build_specs() -> None:
         (Path("benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet"), 7),
         (Path("benchmarks/mixed_beir_v1.0.0/mixed_benchmark.parquet"), 8),
     ]
+
+
+def test_baseline_matrix_generation_is_deterministic() -> None:
+    summary = {
+        "methods": {
+            "mean": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.1, "ci95_low": 0.09, "ci95_high": 0.11},
+                    "mrr@10": {"mean": 0.2},
+                    "recall@100": {"mean": 0.3},
+                    "recall@1": {"mean": 0.05},
+                    "latency_ms": {"mean": 1.0},
+                    "flops_proxy": {"mean": 3.0},
+                }
+            },
+            "kalman": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.11, "ci95_low": 0.10, "ci95_high": 0.12},
+                    "mrr@10": {"mean": 0.21},
+                    "recall@100": {"mean": 0.31},
+                    "recall@1": {"mean": 0.06},
+                    "latency_ms": {"mean": 1.1},
+                    "flops_proxy": {"mean": 3.0},
+                }
+            },
+            "fixed_weighted_mean_fusion": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.105, "ci95_low": 0.10, "ci95_high": 0.11},
+                    "mrr@10": {"mean": 0.205},
+                    "recall@100": {"mean": 0.305},
+                    "recall@1": {"mean": 0.055},
+                    "latency_ms": {"mean": 1.0},
+                    "flops_proxy": {"mean": 3.0},
+                }
+            },
+            "router_only_top1": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.12, "ci95_low": 0.11, "ci95_high": 0.13},
+                    "mrr@10": {"mean": 0.22},
+                    "recall@100": {"mean": 0.29},
+                    "recall@1": {"mean": 0.07},
+                    "latency_ms": {"mean": 0.8},
+                    "flops_proxy": {"mean": 1.0},
+                }
+            },
+            "router_only_topk_mean": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.108, "ci95_low": 0.1, "ci95_high": 0.115},
+                    "mrr@10": {"mean": 0.206},
+                    "recall@100": {"mean": 0.304},
+                    "recall@1": {"mean": 0.056},
+                    "latency_ms": {"mean": 0.9},
+                    "flops_proxy": {"mean": 2.0},
+                }
+            },
+            "learned_linear_combiner": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.103, "ci95_low": 0.095, "ci95_high": 0.11},
+                    "mrr@10": {"mean": 0.203},
+                    "recall@100": {"mean": 0.302},
+                    "recall@1": {"mean": 0.054},
+                    "latency_ms": {"mean": 1.0},
+                    "flops_proxy": {"mean": 3.0},
+                }
+            },
+            "best_single_specialist": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.119, "ci95_low": 0.11, "ci95_high": 0.128},
+                    "mrr@10": {"mean": 0.219},
+                    "recall@100": {"mean": 0.29},
+                    "recall@1": {"mean": 0.069},
+                    "latency_ms": {"mean": 0.81},
+                    "flops_proxy": {"mean": 1.0},
+                }
+            },
+            "adaptive_route_or_fuse": {
+                "metrics": {
+                    "ndcg@10": {"mean": 0.109, "ci95_low": 0.10, "ci95_high": 0.116},
+                    "mrr@10": {"mean": 0.207},
+                    "recall@100": {"mean": 0.304},
+                    "recall@1": {"mean": 0.056},
+                    "latency_ms": {"mean": 0.95},
+                    "flops_proxy": {"mean": 2.0},
+                }
+            },
+        },
+        "paired_statistics": {
+            "kalman_vs_mean": {"overall": {"ndcg@10": {"adjusted_p_value": 0.04}}}
+        },
+    }
+    a = canonical._build_baseline_matrix(summary)
+    b = canonical._build_baseline_matrix(summary)
+    assert a == b
+    assert canonical._render_baseline_matrix_md(
+        a
+    ) == canonical._render_baseline_matrix_md(b)
+    assert canonical._render_baseline_matrix_tex(
+        a
+    ) == canonical._render_baseline_matrix_tex(b)
+
+
+def test_baseline_matrix_missing_baselines_fails_loudly() -> None:
+    with pytest.raises(ValueError, match="baseline_matrix requires baselines"):
+        canonical._build_baseline_matrix({"methods": {}, "paired_statistics": {}})

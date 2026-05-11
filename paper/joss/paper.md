@@ -1,86 +1,81 @@
 ---
-title: "Kalmanorix: specialist embedding fusion and uncertainty-aware routing research software"
+title: "Kalmanorix: a Python toolkit for specialist-embedding fusion, routing evaluation, and claim-gated retrieval benchmarking"
 tags:
   - information retrieval
   - embeddings
-  - uncertainty quantification
-  - semantic routing
+  - evaluation
   - benchmarking
+  - reproducibility
 authors:
-  - name: "TODO: Author name"
-    affiliation: "TODO: Affiliation"
-    orcid: "TODO: ORCID"
-  - name: "TODO: Additional author(s)"
-    affiliation: "TODO: Affiliation"
-    orcid: "TODO: ORCID"
+  - name: "Paul Schleifer"
+    affiliation: "1"
 affiliations:
-  - name: "TODO: Affiliation"
+  - name: "Independent Research Software Engineer, United States"
     index: 1
-date: "2026-05-06"
+date: "2026-05-11"
 bibliography: paper.bib
 ---
 
 # Summary
 
-Kalmanorix is public research software for specialist embedding fusion, uncertainty-aware retrieval experimentation, routing evaluation, and benchmark governance. The project is distributed under the MIT Licence and exposes package metadata and build configuration in `pyproject.toml`, including command-line entry points that support full experiment workflows from benchmark construction to report generation. Rather than presenting one-off experiment scripts, Kalmanorix provides a reproducible software substrate for comparing fusion and routing choices under explicit decision rules.
-
-The framework addresses a common issue in retrieval research: experimental pipelines are often difficult to reproduce, and decision criteria are frequently under-specified. Kalmanorix focuses on transparent benchmark artefacts, repeatable command-line workflows, and status-oriented reporting that captures both positive and negative outcomes. Empirical findings are documented in repository artefacts and reports, but those findings are intentionally treated as separate from this software paper; the contribution here is the research software itself and its governance scaffolding.
-
-Kalmanorix includes CLI pathways for mixed benchmark building, canonical benchmark execution, report generation, routing evaluation, and benchmark utilities. These interfaces support disciplined comparisons across specialist fusion variants and routing settings while preserving provenance for later audit or re-analysis. The software therefore functions both as an experimentation platform and as an evidence-management layer for retrieval research [@thakur2021beir; @jarvelin2002cumulated].
+Kalmanorix is an MIT-licensed Python toolkit for designing and evaluating uncertainty-aware retrieval systems. It packages workflows for specialist embedding composition, semantic routing evaluation, and fusion baseline comparison under one reproducible command-line and artifact pipeline. The package is designed to produce auditable evidence for what works, what does not work, and what remains inconclusive, rather than to present a single winning method [@thakur2021beir; @jarvelin2002cumulated].
 
 # Statement of need
 
-Modern embedding retrieval systems increasingly combine multiple specialist models, yet robust methods for evaluating such systems remain fragmented. Researchers need software that can: (i) build and run heterogeneous benchmarks; (ii) compare fusion strategies under uncertainty; (iii) evaluate routing policies with quality-versus-efficiency trade-offs; and (iv) preserve decision context, not only raw metric outputs.
+IR and embedding research teams often maintain fragmented evaluation scripts across notebooks, ad hoc benchmark slices, and inconsistent statistical settings. This fragmentation makes it difficult to reproduce claims, compare routing or fusion decisions fairly, and preserve negative results.
 
-Kalmanorix is designed to meet this need by providing a coherent, scriptable interface for uncertainty-aware retrieval research. The package operationalises specialist fusion workflows inspired by state-estimation thinking [@kalman1960] while remaining practical for information retrieval evaluation. It explicitly supports reproducible benchmark artefacts and explicit decision rules, enabling teams to track whether a claim is supported, unsupported, or inconclusive under declared thresholds. This is particularly important for negative-result stewardship: null or mixed outcomes remain first-class artefacts rather than disappearing from project history.
+Kalmanorix addresses this need by standardizing the full loop from benchmark specification to publishable evidence artifacts. The toolkit is intended for:
 
-The software is also useful for research governance. By standardising experiment execution and report generation, Kalmanorix reduces ambiguity between “code that ran once” and “evidence that can be revisited”. This helps research groups maintain continuity across contributors, model updates, and benchmark revisions.
+- information retrieval researchers,
+- embedding researchers,
+- evaluation-methodology researchers.
 
-# State of the field
+# Core functionality
 
-The retrieval community has established strong benchmark traditions, including shared evaluation suites such as BEIR [@thakur2021beir] and ranking metrics such as nDCG that are sensitive to graded relevance [@jarvelin2002cumulated]. At the same time, practical research software often lags behind methodological advances: benchmark recipes, routing heuristics, and experimental decision criteria are frequently distributed across ad hoc notebooks or bespoke scripts.
+Kalmanorix provides the following software capabilities:
 
-Kalmanorix sits in this gap. It is not a benchmark in itself; rather, it is software infrastructure for running and governing benchmarked retrieval experiments with specialist and fused embeddings. The project builds on mature scientific Python components (notably NumPy and SciPy) for numerical operations and optimisation foundations [@harris2020array; @virtanen2020scipy]. Optional training and evaluation pathways can also leverage widely used machine-learning tooling (for example, sentence-transformers and scikit-learn) where relevant to specialist model development and analysis [@reimers2019sentencebert; @pedregosa2011scikit].
+1. **Specialist embedding packaging**: reproducible assembly and configuration of specialist embedders for multi-domain retrieval workflows.
+2. **Routing evaluation**: evaluation of query-to-specialist routing behavior with domain and slice-aware reporting.
+3. **Fusion baselines**: baseline matrix support for single-model, weighted, and uncertainty-aware fusion variants.
+4. **Claim-gated benchmark reporting**: rule-based claim readiness outputs that distinguish supported improvements from negligible or inconclusive effects.
+5. **Reproducible artifact generation**: deterministic manifests and machine-readable reports suitable for audit, reanalysis, and publication handoff.
 
-By combining these established foundations with explicit benchmark lifecycle tooling, Kalmanorix contributes a missing layer: software process for reproducible retrieval experimentation, especially where uncertainty-aware fusion and routing decisions must be evaluated together.
+These components help researchers evaluate uncertainty-aware fusion and routing in both positive and negative-result settings.
 
-# Software design
+# Example usage
 
-Kalmanorix is organised as a Python package with metadata declared in `pyproject.toml`, allowing repeatable installation and environment specification. The design emphasises executable research workflows through CLI entry points that map onto distinct lifecycle stages:
+A minimal workflow in this repository is:
 
-- mixed benchmark building;
-- canonical benchmark running;
-- report generation;
-- routing evaluation;
-- benchmark utility commands for fusion and calibration workflows.
+```bash
+# 1) install package and dev tools
+pip install -e .
 
-This separation helps keep experimental responsibilities explicit: data/benchmark construction, method execution, and evidence reporting are addressable independently but composable in pipelines.
+# 2) run the minimal fusion example
+python -m kalmanorix.examples.minimal_fusion
 
-At the methodological layer, Kalmanorix supports specialist embedding fusion with uncertainty-aware components and routing mechanisms that trade coverage, quality, and computational cost. Importantly, evaluation outputs are structured as reproducible artefacts rather than transient logs. Decision-rule reporting is integrated so that conclusions can be interpreted relative to declared thresholds and evidence-readiness states. The result is a software workflow where outcome labels (including null and regression cases) are governed, versionable objects.
+# 3) run non-integration tests
+pytest -m "not integration and not stress"
+```
 
-From a reproducibility perspective, this design provides several advantages:
+Typical advanced usage combines benchmark manifests, routing configuration, fusion baseline sweeps, and report generation into one reproducible run directory with JSON + Markdown outputs.
+The canonical Python orchestration API is `kalmanorix.panoramix.Panoramix`; the older `kalmanorix.kalman_engine.fuser.Panoramix` import path is retained as a deprecated compatibility shim.
 
-1. **Determinable execution surfaces** via documented CLI entry points.
-2. **Traceable artefacts** suitable for re-inspection and longitudinal comparisons.
-3. **Decision transparency** through explicit rule-based status outputs.
-4. **Balanced evidence tracking** that retains negative and positive results alike.
+# Reproducibility and testing
 
-These properties make Kalmanorix appropriate for iterative research programmes in which conclusions evolve with additional data, stronger controls, or revised benchmark definitions.
+Kalmanorix emphasizes reproducibility through versioned benchmark manifests, explicit run metadata, deterministic output layout, and scripted artifact export. The repository includes automated tests and style checks, and project documentation includes installation, examples, API reference pages, and release/archival guidance.
 
-# Research impact statement
+The reporting pipeline intentionally preserves unsupported and null findings so that negative-result reporting remains first-class in empirical records.
 
-Kalmanorix contributes impact primarily through research practice rather than a single algorithmic claim. It enables research teams to run specialist fusion and routing experiments under consistent interfaces, preserve benchmark provenance, and document decision outcomes with auditable criteria. This supports methodological rigour in settings where small metric deltas, compute constraints, and domain heterogeneity can otherwise make interpretation fragile.
+# Relationship to research papers
 
-A key impact area is benchmark governance. The software encourages explicit distinction between evidence generation and claim acceptance, reducing risk of over-interpreting underpowered or context-specific runs. It also improves institutional memory by preserving negative results and inconclusive outcomes as reproducible artefacts, which can prevent duplicate effort and support better hypothesis refinement.
-
-Empirical findings produced with Kalmanorix are intentionally documented separately in repository reports and artefacts, and should not be treated as the focus of this JOSS submission. The software paper instead documents Kalmanorix as reusable infrastructure for uncertainty-aware retrieval experimentation and routing evaluation.
+Kalmanorix is research software infrastructure, not a research-results manuscript. The package supports experiments reported elsewhere, including studies of uncertainty-aware fusion and routing behavior. Its role is to make those studies reproducible and claim-disciplined, including when results are negative or inconclusive.
 
 # AI usage disclosure
 
-TODO: Replace this placeholder with an honest, specific disclosure of AI-system usage in software development and manuscript preparation (including model/tool names, tasks performed, and human verification steps).
+Generative AI tools were used as drafting assistants for portions of repository documentation and manuscript wording. All claims, citations, and scope statements were reviewed by the human author before submission.
 
 # Acknowledgements
 
-TODO: Add acknowledgements for contributors, maintainers, institutional support, and any non-financial assistance. Do not add funding claims unless they are verified and can be documented.
+The author thanks maintainers of open-source Python IR and scientific computing ecosystems, and contributors who provided reproducibility feedback during development.
 
 # References

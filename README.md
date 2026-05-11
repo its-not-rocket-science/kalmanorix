@@ -1,5 +1,7 @@
 # Kalmanorix: Specialist-Embedding Fusion Research Framework
 
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
+
 > **Research status (as of April 9, 2026):**
 > - ✅ Demonstrated: routing-related compute savings in controlled benchmark runs.
 > - ⚠️ Not yet demonstrated: statistically significant quality gains of Kalman fusion over simple mean fusion.
@@ -37,6 +39,11 @@ Kalmanorix now documents three API tiers to keep the top-level package easier to
 - **Internal utilities (`kalmanorix.internal`)**: maintainer-facing helpers with no compatibility guarantee.
 
 For compatibility, experimental symbols remain temporarily importable from `kalmanorix` with deprecation warnings.
+
+### Canonical Fusion API
+
+Use `kalmanorix.panoramix.Panoramix` as the public fusion orchestrator API.
+The legacy `kalmanorix.kalman_engine.fuser.Panoramix` path remains available only for backward compatibility and now emits a deprecation warning.
 
 
 ## Demonstrated Results vs Planned Work
