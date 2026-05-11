@@ -1,11 +1,13 @@
 \documentclass[10pt]{article}
-\usepackage{tmlr}
+\IfFileExists{tmlr.sty}{\usepackage{tmlr}}{\usepackage{jmlr2e}}
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{url}
 \usepackage{graphicx}
 
 \title{Claim-Gated Evaluation for Small Retrieval Deltas: A Confirmatory Mixed-Domain Study}
+\author{Paul Schleifer}
+\editor{None}
 
 \input{includes/generated_metrics}
 
