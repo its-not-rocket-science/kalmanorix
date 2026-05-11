@@ -98,6 +98,14 @@ Hard routing baseline & diagnostic-only (not part of final paired claim) & much 
 
 The Kalman-minus-Mean delta on nDCG@10 is $-9.258801070226193\times10^{-6}$, which is far below the pre-declared practical-effect threshold of 0.02 in magnitude. The Holm-adjusted p-value is 1.0, so the $p_{\mathrm{adj}}<0.05$ requirement is not met. The recall@100 delta is exactly 0.0. Latency and FLOPs ratios are 1.0722551296204925 and 1.0, respectively, both within the pre-declared compute limits (latency $\le1.5$, FLOPs $\le1.1$). Latency was measured in a local reference environment (Windows workstation, Intel i7-7700T-class CPU, 64GB RAM, no GPU), so runtime ratios are environment-dependent and are not generalized beyond this setup. Taken together, the practical and statistical criteria show no meaningful quality improvement despite acceptable compute overhead. We therefore classify the outcome as \texttt{inconclusive\_sufficiently\_powered}: sufficiently powered design, no detected meaningful effect.
 
+
+\subsection{Why the null result is informative}
+The null outcome is informative because inferential and operational diagnostics point in the same direction. Effect-size detectability is near zero relative to the practical threshold, confidence-interval interpretation is compatible with negligible effects, and the practical-threshold test is not met. In addition, Kalman shows a latency penalty at matched FLOPs, so there is measurable runtime cost without measurable quality gain. This preserves mean fusion as a competitive baseline under the tested regime.
+
+\input{tables/negative_result_diagnostics}
+
+A reversal requires stronger evidence than a favorable point estimate: positive direction on the primary endpoint, practical effect magnitude, Holm-adjusted significance, non-negligible uncertainty intervals, and independent replication with acceptable compute-quality trade-offs.
+
 \section{Discussion}
 Powered negative results are methodologically valuable because they shrink the space of plausible claims.
 

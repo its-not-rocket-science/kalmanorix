@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{Why the null result is informative in the confirmatory C100 run ($n_{\text{pairs}}=1193$).}
+\label{tab:negative-result-diagnostics}
+\begin{tabular}{p{0.33\linewidth}p{0.61\linewidth}}
+\toprule
+Diagnostic dimension & Interpretation \\
+\midrule
+Effect-size detectability & $\Delta$ nDCG@10 ($-9.2588\times10^{-6}$) is near zero and far below the practical threshold (0.02), indicating no detectable material gain. \\
+Confidence interval meaning & Uncertainty is compatible with negligible effects around zero; intervals do not support a superiority narrative under the confirmatory protocol. \\
+Practical-threshold comparison & The observed magnitude fails the operational relevance criterion by orders of magnitude. \\
+Latency penalty interpretation & Kalman/Mean latency ratio $=1.0723$ implies about $7.23\%$ runtime overhead at matched FLOPs (ratio $=1.0$). \\
+Baseline competitiveness & Mean fusion remains a strong baseline because no primary or secondary quality uplift is demonstrated. \\
+Uncertainty calibration impact & The tested uncertainty weighting does not convert calibration information into measurable retrieval gains in this slice. \\
+Evidence needed to reverse conclusion & Future confirmatory evidence must show positive direction, practical effect, Holm-adjusted significance, stable non-negligible intervals, and independent replication. \\
+\bottomrule
+\end{tabular}
+\end{table}
