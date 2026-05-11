@@ -136,8 +136,8 @@ class ModelRegistry:
                 "SEFModel not available. Make sure kalmanorix is properly installed."
             ) from e
 
-        # Load with default embedder loader (pickle)
-        model = SEFModel.from_pretrained(model_dir)
+        # Registry keeps legacy behavior for existing local artefacts.
+        model = SEFModel.from_pretrained(model_dir, allow_pickle=True)
         # Create a SEF wrapper for compatibility with fusion pipeline
         sef = SEF(
             name=model_id,

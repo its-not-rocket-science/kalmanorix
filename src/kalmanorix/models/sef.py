@@ -18,6 +18,7 @@ The format is designed to be:
 import json
 import pickle
 import hashlib
+import warnings
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Callable, Union
 from dataclasses import dataclass, asdict
@@ -28,6 +29,48 @@ import numpy as np
 from ..kalman_engine.structured_covariance import StructuredCovariance
 
 logger = logging.getLogger(__name__)
+
+PICKLE_SECURITY_WARNING = (
+    "Loading pickled model code from SEF artefacts can execute arbitrary code. "
+    "Only enable pickle loading for trusted artefacts."
+)
+
+
+class SafeSEFLoader:
+    """Default secure loader for SEF artefacts."""
+
+    def load_embed_function(
+        self,
+        path: Path,
+        embed_loader: Optional[Callable[[Path], Callable[[str], np.ndarray]]],
+    ) -> Callable[[str], np.ndarray]:
+        if embed_loader is None:
+            raise ValueError(
+                "SafeSEFLoader blocks pickle execution by default. "
+                "Pass embed_loader to construct model code explicitly, or set "
+                "allow_pickle=True for trusted legacy artefacts."
+            )
+        return embed_loader(path)
+
+
+class TrustedPickleSEFLoader(SafeSEFLoader):
+    """Trusted loader for legacy pickle-backed SEF artefacts."""
+
+    def load_embed_function(
+        self,
+        path: Path,
+        embed_loader: Optional[Callable[[Path], Callable[[str], np.ndarray]]],
+    ) -> Callable[[str], np.ndarray]:
+        if (path / "model.pkl").exists():
+            warnings.warn(PICKLE_SECURITY_WARNING, UserWarning, stacklevel=2)
+            with open(path / "model.pkl", "rb") as f:
+                return pickle.load(f)
+        if embed_loader is None:
+            raise ValueError(
+                f"No pickled model found at {path} and no embed_loader provided.\n"
+                f"See {path}/LOAD_INSTRUCTIONS.txt if it exists."
+            )
+        return super().load_embed_function(path, embed_loader)
 
 
 @dataclass
@@ -287,7 +330,12 @@ class SEFModel:
 
     @classmethod
     def from_pretrained(
-        cls, path: Union[str, Path], embed_loader: Optional[Callable] = None
+        cls,
+        path: Union[str, Path],
+        embed_loader: Optional[Callable] = None,
+        *,
+        allow_pickle: bool = False,
+        loader: Optional[SafeSEFLoader] = None,
     ) -> "SEFModel":
         """Load model from disk.
 
@@ -318,18 +366,13 @@ class SEFModel:
             with open(path / "covariance_config.json", "r", encoding="utf-8") as f:
                 covariance_data.update(json.load(f))
 
-        # Load embed function
-        embed_function = None
-        if (path / "model.pkl").exists():
-            with open(path / "model.pkl", "rb") as f:
-                embed_function = pickle.load(f)
-        elif embed_loader is not None:
-            embed_function = embed_loader(path)
-        else:
-            raise ValueError(
-                f"No pickled model found at {path} and no embed_loader provided.\n"
-                f"See {path}/LOAD_INSTRUCTIONS.txt if it exists."
+        # Load embed function using explicit trust policy
+        effective_loader = loader
+        if effective_loader is None:
+            effective_loader = (
+                TrustedPickleSEFLoader() if allow_pickle else SafeSEFLoader()
             )
+        embed_function = effective_loader.load_embed_function(path, embed_loader)
 
         # Verify checksum
         cls._verify_checksum(path)

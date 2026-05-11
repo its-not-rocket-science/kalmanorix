@@ -281,7 +281,7 @@ def test_scan_with_mock_model(MockSEFModel, tmp_path: Path):
     loaded = registry.load_model("mock_model")
     assert isinstance(loaded, SEF)
     assert loaded.model is mock_model
-    MockSEFModel.from_pretrained.assert_called_once_with(model_dir)
+    MockSEFModel.from_pretrained.assert_called_once_with(model_dir, allow_pickle=True)
 
     # Verify embedder registration
     embedder = registry.get_embedder("mock_model")
