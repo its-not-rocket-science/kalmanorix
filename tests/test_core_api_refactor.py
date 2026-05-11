@@ -9,7 +9,8 @@ import pytest
 
 from kalmanorix.scout import ScoutRouter
 from kalmanorix.village import SEF, Village
-from kalmanorix.kalman_engine.fuser import Panoramix
+from kalmanorix.panoramix import Panoramix
+from kalmanorix.kalman_engine.fuser import Panoramix as LegacyPanoramix
 
 
 def test_sef_get_covariance_uses_declared_dimension_without_dummy_embed() -> None:
@@ -136,7 +137,7 @@ def test_kalman_engine_fuse_batch_failure_fallback_uses_declared_dimension() -> 
         ]
     )
     router = ScoutRouter(mode="all")
-    engine = Panoramix(router=router)
+    engine = LegacyPanoramix(router=router, alignment_method="identity")
 
     results = engine.fuse_batch(["q1"], village)
 
@@ -146,3 +147,20 @@ def test_kalman_engine_fuse_batch_failure_fallback_uses_declared_dimension() -> 
     assert cov.shape == (5,)
     assert np.allclose(emb, np.zeros(5))
     assert np.allclose(cov, np.ones(5) * 1e6)
+
+
+def test_legacy_kalman_engine_panoramix_import_emits_deprecation_warning() -> None:
+    """Legacy import path remains functional but warns users to migrate."""
+
+    def embed(_q: str) -> np.ndarray:
+        return np.array([1.0, 0.0], dtype=np.float64)
+
+    village = Village([SEF("m", embed, sigma2=1.0, embedding_dimension=2)])
+    router = ScoutRouter(mode="all")
+
+    with pytest.deprecated_call(match="kalmanorix.kalman_engine.fuser.Panoramix"):
+        engine = LegacyPanoramix(router=router, alignment_method="identity")
+
+    fused, cov = engine.fuse("q", village)
+    assert fused.shape == (2,)
+    assert cov.shape == (2,)

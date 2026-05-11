@@ -40,6 +40,11 @@ Kalmanorix now documents three API tiers to keep the top-level package easier to
 
 For compatibility, experimental symbols remain temporarily importable from `kalmanorix` with deprecation warnings.
 
+### Canonical Fusion API
+
+Use `kalmanorix.panoramix.Panoramix` as the public fusion orchestrator API.
+The legacy `kalmanorix.kalman_engine.fuser.Panoramix` path remains available only for backward compatibility and now emits a deprecation warning.
+
 
 ## Demonstrated Results vs Planned Work
 
