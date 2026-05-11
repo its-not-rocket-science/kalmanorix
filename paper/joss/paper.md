@@ -1,70 +1,80 @@
 ---
-title: "Kalmanorix: reproducible benchmarking and uncertainty-aware evaluation infrastructure for retrieval research"
+title: "Kalmanorix: a Python toolkit for specialist-embedding fusion, routing evaluation, and claim-gated retrieval benchmarking"
 tags:
   - information retrieval
   - embeddings
-  - uncertainty quantification
-  - semantic routing
+  - evaluation
   - benchmarking
+  - reproducibility
 authors:
   - name: "Paul Schleifer"
     affiliation: "1"
 affiliations:
   - name: "Independent Research Software Engineer, United States"
     index: 1
-date: "2026-05-10"
+date: "2026-05-11"
 bibliography: paper.bib
 ---
 
 # Summary
 
-Kalmanorix is MIT-licensed research software for reproducible retrieval benchmarking and evaluation governance. It provides a command-line framework that links benchmark construction, paired retrieval evaluation, uncertainty-aware analysis, statistical testing, and publication-ready artifact generation in one reproducible workflow. The contribution is infrastructure for producing auditable evidence, not a claim of state-of-the-art retrieval performance [@thakur2021beir; @jarvelin2002cumulated].
-
-The software preserves null and negative outcomes as first-class artifacts and propagates them through reports, helping teams avoid overclaiming when observed differences are negligible or uncertain.
+Kalmanorix is an MIT-licensed Python toolkit for designing and evaluating uncertainty-aware retrieval systems. It packages workflows for specialist embedding composition, semantic routing evaluation, and fusion baseline comparison under one reproducible command-line and artifact pipeline. The package is designed to produce auditable evidence for what works, what does not work, and what remains inconclusive, rather than to present a single winning method [@thakur2021beir; @jarvelin2002cumulated].
 
 # Statement of need
 
-Retrieval projects often lack standardized, reproducible evaluation pipelines. Benchmark manifests, slice definitions, statistical settings, and reporting logic are frequently distributed across ad hoc scripts and notebooks, which makes replication and governance difficult.
+IR and embedding research teams often maintain fragmented evaluation scripts across notebooks, ad hoc benchmark slices, and inconsistent statistical settings. This fragmentation makes it difficult to reproduce claims, compare routing or fusion decisions fairly, and preserve negative results.
 
-Kalmanorix addresses this gap by providing reusable infrastructure for benchmark lifecycle management and claim discipline. It codifies benchmark manifests, paired test workflows, multiplicity-aware inference, and uncertainty-aware reporting so teams can distinguish detectable improvement from negligible or inconclusive change under explicit decision criteria.
+Kalmanorix addresses this need by standardizing the full loop from benchmark specification to publishable evidence artifacts. The toolkit is intended for:
 
-# Research application
+- information retrieval researchers,
+- embedding researchers,
+- evaluation-methodology researchers.
 
-Kalmanorix is intended for retrieval research programs that compare model variants, routing strategies, or efficiency/quality trade-offs across evolving benchmark slices. In these settings, the software supports:
+# Core functionality
 
-- reproducible execution of paired retrieval evaluations,
-- consistent statistical reporting with multiple-testing control,
-- generation of machine-readable and narrative artifacts for audit and publication,
-- uncertainty-aware interpretation that retains unsupported findings.
+Kalmanorix provides the following software capabilities:
 
-This positions Kalmanorix as research infrastructure for evidence production rather than a method paper centered on new empirical results.
+1. **Specialist embedding packaging**: reproducible assembly and configuration of specialist embedders for multi-domain retrieval workflows.
+2. **Routing evaluation**: evaluation of query-to-specialist routing behavior with domain and slice-aware reporting.
+3. **Fusion baselines**: baseline matrix support for single-model, weighted, and uncertainty-aware fusion variants.
+4. **Claim-gated benchmark reporting**: rule-based claim readiness outputs that distinguish supported improvements from negligible or inconclusive effects.
+5. **Reproducible artifact generation**: deterministic manifests and machine-readable reports suitable for audit, reanalysis, and publication handoff.
 
-Kalmanorix also standardizes how final empirical readouts are represented in project artifacts. In the current canonical domain-balanced C100 confirmatory run ($n_{\text{pairs}}=1193$), the recorded outcome is a practically null result (nDCG@10 delta $-9.258801070226193\times10^{-6}$, adjusted $p=1.0$, recall@100 delta $0.0$, latency ratio $1.0722551296204925$, FLOPs ratio $1.0$, verdict `inconclusive_sufficiently_powered`). In JOSS scope, this is cited only as an example of software-supported reporting, not as the manuscript's core scientific claim. An example generated artifact is `results/negative_result_diagnostics/report.md` (with `summary.json` companion), which demonstrates how null-result interpretation is exported by the software pipeline.
+These components help researchers evaluate uncertainty-aware fusion and routing in both positive and negative-result settings.
 
-# Software architecture and workflows
+# Example usage
 
-Kalmanorix exposes a modular CLI and artifact pipeline:
+A minimal workflow in this repository is:
 
-- **Benchmark orchestration**: commands generate and version domain-balanced benchmark artifacts from declarative manifests.
-- **Evaluation execution**: commands run paired retrieval comparisons (baseline, fusion, routing, and slices) under consistent protocols.
-- **Statistical workflow**: paired tests, multiple-comparison correction, confidence intervals, and effect-size thresholds are applied and persisted as machine-readable outputs.
-- **Reporting generation**: structured summaries and narrative reports are generated from artifacts, including benchmark status gates and claim-readiness indicators.
-- **Reproducibility surfaces**: deterministic artifact layout, pinned benchmark identifiers, explicit run metadata, and re-runnable CLI entry points support audit and rerun.
+```bash
+# 1) install package and dev tools
+pip install -e .
 
-These components are designed to compose into reproducibility-focused experimentation pipelines rather than one-off leaderboard runs.
+# 2) run the minimal fusion example
+python -m kalmanorix.examples.minimal_fusion
 
-# Conclusions
+# 3) run non-integration tests
+pytest -m "not integration and not stress"
+```
 
-Kalmanorix contributes reusable infrastructure for reproducible retrieval benchmarking, uncertainty-aware evaluation, and claim-governed reporting. Its core value is enabling transparent, auditable, and repeatable evidence production across benchmark versions and contributors.
+Typical advanced usage combines benchmark manifests, routing configuration, fusion baseline sweeps, and report generation into one reproducible run directory with JSON + Markdown outputs.
 
-By preserving null/negative outcomes and coupling empirical summaries to explicit statistical decision rules, the software supports more trustworthy retrieval experimentation and reduces pressure toward overstated claims.
+# Reproducibility and testing
+
+Kalmanorix emphasizes reproducibility through versioned benchmark manifests, explicit run metadata, deterministic output layout, and scripted artifact export. The repository includes automated tests and style checks, and project documentation includes installation, examples, API reference pages, and release/archival guidance.
+
+The reporting pipeline intentionally preserves unsupported and null findings so that negative-result reporting remains first-class in empirical records.
+
+# Relationship to research papers
+
+Kalmanorix is research software infrastructure, not a research-results manuscript. The package supports experiments reported elsewhere, including studies of uncertainty-aware fusion and routing behavior. Its role is to make those studies reproducible and claim-disciplined, including when results are negative or inconclusive.
 
 # AI usage disclosure
 
-Generative AI tools were used as drafting assistants for portions of repository documentation and manuscript wording (including iterative edits prepared with OpenAI GPT-family tooling). All manuscript claims, citations, and software-scoping statements were reviewed and validated by the human author before submission. No AI system was treated as an authoritative source for empirical conclusions.
+Generative AI tools were used as drafting assistants for portions of repository documentation and manuscript wording. All claims, citations, and scope statements were reviewed by the human author before submission.
 
 # Acknowledgements
 
-The author thanks open-source maintainers whose scientific Python and retrieval tooling ecosystems make this project possible, as well as external users and reviewers who provided issue reports and reproducibility feedback during development.
+The author thanks maintainers of open-source Python IR and scientific computing ecosystems, and contributors who provided reproducibility feedback during development.
 
 # References

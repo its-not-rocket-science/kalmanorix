@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: Kalmanorix
+message: "If you use this software, please cite it using the metadata below."
+type: software
+authors:
+  - family-names: Schleifer
+    given-names: Paul
+repository-code: "https://github.com/example/kalmanorix"
+license: MIT
+version: 0.1.0
+date-released: 2026-05-11
+preferred-citation:
+  type: article
+  title: "Kalmanorix: a Python toolkit for specialist-embedding fusion, routing evaluation, and claim-gated retrieval benchmarking"
+  authors:
+    - family-names: Schleifer
+      given-names: Paul
+  year: 2026
