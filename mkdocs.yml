@@ -120,6 +120,7 @@ nav:
     - Specialist Embeddings: concepts/specialist-embeddings.md
     - Uncertainty Estimation: concepts/uncertainty-estimation.md
     - Alignment: concepts/alignment.md
+  - API Overview: api.md
   - API Reference:
     - Village: api-reference/village.md
     - Panoramix: api-reference/panoramix.md
@@ -144,6 +145,8 @@ nav:
     - Multi-Domain Search Tutorial: examples/multi-domain-search-tutorial.md
     - Real-Time Semantic Search: examples/real-time-semantic-search.md
     - Cross-Lingual Fusion: examples/cross-lingual-fusion.md
+  - Publication:
+    - Zenodo + JOSS Release Checklist: publication/zenodo_joss_release_checklist.md
   - Research:
     - Experiments: research/experiments.md
     - Results: research/results.md
