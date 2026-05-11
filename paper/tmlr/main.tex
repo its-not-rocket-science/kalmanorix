@@ -117,6 +117,14 @@ Latency ratio is $1.0722551296204925$ and FLOPs ratio is $1.0$; both satisfy the
 \paragraph{Gate status.}
 The confirmatory C100 run is domain-balanced with $n_{\text{pairs}}=1193$ and yields the governance verdict \texttt{inconclusive\_sufficiently\_powered}: evidence is adequately powered for this protocol but does not support superiority. The hard claim gate remains blocked because the primary direction is non-positive and adjusted significance is absent under the confirmatory protocol. Accordingly, no retrieval-improvement claim is made despite claim-ready benchmark status.
 
+
+\subsection{Why the null result is informative}
+A null finding is useful when it is sufficiently powered, practical-threshold aware, and uncertainty-explicit. Here, the effect-size detectability readout, interval interpretation, and practical-threshold comparison all agree that any plausible uplift is negligible under the tested protocol. The latency ratio further indicates a runtime penalty without quality compensation, which reinforces baseline competitiveness for mean fusion in this setting. We therefore treat the result as decision-relevant negative evidence rather than an ambiguous non-finding.
+
+\input{tables/negative_result_diagnostics}
+
+The same diagnostic logic defines what would be required to reverse the conclusion: a positive and practically meaningful primary effect, multiplicity-adjusted significance, uncertainty intervals excluding negligible effects, and independent replication at acceptable compute overhead.
+
 \section{Negative Results and Scientific Reporting}
 Negative findings are scientifically valuable when they are well powered, transparently analyzed, and tied to explicit hypotheses. Suppressing such outcomes contributes to publication bias and distorts the literature toward fragile positive deltas.
 

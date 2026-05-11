@@ -39,7 +39,7 @@ Kalmanorix is intended for retrieval research programs that compare model varian
 
 This positions Kalmanorix as research infrastructure for evidence production rather than a method paper centered on new empirical results.
 
-Kalmanorix also standardizes how final empirical readouts are represented in project artifacts. In the current canonical domain-balanced C100 confirmatory run ($n_{\text{pairs}}=1193$), the recorded outcome is a practically null result (nDCG@10 delta $-9.258801070226193\times10^{-6}$, adjusted $p=1.0$, recall@100 delta $0.0$, latency ratio $1.0722551296204925$, FLOPs ratio $1.0$, verdict `inconclusive_sufficiently_powered`). In JOSS scope, this is cited only as an example of software-supported reporting, not as the manuscript's core scientific claim.
+Kalmanorix also standardizes how final empirical readouts are represented in project artifacts. In the current canonical domain-balanced C100 confirmatory run ($n_{\text{pairs}}=1193$), the recorded outcome is a practically null result (nDCG@10 delta $-9.258801070226193\times10^{-6}$, adjusted $p=1.0$, recall@100 delta $0.0$, latency ratio $1.0722551296204925$, FLOPs ratio $1.0$, verdict `inconclusive_sufficiently_powered`). In JOSS scope, this is cited only as an example of software-supported reporting, not as the manuscript's core scientific claim. An example generated artifact is `results/negative_result_diagnostics/report.md` (with `summary.json` companion), which demonstrates how null-result interpretation is exported by the software pipeline.
 
 # Software architecture and workflows
 

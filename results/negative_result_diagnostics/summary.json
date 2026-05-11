@@ -1,0 +1,37 @@
+{
+  "artifact": "negative_result_diagnostics",
+  "version": "v1",
+  "purpose": "Explain why the null confirmatory result is informative and decision-relevant.",
+  "context": {
+    "benchmark_slice": "canonical_c100_domain_balanced",
+    "n_pairs": 1193
+  },
+  "inputs": {
+    "delta_ndcg_at_10": -9.258801070226193e-06,
+    "delta_recall_at_100": 0.0,
+    "holm_adjusted_p_primary": 1.0,
+    "latency_ratio_kalman_over_mean": 1.0722551296204925,
+    "flops_ratio_kalman_over_mean": 1.0,
+    "practical_threshold_abs_delta_ndcg_at_10": 0.02
+  },
+  "diagnostics": {
+    "effect_size_detectability": "Observed delta is near zero and far below practical threshold; no material gain detected.",
+    "confidence_interval_interpretation": "Intervals are consistent with negligible effects under the confirmatory protocol.",
+    "threshold_comparison": "Magnitude fails practical relevance criterion by a wide margin.",
+    "latency_penalty_interpretation": "Runtime overhead exists (~7.23%) without quality benefit.",
+    "baseline_competitiveness": "Mean baseline remains competitive; no evidence supports replacement.",
+    "uncertainty_calibration_impact": "Current uncertainty weighting shows no detectable retrieval benefit in this slice."
+  },
+  "reversal_requirements": [
+    "Positive primary effect direction on nDCG@10.",
+    "Practical effect at or above preregistered threshold.",
+    "Holm-adjusted p-value below 0.05.",
+    "Uncertainty interval excluding negligible near-zero effects.",
+    "Independent replication with acceptable compute-quality tradeoff."
+  ],
+  "recommended_manuscript_usage": {
+    "tmlr": "Include as dedicated negative-result interpretation subsection and diagnostics table.",
+    "arxiv": "Include as dedicated negative-result interpretation subsection and diagnostics table.",
+    "joss": "Mention only as an example generated artifact, not as a central scientific claim."
+  }
+}
