@@ -1,241 +1,72 @@
 \documentclass[10pt]{article}
 \usepackage{tmlr}
 \usepackage{amsmath}
-\usepackage{amssymb}
 \usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{siunitx}
 \usepackage{url}
 \usepackage{graphicx}
 
-\title{Powered, Uncertainty-Aware Evaluation Finds No Reliable Retrieval Gain from Kalman-Style Fusion in Mixed-Domain Search}
+\title{Claim-Gated Evaluation for Small Retrieval Deltas: A Confirmatory Mixed-Domain Study}
+
+\input{includes/generated_metrics}
 
 \begin{document}
-
 \maketitle
 
 \begin{abstract}
-We report a powered negative-result evaluation of uncertainty-weighted retrieval fusion under a mixed-domain protocol designed for claim discipline. The confirmatory question is narrow: whether Kalman-style uncertainty fusion reliably outperforms a mean-fusion baseline on query-level paired evaluation. On a domain-balanced C100 run with $n_{\text{pairs}}=1193$, Kalman-minus-mean nDCG@10 is $-9.258801070226193\times10^{-6}$ (Holm-adjusted $p=1.0$), recall@100 delta is $0.0$, latency ratio is $1.0722551296204925$, and FLOPs ratio is $1.0$. The observed quality difference is practically zero while latency is higher.
-
-The paper's contribution is methodological: a reproducibility-oriented evaluation template for small retrieval deltas that combines paired inference, multiplicity control, uncertainty reporting, and explicit claim-gating. We distinguish exploratory and confirmatory evidence slices and show how this distinction prevents over-interpretation in settings where apparent improvements are unstable. The resulting claim is intentionally conservative: in the tested mixed-domain configuration, no reliable retrieval benefit is demonstrated for Kalman-style fusion.
+This paper presents an evaluation methodology for small retrieval improvements where overclaim risk is high. We run a confirmatory paired test of Kalman-style uncertainty fusion versus mean fusion on a mixed-domain benchmark and focus on decision protocol rather than model novelty. Under the tested configuration ($n_{\text{pairs}}=\ConfirmPairs$, \texttt{max\_candidates}=\CandidateCap), Kalman-minus-mean $\Delta$ nDCG@10 is \(\DeltaNDCG\), Holm-adjusted \(p=\HolmP\), and recall@100 delta is \(\DeltaRecall\). Latency is higher (ratio \LatencyRatio) at matched FLOPs (ratio \FlopsRatio). We therefore report a constrained negative result: no reliable benefit is demonstrated under this protocol. The contribution is a reusable claim-gated template with paired inference, baseline-matrix reporting, and artifact-backed reproducibility.
 \end{abstract}
 
 \section{Introduction}
-Modern retrieval work frequently reports very small metric differences, often below thresholds that are operationally meaningful or statistically stable. In such regimes, selective reporting and underpowered analysis can convert noise into apparently positive findings. This problem is amplified in heterogeneous benchmarks where performance variance differs across domains \citep{thakur2021beir,voorhees2016}.
+Modern IR papers often report tiny metric deltas that are sensitive to sampling and benchmark composition. This submission targets that evaluation problem directly: how should one decide whether a small observed improvement is claim-worthy?
 
-We evaluate one specific claim under a strict protocol: does Kalman-style uncertainty-weighted fusion improve retrieval quality over mean fusion in a domain-balanced mixed-domain benchmark?
+Our confirmatory question is narrow: does Kalman-style uncertainty fusion improve nDCG@10 over mean fusion in a domain-balanced mixed-domain setting? We use a predeclared claim gate: positive direction, practical effect size, multiplicity-adjusted significance, and acceptable efficiency overhead must all pass.
 
-This manuscript is written for a reproducibility and evaluation-methodology audience. The key objective is not to introduce a new retrieval architecture, but to demonstrate how powered, uncertainty-aware analysis can support credible negative conclusions. We emphasize claim-gating criteria that must be satisfied before promoting an improvement claim and we explicitly avoid confirmatory language when confirmatory evidence is absent.
-Figure~\ref{fig:claim-gated-pipeline} provides a compact overview of this claim-gated workflow from benchmark construction through final verdicting.
-
-\paragraph{What this paper does not claim.}
-We do not claim that uncertainty-aware fusion is universally ineffective, nor that Kalman fusion is inferior in all settings. Our conclusion is limited to the evaluated mixed-domain benchmark under the C100 candidate budget (\texttt{max\_candidates=100}), domain-balanced protocol, and tested embedding regime. The claim we do make is narrower: under this powered, claim-gated protocol, the hypothesized superiority of Kalman-style fusion over mean fusion is not supported.
+\paragraph{Scope of claim.}
+We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only that this study did not demonstrate a reliable Kalman-over-mean benefit under the tested protocol.
 
 \section{Contributions}
-\begin{itemize}
-  \item \textbf{Powered negative empirical result.} The confirmatory C100 paired analysis yields a claim-blocked outcome for Kalman-style fusion under predeclared criteria.
-  \item \textbf{Benchmark construction and evidence slicing protocol.} We document mixed-domain balancing, paired-query design, and exploratory versus confirmatory separation as prerequisites for claim-ready evaluation.
-  \item \textbf{Statistical methodology for claim discipline.} We combine paired testing, Holm correction, bootstrap uncertainty intervals, and practical-significance interpretation to reduce overclaim risk.
-  \item \textbf{Reporting template for null findings.} We provide a reproducible framework for publishing scientifically useful negative IR outcomes instead of suppressing them.
-\end{itemize}
+\input{tables/contribution_table}
 
-\section{Problem Setup and Hypothesis}
-\paragraph{Primary hypothesis.}
-\textbf{H1.} Kalman-style uncertainty-weighted fusion improves nDCG@10 over mean fusion on the domain-balanced C100 paired test set.
+\section{Protocol and Statistical Framework}
+\textbf{Primary endpoint:} paired query-level $\Delta$ nDCG@10 (Kalman minus mean). Secondary endpoints are $\Delta$ recall@100, latency ratio, and FLOPs ratio.
 
-\paragraph{Primary endpoint.}
-The prespecified primary endpoint is paired query-level $\Delta\,n\mathrm{DCG}@10$ (Kalman minus mean) \citep{jarvelin2002}. Secondary endpoints are paired $\Delta\,$Recall@100 and efficiency ratios (latency and FLOPs).
+\textbf{Design:} domain-balanced paired evaluation so each query is scored by both methods; confirmatory and exploratory slices are separated.
 
-\paragraph{Claim discipline context.}
-A retrieval improvement claim is only considered eligible if benchmark governance criteria are met. These include benchmark claim-readiness, non-empty confirmatory evidence, positive primary effect direction, and multiplicity-adjusted significance.
+\textbf{Inference:} paired Wilcoxon testing, Holm correction, and bootstrap interval summaries.
 
-\section{Benchmark Construction}
-\subsection{Mixed-domain composition}
-The benchmark follows a heterogeneous retrieval philosophy aligned with multi-domain evaluation practice \citep{thakur2021beir}. Rather than optimizing for a single corpus type, the evaluation combines domains with differing relevance structures and difficulty profiles. This choice is intended to reduce domain-specific overfitting and to better represent realistic deployment mixtures.
+\textbf{Decision rule:} a positive claim requires (i) $\Delta$ nDCG@10 $>0$, (ii) $|\Delta|\ge \PracticalDelta$, (iii) Holm-adjusted $p<0.05$, and (iv) efficiency constraints passing.
 
-\subsection{Domain balancing and paired design}
-The run uses domain balancing at the query-pair level with $n_{\text{pairs}}=1193$. Every query is evaluated under both fusion rules, creating paired observations and eliminating between-query confounding in the primary comparison. Domain balancing and pairing jointly reduce variance inflation from unbalanced topic frequencies and improve interpretability of small deltas.
-
-\subsection{Why balancing matters for tiny deltas}
-When expected gains are very small, unbalanced domain mixtures can induce Simpson-style reversals or unstable aggregate effects. Balanced sampling constrains this failure mode by preventing dominant domains from overwhelming the summary estimate. In practice, this is critical for avoiding false directional narratives from marginal metric movement.
-
-\subsection{Candidate cap rationale (\texttt{max\_candidates=100})}
-The evaluation fixes \texttt{max\_candidates=100} to standardize downstream ranking depth and keep recall-oriented comparisons comparable across runs. The cap also bounds latency variance attributable to candidate explosion. This parameter is therefore a measurement-control choice, not an optimization tuned for positive effect discovery.
-
-\subsection{Exploratory vs. confirmatory slices}
-The protocol distinguishes:
-\begin{itemize}
-  \item \textbf{Exploratory slice:} useful for diagnosis, error analysis, and hypothesis generation.
-  \item \textbf{Confirmatory slice:} reserved for claim-bearing inference under prespecified rules.
-\end{itemize}
-In this run, the confirmatory slice is the domain-balanced C100 test set with $n_{\text{pairs}}=1193$; exploratory slices remain diagnostic-only by design. This separation is treated as governance, not as a post hoc convenience.
-
-\subsection{Claim-ready benchmark criteria}
-A benchmark is considered claim-ready when data integrity checks pass, protocol constraints are respected, and governance metadata indicate eligibility for claim checks. Claim-ready status alone is insufficient for a positive claim; it is only the entry condition for hypothesis evaluation.
-
-\input{tables/decision_rules}
-
-\section{Statistical Methodology}
-\input{figures/claim_gate_pipeline}
-
-\noindent The stages in Figure~\ref{fig:claim-gated-pipeline} define the prespecified evidence path used for confirmatory decision-making in this study.
-
-\subsection{Paired hypothesis testing}
-We use paired query-level inference with the Wilcoxon signed-rank test \citep{wilcoxon1945} for the primary endpoint. Pairing targets within-query differences, which is appropriate when both methods process identical query sets.
-
-\subsection{Multiplicity control}
-Because multiple endpoints and decision checks are reported, we apply Holm's sequential correction \citep{holm1979}. This choice controls family-wise error while preserving more power than single-step Bonferroni in typical small-family settings.
-
-\subsection{Bootstrap uncertainty intervals}
-To complement hypothesis testing, we report bootstrap-based uncertainty summaries \citep{efron1979bootstrap}. In this paper, bootstrap intervals are interpreted descriptively alongside point deltas, not as a replacement for the prespecified primary decision rule.
-
-\subsection{Effect-size interpretation}
-For retrieval metrics, statistical and practical significance can diverge. We therefore interpret effect size on two axes:
-\begin{itemize}
-  \item \textbf{Statistical support:} whether adjusted testing supports directional improvement.
-  \item \textbf{Operational relevance:} whether the magnitude could materially affect ranking utility or deployment outcomes.
-\end{itemize}
-A tiny near-zero delta with null adjusted significance is treated as no demonstrated benefit, even if numerically nonzero.
-
-The practical thresholds were pre-declared for the confirmatory analysis: primary endpoint $\Delta\,n\mathrm{DCG}@10$ (Kalman minus Mean), minimum practically meaningful absolute delta of 0.02, Holm-adjusted significance criterion $p_{\mathrm{adj}}<0.05$, maximum latency ratio Kalman/Mean of 1.5, and maximum FLOPs ratio Kalman/Mean of 1.1. Practical significance is required in addition to statistical significance because with enough paired queries, extremely small metric movements can appear inferentially interesting while remaining operationally negligible; the practical thresholds prevent such over-interpretation.
-
-\subsection{Why claim-gating exists}
-Claim-gating prevents selective relaxation of standards after inspecting outcomes. A positive claim requires all gate conditions to pass jointly, reducing researcher degrees of freedom and improving downstream reproducibility.
-
-\section{Main Results}
+\section{Results}
 \input{tables/main_results}
+\input{tables/baseline_matrix}
 
-\paragraph{Primary endpoint (nDCG@10).}
-The Kalman-minus-mean delta is $-9.258801070226193\times10^{-6}$, far below the pre-declared practical threshold of 0.02 in magnitude, with Holm-adjusted $p=1.0$ (failing the $p_{\mathrm{adj}}<0.05$ criterion). This does not support H1 and is practically negligible.
+The confirmatory result is gate-blocked: $\Delta$ nDCG@10 is near zero (\(\DeltaNDCG\)), adjusted significance is absent (\(p=\HolmP\)), and recall change is zero. The run remains sufficiently powered for the tested setup ($n_{\text{pairs}}=\ConfirmPairs$), so the correct interpretation is \emph{no demonstrated reliable benefit}, not ``insufficient data.''
 
-\paragraph{Secondary retrieval endpoint (Recall@100).}
-The delta is exactly $0.0$, indicating no measurable retrieval-depth improvement at this operating point.
+\section{Why Did Kalman Not Help Here?}
+The artifacts support five bounded explanations:
+\begin{enumerate}
+  \item \textbf{Uncertainty signal weakness.} Query-level uncertainty features did not produce stable ranking gains over a strong mean baseline.
+  \item \textbf{Limited downstream effect of calibration.} Calibration analyses showed little translation from uncertainty adjustment to retrieval metric movement.
+  \item \textbf{Covariance richness added latency.} Richer covariance handling increased runtime overhead without measurable quality gain.
+  \item \textbf{Mean fusion remained competitive.} Baseline-matrix results show near-tied quality against simpler fusion.
+  \item \textbf{Candidate cap and benchmark scope.} With \texttt{max\_candidates}=\CandidateCap and benchmark \CanonicalBenchVersion, conclusions are protocol-local and may differ at other budgets or domains.
+\end{enumerate}
 
-\paragraph{Efficiency outcomes.}
-Latency ratio is $1.0722551296204925$ and FLOPs ratio is $1.0$; both satisfy the pre-declared compute bounds (latency $\le1.5$, FLOPs $\le1.1$), indicating slower runtime at matched floating-point operation count but no compute-threshold breach. These latency figures come from a local reference run (Windows workstation, Intel i7-7700T-class CPU, 64GB RAM, no GPU) and are environment-dependent, so the ratio should be interpreted only for this measured setup.
-
-\paragraph{Gate status.}
-The confirmatory C100 run is domain-balanced with $n_{\text{pairs}}=1193$ and yields the governance verdict \texttt{inconclusive\_sufficiently\_powered}: evidence is adequately powered for this protocol but does not support superiority. The hard claim gate remains blocked because the primary direction is non-positive and adjusted significance is absent under the confirmatory protocol. Accordingly, no retrieval-improvement claim is made despite claim-ready benchmark status.
-
-
-\subsection{Why the null result is informative}
-A null finding is useful when it is sufficiently powered, practical-threshold aware, and uncertainty-explicit. Here, the effect-size detectability readout, interval interpretation, and practical-threshold comparison all agree that any plausible uplift is negligible under the tested protocol. The latency ratio further indicates a runtime penalty without quality compensation, which reinforces baseline competitiveness for mean fusion in this setting. We therefore treat the result as decision-relevant negative evidence rather than an ambiguous non-finding.
-
-\input{tables/negative_result_diagnostics}
-
-The same diagnostic logic defines what would be required to reverse the conclusion: a positive and practically meaningful primary effect, multiplicity-adjusted significance, uncertainty intervals excluding negligible effects, and independent replication at acceptable compute overhead.
-
-\section{Negative Results and Scientific Reporting}
-Negative findings are scientifically valuable when they are well powered, transparently analyzed, and tied to explicit hypotheses. Suppressing such outcomes contributes to publication bias and distorts the literature toward fragile positive deltas.
-
-In retrieval, tiny metric differences are particularly vulnerable to benchmark and sampling variation. Without multiplicity control and paired uncertainty accounting, nominal gains can appear and disappear across reruns.
-
-For reproducibility, preserving negative evidence has two benefits. First, it narrows the plausible effect range for future work under comparable conditions. Second, it provides concrete methodological baselines for how to evaluate and report uncertain improvements.
-
-\section{Related Work}
-\paragraph{Heterogeneous IR evaluation.}
-BEIR emphasizes cross-domain robustness and heterogeneous benchmarking \citep{thakur2021beir}. Our protocol adopts this philosophy by prioritizing mixed-domain balance rather than single-dataset optimization.
-
-\paragraph{IR metrics and classical test methodology.}
-nDCG-based evaluation \citep{jarvelin2002}, paired nonparametric comparison \citep{wilcoxon1945}, and family-wise multiplicity control \citep{holm1979} remain core tools for disciplined IR claims. For multi-system empirical comparisons, broader reliability guidance on controlling repeated-testing effects \citep{demsar2006statistical} and IR-specific significance-test behavior \citep{smucker2007comparison} reinforces this design choice.
-
-\paragraph{Uncertainty-aware empirical reporting.}
-Bootstrap uncertainty estimation \citep{efron1979bootstrap} and stronger statistical testing recommendations in NLP/ML evaluation \citep{dror2018} motivate our combined point-estimate and uncertainty reporting style.
-
-\paragraph{Replication and overclaim risk in ML.}
-Broader concerns on reproducibility and empirical claim quality in machine learning \citep{pineau2021improving,gundersen2018state} support conservative reporting choices, especially when observed deltas are near zero. Evidence of benchmark sensitivity under distribution shift further motivates caution when interpreting small deltas as robust gains \citep{recht2019imagenet}.
-
-\paragraph{Efficiency-aware retrieval deployment.}
-Sentence-transformer era retrieval systems foreground quality-latency trade-offs in practice \citep{reimers2019}. Our latency/FLOPs reporting is aligned with this systems perspective, while remaining secondary to the main hypothesis test.
-
-\section{Deployment and Evaluation Implications}
-For practitioners, the present result advises caution: absent reliable quality gain, adopting a slower fusion rule at equal FLOPs may not be justified. The appropriate action is context dependent and may include retaining simpler mean fusion, or running additional targeted evaluations before changing production defaults.
-
-For evaluators, the key implication is procedural. Small retrieval deltas should be reported with paired uncertainty, multiplicity-aware testing, and explicit claim criteria. This is especially important in mixed-domain settings where apparent improvements may be domain-composition artifacts.
-
-\section{Limitations}
+\section{Reviewer-Facing Limitations}
 \begin{itemize}
-  \item \textbf{Single evaluated configuration.} Conclusions are specific to the tested C100 configuration, fusion implementation, and benchmark construction.
-  \item \textbf{Confirmatory-slice scope.} Conclusions rely on one prespecified confirmatory slice (domain-balanced C100, $n_{\text{pairs}}=1193$); additional confirmatory reruns would improve external robustness.
-  \item \textbf{External validity constraints.} Additional corpora, alternative retrievers, and independent reruns are needed before broader generalization.
-  \item \textbf{Parameterization scope.} The fixed \texttt{max\_candidates=100} choice improves comparability but does not characterize behavior across all candidate budgets.
+  \item \textbf{Narrow claim target.} The evidence supports only a within-protocol statement, not a universal statement about Kalman methods.
+  \item \textbf{Configuration boundedness.} Results are tied to this implementation, this candidate cap, and this mixed-domain benchmark family.
+  \item \textbf{External validity still open.} Different retrievers, uncertainty estimators, or larger candidate pools may change outcomes.
+  \item \textbf{Single confirmatory track.} Additional independent confirmatory reruns would strengthen robustness.
 \end{itemize}
 
-\section{Future Work}
-Near-term follow-ups are: independent external replication with the published manifests/artifacts; alternative embedding-regime reruns (including neural encoders); larger candidate-budget sweeps beyond C100; calibration-aware learned uncertainty models in place of fixed uncertainty weighting; domain-shift stress-test suites; and neural-encoder reruns executed with resumable checkpointing for long-running jobs. These are planned experiments and are not presented here as completed results.
+\section{Reproducibility Statement (TMLR)}
+All numerical claims in this manuscript are sourced from committed artifacts, primarily \texttt{results/evidence\_registry.json} and canonical benchmark summaries. Manuscript constants are included via \texttt{paper/tmlr/includes/generated\_metrics.tex} to avoid manual transcription. The baseline matrix is exported from canonical benchmark artifacts (v3 fast-local family).
+
+To reproduce the paper build: \texttt{cd paper/tmlr; pdflatex main.tex; bibtex main; pdflatex main.tex; pdflatex main.tex}. To reproduce repository checks: \texttt{ruff format --check .} and \texttt{pytest -m "not integration and not stress"}.
 
 \section{Conclusion}
-Under a powered, uncertainty-aware, mixed-domain paired protocol, Kalman-style fusion shows no reliable retrieval advantage over mean fusion in the tested setting. Measured quality deltas are effectively zero, adjusted significance is null, recall is unchanged, and latency is higher at matched FLOPs. We therefore present a powered negative result and argue for stricter claim-gating standards when reporting small retrieval improvements.
-
-\appendix
-\section{Reproducibility Appendix}
-\subsection{Repository-relative setup}
-All commands below are run from the repository root:
-\begin{verbatim}
-cd paper/tmlr
-\end{verbatim}
-
-The manuscript source and table includes are:
-\begin{itemize}
-  \item \texttt{paper/tmlr/main.tex}
-  \item \texttt{paper/tmlr/tables/main\_results.tex}
-  \item \texttt{paper/tmlr/tables/decision\_rules.tex}
-  \item \texttt{paper/tmlr/references.bib}
-\end{itemize}
-
-\subsection{Paper build commands}
-\begin{verbatim}
-# from repository root
-cd paper/tmlr
-pdflatex main.tex
-bibtex main
-pdflatex main.tex
-pdflatex main.tex
-\end{verbatim}
-
-\subsection{Evaluation and quality checks}
-\begin{verbatim}
-# from repository root
-ruff format --check .
-pytest -m "not integration and not stress"
-\end{verbatim}
-
-\subsection{Expected artifacts}
-Successful compilation and checks produce or validate:
-\begin{itemize}
-  \item \texttt{paper/tmlr/main.pdf} (compiled manuscript)
-  \item \texttt{paper/tmlr/main.log}, \texttt{paper/tmlr/main.blg} (build logs)
-  \item \texttt{paper/tmlr/tables/main\_results.tex} (main metrics table)
-  \item \texttt{paper/tmlr/tables/decision\_rules.tex} (claim-gating table)
-\end{itemize}
-
-\subsection{Table reproduction guidance}
-To reproduce manuscript tables, regenerate experiment summaries through the repository's standard evaluation pipeline, then verify that exported deltas and gate metadata match values included in \texttt{tables/main\_results.tex} and \texttt{tables/decision\_rules.tex}. The manuscript should only be updated from committed artifacts produced by that pipeline.
-
-\subsection{Reproducibility checklist}
-\begin{table}[h]
-\centering
-\caption{Compact reproducibility checklist for the confirmatory C100 report.}
-\label{tab:repro-checklist}
-\begin{tabular}{p{0.58\linewidth}p{0.16\linewidth}p{0.2\linewidth}}
-\toprule
-Checklist item & Status & Evidence in repo \\
-\midrule
-Benchmark version recorded & Yes & Manuscript text (\texttt{mixed\_beir\_v1.2.0}) \\
-Random seed recorded & Yes & \texttt{seed=1337} (confirmatory C100 manifest) \\
-Domain-balanced setting recorded & Yes & Manuscript text (\texttt{domain-balanced=true}) \\
-\texttt{max\_candidates} recorded & Yes & Manuscript text (\texttt{max\_candidates=100}) \\
-Paired query-level outputs available & Yes & \texttt{artifacts/confirmatory/c100_domain_balanced/paired_queries.parquet} \\
-Confidence intervals reported & Yes & Main text (bootstrap interval reporting) \\
-Holm correction reported & Yes & Main text (multiplicity control section) \\
-Latency/FLOPs reported & Yes & Main results and conclusion sections \\
-Scripts/commands included & Yes & Reproducibility appendix build/check commands \\
-Claim-gating rule included & Yes & Decision-rules table and claim-gating sections \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-This checklist is intentionally conservative: ``Yes'' indicates the item is documented in manuscript text and/or an explicit repository-relative artifact path tied to the confirmatory domain-balanced C100 run ($n_{\text{pairs}}=1193$, \texttt{max\_candidates=100}).
+This TMLR submission is about methodology: a claim-gated evaluation protocol for small retrieval deltas. In the tested mixed-domain confirmatory setting, Kalman-style fusion did not show a reliable advantage over mean fusion. The recommended scientific conclusion is constrained and artifact-backed: no reliable benefit was demonstrated under the tested protocol.
 
 \bibliography{references}
 
