@@ -1,3 +1,5 @@
+
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
 > **Deprecated (May 10, 2026):** This manuscript is superseded for JOSS submission by `paper/joss/paper.md`. Keep this file only as archival draft material to avoid reviewer confusion.
 
 ---
