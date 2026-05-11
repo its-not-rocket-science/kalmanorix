@@ -15,9 +15,21 @@ def run(cmd: list[str], cwd: Path | None = None) -> None:
     subprocess.run(cmd, cwd=cwd or ROOT, check=True)
 
 
+def _needs_bibtex(aux_path: Path) -> bool:
+    if not aux_path.exists():
+        return False
+    aux_text = aux_path.read_text(encoding="utf-8", errors="ignore")
+    bib_markers = ("\\bibstyle", "\\bibdata", "\\citation")
+    return any(marker in aux_text for marker in bib_markers)
+
+
 def run_tex_build(workdir: Path, stem: str) -> Path:
     run(["pdflatex", f"{stem}.tex"], cwd=workdir)
-    run(["bibtex", stem], cwd=workdir)
+    aux_path = workdir / f"{stem}.aux"
+    if _needs_bibtex(aux_path):
+        run(["bibtex", stem], cwd=workdir)
+    else:
+        print(f"$ bibtex {stem} (skipped: no bibliography markers in {aux_path.name})")
     run(["pdflatex", f"{stem}.tex"], cwd=workdir)
     run(["pdflatex", f"{stem}.tex"], cwd=workdir)
     pdf = workdir / f"{stem}.pdf"
