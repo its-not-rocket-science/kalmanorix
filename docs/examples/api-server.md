@@ -183,13 +183,15 @@ The example server is designed for demonstration. For production deployment, con
 Replace `create_toy_village()` with a function that loads pre‑trained SEFs from disk (pickle files or `SEFModel` directories). For example:
 
 ```python
-import pickle
 
 def load_production_village() -> Village:
     sefs = []
     for path in ["models/medical.pkl", "models/legal.pkl"]:
         with open(path, "rb") as f:
-            sef = pickle.load(f)
+            from kalmanorix.models.sef import SEFModel
+            # Safe default: require explicit embed_loader for executable model code
+            model = SEFModel.from_pretrained(path, embed_loader=my_embed_loader)
+            sef = model
             sefs.append(sef)
     return Village(sefs)
 ```
