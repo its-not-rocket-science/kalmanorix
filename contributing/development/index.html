@@ -2935,7 +2935,7 @@ The hooks also include a local <code>pytest</code> hook that runs on <code>pre-p
 <li><code>kalman_engine/</code> – Core Kalman fusion algorithms<ul>
 <li><code>kalman_fuser.py</code> – Core Kalman update with per‑dimension diagonal covariance (<code>kalman_fuse_diagonal</code>)</li>
 <li><code>covariance.py</code> – Uncertainty estimation strategies (<code>CovarianceEstimator</code>)</li>
-<li><code>fuser.py</code> – New <code>Panoramix</code> orchestrator using the Kalman engine directly (not yet exported)</li>
+<li><code>fuser.py</code> – Legacy Panoramix compatibility wrapper (deprecated import path)</li>
 <li><code>__init__.py</code> – Exports core algorithms</li>
 </ul>
 </li>
