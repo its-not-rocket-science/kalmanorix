@@ -12,7 +12,7 @@
 \usepackage{tcolorbox}
 \usepackage[hidelinks]{hyperref}
 
-\title{A Reproducible Negative-Result Preprint:\\
+\title{Negative Result Preprint:\\
 No Reliable Kalman-over-Mean Gain in Domain-Balanced Retrieval}
 \author{Kalmanorix Project Team}
 \date{May 2026}
@@ -21,7 +21,7 @@ No Reliable Kalman-over-Mean Gain in Domain-Balanced Retrieval}
 \maketitle
 
 \begin{abstract}
-We report a focused negative-result preprint for mixed-domain retrieval fusion. In the canonical domain-balanced C100 confirmatory run ($n_{\text{pairs}}=1193$), Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$; recall@100 delta is 0.0. Compute overhead is bounded (latency ratio 1.0722551296204925; FLOPs ratio 1.0). The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}. This preprint emphasizes reproducibility artifacts, claim scope, and cautious interpretation rather than broad methodology claims.
+We report a concise, reproducible negative-result preprint for mixed-domain retrieval fusion. In the canonical domain-balanced C100 confirmatory run ($n_{\text{pairs}}=1193$), Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$; recall@100 delta is 0.0. Compute overhead is bounded (latency ratio 1.0722551296204925; FLOPs ratio 1.0). The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}. Relative to the TMLR manuscript, this version prioritizes the negative empirical result and exact reproduction instructions.
 \end{abstract}
 
 \begin{tcolorbox}[colback=gray!8,colframe=black,title=Scope of conclusion]
@@ -33,7 +33,7 @@ It does \textbf{not} claim that Kalman methods are universally ineffective, nor 
 \section{Setup (confirmatory track only)}
 Benchmark: \texttt{mixed\_beir\_v1.2.0} with train=5078, validation=634, test=1193, minimum per-domain test count 126. Confirmatory settings: \texttt{domain-balanced=true}, \texttt{max\_candidates=100}, paired query-level analysis, Holm correction, and practical-effect gate.
 
-Primary endpoint: paired $\Delta$ nDCG@10 (Kalman minus Mean). Practical threshold: $|\Delta|\ge 0.02$. Statistical threshold: Holm-adjusted $p<0.05$. Efficiency checks: latency ratio $\le 1.5$, FLOPs ratio $\le 1.1$.
+Primary endpoint: paired $\Delta$ nDCG@10 (Kalman minus Mean). Decision gates match the registered artifacts: practical threshold $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$.
 
 \section{Main negative result}
 The final confirmatory outputs (from \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}) are:
@@ -110,7 +110,7 @@ pytest -m "not integration and not stress"
 \end{verbatim}
 
 \section{Recommended citation and artifact use}
-When citing this preprint, cite it as a \textbf{negative-result, protocol-local empirical study}. For numeric claims, prefer artifact-backed references to:
+When citing this preprint, cite it as a \textbf{negative-result, protocol-local empirical study} rather than a general method-validation paper. For numeric claims, prefer artifact-backed references to:
 \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For system-level context, include \texttt{results/canonical\_benchmark\_v3\_fast\_1200/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}. Avoid extending conclusions beyond the tested protocol unless new confirmatory evidence is provided.
 
 \bibliographystyle{plain}
