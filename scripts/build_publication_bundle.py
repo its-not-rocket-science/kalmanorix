@@ -19,8 +19,8 @@ def _needs_bibtex(aux_path: Path) -> bool:
     if not aux_path.exists():
         return False
     aux_text = aux_path.read_text(encoding="utf-8", errors="ignore")
-    bib_markers = ("\\bibstyle", "\\bibdata", "\\citation")
-    return any(marker in aux_text for marker in bib_markers)
+    citation_markers = ("\\citation", "\\abx")
+    return any(marker in aux_text for marker in citation_markers)
 
 
 def run_tex_build(workdir: Path, stem: str) -> Path:
