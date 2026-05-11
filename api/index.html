@@ -12,31 +12,31 @@
         <meta name="author" content="Kalmanorix Contributors">
       
       
-        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/research/experiments/">
+        <link rel="canonical" href="https://its-not-rocket-science.github.io/kalmanorix/api/">
       
       
-        <link rel="prev" href="../../publication/zenodo_joss_release_checklist/">
+        <link rel="prev" href="../concepts/alignment/">
       
       
-        <link rel="next" href="../results/">
+        <link rel="next" href="../api-reference/village/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Experiments - Kalmanorix</title>
+        <title>API Overview - Kalmanorix</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,11 +55,11 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../css/extra.css">
+      <link rel="stylesheet" href="../css/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#experiments" class="md-skip">
+        <a href="#public-api-overview" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kalmanorix" class="md-header__button md-logo" aria-label="Kalmanorix" data-md-component="logo">
+    <a href=".." title="Kalmanorix" class="md-header__button md-logo" aria-label="Kalmanorix" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -122,7 +122,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Experiments
+              API Overview
             
           </span>
         </div>
@@ -235,7 +235,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -256,7 +256,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/installation/" class="md-tabs__link">
+        <a href="../getting-started/installation/" class="md-tabs__link">
           
   
   
@@ -276,7 +276,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../concepts/kalman-fusion/" class="md-tabs__link">
+        <a href="../concepts/kalman-fusion/" class="md-tabs__link">
           
   
   
@@ -292,9 +292,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../../api/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
         
   
   
@@ -315,7 +317,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../api-reference/village/" class="md-tabs__link">
+        <a href="../api-reference/village/" class="md-tabs__link">
           
   
   
@@ -335,7 +337,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guides/creating-specialists/" class="md-tabs__link">
+        <a href="../guides/creating-specialists/" class="md-tabs__link">
           
   
   
@@ -355,7 +357,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../examples/minimal-fusion/" class="md-tabs__link">
+        <a href="../examples/minimal-fusion/" class="md-tabs__link">
           
   
   
@@ -375,7 +377,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../publication/zenodo_joss_release_checklist/" class="md-tabs__link">
+        <a href="../publication/zenodo_joss_release_checklist/" class="md-tabs__link">
           
   
   
@@ -391,13 +393,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../research/experiments/" class="md-tabs__link">
           
   
   
@@ -417,7 +417,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../contributing/model-contributors/" class="md-tabs__link">
+        <a href="../contributing/model-contributors/" class="md-tabs__link">
           
   
   
@@ -451,7 +451,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kalmanorix" class="md-nav__button md-logo" aria-label="Kalmanorix" data-md-component="logo">
+    <a href=".." title="Kalmanorix" class="md-nav__button md-logo" aria-label="Kalmanorix" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -481,7 +481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -562,7 +562,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/installation/" class="md-nav__link">
+      <a href="../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -590,7 +590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/quickstart/" class="md-nav__link">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
         
   
   
@@ -618,7 +618,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/examples/" class="md-nav__link">
+      <a href="../getting-started/examples/" class="md-nav__link">
         
   
   
@@ -707,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/kalman-fusion/" class="md-nav__link">
+      <a href="../concepts/kalman-fusion/" class="md-nav__link">
         
   
   
@@ -735,7 +735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/specialist-embeddings/" class="md-nav__link">
+      <a href="../concepts/specialist-embeddings/" class="md-nav__link">
         
   
   
@@ -763,7 +763,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/uncertainty-estimation/" class="md-nav__link">
+      <a href="../concepts/uncertainty-estimation/" class="md-nav__link">
         
   
   
@@ -791,7 +791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/alignment/" class="md-nav__link">
+      <a href="../concepts/alignment/" class="md-nav__link">
         
   
   
@@ -823,10 +823,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../api/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -842,6 +869,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-classes-and-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core classes and functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stability-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stability tiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -907,7 +976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api-reference/village/" class="md-nav__link">
+      <a href="../api-reference/village/" class="md-nav__link">
         
   
   
@@ -935,7 +1004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api-reference/panoramix/" class="md-nav__link">
+      <a href="../api-reference/panoramix/" class="md-nav__link">
         
   
   
@@ -963,7 +1032,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api-reference/scout-router/" class="md-nav__link">
+      <a href="../api-reference/scout-router/" class="md-nav__link">
         
   
   
@@ -991,7 +1060,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api-reference/embedder-adapters/" class="md-nav__link">
+      <a href="../api-reference/embedder-adapters/" class="md-nav__link">
         
   
   
@@ -1019,7 +1088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api-reference/kalman-engine/" class="md-nav__link">
+      <a href="../api-reference/kalman-engine/" class="md-nav__link">
         
   
   
@@ -1047,7 +1116,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api-reference/alignment/" class="md-nav__link">
+      <a href="../api-reference/alignment/" class="md-nav__link">
         
   
   
@@ -1136,7 +1205,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/creating-specialists/" class="md-nav__link">
+      <a href="../guides/creating-specialists/" class="md-nav__link">
         
   
   
@@ -1164,7 +1233,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/fusion-strategies/" class="md-nav__link">
+      <a href="../guides/fusion-strategies/" class="md-nav__link">
         
   
   
@@ -1192,7 +1261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/uncertainty-calibration/" class="md-nav__link">
+      <a href="../guides/uncertainty-calibration/" class="md-nav__link">
         
   
   
@@ -1220,7 +1289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/deployment/" class="md-nav__link">
+      <a href="../guides/deployment/" class="md-nav__link">
         
   
   
@@ -1248,7 +1317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/production-deployment-audit-2026-04/" class="md-nav__link">
+      <a href="../guides/production-deployment-audit-2026-04/" class="md-nav__link">
         
   
   
@@ -1276,7 +1345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/api-usage/" class="md-nav__link">
+      <a href="../guides/api-usage/" class="md-nav__link">
         
   
   
@@ -1304,7 +1373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/production-api-design/" class="md-nav__link">
+      <a href="../guides/production-api-design/" class="md-nav__link">
         
   
   
@@ -1393,7 +1462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/minimal-fusion/" class="md-nav__link">
+      <a href="../examples/minimal-fusion/" class="md-nav__link">
         
   
   
@@ -1421,7 +1490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/routing-toolkit-e2e/" class="md-nav__link">
+      <a href="../examples/routing-toolkit-e2e/" class="md-nav__link">
         
   
   
@@ -1449,7 +1518,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/huggingface-integration/" class="md-nav__link">
+      <a href="../examples/huggingface-integration/" class="md-nav__link">
         
   
   
@@ -1477,7 +1546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/api-server/" class="md-nav__link">
+      <a href="../examples/api-server/" class="md-nav__link">
         
   
   
@@ -1505,7 +1574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/interactive-demo/" class="md-nav__link">
+      <a href="../examples/interactive-demo/" class="md-nav__link">
         
   
   
@@ -1533,7 +1602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/multi-domain-search-tutorial/" class="md-nav__link">
+      <a href="../examples/multi-domain-search-tutorial/" class="md-nav__link">
         
   
   
@@ -1561,7 +1630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/real-time-semantic-search/" class="md-nav__link">
+      <a href="../examples/real-time-semantic-search/" class="md-nav__link">
         
   
   
@@ -1589,7 +1658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/cross-lingual-fusion/" class="md-nav__link">
+      <a href="../examples/cross-lingual-fusion/" class="md-nav__link">
         
   
   
@@ -1678,7 +1747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../publication/zenodo_joss_release_checklist/" class="md-nav__link">
+      <a href="../publication/zenodo_joss_release_checklist/" class="md-nav__link">
         
   
   
@@ -1710,31 +1779,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -1752,7 +1818,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1767,37 +1833,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../research/experiments/" class="md-nav__link">
         
   
   
@@ -1813,264 +1852,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#current-evidence-state" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Current Evidence State
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kalman-improvement-experiment-tracks-current-map" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Kalman improvement experiment tracks (current map)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-demonstrated-evidence-as-of-april-9-2026" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1) Demonstrated Evidence (as of April 9, 2026)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="1) Demonstrated Evidence (as of April 9, 2026)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#demonstrated-claim" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Demonstrated claim
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#evidence-artifacts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Evidence artifacts
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#scope-limitation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope limitation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#canonical-benchmark-decision-criteria-kalman-vs-mean" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Canonical benchmark decision criteria (Kalman vs Mean)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-pending-core-claims-planned-not-demonstrated" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2) Pending Core Claims (planned, not demonstrated)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2) Pending Core Claims (planned, not demonstrated)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#claim-kalman-fusion-mean-fusion-on-retrieval-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Claim: Kalman fusion &gt; mean fusion on retrieval quality
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#claim-fused-specialists-monolith-at-equal-compute" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Claim: fused specialists &gt; monolith at equal compute
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#claim-uncertainty-weighting-improves-ood-robustness" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Claim: uncertainty weighting improves OOD robustness
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-synthetic-results-explicitly-labeled" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3) Synthetic Results (explicitly labeled)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-primary-evaluation-path-real-benchmark-path" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4) Primary Evaluation Path (real benchmark path)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4) Primary Evaluation Path (real benchmark path)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#benchmark-objective" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Benchmark objective
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build-benchmark-artifacts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build benchmark artifacts
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-primary-benchmark-canonical-v3-default-target" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run primary benchmark (canonical v3 default target)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-hostile-credibility-layer-benchmark-does-not-replace-canonical" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run hostile credibility-layer benchmark (does not replace canonical)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#compatibility-entrypoints-real-mode-by-default" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compatibility entrypoints (real mode by default)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-threats-to-validity-must-be-reported-with-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5) Threats to Validity (must be reported with results)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-kalman-improvements-changed-empirically-current" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Kalman improvements changed empirically (current)
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2083,7 +1864,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../results/" class="md-nav__link">
+      <a href="../research/results/" class="md-nav__link">
         
   
   
@@ -2111,7 +1892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../failure-modes-analysis/" class="md-nav__link">
+      <a href="../research/failure-modes-analysis/" class="md-nav__link">
         
   
   
@@ -2139,7 +1920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../preregistered-evaluation-protocol/" class="md-nav__link">
+      <a href="../research/preregistered-evaluation-protocol/" class="md-nav__link">
         
   
   
@@ -2167,7 +1948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../statistical-comparison-framework/" class="md-nav__link">
+      <a href="../research/statistical-comparison-framework/" class="md-nav__link">
         
   
   
@@ -2195,7 +1976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mixed-domain-retrieval-benchmark/" class="md-nav__link">
+      <a href="../research/mixed-domain-retrieval-benchmark/" class="md-nav__link">
         
   
   
@@ -2223,7 +2004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../real-specialist-implementation-plan/" class="md-nav__link">
+      <a href="../research/real-specialist-implementation-plan/" class="md-nav__link">
         
   
   
@@ -2251,7 +2032,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../falsification-experiment-design/" class="md-nav__link">
+      <a href="../research/falsification-experiment-design/" class="md-nav__link">
         
   
   
@@ -2285,13 +2066,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -2300,7 +2078,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9_9" >
         
           
-          <label class="md-nav__link" for="__nav_9_9" id="__nav_9_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_9_9" id="__nav_9_9_label" tabindex="0">
             
   
   
@@ -2336,7 +2114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../milestones/" class="md-nav__link">
+      <a href="../milestones/" class="md-nav__link">
         
   
   
@@ -2364,7 +2142,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../milestones/0001-specialist-drift-breaks-fusion/" class="md-nav__link">
+      <a href="../milestones/0001-specialist-drift-breaks-fusion/" class="md-nav__link">
         
   
   
@@ -2461,7 +2239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/model-contributors/" class="md-nav__link">
+      <a href="../contributing/model-contributors/" class="md-nav__link">
         
   
   
@@ -2489,7 +2267,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/development/" class="md-nav__link">
+      <a href="../contributing/development/" class="md-nav__link">
         
   
   
@@ -2517,7 +2295,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/testing/" class="md-nav__link">
+      <a href="../contributing/testing/" class="md-nav__link">
         
   
   
@@ -2545,7 +2323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/roadmap/" class="md-nav__link">
+      <a href="../contributing/roadmap/" class="md-nav__link">
         
   
   
@@ -2600,10 +2378,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#current-evidence-state" class="md-nav__link">
+  <a href="#core-classes-and-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Current Evidence State
+        Core classes and functions
       
     </span>
   </a>
@@ -2611,226 +2389,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#kalman-improvement-experiment-tracks-current-map" class="md-nav__link">
+  <a href="#stability-tiers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Kalman improvement experiment tracks (current map)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-demonstrated-evidence-as-of-april-9-2026" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1) Demonstrated Evidence (as of April 9, 2026)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="1) Demonstrated Evidence (as of April 9, 2026)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#demonstrated-claim" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Demonstrated claim
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#evidence-artifacts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Evidence artifacts
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#scope-limitation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope limitation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#canonical-benchmark-decision-criteria-kalman-vs-mean" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Canonical benchmark decision criteria (Kalman vs Mean)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-pending-core-claims-planned-not-demonstrated" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2) Pending Core Claims (planned, not demonstrated)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2) Pending Core Claims (planned, not demonstrated)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#claim-kalman-fusion-mean-fusion-on-retrieval-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Claim: Kalman fusion &gt; mean fusion on retrieval quality
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#claim-fused-specialists-monolith-at-equal-compute" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Claim: fused specialists &gt; monolith at equal compute
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#claim-uncertainty-weighting-improves-ood-robustness" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Claim: uncertainty weighting improves OOD robustness
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-synthetic-results-explicitly-labeled" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3) Synthetic Results (explicitly labeled)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-primary-evaluation-path-real-benchmark-path" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4) Primary Evaluation Path (real benchmark path)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4) Primary Evaluation Path (real benchmark path)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#benchmark-objective" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Benchmark objective
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build-benchmark-artifacts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build benchmark artifacts
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-primary-benchmark-canonical-v3-default-target" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run primary benchmark (canonical v3 default target)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-hostile-credibility-layer-benchmark-does-not-replace-canonical" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run hostile credibility-layer benchmark (does not replace canonical)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#compatibility-entrypoints-real-mode-by-default" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compatibility entrypoints (real mode by default)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-threats-to-validity-must-be-reported-with-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5) Threats to Validity (must be reported with results)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-kalman-improvements-changed-empirically-current" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Kalman improvements changed empirically (current)
+        Stability tiers
       
     </span>
   </a>
@@ -2855,46 +2417,6 @@
   
 
 
-  <nav class="md-path" aria-label="Navigation" >
-    <ol class="md-path__list">
-      
-        
-  
-  
-    <li class="md-path__item">
-      <a href="../.." class="md-path__link">
-        
-  <span class="md-ellipsis">
-    Home
-  </span>
-
-      </a>
-    </li>
-  
-
-      
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="./" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Research
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-    </ol>
-  </nav>
-
               
               <article class="md-content__inner md-typeset">
                 
@@ -2905,150 +2427,26 @@
   
 
 
-<h1 id="experiments">Experiments<a class="headerlink" href="#experiments" title="Permanent link">&para;</a></h1>
-<p>This document defines the experiment policy after the April 2026 audit: <strong>separate demonstrated evidence from planned work, and label synthetic results explicitly</strong>.</p>
-<h2 id="current-evidence-state">Current Evidence State<a class="headerlink" href="#current-evidence-state" title="Permanent link">&para;</a></h2>
+<h1 id="public-api-overview">Public API overview<a class="headerlink" href="#public-api-overview" title="Permanent link">&para;</a></h1>
+<p>This page summarizes the primary JOSS-facing API surface.</p>
+<h2 id="core-classes-and-functions">Core classes and functions<a class="headerlink" href="#core-classes-and-functions" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Canonical artifact paths:</strong> <code>results/canonical_benchmark/</code> (v1 provenance) and <code>results/canonical_benchmark_v2/</code> (current decision artifact).</li>
-<li><strong>State:</strong> <strong>Real artifacts committed</strong> (<code>summary.json</code>, <code>report.md</code>, and v2 runner summaries).</li>
-<li><strong>Status signal:</strong> benchmark pipelines are active and reproducible; unresolved quality claims remain unresolved under current evidence thresholds.</li>
+<li><a href="../api-reference/village/"><code>SEF</code></a></li>
+<li><a href="../api-reference/village/"><code>Village</code></a></li>
+<li><a href="../api-reference/scout-router/"><code>ScoutRouter</code></a></li>
+<li><a href="../api-reference/panoramix/"><code>Panoramix</code></a></li>
+<li><a href="../api-reference/panoramix/"><code>MeanFuser</code></a></li>
+<li><a href="../api-reference/panoramix/"><code>KalmanorixFuser</code></a></li>
+<li>Routing evaluator: <a href="../api-reference/scout-router/"><code>eval_retrieval</code></a></li>
 </ul>
-<h2 id="kalman-improvement-experiment-tracks-current-map">Kalman improvement experiment tracks (current map)<a class="headerlink" href="#kalman-improvement-experiment-tracks-current-map" title="Permanent link">&para;</a></h2>
-<p>This is the compact map of implemented Kalman-improvement tracks and how to interpret their current outputs.</p>
-<table>
-<thead>
-<tr>
-<th>Track</th>
-<th>Artifacts</th>
-<th>Current interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Canonical benchmark v2</td>
-<td><code>results/canonical_benchmark_v2/summary.json</code>, <code>results/canonical_benchmark_v2/report.md</code></td>
-<td>Decision remains <code>inconclusive_underpowered</code>; do not claim Kalman&gt;Mean quality superiority from this run.</td>
-</tr>
-<tr>
-<td>Uncertainty calibration</td>
-<td><code>results/uncertainty_calibration/summary.json</code>, <code>results/uncertainty_calibration/report.md</code></td>
-<td>Powered calibration setup now exists, but downstream delta change is currently null (<code>0.0</code> validation/test).</td>
-</tr>
-<tr>
-<td>Uncertainty ablation</td>
-<td><code>results/uncertainty_ablation/summary.json</code>, <code>results/uncertainty_ablation/report.md</code></td>
-<td>Calibration proxies improve for some methods, while retrieval metrics are largely unchanged in this setup.</td>
-</tr>
-<tr>
-<td>Covariance ablation</td>
-<td><code>results/kalman_covariance_ablation_v2/summary.json</code>, <code>results/kalman_covariance_ablation_v2/report.md</code></td>
-<td>Richer covariance families are implemented and tested but not justified by practical gains here.</td>
-</tr>
-<tr>
-<td>Correlation-aware fusion</td>
-<td><code>results/correlation_aware_fusion/summary.json</code>, <code>results/correlation_aware_fusion/report.md</code></td>
-<td>Narrowed-hypothesis synthetic correlated-experts regime with paired stats/latency; exploratory only and explicitly non-headline.</td>
-</tr>
-<tr>
-<td>Latency optimisation</td>
-<td><code>results/kalman_latency_optimisation/summary.json</code>, <code>results/kalman_latency_optimisation/report.md</code></td>
-<td>Legacy Kalman path is measurably faster after optimisation, but canonical latency-ratio acceptance is still not met.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="1-demonstrated-evidence-as-of-april-9-2026">1) Demonstrated Evidence (as of April 9, 2026)<a class="headerlink" href="#1-demonstrated-evidence-as-of-april-9-2026" title="Permanent link">&para;</a></h2>
-<h3 id="demonstrated-claim">Demonstrated claim<a class="headerlink" href="#demonstrated-claim" title="Permanent link">&para;</a></h3>
+<h2 id="stability-tiers">Stability tiers<a class="headerlink" href="#stability-tiers" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Claim:</strong> Semantic routing can reduce compute by selecting fewer specialists.</li>
-<li><strong>Evidence status:</strong> <strong>Supported in current benchmark artifacts</strong>.</li>
+<li>Stable API: top-level <code>kalmanorix</code> imports.</li>
+<li>Experimental API: <code>kalmanorix.experimental</code> (faster iteration pace).</li>
+<li>Internal API: <code>kalmanorix.internal</code> (no compatibility guarantees).</li>
 </ul>
-<h3 id="evidence-artifacts">Evidence artifacts<a class="headerlink" href="#evidence-artifacts" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>results/efficiency_semantic_routing.json</code></li>
-<li><code>results/semantic_routing_efficiency_report.md</code></li>
-<li><code>experiments/benchmark_efficiency.py</code></li>
-</ul>
-<h3 id="scope-limitation">Scope limitation<a class="headerlink" href="#scope-limitation" title="Permanent link">&para;</a></h3>
-<p>This evidence demonstrates compute behaviour in the tested benchmark setup; it does <strong>not</strong> by itself prove quality gains or universal real-world latency improvements.</p>
-<hr />
-<h2 id="canonical-benchmark-decision-criteria-kalman-vs-mean">Canonical benchmark decision criteria (Kalman vs Mean)<a class="headerlink" href="#canonical-benchmark-decision-criteria-kalman-vs-mean" title="Permanent link">&para;</a></h2>
-<p>The canonical benchmark must end with a rule-based verdict for <strong>KalmanorixFuser vs MeanFuser</strong>:</p>
-<ul>
-<li><strong>primary metric:</strong> <code>nDCG@10</code> paired mean difference (<code>Kalman - Mean</code>)</li>
-<li><strong>minimum effect size:</strong> <code>&gt;= 0.02</code></li>
-<li><strong>adjusted p-value threshold:</strong> Holm-adjusted <code>p &lt;= 0.05</code></li>
-<li><strong>latency/FLOPs trade-off constraint:</strong> <code>latency_ratio(Kalman/Mean) &lt;= 1.5</code> and <code>flops_ratio(Kalman/Mean) &lt;= 1.1</code></li>
-</ul>
-<p>Verdict labels are defined as:</p>
-<ul>
-<li><strong>supported:</strong> all four checks pass</li>
-<li><strong>unsupported:</strong> <code>nDCG@10</code> delta is non-positive (<code>&lt;= 0</code>) <strong>and</strong> Holm-adjusted p-value is significant (<code>&lt;= 0.05</code>)</li>
-<li><strong>inconclusive:</strong> any other outcome</li>
-</ul>
-<p>This framework is intentionally conservative and prefers <strong>inconclusive</strong> over forced directional claims when evidence is weak or trade-offs fail.</p>
-<hr />
-<h2 id="2-pending-core-claims-planned-not-demonstrated">2) Pending Core Claims (planned, not demonstrated)<a class="headerlink" href="#2-pending-core-claims-planned-not-demonstrated" title="Permanent link">&para;</a></h2>
-<h3 id="claim-kalman-fusion-mean-fusion-on-retrieval-quality">Claim: Kalman fusion &gt; mean fusion on retrieval quality<a class="headerlink" href="#claim-kalman-fusion-mean-fusion-on-retrieval-quality" title="Permanent link">&para;</a></h3>
-<p><strong>Evidence status:</strong> <strong>Unresolved</strong> (no final statistical artifact proving improvement).</p>
-<h3 id="claim-fused-specialists-monolith-at-equal-compute">Claim: fused specialists &gt; monolith at equal compute<a class="headerlink" href="#claim-fused-specialists-monolith-at-equal-compute" title="Permanent link">&para;</a></h3>
-<p><strong>Evidence status:</strong> <strong>Evaluated, unresolved superiority</strong> (completed artifact is mixed with null quality delta and regression on inference cost).</p>
-<h3 id="claim-uncertainty-weighting-improves-ood-robustness">Claim: uncertainty weighting improves OOD robustness<a class="headerlink" href="#claim-uncertainty-weighting-improves-ood-robustness" title="Permanent link">&para;</a></h3>
-<p><strong>Evidence status:</strong> <strong>Evaluated, currently inconclusive</strong> (completed guarded artifact includes explicit null and regression-risk outcomes).</p>
-<hr />
-<h2 id="3-synthetic-results-explicitly-labeled">3) Synthetic Results (explicitly labeled)<a class="headerlink" href="#3-synthetic-results-explicitly-labeled" title="Permanent link">&para;</a></h2>
-<p>The following are <strong>Synthetic / Debug only</strong> and are not valid as headline evidence:</p>
-<ul>
-<li><code>experiments/benchmark_fusion_methods.py</code></li>
-<li><code>experiments/validate_fusion.py --debug-synthetic</code></li>
-<li><code>experiments/mixed_domain_eval.py --debug-synthetic</code></li>
-</ul>
-<p>Use these to debug pipelines and catch regressions; do not use them to support core scientific claims.</p>
-<hr />
-<h2 id="4-primary-evaluation-path-real-benchmark-path">4) Primary Evaluation Path (real benchmark path)<a class="headerlink" href="#4-primary-evaluation-path-real-benchmark-path" title="Permanent link">&para;</a></h2>
-<h3 id="benchmark-objective">Benchmark objective<a class="headerlink" href="#benchmark-objective" title="Permanent link">&para;</a></h3>
-<p>Evaluate Kalman fusion against mean fusion on a mixed-domain benchmark with explicit relevance labels.</p>
-<h3 id="build-benchmark-artifacts">Build benchmark artifacts<a class="headerlink" href="#build-benchmark-artifacts" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>scripts/build_mixed_benchmark.py<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--output-dir<span class="w"> </span>benchmarks/mixed_beir_v1.2.0<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--seed<span class="w"> </span><span class="m">1337</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--max-candidates<span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--cross-domain-negative-ratio<span class="w"> </span><span class="m">0</span>.60<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--max-queries-per-domain<span class="w"> </span><span class="m">1800</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--max-test-queries-per-domain<span class="w"> </span><span class="m">360</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span>--hard-queries-per-category-per-domain<span class="w"> </span><span class="m">20</span>
-</span></code></pre></div>
-<h3 id="run-primary-benchmark-canonical-v3-default-target">Run primary benchmark (canonical v3 default target)<a class="headerlink" href="#run-primary-benchmark-canonical-v3-default-target" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>experiments/run_canonical_benchmark.py<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--benchmark-path<span class="w"> </span>benchmarks/mixed_beir_v1.2.0/mixed_benchmark.parquet<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>--split<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--max-queries<span class="w"> </span><span class="m">1800</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/canonical_benchmark_v3
-</span></code></pre></div>
-<h3 id="run-hostile-credibility-layer-benchmark-does-not-replace-canonical">Run hostile credibility-layer benchmark (does not replace canonical)<a class="headerlink" href="#run-hostile-credibility-layer-benchmark-does-not-replace-canonical" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>experiments/run_hostile_benchmark.py<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--config<span class="w"> </span>experiments/configs/kalman_hostile_benchmark_v1.json
-</span></code></pre></div>
-<p>Hostile artifacts are written to <code>results/kalman_hostile_benchmark_v1/</code> by default and must be interpreted as an additional falsification-oriented stress layer. The canonical benchmark remains the primary evidence track.</p>
-<h3 id="compatibility-entrypoints-real-mode-by-default">Compatibility entrypoints (real mode by default)<a class="headerlink" href="#compatibility-entrypoints-real-mode-by-default" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>experiments/validate_fusion.py
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>python<span class="w"> </span>experiments/mixed_domain_eval.py
-</span></code></pre></div>
-<hr />
-<h2 id="5-threats-to-validity-must-be-reported-with-results">5) Threats to Validity (must be reported with results)<a class="headerlink" href="#5-threats-to-validity-must-be-reported-with-results" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>Benchmark representativeness:</strong> selected domains and queries may not match production distributions.</li>
-<li><strong>Statistical stability:</strong> limited query counts can produce unstable estimates and p-values.</li>
-<li><strong>Compute parity validity:</strong> specialists-vs-monolith comparisons can be biased if training/inference budgets differ.</li>
-<li><strong>Calibration quality:</strong> uncertainty quality directly affects Kalman weighting behaviour.</li>
-<li><strong>Routing sensitivity:</strong> fixed thresholds may under-select or over-select specialists depending on query mix.</li>
-</ol>
-<hr />
-<h2 id="what-kalman-improvements-changed-empirically-current">What Kalman improvements changed empirically (current)<a class="headerlink" href="#what-kalman-improvements-changed-empirically-current" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Improved implementation and instrumentation:</strong> uncertainty calibration now has explicit power checks; covariance variants, correlation-aware fusion, and latency optimisations all have committed artifact trails.</li>
-<li><strong>Unchanged/null outcomes where observed:</strong> canonical Kalman-vs-Mean remains unresolved; uncertainty calibration and uncertainty ablation currently do not produce a robust downstream quality lift in committed runs.</li>
-<li><strong>Open questions:</strong> can small correlation-aware gains replicate at larger sample sizes, and can additional latency optimisation meet canonical latency thresholds while preserving quality metrics.</li>
-</ul>
+<p>Legacy top-level imports for moved experimental symbols are supported with
+<code>DeprecationWarning</code> shims to preserve backward compatibility.</p>
 
 
 
@@ -3137,12 +2535,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotate", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "0.1.0"}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotate", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "0.1.0"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="../../js/extra.js"></script>
+        <script src="../js/extra.js"></script>
       
     
   </body>
