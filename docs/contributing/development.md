@@ -88,7 +88,7 @@ pytest
   - `kalman_engine/` – Core Kalman fusion algorithms
     - `kalman_fuser.py` – Core Kalman update with per‑dimension diagonal covariance (`kalman_fuse_diagonal`)
     - `covariance.py` – Uncertainty estimation strategies (`CovarianceEstimator`)
-    - `fuser.py` – New `Panoramix` orchestrator using the Kalman engine directly (not yet exported)
+    - `fuser.py` – Legacy Panoramix compatibility wrapper (deprecated import path)
     - `__init__.py` – Exports core algorithms
   - `models/sef.py` – SEFModel (Shareable Embedding Format with save/load capabilities)
   - `sef_io.py` – I/O utilities for SEF (future)

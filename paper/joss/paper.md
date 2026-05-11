@@ -58,6 +58,7 @@ pytest -m "not integration and not stress"
 ```
 
 Typical advanced usage combines benchmark manifests, routing configuration, fusion baseline sweeps, and report generation into one reproducible run directory with JSON + Markdown outputs.
+The canonical Python orchestration API is `kalmanorix.panoramix.Panoramix`; the older `kalmanorix.kalman_engine.fuser.Panoramix` import path is retained as a deprecated compatibility shim.
 
 # Reproducibility and testing
 
