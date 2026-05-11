@@ -1,5 +1,7 @@
 # JOSS paper materials for Kalmanorix
 
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
+
 This directory contains draft JOSS paper assets for Kalmanorix research software:
 
 - `paper.md` — JOSS-format manuscript with YAML metadata and section structure.

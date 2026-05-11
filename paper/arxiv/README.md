@@ -1,5 +1,7 @@
 # Kalmanorix negative-result preprint (arXiv package)
 
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
+
 This directory contains an arXiv-ready UK-English preprint source for the canonical negative result:
 Kalman fusion did not beat mean fusion on the claim-ready mixed-domain retrieval benchmark, while hard routing was the strongest observed baseline.
 

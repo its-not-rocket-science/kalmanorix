@@ -1,5 +1,7 @@
 # TMLR Draft (Anonymous by Default)
 
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
+
 This directory contains a **TMLR-style LaTeX submission draft** for the Kalmanorix negative empirical study.
 
 ## Files

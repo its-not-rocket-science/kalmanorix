@@ -1,3 +1,5 @@
+
+> Evidence registry source of truth: `results/evidence_registry.json` (generated via `PYTHONPATH=src python scripts/build_evidence_registry.py`).
 | claim gate item | status |
 |---|---|
 | benchmark status | claim ready |
