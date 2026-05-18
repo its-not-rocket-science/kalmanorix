@@ -124,6 +124,7 @@ def main() -> int:
         run(["python", "scripts/build_mixed_benchmark.py"])
 
     run(["python", "scripts/build_evidence_registry.py"])
+    run(["python", "scripts/build_claim_gate.py"])
     run(["python", "scripts/check_publication_consistency.py"])
     run(["python", "scripts/export_paper_tables.py"])
 

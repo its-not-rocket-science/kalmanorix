@@ -1,17 +1,13 @@
-\begin{table}[t]
-\centering
-\caption{Confirmatory paired outcomes (Kalman minus mean).}
-\label{tab:main-results}
-\begin{tabular}{lc}
+\begin{tabular}{lccccc}
 \toprule
-Quantity & Value \\
+Method & nDCG@10 & MRR@10 & Recall@10 & latency (ms) & FLOPs proxy \\
 \midrule
-$n_{\text{pairs}}$ & \ConfirmPairs \\
-$n\mathrm{DCG}@10$ delta & $\DeltaNDCG$ \\
-Holm-adjusted $p$ & \HolmP \\
-Recall@100 delta & \DeltaRecall \\
-Latency ratio (Kalman / mean) & \LatencyRatio \\
-FLOPs ratio (Kalman / mean) & \FlopsRatio \\
+KalmanorixFuser & 0.0918 & 0.1071 & 0.1225 & 495.431 & 3.000 \\
+MeanFuser & 0.0918 & 0.1071 & 0.1220 & 462.046 & 3.000 \\
+fixed weighted mean baseline & 0.0918 & 0.1079 & 0.1226 & 4.211 & 3.000 \\
+hard routing baseline & 0.0983 & 0.1099 & 0.1403 & 8.051 & 1.000 \\
+learned linear combiner & 0.0917 & 0.0994 & 0.1346 & 4.547 & 2.000 \\
+single generalist model & 0.0910 & 0.1013 & 0.1268 & 4.957 & 1.000 \\
+all-routing + mean baseline & 0.0918 & 0.1079 & 0.1226 & 3.992 & 3.000 \\
 \bottomrule
 \end{tabular}
-\end{table}

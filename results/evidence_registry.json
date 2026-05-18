@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-11T10:41:54.652457+00:00",
+  "generated_at": "2026-05-11T17:42:04.047554+00:00",
   "claims": [
     {
       "claim_id": "routing_efficiency",
       "claim_text": "Semantic routing improves compute efficiency in benchmarked settings.",
       "evidence_status": "supported",
       "artifact_paths_used": [
-        "results/routing_eval/summary.json",
-        "results/efficiency_semantic_routing.json"
+        "results\\routing_eval\\summary.json",
+        "results\\efficiency_semantic_routing.json"
       ],
       "headline_safe_sentence": "Routing efficiency is supported for current benchmark artifacts (about 65% average FLOPs reduction in current setup).",
       "prohibited_overclaims": [
@@ -19,7 +19,7 @@
         "tmlr",
         "joss"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -27,8 +27,8 @@
       "claim_text": "Kalman fusion improves retrieval quality over mean fusion.",
       "evidence_status": "unresolved",
       "artifact_paths_used": [
-        "results/canonical_benchmark_v2/summary.json",
-        "results/canonical_benchmark_v3/summary.json"
+        "results\\canonical_benchmark_v2\\summary.json",
+        "results\\canonical_benchmark_v3\\summary.json"
       ],
       "headline_safe_sentence": "Current canonical artifacts do not close a Kalman-over-mean quality claim.",
       "prohibited_overclaims": [
@@ -38,7 +38,7 @@
         "arxiv",
         "tmlr"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -46,7 +46,7 @@
       "claim_text": "Fused specialists outperform monolith at matched compute.",
       "evidence_status": "inconclusive",
       "artifact_paths_used": [
-        "results/matched_compute/summary.json"
+        "results\\matched_compute\\summary.json"
       ],
       "headline_safe_sentence": "Matched-compute artifact is mixed and does not establish superiority.",
       "prohibited_overclaims": [
@@ -56,7 +56,7 @@
         "arxiv",
         "tmlr"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -64,7 +64,7 @@
       "claim_text": "Uncertainty weighting improves OOD robustness.",
       "evidence_status": "inconclusive",
       "artifact_paths_used": [
-        "results/ood_robustness/summary.json"
+        "results\\ood_robustness\\summary.json"
       ],
       "headline_safe_sentence": "OOD robustness evidence is currently inconclusive with explicit null/regression slots.",
       "prohibited_overclaims": [
@@ -74,7 +74,7 @@
         "arxiv",
         "tmlr"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -82,7 +82,7 @@
       "claim_text": "Powered uncertainty calibration improves downstream retrieval.",
       "evidence_status": "null",
       "artifact_paths_used": [
-        "results/uncertainty_calibration/summary.json"
+        "results\\uncertainty_calibration\\summary.json"
       ],
       "headline_safe_sentence": "Calibration is powered but currently shows null downstream quality delta.",
       "prohibited_overclaims": [
@@ -93,7 +93,7 @@
         "tmlr",
         "joss"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -101,7 +101,7 @@
       "claim_text": "Alternative uncertainty estimators improve downstream retrieval.",
       "evidence_status": "inconclusive",
       "artifact_paths_used": [
-        "results/uncertainty_ablation/summary.json"
+        "results\\uncertainty_ablation\\summary.json"
       ],
       "headline_safe_sentence": "Uncertainty ablation shows limited downstream gains in this setup.",
       "prohibited_overclaims": [
@@ -111,7 +111,7 @@
         "arxiv",
         "tmlr"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -119,7 +119,7 @@
       "claim_text": "Richer covariance models are justified by practical gains.",
       "evidence_status": "null",
       "artifact_paths_used": [
-        "results/kalman_covariance_ablation_v2/summary.json"
+        "results\\kalman_covariance_ablation_v2\\summary.json"
       ],
       "headline_safe_sentence": "Richer covariance variants are not currently justified by practical gain thresholds.",
       "prohibited_overclaims": [
@@ -129,7 +129,7 @@
         "arxiv",
         "tmlr"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -137,7 +137,7 @@
       "claim_text": "Correlation-aware fusion improves over baseline Kalman.",
       "evidence_status": "exploratory",
       "artifact_paths_used": [
-        "results/correlation_aware_fusion/summary.json"
+        "results\\correlation_aware_fusion\\summary.json"
       ],
       "headline_safe_sentence": "Correlation-aware gains are exploratory (best reported \u0394MRR@10 = +0.0037) and not headline-safe claim closure.",
       "prohibited_overclaims": [
@@ -147,7 +147,7 @@
         "arxiv",
         "tmlr"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     },
     {
@@ -155,7 +155,7 @@
       "claim_text": "Kalman latency optimization satisfies canonical latency constraints.",
       "evidence_status": "regression",
       "artifact_paths_used": [
-        "results/kalman_latency_optimization/summary.json"
+        "results\\kalman_latency_optimization\\summary.json"
       ],
       "headline_safe_sentence": "Latency improved versus legacy (~2.06x single-query speedup) but canonical latency constraint remains unmet.",
       "prohibited_overclaims": [
@@ -166,7 +166,7 @@
         "tmlr",
         "joss"
       ],
-      "last_generated": "2026-05-11T10:41:54.652457+00:00",
+      "last_generated": "2026-05-11T17:42:04.047554+00:00",
       "regenerate_command": "PYTHONPATH=src python scripts/build_evidence_registry.py"
     }
   ]

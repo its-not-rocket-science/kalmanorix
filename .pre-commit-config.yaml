@@ -39,6 +39,7 @@ repos:
         pass_filenames: false
         args:
           - --ignore-paths=^experiments/01_drift_discovery/
+          - --fail-under=9.5
           - src/kalmanorix
           - tests
           - experiments

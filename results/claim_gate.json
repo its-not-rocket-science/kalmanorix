@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T22:34:22.457570+00:00",
+  "artifact_source": "results\\canonical_benchmark_v3_fast_1193_c100_balanced\\summary.json",
+  "benchmark_status": "claim_ready",
+  "confirmatory_slice_verdict": "inconclusive_underpowered",
+  "claim_success_decision": "blocked",
+  "required_decisions": [
+    "kalman_vs_mean",
+    "kalman_vs_weighted_mean",
+    "kalman_vs_router_only_top1"
+  ],
+  "primary_comparison": {
+    "verdict": "inconclusive_sufficiently_powered",
+    "rules": {
+      "primary_metric": "ndcg@10",
+      "minimum_effect_size": 0.02,
+      "adjusted_p_value_threshold": 0.05,
+      "max_latency_ratio_vs_mean": 1.5,
+      "max_flops_ratio_vs_mean": 1.1
+    },
+    "observed": {
+      "primary_metric_delta": -9.258801070226193e-06,
+      "primary_metric_adjusted_p_value": 1.0,
+      "latency_ratio_vs_mean": 1.0722551296204925,
+      "flops_ratio_vs_mean": 1.0
+    },
+    "checks": {
+      "effect_size_ok": false,
+      "adjusted_p_value_ok": false,
+      "latency_ratio_ok": true,
+      "flops_ratio_ok": true
+    }
+  }
+}

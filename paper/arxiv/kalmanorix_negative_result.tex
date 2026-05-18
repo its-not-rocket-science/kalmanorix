@@ -51,20 +51,9 @@ Interpretation: the run had enough power for the predeclared practical effect sc
 \section{Baseline matrix}
 \begin{table}[ht]
 \centering
-\caption{Baseline matrix from canonical benchmark artifacts (same numbers as project evidence exports).}
+\caption{Baseline matrix from \texttt{canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced} ($n=1193$ paired test queries, domain-balanced, \texttt{max\_candidates}=100).}
 \label{tab:baseline-matrix}
-\begin{tabular}{lcc}
-\toprule
-Method & nDCG@10 & latency (ms) \\
-\midrule
-KalmanorixFuser & 0.3666 & 57.319 \\
-MeanFuser & 0.3666 & 53.457 \\
-Fixed weighted mean & 0.3666 & 53.753 \\
-Hard routing (top-1) & 0.3489 & 35.972 \\
-Learned linear combiner & 0.3666 & 53.895 \\
-Single generalist & 0.3406 & 27.595 \\
-\bottomrule
-\end{tabular}
+\input{tables/main_results}
 \end{table}
 
 \section{What this result does and does not mean}
@@ -85,7 +74,7 @@ Single generalist & 0.3406 & 27.595 \\
 \begin{itemize}
   \item \texttt{results/evidence\_registry.json}
   \item \texttt{results/claim\_gate.json}
-  \item \texttt{results/canonical\_benchmark\_v3\_fast\_1200/summary.json}
+  \item \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json}
   \item \texttt{results/negative\_result\_diagnostics/report.md}
   \item \texttt{results/negative\_result\_diagnostics/summary.json}
 \end{itemize}
@@ -111,7 +100,7 @@ pytest -m "not integration and not stress"
 
 \section{Recommended citation and artifact use}
 When citing this preprint, cite it as a \textbf{negative-result, protocol-local empirical study} rather than a general method-validation paper. For numeric claims, prefer artifact-backed references to:
-\texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For system-level context, include \texttt{results/canonical\_benchmark\_v3\_fast\_1200/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}. Avoid extending conclusions beyond the tested protocol unless new confirmatory evidence is provided.
+\texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For system-level context, include \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}. Avoid extending conclusions beyond the tested protocol unless new confirmatory evidence is provided.
 
 \bibliographystyle{plain}
 \bibliography{references}

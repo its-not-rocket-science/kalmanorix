@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import re
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -190,6 +193,105 @@ def render_latex_stats(rows):
     )
 
 
+_BASELINE_MATRIX_METHODS = [
+    ("kalman", "KalmanorixFuser"),
+    ("mean", "MeanFuser"),
+    ("fixed_weighted_mean_fusion", "Fixed weighted mean"),
+    ("router_only_top1", "Hard routing (top-1)"),
+    ("learned_linear_combiner", "Learned linear combiner"),
+    ("single_generalist_model", "Single generalist"),
+]
+
+
+def build_baseline_matrix_rows(
+    summary: dict[str, Any],
+) -> list[tuple[str, str, str]]:
+    rows = []
+    for key, label in _BASELINE_MATRIX_METHODS:
+        rows.append(
+            (
+                label,
+                fmt_metric(must_metric(summary, key, "ndcg@10")),
+                fmt_latency(must_metric(summary, key, "latency_ms")),
+            )
+        )
+    return rows
+
+
+def render_latex_baseline_matrix(
+    rows: list[tuple[str, str, str]], artifact_dir_name: str
+) -> str:
+    body = "\n".join(f"{latex_escape(m)} & {a} & {b} \\\\" for m, a, b in rows)
+    return (
+        "\\begin{table}[t]\n"
+        "\\centering\n"
+        f"\\caption{{Baseline matrix ({latex_escape(artifact_dir_name)} artifact). "
+        "Metrics are means from the canonical summary export.}\n"
+        "\\label{tab:baseline-matrix}\n"
+        "\\begin{tabular}{lcc}\n"
+        "\\toprule\n"
+        "Method & nDCG@10 & latency (ms) \\\\\n"
+        "\\midrule\n"
+        f"{body}\n"
+        "\\bottomrule\n"
+        "\\end{tabular}\n"
+        "\\end{table}\n"
+    )
+
+
+def render_generated_metrics_tex(summary: dict[str, Any], artifact_dir: Path) -> str:
+    confirm_pairs = summary["benchmark"]["split_counts"]["test"]
+
+    ndcg_stat = summary["paired_statistics"]["kalman_vs_mean"]["overall"]["ndcg@10"]
+    delta = float(ndcg_stat["mean_difference"])
+    holm_p = float(ndcg_stat["adjusted_p_value"])
+
+    r100 = summary["paired_statistics"]["kalman_vs_mean"]["overall"].get(
+        "recall@100", {}
+    )
+    delta_recall = float(r100.get("mean_difference", 0.0))
+
+    k_lat = must_metric(summary, "kalman", "latency_ms")
+    m_lat = must_metric(summary, "mean", "latency_ms")
+    latency_ratio = k_lat / m_lat
+
+    k_flops = must_metric(summary, "kalman", "flops_proxy")
+    m_flops = must_metric(summary, "mean", "flops_proxy")
+    flops_ratio = k_flops / m_flops
+
+    practical_delta = float(
+        summary["decision"]["kalman_vs_mean"]["rules"]["minimum_effect_size"]
+    )
+
+    m = re.search(r"_c(\d+)_", artifact_dir.name)
+    candidate_cap = int(m.group(1)) if m else 100
+
+    bench_version = Path(summary["benchmark"]["path"]).parts[-2]
+
+    if delta != 0:
+        exp = math.floor(math.log10(abs(delta)))
+        mantissa = delta / (10**exp)
+        delta_fmt = f"{mantissa:.4f}\\times10^{{{exp}}}"
+    else:
+        delta_fmt = "0"
+
+    lines = [
+        f"% Auto-generated from {artifact_dir.name}/summary.json",
+        f"\\newcommand{{\\ConfirmPairs}}{{{confirm_pairs}}}",
+        f"\\newcommand{{\\DeltaNDCG}}{{{delta_fmt}}}",
+        f"\\newcommand{{\\HolmP}}{{{holm_p:.1f}}}",
+        f"\\newcommand{{\\DeltaRecall}}{{{delta_recall:.1f}}}",
+        f"\\newcommand{{\\LatencyRatio}}{{{latency_ratio:.4f}}}",
+        f"\\newcommand{{\\FlopsRatio}}{{{flops_ratio:.1f}}}",
+        f"\\newcommand{{\\PracticalDelta}}{{{practical_delta:.2f}}}",
+        f"\\newcommand{{\\CandidateCap}}{{{candidate_cap}}}",
+        f"\\newcommand{{\\CanonicalBenchVersion}}{{{bench_version.replace('_', chr(92) + '_')}}}",
+        f"\\newcommand{{\\EvidenceGeneratedAt}}{{{date.today().isoformat()}}}",
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def render_claim_md(rows):
     lines = [
         "| claim gate item | status |",
@@ -210,7 +312,7 @@ def main() -> None:
     parser.add_argument(
         "--artifact-dir",
         type=Path,
-        default=Path("results/canonical_benchmark_v3_fast_1200"),
+        default=Path("results/canonical_benchmark_v3_fast_1193_c100_balanced"),
     )
     args = parser.parse_args()
 
@@ -226,15 +328,20 @@ def main() -> None:
     main_rows = build_main_rows(summary)
     stat_rows = build_stat_rows(summary)
     claim_rows = build_claim_gate_rows(summary)
+    baseline_rows = build_baseline_matrix_rows(summary)
 
     main_tex = render_latex_main(main_rows)
     stats_tex = render_latex_stats(stat_rows)
     claim_md = render_claim_md(claim_rows)
+    baseline_tex = render_latex_baseline_matrix(baseline_rows, args.artifact_dir.name)
+    metrics_tex = render_generated_metrics_tex(summary, args.artifact_dir)
 
     write(Path("paper/arxiv/tables/main_results.tex"), main_tex)
     write(Path("paper/arxiv/tables/statistical_tests.tex"), stats_tex)
     write(Path("paper/tmlr/tables/main_results.tex"), main_tex)
     write(Path("paper/tmlr/tables/statistical_tests.tex"), stats_tex)
+    write(Path("paper/tmlr/tables/baseline_matrix.tex"), baseline_tex)
+    write(Path("paper/tmlr/includes/generated_metrics.tex"), metrics_tex)
     write(Path("paper/joss/results_summary.md"), claim_md)
 
 

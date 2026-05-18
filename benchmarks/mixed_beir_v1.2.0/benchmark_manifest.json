@@ -1,21 +1,21 @@
 {
   "benchmark_version": "mixed_beir_v1.2.0",
-  "build_timestamp_utc": "2026-04-24T16:12:49.078872+00:00",
+  "build_timestamp_utc": "2026-05-11T17:41:53.900365+00:00",
   "seed": 1337,
   "split_ratios": {
     "train": 0.8,
     "validation": 0.1,
     "test": 0.1
   },
-  "max_candidates_per_query": 80,
-  "cross_domain_negative_ratio": 0.6,
+  "max_candidates_per_query": 50,
+  "cross_domain_negative_ratio": 0.4,
   "sampling": {
-    "max_queries_per_domain": 1800,
-    "max_test_queries_per_domain": 360
+    "max_queries_per_domain": 2200,
+    "max_test_queries_per_domain": 420
   },
   "hard_query_expansion": {
     "enabled": true,
-    "per_category_per_domain": 20,
+    "per_category_per_domain": 24,
     "min_token_length_for_long_tail": 9
   },
   "packages": {
@@ -96,28 +96,28 @@
       "rows": 12773423
     },
     "queries.parquet": {
-      "sha256": "405e998046c7bc2599e59ceed3960c09fba5af7baa655d8687ce518e5e69dc92",
-      "rows": 6905
+      "sha256": "441daeb50d413158f3b4106d86d05c992f367514b8716c9ae241d77a33996cfd",
+      "rows": 7825
     },
     "qrels.parquet": {
-      "sha256": "616897a3d7788f38b72e9deab67f75a8d84e7867240f5e4bd313d55e828ef82e",
-      "rows": 26116
+      "sha256": "b2726c8dae57302b4178f62856f2e58782ec146ca6da685acb4f03969a7cbb15",
+      "rows": 28452
     },
     "splits.parquet": {
-      "sha256": "87d0cd8365ada2a8ac62594be15deaaacb04daf94cd9463d7114eabd622b8470",
-      "rows": 6905
+      "sha256": "e4f869c2221ceb7403fdea5cb9331d42037e91e265e25719701ca3cf9a87e76d",
+      "rows": 7825
     },
     "mixed_benchmark.parquet": {
-      "sha256": "37c5dc7c3a8868d69f3207c4eb9527807937e9fff05183c0fa97fa568f2b173e",
-      "rows": 6905
+      "sha256": "b6d0b392f31277ab7d6a102ad25ecfe01b66802e9a054fbd97312a87dc9a7aeb",
+      "rows": 7825
     }
   },
   "validation": {
-    "queries_with_labels": 6905,
-    "qrels": 26116,
+    "queries_with_labels": 7825,
+    "qrels": 28452,
     "documents": 12773423,
     "duplicates_removed": 11055,
     "all_queries_have_relevant": true,
-    "synthetic_queries": 556
+    "synthetic_queries": 676
   }
 }
