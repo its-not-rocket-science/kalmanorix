@@ -12,8 +12,8 @@
 \usepackage{tcolorbox}
 \usepackage[hidelinks]{hyperref}
 
-\title{Negative Result Preprint:\\
-No Reliable Kalman-over-Mean Gain in Domain-Balanced Retrieval}
+\title{Claim-Gated Evaluation of Retrieval Fusion:\\
+A Powered Negative Result for Kalman-Style Uncertainty Weighting}
 \author{Paul Schleifer}
 \date{May 2026}
 
@@ -21,7 +21,7 @@ No Reliable Kalman-over-Mean Gain in Domain-Balanced Retrieval}
 \maketitle
 
 \begin{abstract}
-We report a reproducible negative result for mixed-domain retrieval fusion. In the canonical domain-balanced C100 run ($n_{\text{pairs}}=1193$), Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$; $\Delta$ recall@100 is 0.0. Compute overhead is limited (latency ratio 1.0722551296204925; FLOPs ratio 1.0). The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}. This preprint emphasizes the empirical outcome and exact reproduction steps.
+This paper asks a focused empirical question: under a domain-balanced mixed-domain retrieval benchmark, does Kalman-style uncertainty weighting reliably outperform mean fusion? In the canonical C100 evaluation ($n_{\text{pairs}}=1193$), the answer is no. Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$, and $\Delta$ recall@100 is 0.0; latency increases modestly (ratio 1.0722551296204925) while FLOPs are unchanged (ratio 1.0). The claim-gated verdict is \texttt{inconclusive\_sufficiently\_powered}: this run provides no reliable practical gain from uncertainty weighting over mean fusion in the tested setting. The contribution of this report is to preserve and document that null result with reproducible artefacts, statistically disciplined reporting, and exact rerun instructions.
 \end{abstract}
 
 \begin{tcolorbox}[colback=gray!8,colframe=black,title=Scope of conclusion]
