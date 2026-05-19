@@ -31,7 +31,7 @@ This does not imply universal inferiority of Kalman methods or universal optimal
 \end{tcolorbox}
 
 \section{Positioning statement}
-This arXiv preprint reports one benchmark run and shows how to reproduce it. We focus on what the run produced: metric deltas, significance results, latency, FLOPs, and artifact files. We do not extend the conclusion beyond this configuration.
+This arXiv preprint reports one benchmark run and shows how to reproduce it. We focus on what the run produced: metric deltas, significance results, latency, FLOPs, and artefact files. We do not extend the conclusion beyond this configuration.
 
 \section{Setup}
 Dataset bundle: \texttt{mixed\_beir\_v1.2.0}. Split sizes are train=5078, validation=634, and test=1193. Each domain contributes at least 126 test queries. Benchmark configuration uses \texttt{domain-balanced=true} and \texttt{max\_candidates=100}. Analysis is paired at the query level with Holm correction across comparisons.
@@ -39,7 +39,7 @@ Dataset bundle: \texttt{mixed\_beir\_v1.2.0}. Split sizes are train=5078, valida
 Primary endpoint is paired $\Delta$ nDCG@10 (Kalman minus Mean). Predeclared decision thresholds are $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$.
 
 \section{Main negative result}
-The final benchmark artifacts are \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. They report:
+The final benchmark artefacts are \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. They report:
 \begin{itemize}
   \item $\Delta$ nDCG@10 $=-9.258801070226193\times10^{-6}$
   \item Holm-adjusted $p=1.0$
@@ -73,8 +73,8 @@ On this test set, Kalman fusion did not beat mean fusion by the predeclared marg
   \item This run does not test other embedding models, other domain mixes, larger candidate pools, or alternative uncertainty estimators.
 \end{itemize}
 
-\section{Reproducibility: exact commands and artifact paths}
-\textbf{Evidence source-of-truth artifacts}
+\section{Reproducibility: exact commands and artefact paths}
+\textbf{Evidence source-of-truth artefacts}
 \begin{itemize}
   \item \texttt{results/evidence\_registry.json}
   \item \texttt{results/claim\_gate.json}
@@ -102,7 +102,7 @@ ruff format --check .
 pytest -m "not integration and not stress"
 \end{verbatim}
 
-\section{Artifact-focused citation guidance}
+\section{Artefact-focused citation guidance}
 When citing this preprint, cite it as a negative result for one concrete benchmark configuration. For metric values and verdicts, cite \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For run configuration and system diagnostics, cite \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}.
 
 \bibliographystyle{plain}
