@@ -31,15 +31,15 @@ This does not imply universal inferiority of Kalman methods or universal optimal
 \end{tcolorbox}
 
 \section{Positioning statement}
-This paper is positioned as an artifact-centric arXiv preprint documenting a protocol-local negative result for domain-balanced retrieval: we prioritize reproducibility and bounded claims over novelty claims, and we explicitly avoid generalizing beyond the tested configuration unless new confirmatory evidence is added.
+This arXiv preprint reports one benchmark run and shows how to reproduce it. We focus on what the run produced: metric deltas, significance results, latency, FLOPs, and artifact files. We do not extend the conclusion beyond this configuration.
 
 \section{Setup}
-Benchmark: \texttt{mixed\_beir\_v1.2.0} (train=5078, validation=634, test=1193; minimum per-domain test count 126). Settings: \texttt{domain-balanced=true}, \texttt{max\_candidates=100}, paired query-level analysis, and Holm correction.
+Dataset bundle: \texttt{mixed\_beir\_v1.2.0}. Split sizes are train=5078, validation=634, and test=1193. Each domain contributes at least 126 test queries. Benchmark configuration uses \texttt{domain-balanced=true} and \texttt{max\_candidates=100}. Analysis is paired at the query level with Holm correction across comparisons.
 
-Primary endpoint: paired $\Delta$ nDCG@10 (Kalman minus Mean). Predeclared thresholds: $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$.
+Primary endpoint is paired $\Delta$ nDCG@10 (Kalman minus Mean). Predeclared decision thresholds are $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$.
 
 \section{Main negative result}
-Final outputs (from \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}) are:
+The final benchmark artifacts are \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. They report:
 \begin{itemize}
   \item $\Delta$ nDCG@10 $=-9.258801070226193\times10^{-6}$
   \item Holm-adjusted $p=1.0$
@@ -49,7 +49,7 @@ Final outputs (from \texttt{results/evidence\_registry.json} and \texttt{results
   \item Verdict: \texttt{inconclusive\_sufficiently\_powered}
 \end{itemize}
 
-Interpretation: no practically meaningful Kalman-over-Mean gain was detected at the predeclared effect scale.
+On this test set, Kalman fusion did not beat mean fusion by the predeclared margin.
 
 \section{Baseline matrix}
 \begin{table}[ht]
@@ -62,14 +62,15 @@ Interpretation: no practically meaningful Kalman-over-Mean gain was detected at 
 \section{Interpretation and limits}
 \textbf{Supported by this run}
 \begin{itemize}
-  \item In this protocol, Kalman fusion did not meet the predeclared effect and statistical thresholds.
-  \item Mean fusion remains a strong low-complexity reference under the tested configuration.
+  \item On 1193 paired test queries with \texttt{max\_candidates=100}, Kalman fusion did not meet the effect or significance thresholds.
+  \item Mean fusion matched or exceeded Kalman on the tracked outputs: nDCG@10 and recall@100.
+  \item Runtime overhead was small in this run (latency ratio 1.0723; FLOPs ratio 1.0).
 \end{itemize}
 
 \textbf{Not supported by this run}
 \begin{itemize}
-  \item It does not establish universal inferiority of uncertainty-aware fusion.
-  \item It does not rule out gains under different embeddings, domains, candidate budgets, or uncertainty estimators.
+  \item This run does not show that Kalman-style fusion is always worse.
+  \item This run does not test other embedding models, other domain mixes, larger candidate pools, or alternative uncertainty estimators.
 \end{itemize}
 
 \section{Reproducibility: exact commands and artifact paths}
@@ -102,8 +103,7 @@ pytest -m "not integration and not stress"
 \end{verbatim}
 
 \section{Artifact-focused citation guidance}
-When citing this preprint, treat it as a \textbf{protocol-local negative result}. For numeric claims, use:
-\texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For system-level context, include \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}. Avoid extending conclusions beyond the tested protocol unless new confirmatory evidence is provided.
+When citing this preprint, cite it as a negative result for one concrete benchmark configuration. For metric values and verdicts, cite \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For run configuration and system diagnostics, cite \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}.
 
 \bibliographystyle{plain}
 \bibliography{references}
