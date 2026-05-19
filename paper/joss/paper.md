@@ -45,19 +45,41 @@ Kalmanorix provides the following software capabilities:
 
 These components help researchers evaluate specialist-embedding routing and uncertainty-aware fusion behavior in both positive and negative-result settings, with claims constrained to reported evidence artifacts.
 
+# Installation, quickstart, and verification
+
+Install the package with development and benchmark extras:
+
+```bash
+pip install -e ".[dev,benchmark]"
+```
+
+Minimal smoke test (fast path used in JOSS readiness checks):
+
+```bash
+python -m pytest tests/e2e/test_toy_pipeline.py
+```
+
+Full test suite:
+
+```bash
+python -m pytest
+```
+
+For user-facing setup details and environment notes, see the installation guide in `docs/getting-started/installation.md`. For a minimal runnable example, see `docs/examples/minimal-fusion.md` and `examples/minimal_fusion_demo.py`.
+
 # Example usage
 
 A minimal workflow in this repository is:
 
 ```bash
-# 1) install package and dev tools
-pip install -e .
+# 1) install package and dev+benchmark tools
+pip install -e ".[dev,benchmark]"
 
 # 2) run the minimal fusion example
 python examples/minimal_fusion_demo.py
 
-# 3) run non-integration tests
-pytest -m "not integration and not stress"
+# 3) run the JOSS smoke test
+python -m pytest tests/e2e/test_toy_pipeline.py
 ```
 
 Typical advanced usage combines benchmark manifests, specialist-router configuration, fusion baseline sweeps, and claim report generation into one reproducible run directory with JSON and Markdown outputs. In practice this is expressed through package components such as the `kalmanorix.panoramix.Panoramix` orchestration API, the `kalmanorix.run_claim_gate` command-line entrypoint, and repository checks such as `pytest -m "not integration and not stress"` and `ruff format --check .`.
@@ -107,9 +129,19 @@ run_dir = panoramix.run(queries=["sample query"], selected_specialists=[selected
 ```
 
 
-# Reproducibility and testing
+# Reproducibility, documentation, and release readiness
 
 Kalmanorix emphasizes reproducibility through versioned benchmark manifests, explicit run metadata, deterministic output layout, and scripted artifact export. The repository includes automated tests and style checks, and project documentation includes installation, examples, API reference pages, and release/archival guidance.
+
+Documentation entrypoint: `docs/index.md`.
+
+Quickstart/example entrypoints: `docs/getting-started/quickstart.md` and `docs/examples/minimal-fusion.md`.
+
+Licence statement: Kalmanorix is distributed under the MIT License (`LICENSE`).
+
+CI status statement: the repository includes CI-oriented local gates (`ruff format --check .` and `pytest -m "not integration and not stress"`), with automation status tracked in repository CI configuration and badges when published.
+
+Archive/release readiness: repository metadata includes `CITATION.cff` (with versioned software citation metadata), project versioning in `pyproject.toml`, and author/affiliation metadata in this manuscript front matter; release archiving is intended via a tagged release and Zenodo DOI minting workflow.
 
 The reporting pipeline intentionally preserves unsupported and null findings so that negative-result reporting remains first-class in empirical records.
 
