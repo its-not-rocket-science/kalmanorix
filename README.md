@@ -49,7 +49,7 @@ The legacy `kalmanorix.kalman_engine.fuser.Panoramix` path remains available onl
 ## Demonstrated Results vs Planned Work
 
 ### Demonstrated (with committed artifacts)
-- **Routing efficiency:** semantic routing can reduce FLOPs by selecting fewer specialists in benchmark runs (reported around 65% average reduction in current efficiency artifacts). See `results/efficiency_semantic_routing.json` and `results/semantic_routing_efficiency_report.md`.
+- **Routing efficiency:** semantic routing can reduce FLOPs by selecting fewer specialists in benchmark runs. See `results/efficiency_semantic_routing.json` and `results/semantic_routing_efficiency_report.md` for current measured reductions.
 - **Routing evaluation toolkit:** a stable routing evaluator is available for semantic and confidence modes, including precision/recall against labeled domain relevance, FLOPs savings, latency trade-offs, and threshold robustness sweeps (`kalmanorix-eval-routing` CLI).
 - **Engineering stabilization:** alignment, covariance scaling, and fusion-path bug fixes are implemented and tested.
 
