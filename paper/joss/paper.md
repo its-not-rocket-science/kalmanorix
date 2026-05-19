@@ -11,7 +11,7 @@ authors:
     orcid: "0009-0004-7972-3566"
     affiliation: "1"
 affiliations:
-  - name: "Independent Research Software Engineer, United States"
+  - name: "Independent Research Software Engineer, United Kingdom"
     index: 1
 date: "2026-05-11"
 bibliography: paper.bib
