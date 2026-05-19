@@ -36,12 +36,12 @@ Below are required gates, mapped to the requested checklist.
 
 **Status in this plan:** unverified externally; must be confirmed.
 
-### B. Open-source license
-- Keep an OSI-approved license at repository root.
-- Confirm license compatibility with dependencies and bundled assets/data.
-- Make license prominent in README and docs.
+### B. Open-source licence
+- Keep an OSI-approved licence at repository root.
+- Confirm licence compatibility with dependencies and bundled assets/data.
+- Make licence prominent in README and docs.
 
-**Status in this plan:** license file exists in-repo, but compliance details still need explicit audit.
+**Status in this plan:** licence file exists in-repo, but compliance details still need explicit audit.
 
 ### C. Install instructions
 - Provide short "happy path" install for common users (pip/uv/conda/poetry, whichever is canonical).
@@ -79,7 +79,7 @@ Below are required gates, mapped to the requested checklist.
 ### H. Archived release DOI
 - Create an archived release (e.g., Zenodo) linked to a tagged software version.
 - Mint DOI and reference it in `paper.md` and README.
-- Ensure archived artifact corresponds exactly to reviewed version.
+- Ensure archived artefact corresponds exactly to reviewed version.
 
 **Status in this plan:** required and commonly missing; assume gap until DOI is minted.
 
@@ -116,7 +116,7 @@ Suggested JOSS paper structure and approximate word budget:
    - Documentation and developer workflows.
 
 5. **Usage in research workflows (40-150 words)**
-   - Typical reproducible pipeline from configuration to report artifacts.
+   - Typical reproducible pipeline from configuration to report artefacts.
    - Brief mention of example notebooks/scripts.
 
 6. **Related software (30-120 words)**

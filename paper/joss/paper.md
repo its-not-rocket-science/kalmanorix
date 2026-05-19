@@ -19,13 +19,13 @@ bibliography: paper.bib
 
 # Summary
 
-Kalmanorix is an MIT-licensed Python package for **retrieval-system evaluation** with specialist embedding models, semantic routing policies, and uncertainty-aware fusion baselines. The software provides a reproducible workflow from benchmark manifest definition to machine-readable evidence artifacts, including claim-gated summaries of supported, unsupported, and inconclusive outcomes. Its focus is software infrastructure for disciplined benchmark reporting rather than promotion of a single retrieval strategy [@thakur2021beir; @jarvelin2002cumulated].
+Kalmanorix is an MIT-licensed Python package for **retrieval-system evaluation** with specialist embedding models, semantic routing policies, and uncertainty-aware fusion baselines. The software provides a reproducible workflow from benchmark manifest definition to machine-readable evidence artefacts, including claim-gated summaries of supported, unsupported, and inconclusive outcomes. Its focus is software infrastructure for disciplined benchmark reporting rather than promotion of a single retrieval strategy [@thakur2021beir; @jarvelin2002cumulated].
 
 # Statement of need
 
 Modern retrieval stacks provide strong building blocks---embedding models, vector databases, ANN search libraries, and ranking frameworks---but these tools typically stop at indexing and retrieval execution. They do not, by themselves, provide a unified protocol for (i) evaluating **specialist-embedding routing** decisions, (ii) comparing **uncertainty-aware fusion** baselines under consistent reporting rules, and (iii) translating metric outputs into **claim-gated** evidence suitable for publication and audit.
 
-Research teams therefore often assemble bespoke scripts across notebooks and one-off benchmark slices, which makes it difficult to reproduce claim decisions, preserve negative results, and maintain stable evidence records across reruns. Kalmanorix addresses this gap by standardizing the loop from benchmark specification to claim-ready artifacts. The toolkit is intended for:
+Research teams therefore often assemble bespoke scripts across notebooks and one-off benchmark slices, which makes it difficult to reproduce claim decisions, preserve negative results, and maintain stable evidence records across reruns. Kalmanorix addresses this gap by standardising the loop from benchmark specification to claim-ready artefacts. The toolkit is intended for:
 
 In this work, we position Kalmanorix as research software infrastructure for transparent, claim-gated retrieval benchmarking rather than as evidence that any single fusion strategy is universally best.
 
@@ -38,12 +38,12 @@ In this work, we position Kalmanorix as research software infrastructure for tra
 Kalmanorix provides the following software capabilities:
 
 1. **Specialist embedding packaging**: reproducible assembly and configuration of specialist embedders for multi-domain retrieval workflows.
-2. **Routing evaluation**: evaluation of query-to-specialist routing behavior with domain and slice-aware reporting.
+2. **Routing evaluation**: evaluation of query-to-specialist routing behaviour with domain and slice-aware reporting.
 3. **Fusion baselines**: baseline-matrix support for single-model, weighted, and uncertainty-aware fusion variants, with explicit comparative reporting rather than quality guarantees.
 4. **Claim-gated benchmark reporting**: rule-based claim readiness outputs that distinguish supported improvements from negligible or inconclusive effects.
-5. **Reproducible artifact generation**: deterministic manifests and machine-readable reports suitable for audit, reanalysis, and publication handoff.
+5. **Reproducible artefact generation**: deterministic manifests and machine-readable reports suitable for audit, reanalysis, and publication handoff.
 
-These components help researchers evaluate specialist-embedding routing and uncertainty-aware fusion behavior in both positive and negative-result settings, with claims constrained to reported evidence artifacts.
+These components help researchers evaluate specialist-embedding routing and uncertainty-aware fusion behaviour in both positive and negative-result settings, with claims constrained to reported evidence artefacts.
 
 # Installation, quickstart, and verification
 
@@ -93,11 +93,11 @@ Kalmanorix exposes a small set of public components that map directly to the spe
 - **SEF** (`kalmanorix.sef.SEF`): defines a specialist embedding function, including a concrete model backend and metadata for routing/evaluation.
 - **Village** (`kalmanorix.village.Village`): container for multiple SEF specialists, used as the candidate pool for query-time dispatch and benchmarking.
 - **ScoutRouter** (`kalmanorix.router.ScoutRouter`): routing policy that selects a specialist from a Village for each query (or query batch) using router features/scores.
-- **Panoramix** (`kalmanorix.panoramix.Panoramix`): orchestration layer that runs retrieval/fusion experiments and produces metric and evidence artifacts.
+- **Panoramix** (`kalmanorix.panoramix.Panoramix`): orchestration layer that runs retrieval/fusion experiments and produces metric and evidence artefacts.
 - **MeanFuser** (`kalmanorix.fusers.MeanFuser`): baseline fuser that combines specialist signals by arithmetic mean.
 - **KalmanorixFuser** (`kalmanorix.fusers.KalmanorixFuser`): uncertainty-aware fusion baseline implemented in this package for controlled comparisons against simpler alternatives.
 - **routing evaluator CLI** (`kalmanorix.run_routing_eval`): command-line entrypoint for routing-quality evaluation and slice-aware reporting.
-- **evidence registry / claim-gated reporting tools** (`kalmanorix.run_claim_gate` and `results/evidence_registry.json`): transforms metric outputs into claim-status artifacts (supported/unsupported/inconclusive) with machine-readable provenance.
+- **evidence registry / claim-gated reporting tools** (`kalmanorix.run_claim_gate` and `results/evidence_registry.json`): transforms metric outputs into claim-status artefacts (supported/unsupported/inconclusive) with machine-readable provenance.
 
 Kalmanorix is designed to complement, not replace, mature retrieval libraries. In typical usage, specialist embedders rely on SentenceTransformers for encoding, BEIR-style datasets/tasks for benchmark structure, and FAISS (or equivalent ANN backends) for vector indexing/search; Kalmanorix adds routing/fusion evaluation and claim-gated reporting around those components [@thakur2021beir].
 
@@ -131,7 +131,7 @@ run_dir = panoramix.run(queries=["sample query"], selected_specialists=[selected
 
 # Reproducibility, documentation, and release readiness
 
-Kalmanorix emphasizes reproducibility through versioned benchmark manifests, explicit run metadata, deterministic output layout, and scripted artifact export. The repository includes automated tests and style checks, and project documentation includes installation, examples, API reference pages, and release/archival guidance.
+Kalmanorix emphasizes reproducibility through versioned benchmark manifests, explicit run metadata, deterministic output layout, and scripted artefact export. The repository includes automated tests and style checks, and project documentation includes installation, examples, API reference pages, and release/archival guidance.
 
 Documentation entrypoint: `docs/index.md`.
 
