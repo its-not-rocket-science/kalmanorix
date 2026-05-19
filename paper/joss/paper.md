@@ -1,10 +1,11 @@
 ---
-title: "Kalmanorix: a Python toolkit for specialist-embedding fusion, routing evaluation, and claim-gated retrieval benchmarking"
+title: "Kalmanorix: A Python toolkit for specialist-embedding routing, uncertainty-aware fusion, and claim-gated retrieval evaluation"
 tags:
+  - Python
   - information retrieval
   - embeddings
+  - uncertainty quantification
   - evaluation
-  - benchmarking
   - reproducibility
 authors:
   - name: "Paul Schleifer"
@@ -13,7 +14,7 @@ authors:
 affiliations:
   - name: "Independent Research Software Engineer, United Kingdom"
     index: 1
-date: "2026-05-11"
+date: "2026-05-19"
 bibliography: paper.bib
 ---
 
