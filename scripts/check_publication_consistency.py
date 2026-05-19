@@ -10,7 +10,7 @@ UNSUPPORTED_CLAIMS = {
     "Kalman improves retrieval": "kalman_vs_mean_quality",
     "outperforms mean": "kalman_vs_mean_quality",
     "superior to monolith": "matched_compute_specialists_vs_monolith",
-    "OOD robust": "ood_uncertainty_weighting",
+    "robust OOD": "ood_uncertainty_weighting",
 }
 
 SUPPORTED_STATUSES = {"supported", "exploratory"}
@@ -181,6 +181,23 @@ def check_joss_overclaim(root: Path) -> list[str]:
             if t in line and not any(c in line for c in allowed):
                 errors.append(
                     f"JOSS overclaim term '{t}' found in {path.relative_to(root)}."
+                )
+                break
+    statuses = load_evidence(root)
+    for phrase, claim_id in UNSUPPORTED_CLAIMS.items():
+        if phrase.lower() not in text:
+            continue
+        if statuses.get(claim_id) in SUPPORTED_STATUSES:
+            continue
+        for line in text.splitlines():
+            ll = line.lower()
+            if phrase.lower() in ll and not any(
+                c in ll for c in ALLOWED_DISCLAIMER_CONTEXT
+            ):
+                errors.append(
+                    "JOSS unsupported claim phrase "
+                    f"'{phrase}' found in {path.relative_to(root)} while "
+                    f"{claim_id}={statuses.get(claim_id)!r}."
                 )
                 break
     return errors
