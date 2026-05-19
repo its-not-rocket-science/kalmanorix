@@ -27,6 +27,8 @@ Teams can already encode text, build ANN indexes, and run search with libraries 
 
 Kalmanorix addresses this by standardizing benchmark manifests, run metadata, and claim rules in one package. It is built for IR researchers, embedding researchers, and evaluation researchers who need repeatable benchmark outputs they can audit.
 
+This paper positions Kalmanorix as research infrastructure for reproducible evaluation workflows rather than as a source of new retrieval claims. It documents software interfaces, artifacts, and governance that support companion empirical studies.
+
 # Core functionality
 
 Kalmanorix provides five core features:
