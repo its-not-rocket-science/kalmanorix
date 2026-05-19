@@ -51,7 +51,7 @@ A minimal workflow in this repository is:
 pip install -e .
 
 # 2) run the minimal fusion example
-python -m kalmanorix.examples.minimal_fusion
+python examples/minimal_fusion_demo.py
 
 # 3) run non-integration tests
 pytest -m "not integration and not stress"
