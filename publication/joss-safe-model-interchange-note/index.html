@@ -2326,12 +2326,12 @@
 <p>To support publication-grade reproducibility and security claims, Kalmanorix now separates
 <strong>data interchange</strong> from <strong>code execution</strong> in SEF loading.</p>
 <ul>
-<li>Default <code>SEFModel.from_pretrained</code> behavior is non-executable: metadata, covariance, and alignment load safely.</li>
+<li>Default <code>SEFModel.from_pretrained</code> behaviour is non-executable: metadata, covariance, and alignment load safely.</li>
 <li>Executable model recovery requires explicit <code>embed_loader</code> injection.</li>
 <li>Legacy pickle recovery requires explicit <code>allow_pickle=True</code> and emits a security warning.</li>
 <li>Checksum verification remains mandatory and fails on mismatch.</li>
 </ul>
-<p>This design improves defensibility for JOSS by making unsafe behavior opt-in, auditable, and test-covered.</p>
+<p>This design improves defensibility for JOSS by making unsafe behaviour opt-in, auditable, and test-covered.</p>
 
 
 
