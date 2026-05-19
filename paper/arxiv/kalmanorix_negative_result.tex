@@ -53,20 +53,30 @@ The final benchmark artefacts are \texttt{results/evidence\_registry.json} and \
 
 On this test set, Kalman fusion did not beat mean fusion by the predeclared margin.
 
-\section{Baseline matrix}
+\section{Baseline context from canonical\_benchmark\_v3}
 \begin{table}[ht]
 \centering
-\caption{Baseline matrix from \texttt{canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced} ($n=1193$ paired test queries, domain-balanced, \texttt{max\_candidates}=100).}
-\label{tab:baseline-matrix}
-\input{tables/main_results}
+\caption{Concise baseline comparison from \texttt{canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced} ($n=1193$, domain-balanced, \texttt{max\_candidates}=100). The ``oracle specialist'' row is the hard-routing top-1 proxy included in the canonical suite.}
+\label{tab:baseline-context}
+\begin{tabular}{lcc}
+\toprule
+Method & nDCG@10 & latency (ms) \\
+\midrule
+MeanFuser & 0.0918 & 462.046 \\
+KalmanorixFuser & 0.0918 & 495.431 \\
+fixed weighted mean baseline & 0.0918 & 4.211 \\
+best non-Kalman baseline (hard routing baseline) & 0.0983 & 8.051 \\
+oracle specialist baseline (hard routing top-1 proxy) & 0.0983 & 8.051 \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \section{Interpretation and limits}
-\textbf{Supported by this run}
+\textbf{Short interpretation}
 \begin{itemize}
-  \item On 1193 paired test queries with \texttt{max\_candidates=100}, Kalman fusion did not meet the effect or significance thresholds.
-  \item Mean fusion matched or exceeded Kalman on the tracked outputs: nDCG@10 and recall@100.
-  \item Runtime overhead was small in this run (latency ratio 1.0723; FLOPs ratio 1.0).
+  \item Mean fusion remained competitive: Kalman and Mean are tied at nDCG@10 in this run, and the claim-gate delta versus Mean is effectively zero.
+  \item Uncertainty weighting alone did not produce reliable gains: Kalman did not improve over either Mean or fixed weighted mean on nDCG@10 under this protocol.
+  \item Latency increased without measurable quality improvement: Kalman latency is higher than Mean while retrieval quality remains unchanged at the reported precision.
 \end{itemize}
 
 \textbf{Not supported by this run}
