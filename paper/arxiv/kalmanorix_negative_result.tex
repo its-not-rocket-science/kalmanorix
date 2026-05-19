@@ -31,7 +31,9 @@ This does not imply universal inferiority of Kalman methods or universal optimal
 \end{tcolorbox}
 
 \section{Positioning statement}
-This arXiv preprint reports one benchmark run and shows how to reproduce it. We focus on what the run produced: metric deltas, significance results, latency, FLOPs, and artefact files. We do not extend the conclusion beyond this configuration. The reporting stance is intentionally aligned with reproducibility checklists for ML experiments \cite{pineau2021improving} and with publication-bias concerns that motivate explicit dissemination of negative findings \cite{fanelli2012negative}.
+This arXiv preprint is an empirical negative-result report for one benchmark configuration. It documents observed outcomes (metric deltas, significance, latency, FLOPs, and verdict) and the exact artefacts needed to reproduce them. It does not introduce a new evaluation framework and does not generalize beyond the tested setup.
+
+Manuscript roles are intentionally separated. The TMLR manuscript is the methodology paper: it defines the evaluation protocol and claim-gated decision framework. This arXiv manuscript is the empirical report: it records the benchmark outcome under that protocol. The JOSS paper is the software paper: it documents the Kalmanorix infrastructure used to run and export the experiments. Across all three, numeric claims are taken from the same evidence registry and claim-gate artefacts (\texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}) so scope and conclusions remain consistent.
 
 \section{Setup}
 Dataset bundle: \texttt{mixed\_beir\_v1.2.0}. The heterogeneous benchmark framing follows BEIR-style cross-domain retrieval evaluation \cite{thakur2021beir}, with dense sentence embeddings motivated by Sentence-BERT \cite{reimers2019sentencebert}. Split sizes are train=5078, validation=634, and test=1193. Each domain contributes at least 126 test queries. Benchmark configuration uses \texttt{domain-balanced=true} and \texttt{max\_candidates=100}.
