@@ -138,9 +138,9 @@ The reporting pipeline keeps unsupported and null findings instead of filtering 
 
 The uncertainty-aware baseline (`KalmanorixFuser`) is motivated by calibration-aware modeling practice and Kalman-style filtering ideas [@guo2017calibration; @kalman1960filtering].
 
-# Relationship to companion papers
+# Relationship to empirical papers
 
-This JOSS manuscript describes the software: package structure, interfaces, and reproducible workflows. Companion TMLR/arXiv manuscripts report empirical outcomes produced with this software. Claim wording across outputs is intended to follow `results/evidence_registry.json`.
+The JOSS paper presents the software package. The TMLR manuscript presents the claim-gated evaluation methodology. The arXiv preprint presents the empirical negative-result report. All three use the same evidence registry (`results/evidence_registry.json`). The software supports Kalman-style fusion experiments but does not require, assume, or claim that Kalman fusion improves retrieval quality.
 
 # AI usage disclosure
 
