@@ -28,3 +28,6 @@ arXiv uploads need:
 - and any style/class files if custom styles are used.
 
 This preprint currently uses standard packages expected in typical arXiv LaTeX environments.
+
+## Publication style note
+For consistency, this preprint uses UK-English spellings in narrative text (for example: artefact, optimisation, standardise, organisation, modelling, behaviour, characterisation, analyse). Preserve code identifiers, JSON keys, file paths, and benchmark artefact filenames as-is.
