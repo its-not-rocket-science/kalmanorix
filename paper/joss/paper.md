@@ -63,6 +63,50 @@ pytest -m "not integration and not stress"
 Typical advanced usage combines benchmark manifests, specialist-router configuration, fusion baseline sweeps, and claim report generation into one reproducible run directory with JSON and Markdown outputs. In practice this is expressed through package components such as the `kalmanorix.panoramix.Panoramix` orchestration API, the `kalmanorix.run_claim_gate` command-line entrypoint, and repository checks such as `pytest -m "not integration and not stress"` and `ruff format --check .`.
 The older `kalmanorix.kalman_engine.fuser.Panoramix` import path is retained as a deprecated compatibility shim.
 
+
+# Software architecture and functionality
+
+Kalmanorix exposes a small set of public components that map directly to the specialist-routing and fusion workflow:
+
+- **SEF** (`kalmanorix.sef.SEF`): defines a specialist embedding function, including a concrete model backend and metadata for routing/evaluation.
+- **Village** (`kalmanorix.village.Village`): container for multiple SEF specialists, used as the candidate pool for query-time dispatch and benchmarking.
+- **ScoutRouter** (`kalmanorix.router.ScoutRouter`): routing policy that selects a specialist from a Village for each query (or query batch) using router features/scores.
+- **Panoramix** (`kalmanorix.panoramix.Panoramix`): orchestration layer that runs retrieval/fusion experiments and produces metric and evidence artifacts.
+- **MeanFuser** (`kalmanorix.fusers.MeanFuser`): baseline fuser that combines specialist signals by arithmetic mean.
+- **KalmanorixFuser** (`kalmanorix.fusers.KalmanorixFuser`): uncertainty-aware fusion baseline implemented in this package for controlled comparisons against simpler alternatives.
+- **routing evaluator CLI** (`kalmanorix.run_routing_eval`): command-line entrypoint for routing-quality evaluation and slice-aware reporting.
+- **evidence registry / claim-gated reporting tools** (`kalmanorix.run_claim_gate` and `results/evidence_registry.json`): transforms metric outputs into claim-status artifacts (supported/unsupported/inconclusive) with machine-readable provenance.
+
+Kalmanorix is designed to complement, not replace, mature retrieval libraries. In typical usage, specialist embedders rely on SentenceTransformers for encoding, BEIR-style datasets/tasks for benchmark structure, and FAISS (or equivalent ANN backends) for vector indexing/search; Kalmanorix adds routing/fusion evaluation and claim-gated reporting around those components [@thakur2021beir].
+
+```python
+from kalmanorix.sef import SEF
+from kalmanorix.village import Village
+from kalmanorix.router import ScoutRouter
+from kalmanorix.fusers import MeanFuser, KalmanorixFuser
+from kalmanorix.panoramix import Panoramix
+
+# 1) define SEF specialists
+biomed = SEF(name="biomed", encoder="sentence-transformers/all-mpnet-base-v2")
+legal = SEF(name="legal", encoder="sentence-transformers/multi-qa-mpnet-base-dot-v1")
+
+# 2) place them in a Village
+village = Village([biomed, legal])
+
+# 3) select with ScoutRouter
+router = ScoutRouter(village=village)
+selected = router.route("what is first-line treatment for atrial fibrillation?")
+
+# 4) fuse with Panoramix
+panoramix = Panoramix(village=village, fusers=[MeanFuser(), KalmanorixFuser()])
+run_dir = panoramix.run(queries=["sample query"], selected_specialists=[selected])
+
+# 5) run routing/benchmark evaluation from CLI
+# python -m kalmanorix.run_routing_eval --manifest manifests/routing_minimal.yaml
+# python -m kalmanorix.run_claim_gate --run-dir <run_dir>
+```
+
+
 # Reproducibility and testing
 
 Kalmanorix emphasizes reproducibility through versioned benchmark manifests, explicit run metadata, deterministic output layout, and scripted artifact export. The repository includes automated tests and style checks, and project documentation includes installation, examples, API reference pages, and release/archival guidance.
