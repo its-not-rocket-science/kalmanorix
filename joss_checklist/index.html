@@ -2303,10 +2303,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#submission-time-actions-still-required" class="md-nav__link">
+  <a href="#pre-submission-todo-summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Submission-time actions still required
+        Pre-submission TODO summary
       
     </span>
   </a>
@@ -2342,73 +2342,114 @@
 
 
 <h1 id="joss-checklist-status-kalmanorix">JOSS checklist status (Kalmanorix)<a class="headerlink" href="#joss-checklist-status-kalmanorix" title="Permanent link">&para;</a></h1>
-<p>This checklist tracks common JOSS software-paper requirements and current repository status as of 2026-05-11.</p>
+<p>This checklist maps common JOSS expectations to concrete repository evidence and next actions.</p>
 <table>
 <thead>
 <tr>
-<th>Requirement</th>
+<th>JOSS expectation</th>
 <th>Status</th>
-<th>Evidence</th>
+<th>Repository path</th>
+<th>Action needed</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>OSS license present</td>
-<td>✅ Complete</td>
-<td><code>LICENSE</code> (MIT license text).</td>
+<td>Open-source license is present and clear</td>
+<td>ready</td>
+<td><code>LICENSE</code></td>
+<td>None.</td>
 </tr>
 <tr>
-<td><code>CITATION.cff</code> present</td>
-<td>✅ Complete</td>
-<td><code>CITATION.cff</code> added at repository root.</td>
+<td>Software citation metadata exists (<code>CITATION.cff</code>)</td>
+<td>ready</td>
+<td><code>CITATION.cff</code></td>
+<td>Keep version/date aligned with next tagged release.</td>
 </tr>
 <tr>
-<td>Software-focused paper (<code>paper/joss/paper.md</code>)</td>
-<td>✅ Complete</td>
-<td>Includes Summary, Statement of need, Core functionality, Example usage, Reproducibility and testing, Relationship to research papers, References.</td>
+<td>JOSS paper exists and focuses on software contribution</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code></td>
+<td>None.</td>
 </tr>
 <tr>
-<td>Bibliography present (<code>paper/joss/paper.bib</code>)</td>
-<td>✅ Complete</td>
-<td>JOSS bibliography file exists with core IR/evaluation citations.</td>
+<td>Bibliography and references are included for paper claims</td>
+<td>ready</td>
+<td><code>paper/joss/paper.bib</code></td>
+<td>None.</td>
 </tr>
 <tr>
-<td>Installation instructions</td>
-<td>✅ Complete</td>
-<td><code>docs/getting-started/installation.md</code>.</td>
+<td>Installation instructions include editable install with required extras</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code>; <code>docs/getting-started/installation.md</code></td>
+<td>Keep command exactly <code>pip install -e ".[dev,benchmark]"</code> in docs and paper.</td>
 </tr>
 <tr>
-<td>Minimal example</td>
-<td>✅ Complete</td>
-<td><code>docs/examples/minimal-fusion.md</code> and <code>paper/joss/paper.md</code> example usage snippet.</td>
+<td>Minimal smoke-test command is documented</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code>; <code>tests/e2e/test_toy_pipeline.py</code></td>
+<td>Keep command <code>python -m pytest tests/e2e/test_toy_pipeline.py</code> documented and passing.</td>
 </tr>
 <tr>
-<td>API documentation link</td>
-<td>✅ Complete</td>
-<td><code>docs/index.md</code> links to API Reference (<code>docs/api-reference/*</code>).</td>
+<td>Full test command is documented</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code></td>
+<td>Keep command <code>python -m pytest</code> documented.</td>
 </tr>
 <tr>
-<td>Automated tests documented</td>
-<td>✅ Complete</td>
-<td><code>docs/contributing/testing.md</code>; CI-critical command: <code>pytest -m "not integration and not stress"</code>.</td>
+<td>Documentation pointer is explicit in paper</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code>; <code>docs/index.md</code></td>
+<td>None.</td>
 </tr>
 <tr>
-<td>Archived release instructions</td>
-<td>⚠️ In progress</td>
-<td><code>paper/joss/README.md</code> documents release + Zenodo archiving requirement; final DOI and archived release record must be added at submission time.</td>
+<td>Example/quickstart pointer is explicit in paper</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code>; <code>docs/getting-started/quickstart.md</code>; <code>docs/examples/minimal-fusion.md</code></td>
+<td>None.</td>
 </tr>
 <tr>
-<td>Public issue tracker guidance</td>
-<td>⚠️ In progress</td>
-<td>Repository-level operational check required prior to submission.</td>
+<td>Licence statement appears in paper</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code>; <code>LICENSE</code></td>
+<td>None.</td>
+</tr>
+<tr>
+<td>CI status statement included</td>
+<td>partial</td>
+<td><code>paper/joss/paper.md</code></td>
+<td>Confirm/update with explicit CI badge or workflow URL before submission.</td>
+</tr>
+<tr>
+<td>Archive/release DOI plan documented (Zenodo or equivalent)</td>
+<td>partial</td>
+<td><code>paper/joss/paper.md</code>; <code>paper/joss/README.md</code></td>
+<td>Mint/archive DOI at release time and add DOI to paper metadata.</td>
+</tr>
+<tr>
+<td>Version number is explicit and consistent</td>
+<td>partial</td>
+<td><code>pyproject.toml</code>; <code>CITATION.cff</code></td>
+<td>Reconcile version mismatch (<code>0.2.0</code> vs <code>0.1.0</code>) before submission.</td>
+</tr>
+<tr>
+<td>Authors and affiliations are complete in manuscript metadata</td>
+<td>ready</td>
+<td><code>paper/joss/paper.md</code></td>
+<td>Add co-authors/affiliations if authorship changes before submission.</td>
+</tr>
+<tr>
+<td>Public issue tracker is available for reviewer interaction</td>
+<td>partial</td>
+<td><code>README.md</code> (or repository settings)</td>
+<td>Verify issue tracker is enabled and link is visible in repository front matter/docs.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="submission-time-actions-still-required">Submission-time actions still required<a class="headerlink" href="#submission-time-actions-still-required" title="Permanent link">&para;</a></h2>
+<h2 id="pre-submission-todo-summary">Pre-submission TODO summary<a class="headerlink" href="#pre-submission-todo-summary" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Create a tagged release matching the submitted version.</li>
-<li>Archive the release (e.g., Zenodo) and update manuscript metadata with DOI.</li>
-<li>Confirm issue tracker availability for reviewer interaction.</li>
+<li>Align release version metadata across <code>pyproject.toml</code>, <code>CITATION.cff</code>, and release tag.</li>
+<li>Create tagged release and archive it (e.g., Zenodo), then include the resulting DOI in JOSS submission metadata.</li>
+<li>Add a definitive CI status reference (badge and/or workflow URL) once workflow target branch is finalized.</li>
 </ol>
 
 
