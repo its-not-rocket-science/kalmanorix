@@ -31,12 +31,12 @@ This does not imply universal inferiority of Kalman methods or universal optimal
 \end{tcolorbox}
 
 \section{Positioning statement}
-This arXiv preprint reports one benchmark run and shows how to reproduce it. We focus on what the run produced: metric deltas, significance results, latency, FLOPs, and artefact files. We do not extend the conclusion beyond this configuration.
+This arXiv preprint reports one benchmark run and shows how to reproduce it. We focus on what the run produced: metric deltas, significance results, latency, FLOPs, and artefact files. We do not extend the conclusion beyond this configuration. The reporting stance is intentionally aligned with reproducibility checklists for ML experiments \cite{pineau2021improving} and with publication-bias concerns that motivate explicit dissemination of negative findings \cite{fanelli2012negative}.
 
 \section{Setup}
-Dataset bundle: \texttt{mixed\_beir\_v1.2.0}. Split sizes are train=5078, validation=634, and test=1193. Each domain contributes at least 126 test queries. Benchmark configuration uses \texttt{domain-balanced=true} and \texttt{max\_candidates=100}. Analysis is paired at the query level with Holm correction across comparisons.
+Dataset bundle: \texttt{mixed\_beir\_v1.2.0}. The heterogeneous benchmark framing follows BEIR-style cross-domain retrieval evaluation \cite{thakur2021beir}, with dense sentence embeddings motivated by Sentence-BERT \cite{reimers2019sentencebert}. Split sizes are train=5078, validation=634, and test=1193. Each domain contributes at least 126 test queries. Benchmark configuration uses \texttt{domain-balanced=true} and \texttt{max\_candidates=100}.
 
-Primary endpoint is paired $\Delta$ nDCG@10 (Kalman minus Mean). Predeclared decision thresholds are $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$.
+Primary endpoint is paired $\Delta$ nDCG@10 (Kalman minus Mean), where nDCG is a ranked-retrieval effectiveness metric \cite{jarvelin2002}. Analysis is paired at the query level and reports Wilcoxon signed-rank testing \cite{wilcoxon1945} with Holm multiple-comparison correction \cite{holm1979}, consistent with IR evaluation guidance on paired significance testing \cite{smucker2007comparison} and broader recommendations for robust statistical comparisons \cite{dror2018hitchhikers,demsar2006statistical}. Predeclared decision thresholds are $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$. Bootstrap uncertainty summaries use the nonparametric bootstrap framework \cite{efron1979bootstrap}.
 
 \section{Main negative result}
 The final benchmark artefacts are \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. They report:
