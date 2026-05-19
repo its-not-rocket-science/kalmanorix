@@ -24,9 +24,9 @@ Kalmanorix is an MIT-licensed Python package for retrieval benchmarks with speci
 
 # Statement of need
 
-Teams can already encode text, build ANN indexes, and run search with libraries such as SentenceTransformers, BEIR-style tasks, and FAISS [@reimers2019sentencebert; @thakur2021beir; @johnson2017faiss; @jarvelin2002cumulated]. What is often missing is a stable evaluation loop for routing and fusion decisions. Many projects still depend on notebook-only scripts, so result interpretation changes across reruns and negative findings are lost.
+Researchers evaluating specialist embedding systems need to compare routing, fusion, uncertainty estimation, and baseline methods under one protocol. Existing tools cover parts of that workflow: SentenceTransformers for embedding models, BEIR for retrieval benchmarks, FAISS for efficient vector search, and statistical testing guidance in separate evaluation literature [@reimers2019sentencebert; @thakur2021beir; @johnson2017faiss; @dror2017replicability; @smucker2007significance; @demsar2006statistical].
 
-Kalmanorix addresses this by standardizing benchmark manifests, run metadata, and claim rules in one package. It is built for IR researchers, embedding researchers, and evaluation researchers who need repeatable benchmark outputs they can audit.
+Kalmanorix fills this integration gap with reusable software for packaging specialists, routing queries to specialists, comparing fusion rules, generating claim-gated evidence reports, and preserving negative and null outcomes.
 
 This paper positions Kalmanorix as research software infrastructure in the JOSS sense: software-first scholarship with auditable interfaces, artifacts, and governance that support companion empirical studies [@katz2018joss].
 
