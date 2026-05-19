@@ -299,6 +299,8 @@ def render_claim_md(rows):
     ]
     for k, v in rows:
         lines.append(f"| {k} | {v} |")
+    lines.append("")
+    lines.append("Source: `results/evidence_registry.json`")
     return "\n".join(lines) + "\n"
 
 
