@@ -25,3 +25,12 @@ This checklist maps common JOSS expectations to concrete repository evidence and
 1. Align release version metadata across `pyproject.toml`, `CITATION.cff`, and release tag.
 2. Create tagged release and archive it (e.g., Zenodo), then include the resulting DOI in JOSS submission metadata.
 3. Add a definitive CI status reference (badge and/or workflow URL) once workflow target branch is finalized.
+
+## Reviewer-facing manuscript risk note
+
+Remaining risks for `paper/joss/paper.md` before submission:
+
+- **Evidence-registry alignment risk:** statements about supported/unsupported/inconclusive effects should be cross-checked against `results/evidence_registry.json` at release cut time to avoid stale claim wording.
+- **External-stack claim risk:** references to SentenceTransformers/BEIR/FAISS integration should remain descriptive unless benchmark logs in the evidence registry explicitly demonstrate those paths in the tagged release.
+- **CI wording risk:** the manuscript names local CI gates; add a concrete workflow URL or badge before final submission so reviewers can verify automation status quickly.
+- **Version/DOI consistency risk:** ensure manuscript metadata, `pyproject.toml`, `CITATION.cff`, and release DOI metadata agree on version and release date.

@@ -19,31 +19,23 @@ bibliography: paper.bib
 
 # Summary
 
-Kalmanorix is an MIT-licensed Python package for **retrieval-system evaluation** with specialist embedding models, semantic routing policies, and uncertainty-aware fusion baselines. The software provides a reproducible workflow from benchmark manifest definition to machine-readable evidence artefacts, including claim-gated summaries of supported, unsupported, and inconclusive outcomes. Its focus is software infrastructure for disciplined benchmark reporting rather than promotion of a single retrieval strategy [@thakur2021beir; @jarvelin2002cumulated].
+Kalmanorix is an MIT-licensed Python package for retrieval benchmarks with specialist embedding models. It defines specialist embedders (`SEF`), groups them in a `Village`, routes queries with `ScoutRouter`, and compares fusion baselines through `Panoramix`. It also writes claim-gated outputs that label findings as supported, unsupported, or inconclusive in machine-readable files.
 
 # Statement of need
 
-Modern retrieval stacks provide strong building blocks---embedding models, vector databases, ANN search libraries, and ranking frameworks---but these tools typically stop at indexing and retrieval execution. They do not, by themselves, provide a unified protocol for (i) evaluating **specialist-embedding routing** decisions, (ii) comparing **uncertainty-aware fusion** baselines under consistent reporting rules, and (iii) translating metric outputs into **claim-gated** evidence suitable for publication and audit.
+Teams can already encode text, build ANN indexes, and run search with libraries such as SentenceTransformers, BEIR-style tasks, and FAISS [@thakur2021beir; @jarvelin2002cumulated]. What is often missing is a stable evaluation loop for routing and fusion decisions. Many projects still depend on notebook-only scripts, so result interpretation changes across reruns and negative findings are lost.
 
-Research teams therefore often assemble bespoke scripts across notebooks and one-off benchmark slices, which makes it difficult to reproduce claim decisions, preserve negative results, and maintain stable evidence records across reruns. Kalmanorix addresses this gap by standardising the loop from benchmark specification to claim-ready artefacts. The toolkit is intended for:
-
-In this work, we position Kalmanorix as research software infrastructure for transparent, claim-gated retrieval benchmarking rather than as evidence that any single fusion strategy is universally best.
-
-- information retrieval researchers,
-- embedding researchers,
-- evaluation-methodology researchers.
+Kalmanorix addresses this by standardizing benchmark manifests, run metadata, and claim rules in one package. It is built for IR researchers, embedding researchers, and evaluation researchers who need repeatable benchmark outputs they can audit.
 
 # Core functionality
 
-Kalmanorix provides the following software capabilities:
+Kalmanorix provides five core features:
 
-1. **Specialist embedding packaging**: reproducible assembly and configuration of specialist embedders for multi-domain retrieval workflows.
-2. **Routing evaluation**: evaluation of query-to-specialist routing behaviour with domain and slice-aware reporting.
-3. **Fusion baselines**: baseline-matrix support for single-model, weighted, and uncertainty-aware fusion variants, with explicit comparative reporting rather than quality guarantees.
-4. **Claim-gated benchmark reporting**: rule-based claim readiness outputs that distinguish supported improvements from negligible or inconclusive effects.
-5. **Reproducible artefact generation**: deterministic manifests and machine-readable reports suitable for audit, reanalysis, and publication handoff.
-
-These components help researchers evaluate specialist-embedding routing and uncertainty-aware fusion behaviour in both positive and negative-result settings, with claims constrained to reported evidence artefacts.
+1. Packages specialist embedders with explicit configuration for multi-domain retrieval runs.
+2. Evaluates query-to-specialist routing, including slice-level reporting.
+3. Runs baseline comparisons for single-model, weighted, and uncertainty-aware fusion.
+4. Applies rule-based claim gating to metric outputs.
+5. Exports deterministic JSON/Markdown artifacts for audit and paper appendices.
 
 # Installation, quickstart, and verification
 
@@ -65,7 +57,7 @@ Full test suite:
 python -m pytest
 ```
 
-For user-facing setup details and environment notes, see the installation guide in `docs/getting-started/installation.md`. For a minimal runnable example, see `docs/examples/minimal-fusion.md` and `examples/minimal_fusion_demo.py`.
+For setup details, see `docs/getting-started/installation.md`. For a runnable example, see `docs/examples/minimal-fusion.md` and `examples/minimal_fusion_demo.py`.
 
 # Example usage
 
@@ -82,24 +74,22 @@ python examples/minimal_fusion_demo.py
 python -m pytest tests/e2e/test_toy_pipeline.py
 ```
 
-Typical advanced usage combines benchmark manifests, specialist-router configuration, fusion baseline sweeps, and claim report generation into one reproducible run directory with JSON and Markdown outputs. In practice this is expressed through package components such as the `kalmanorix.panoramix.Panoramix` orchestration API, the `kalmanorix.run_claim_gate` command-line entrypoint, and repository checks such as `pytest -m "not integration and not stress"` and `ruff format --check .`.
-The older `kalmanorix.kalman_engine.fuser.Panoramix` import path is retained as a deprecated compatibility shim.
-
+Advanced usage combines manifests, router setup, fusion sweeps, and claim reporting in one run directory. Main entrypoints are `kalmanorix.panoramix.Panoramix`, `kalmanorix.run_routing_eval`, and `kalmanorix.run_claim_gate`. The older `kalmanorix.kalman_engine.fuser.Panoramix` path remains as a deprecated shim.
 
 # Software architecture and functionality
 
-Kalmanorix exposes a small set of public components that map directly to the specialist-routing and fusion workflow:
+The public API maps directly to benchmark steps:
 
-- **SEF** (`kalmanorix.sef.SEF`): defines a specialist embedding function, including a concrete model backend and metadata for routing/evaluation.
-- **Village** (`kalmanorix.village.Village`): container for multiple SEF specialists, used as the candidate pool for query-time dispatch and benchmarking.
-- **ScoutRouter** (`kalmanorix.router.ScoutRouter`): routing policy that selects a specialist from a Village for each query (or query batch) using router features/scores.
-- **Panoramix** (`kalmanorix.panoramix.Panoramix`): orchestration layer that runs retrieval/fusion experiments and produces metric and evidence artefacts.
-- **MeanFuser** (`kalmanorix.fusers.MeanFuser`): baseline fuser that combines specialist signals by arithmetic mean.
-- **KalmanorixFuser** (`kalmanorix.fusers.KalmanorixFuser`): uncertainty-aware fusion baseline implemented in this package for controlled comparisons against simpler alternatives.
-- **routing evaluator CLI** (`kalmanorix.run_routing_eval`): command-line entrypoint for routing-quality evaluation and slice-aware reporting.
-- **evidence registry / claim-gated reporting tools** (`kalmanorix.run_claim_gate` and `results/evidence_registry.json`): transforms metric outputs into claim-status artefacts (supported/unsupported/inconclusive) with machine-readable provenance.
+- **SEF** (`kalmanorix.sef.SEF`): defines one specialist embedding backend and metadata.
+- **Village** (`kalmanorix.village.Village`): stores the specialist set used for routing.
+- **ScoutRouter** (`kalmanorix.router.ScoutRouter`): picks a specialist per query or query batch.
+- **Panoramix** (`kalmanorix.panoramix.Panoramix`): runs retrieval/fusion experiments and writes outputs.
+- **MeanFuser** (`kalmanorix.fusers.MeanFuser`): arithmetic-mean baseline.
+- **KalmanorixFuser** (`kalmanorix.fusers.KalmanorixFuser`): uncertainty-aware baseline for comparison.
+- **routing evaluator CLI** (`kalmanorix.run_routing_eval`): evaluates routing quality by domain/slice.
+- **claim-gate tools** (`kalmanorix.run_claim_gate` and `results/evidence_registry.json`): convert metrics into claim status records with provenance.
 
-Kalmanorix is designed to complement, not replace, mature retrieval libraries. In typical usage, specialist embedders rely on SentenceTransformers for encoding, BEIR-style datasets/tasks for benchmark structure, and FAISS (or equivalent ANN backends) for vector indexing/search; Kalmanorix adds routing/fusion evaluation and claim-gated reporting around those components [@thakur2021beir].
+Kalmanorix complements existing retrieval libraries instead of replacing them. In common setups, encoding comes from SentenceTransformers, dataset/task structure from BEIR-style benchmarks, and vector search from FAISS. Kalmanorix adds routing/fusion evaluation and claim reporting around that stack [@thakur2021beir].
 
 ```python
 from kalmanorix.sef import SEF
@@ -128,10 +118,9 @@ run_dir = panoramix.run(queries=["sample query"], selected_specialists=[selected
 # python -m kalmanorix.run_claim_gate --run-dir <run_dir>
 ```
 
-
 # Reproducibility, documentation, and release readiness
 
-Kalmanorix emphasizes reproducibility through versioned benchmark manifests, explicit run metadata, deterministic output layout, and scripted artefact export. The repository includes automated tests and style checks, and project documentation includes installation, examples, API reference pages, and release/archival guidance.
+Reproducibility in Kalmanorix depends on versioned manifests, explicit run metadata, deterministic output paths, and scripted artifact export. The repository also includes automated tests and formatting checks.
 
 Documentation entrypoint: `docs/index.md`.
 
@@ -139,22 +128,22 @@ Quickstart/example entrypoints: `docs/getting-started/quickstart.md` and `docs/e
 
 Licence statement: Kalmanorix is distributed under the MIT License (`LICENSE`).
 
-CI status statement: the repository includes CI-oriented local gates (`ruff format --check .` and `pytest -m "not integration and not stress"`), with automation status tracked in repository CI configuration and badges when published.
+CI gates referenced in this repository: `ruff format --check .` and `pytest -m "not integration and not stress"`.
 
-Archive/release readiness: repository metadata includes `CITATION.cff` (with versioned software citation metadata), project versioning in `pyproject.toml`, and author/affiliation metadata in this manuscript front matter; release archiving is intended via a tagged release and Zenodo DOI minting workflow.
+Release metadata is tracked in `CITATION.cff`, `pyproject.toml`, and this manuscript front matter. Archive publication is planned through a tagged release with Zenodo DOI minting.
 
-The reporting pipeline intentionally preserves unsupported and null findings so that negative-result reporting remains first-class in empirical records.
+The reporting pipeline keeps unsupported and null findings instead of filtering them out.
 
 # Relationship to companion papers
 
-This JOSS manuscript documents the **software contribution**: package architecture, reproducible workflows, and evidence-generation interfaces. Companion TMLR/arXiv manuscripts report **empirical and methodological results** obtained using this tooling. Across these outputs, claim language is governed by the repository evidence registry (`results/evidence_registry.json`), so statements about supported or unsupported effects track recorded benchmark evidence rather than narrative preference.
+This JOSS manuscript describes the software: package structure, interfaces, and reproducible workflows. Companion TMLR/arXiv manuscripts report empirical outcomes produced with this software. Claim wording across outputs is intended to follow `results/evidence_registry.json`.
 
 # AI usage disclosure
 
-Generative AI tools were used as drafting assistants for portions of repository documentation and manuscript wording. All claims, citations, and scope statements were reviewed by the human author before submission.
+Generative AI tools were used as drafting assistants for parts of documentation and manuscript wording. The human author reviewed claims, citations, and scope statements before submission.
 
 # Acknowledgements
 
-The author thanks maintainers of open-source Python IR and scientific computing ecosystems, and contributors who provided reproducibility feedback during development.
+The author thanks maintainers of open-source Python IR and scientific computing ecosystems, and contributors who shared reproducibility feedback during development.
 
 # References
