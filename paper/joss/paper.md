@@ -8,6 +8,7 @@ tags:
   - reproducibility
 authors:
   - name: "Paul Schleifer"
+    orcid: "0009-0004-7972-3566"
     affiliation: "1"
 affiliations:
   - name: "Independent Research Software Engineer, United States"
