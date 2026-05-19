@@ -27,6 +27,8 @@ Modern retrieval stacks provide strong building blocks---embedding models, vecto
 
 Research teams therefore often assemble bespoke scripts across notebooks and one-off benchmark slices, which makes it difficult to reproduce claim decisions, preserve negative results, and maintain stable evidence records across reruns. Kalmanorix addresses this gap by standardizing the loop from benchmark specification to claim-ready artifacts. The toolkit is intended for:
 
+In this work, we position Kalmanorix as research software infrastructure for transparent, claim-gated retrieval benchmarking rather than as evidence that any single fusion strategy is universally best.
+
 - information retrieval researchers,
 - embedding researchers,
 - evaluation-methodology researchers.
