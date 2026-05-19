@@ -169,7 +169,7 @@ def render_latex_main(rows):
     return (
         "\\begin{tabular}{lccccc}\n"
         "\\toprule\n"
-        "Method & nDCG@10 & MRR@10 & Recall@10 & latency (ms) & FLOPs proxy \\\\ \n"
+        "Method & nDCG@10 & MRR@10 & Recall@10 & latency (ms) & FLOPs proxy \\\\\n"
         "\\midrule\n"
         f"{body}\n"
         "\\bottomrule\n"
@@ -185,7 +185,7 @@ def render_latex_stats(rows):
     return (
         "\\begin{tabular}{lcccc}\n"
         "\\toprule\n"
-        "baseline & $\\Delta$ nDCG@10 & 95\\% CI & Holm-adjusted $p$ & verdict \\\\ \n"
+        "baseline & $\\Delta$ nDCG@10 & 95\\% CI & Holm-adjusted $p$ & verdict \\\\\n"
         "\\midrule\n"
         f"{body}\n"
         "\\bottomrule\n"
@@ -241,6 +241,9 @@ def render_latex_baseline_matrix(
 
 def render_generated_metrics_tex(summary: dict[str, Any], artifact_dir: Path) -> str:
     confirm_pairs = summary["benchmark"]["split_counts"]["test"]
+    confirm_slice_pairs = int(
+        summary.get("confirmatory_slice_results", {}).get("n_pairs", 0)
+    )
 
     ndcg_stat = summary["paired_statistics"]["kalman_vs_mean"]["overall"]["ndcg@10"]
     delta = float(ndcg_stat["mean_difference"])
@@ -278,6 +281,7 @@ def render_generated_metrics_tex(summary: dict[str, Any], artifact_dir: Path) ->
     lines = [
         f"% Auto-generated from {artifact_dir.name}/summary.json",
         f"\\newcommand{{\\ConfirmPairs}}{{{confirm_pairs}}}",
+        f"\\newcommand{{\\ConfirmSlicePairs}}{{{confirm_slice_pairs}}}",
         f"\\newcommand{{\\DeltaNDCG}}{{{delta_fmt}}}",
         f"\\newcommand{{\\HolmP}}{{{holm_p:.1f}}}",
         f"\\newcommand{{\\DeltaRecall}}{{{delta_recall:.1f}}}",

@@ -42,7 +42,9 @@ We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only t
 \input{tables/main_results}
 \input{tables/baseline_matrix}
 
-The confirmatory result is gate-blocked: $\Delta$ nDCG@10 is near zero (\(\DeltaNDCG\)), adjusted significance is absent (\(p=\HolmP\)), and recall change is zero. The run remains sufficiently powered for the tested setup ($n_{\text{pairs}}=\ConfirmPairs$), so the correct interpretation is \emph{no demonstrated reliable benefit}, not ``insufficient data.''
+The overall paired test ($n_{\text{pairs}}=\ConfirmPairs$) is sufficiently powered: $\Delta$ nDCG@10 is near zero (\(\DeltaNDCG\)), Holm-adjusted significance is absent (\(p=\HolmP\)), and recall change is zero, so the correct interpretation of the overall result is \emph{no demonstrated reliable benefit}, not ``insufficient data.''
+
+The preregistered confirmatory slice (high disagreement, high uncertainty, multi-domain, low router confidence) contained only $n_{\text{pairs}}=\ConfirmSlicePairs$ query pair, below the minimum of 20 required for inferential claims. Its verdict is therefore \emph{inconclusive\_underpowered} rather than negative. The claim gate is blocked on both grounds: overall direction and significance, and confirmatory-slice inconclusiveness.
 
 \section{Why Did Kalman Not Help Here?}
 The artifacts support five bounded explanations:
@@ -60,6 +62,7 @@ The artifacts support five bounded explanations:
   \item \textbf{Configuration boundedness.} Results are tied to this implementation, this candidate cap, and this mixed-domain benchmark family.
   \item \textbf{External validity still open.} Different retrievers, uncertainty estimators, or larger candidate pools may change outcomes.
   \item \textbf{Single confirmatory track.} Additional independent confirmatory reruns would strengthen robustness.
+  \item \textbf{Confirmatory slice underpowered.} The preregistered high-disagreement multi-domain slice yielded $n_{\text{pairs}}=\ConfirmSlicePairs$ (minimum for inference: 20). Its verdict is inconclusive rather than negative; a larger corpus or broader slice definition is needed to make inferential claims at the slice level.
 \end{itemize}
 
 \section{Reproducibility Statement (TMLR)}
