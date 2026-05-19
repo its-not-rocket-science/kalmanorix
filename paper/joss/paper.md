@@ -23,11 +23,11 @@ Kalmanorix is an MIT-licensed Python package for retrieval benchmarks with speci
 
 # Statement of need
 
-Teams can already encode text, build ANN indexes, and run search with libraries such as SentenceTransformers, BEIR-style tasks, and FAISS [@thakur2021beir; @jarvelin2002cumulated]. What is often missing is a stable evaluation loop for routing and fusion decisions. Many projects still depend on notebook-only scripts, so result interpretation changes across reruns and negative findings are lost.
+Teams can already encode text, build ANN indexes, and run search with libraries such as SentenceTransformers, BEIR-style tasks, and FAISS [@reimers2019sentencebert; @thakur2021beir; @johnson2017faiss; @jarvelin2002cumulated]. What is often missing is a stable evaluation loop for routing and fusion decisions. Many projects still depend on notebook-only scripts, so result interpretation changes across reruns and negative findings are lost.
 
 Kalmanorix addresses this by standardizing benchmark manifests, run metadata, and claim rules in one package. It is built for IR researchers, embedding researchers, and evaluation researchers who need repeatable benchmark outputs they can audit.
 
-This paper positions Kalmanorix as research infrastructure for reproducible evaluation workflows rather than as a source of new retrieval claims. It documents software interfaces, artifacts, and governance that support companion empirical studies.
+This paper positions Kalmanorix as research software infrastructure in the JOSS sense: software-first scholarship with auditable interfaces, artifacts, and governance that support companion empirical studies [@katz2018joss].
 
 # Core functionality
 
@@ -91,7 +91,7 @@ The public API maps directly to benchmark steps:
 - **routing evaluator CLI** (`kalmanorix.run_routing_eval`): evaluates routing quality by domain/slice.
 - **claim-gate tools** (`kalmanorix.run_claim_gate` and `results/evidence_registry.json`): convert metrics into claim status records with provenance.
 
-Kalmanorix complements existing retrieval libraries instead of replacing them. In common setups, encoding comes from SentenceTransformers, dataset/task structure from BEIR-style benchmarks, and vector search from FAISS. Kalmanorix adds routing/fusion evaluation and claim reporting around that stack [@thakur2021beir].
+Kalmanorix complements existing retrieval libraries instead of replacing them. In common setups, encoding comes from SentenceTransformers, dataset/task structure from BEIR-style benchmarks, and vector search from FAISS. Kalmanorix adds routing/fusion evaluation and claim reporting around that stack [@reimers2019sentencebert; @thakur2021beir; @johnson2017faiss].
 
 ```python
 from kalmanorix.sef import SEF
@@ -134,7 +134,9 @@ CI gates referenced in this repository: `ruff format --check .` and `pytest -m "
 
 Release metadata is tracked in `CITATION.cff`, `pyproject.toml`, and this manuscript front matter. Archive publication is planned through a tagged release with Zenodo DOI minting.
 
-The reporting pipeline keeps unsupported and null findings instead of filtering them out.
+The reporting pipeline keeps unsupported and null findings instead of filtering them out. This aligns with recommendations for multi-dataset significance testing and robust cross-system comparison in NLP/IR evaluation [@dror2017replicability; @smucker2007significance; @demsar2006statistical].
+
+The uncertainty-aware baseline (`KalmanorixFuser`) is motivated by calibration-aware modeling practice and Kalman-style filtering ideas [@guo2017calibration; @kalman1960filtering].
 
 # Relationship to companion papers
 
