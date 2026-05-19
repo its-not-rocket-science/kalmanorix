@@ -4,7 +4,7 @@ This checklist maps common JOSS expectations to concrete repository evidence and
 
 | JOSS expectation | Status | Repository path | Action needed |
 |---|---|---|---|
-| Open-source license is present and clear | ready | `LICENSE` | None. |
+| Open-source licence is present and clear | ready | `LICENSE` | None. |
 | Software citation metadata exists (`CITATION.cff`) | ready | `CITATION.cff` | Keep version/date aligned with next tagged release. |
 | JOSS paper exists and focuses on software contribution | ready | `paper/joss/paper.md` | None. |
 | Bibliography and references are included for paper claims | ready | `paper/joss/paper.bib` | None. |
