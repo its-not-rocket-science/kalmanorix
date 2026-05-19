@@ -2313,6 +2313,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#reviewer-facing-manuscript-risk-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reviewer-facing manuscript risk note
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2451,6 +2462,14 @@
 <li>Create tagged release and archive it (e.g., Zenodo), then include the resulting DOI in JOSS submission metadata.</li>
 <li>Add a definitive CI status reference (badge and/or workflow URL) once workflow target branch is finalized.</li>
 </ol>
+<h2 id="reviewer-facing-manuscript-risk-note">Reviewer-facing manuscript risk note<a class="headerlink" href="#reviewer-facing-manuscript-risk-note" title="Permanent link">&para;</a></h2>
+<p>Remaining risks for <code>paper/joss/paper.md</code> before submission:</p>
+<ul>
+<li><strong>Evidence-registry alignment risk:</strong> statements about supported/unsupported/inconclusive effects should be cross-checked against <code>results/evidence_registry.json</code> at release cut time to avoid stale claim wording.</li>
+<li><strong>External-stack claim risk:</strong> references to SentenceTransformers/BEIR/FAISS integration should remain descriptive unless benchmark logs in the evidence registry explicitly demonstrate those paths in the tagged release.</li>
+<li><strong>CI wording risk:</strong> the manuscript names local CI gates; add a concrete workflow URL or badge before final submission so reviewers can verify automation status quickly.</li>
+<li><strong>Version/DOI consistency risk:</strong> ensure manuscript metadata, <code>pyproject.toml</code>, <code>CITATION.cff</code>, and release DOI metadata agree on version and release date.</li>
+</ul>
 
 
 
