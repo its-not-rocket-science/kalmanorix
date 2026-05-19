@@ -21,22 +21,22 @@ No Reliable Kalman-over-Mean Gain in Domain-Balanced Retrieval}
 \maketitle
 
 \begin{abstract}
-We report a concise, reproducible negative-result preprint for mixed-domain retrieval fusion. In the canonical domain-balanced C100 confirmatory run ($n_{\text{pairs}}=1193$), Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$; recall@100 delta is 0.0. Compute overhead is bounded (latency ratio 1.0722551296204925; FLOPs ratio 1.0). The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}. Relative to the TMLR manuscript, this version prioritizes the negative empirical result and exact reproduction instructions.
+We report a reproducible negative result for mixed-domain retrieval fusion. In the canonical domain-balanced C100 run ($n_{\text{pairs}}=1193$), Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$; $\Delta$ recall@100 is 0.0. Compute overhead is limited (latency ratio 1.0722551296204925; FLOPs ratio 1.0). The benchmark verdict is \texttt{inconclusive\_sufficiently\_powered}. This preprint emphasizes the empirical outcome and exact reproduction steps.
 \end{abstract}
 
 \begin{tcolorbox}[colback=gray!8,colframe=black,title=Scope of conclusion]
-This paper makes a \textbf{single bounded claim}: under the tested protocol (domain-balanced mixed-domain benchmark, \texttt{max\_candidates=100}, deterministic embedding regime), Kalman-style uncertainty fusion did \emph{not} demonstrate a reliable practical improvement over mean fusion.
+Under the tested protocol (domain-balanced mixed-domain benchmark, \texttt{max\_candidates=100}, deterministic embeddings), Kalman-style uncertainty fusion did \emph{not} show a reliable practical improvement over mean fusion.
 
-It does \textbf{not} claim that Kalman methods are universally ineffective, nor that mean fusion is always best.
+This does not imply universal inferiority of Kalman methods or universal optimality of mean fusion.
 \end{tcolorbox}
 
-\section{Setup (confirmatory track only)}
-Benchmark: \texttt{mixed\_beir\_v1.2.0} with train=5078, validation=634, test=1193, minimum per-domain test count 126. Confirmatory settings: \texttt{domain-balanced=true}, \texttt{max\_candidates=100}, paired query-level analysis, Holm correction, and practical-effect gate.
+\section{Setup}
+Benchmark: \texttt{mixed\_beir\_v1.2.0} (train=5078, validation=634, test=1193; minimum per-domain test count 126). Settings: \texttt{domain-balanced=true}, \texttt{max\_candidates=100}, paired query-level analysis, and Holm correction.
 
-Primary endpoint: paired $\Delta$ nDCG@10 (Kalman minus Mean). Decision gates match the registered artifacts: practical threshold $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$.
+Primary endpoint: paired $\Delta$ nDCG@10 (Kalman minus Mean). Predeclared thresholds: $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$.
 
 \section{Main negative result}
-The final confirmatory outputs (from \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}) are:
+Final outputs (from \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}) are:
 \begin{itemize}
   \item $\Delta$ nDCG@10 $=-9.258801070226193\times10^{-6}$
   \item Holm-adjusted $p=1.0$
@@ -46,7 +46,7 @@ The final confirmatory outputs (from \texttt{results/evidence\_registry.json} an
   \item Verdict: \texttt{inconclusive\_sufficiently\_powered}
 \end{itemize}
 
-Interpretation: the run had enough power for the predeclared practical effect scale, but no practically meaningful Kalman-over-Mean gain was detected.
+Interpretation: no practically meaningful Kalman-over-Mean gain was detected at the predeclared effect scale.
 
 \section{Baseline matrix}
 \begin{table}[ht]
@@ -56,14 +56,14 @@ Interpretation: the run had enough power for the predeclared practical effect sc
 \input{tables/main_results}
 \end{table}
 
-\section{What this result does and does not mean}
-\textbf{What it supports.}
+\section{Interpretation and limits}
+\textbf{Supported by this run}
 \begin{itemize}
-  \item In this protocol, Kalman fusion did not clear the practical-significance and multiplicity-adjusted evidence gate.
+  \item In this protocol, Kalman fusion did not meet the predeclared effect and statistical thresholds.
   \item Mean fusion remains a strong low-complexity reference under the tested configuration.
 \end{itemize}
 
-\textbf{What it does not support.}
+\textbf{Not supported by this run}
 \begin{itemize}
   \item It does not establish universal inferiority of uncertainty-aware fusion.
   \item It does not rule out gains under different embeddings, domains, candidate budgets, or uncertainty estimators.
@@ -98,8 +98,8 @@ ruff format --check .
 pytest -m "not integration and not stress"
 \end{verbatim}
 
-\section{Recommended citation and artifact use}
-When citing this preprint, cite it as a \textbf{negative-result, protocol-local empirical study} rather than a general method-validation paper. For numeric claims, prefer artifact-backed references to:
+\section{Artifact-focused citation guidance}
+When citing this preprint, treat it as a \textbf{protocol-local negative result}. For numeric claims, use:
 \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For system-level context, include \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}. Avoid extending conclusions beyond the tested protocol unless new confirmatory evidence is provided.
 
 \bibliographystyle{plain}
