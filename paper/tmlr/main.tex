@@ -15,7 +15,7 @@
 \maketitle
 
 \begin{abstract}
-This paper presents an evaluation methodology for small retrieval improvements where overclaim risk is high. We run a confirmatory paired test of Kalman-style uncertainty fusion versus mean fusion on a mixed-domain benchmark and focus on decision protocol rather than model novelty. Under the tested configuration ($n_{\text{pairs}}=\ConfirmPairs$, \texttt{max\_candidates}=\CandidateCap), Kalman-minus-mean $\Delta$ nDCG@10 is \(\DeltaNDCG\), Holm-adjusted \(p=\HolmP\), and recall@100 delta is \(\DeltaRecall\). Latency is higher (ratio \LatencyRatio) at matched FLOPs (ratio \FlopsRatio). We therefore report a constrained negative result: no reliable benefit is demonstrated under this protocol. The contribution is a reusable claim-gated template with paired inference, baseline-matrix reporting, and artifact-backed reproducibility.
+This paper presents an evaluation methodology for small retrieval improvements where overclaim risk is high. We run a confirmatory paired test of Kalman-style uncertainty fusion versus mean fusion on a mixed-domain benchmark and focus on decision protocol rather than model novelty. Under the tested configuration ($n_{\text{pairs}}=\ConfirmPairs$, \texttt{max\_candidates}=\CandidateCap), Kalman-minus-mean $\Delta$ nDCG@10 is \(\DeltaNDCG\), Holm-adjusted \(p=\HolmP\), and recall@100 delta is \(\DeltaRecall\). Latency is higher (ratio \LatencyRatio) at matched FLOPs (ratio \FlopsRatio). Expanded baseline, ablation, and robustness evidence supports a constrained negative result: no reliable benefit is demonstrated under this protocol. The contribution is a reusable claim-gated template with paired inference, practical-threshold checks, and artifact-backed reproducibility.
 \end{abstract}
 
 \section{Introduction}
@@ -41,37 +41,43 @@ We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only t
 \section{Results}
 \input{tables/main_results}
 \input{tables/baseline_matrix}
+\input{tables/statistical_tests}
 
-The overall paired test ($n_{\text{pairs}}=\ConfirmPairs$) is sufficiently powered: $\Delta$ nDCG@10 is near zero (\(\DeltaNDCG\)), Holm-adjusted significance is absent (\(p=\HolmP\)), and recall change is zero, so the correct interpretation of the overall result is \emph{no demonstrated reliable benefit}, not ``insufficient data.''
+The baseline set is intentionally strong rather than strawman. In the canonical matrix, hard routing (top-1) achieves the highest nDCG@10 (0.0983), while mean, Kalman, and fixed-weight fusion are effectively tied at 0.0918-level quality, making the null comparison against mean a meaningful stress test instead of an easy win target.
 
-The preregistered confirmatory slice (high disagreement, high uncertainty, multi-domain, low router confidence) contained only $n_{\text{pairs}}=\ConfirmSlicePairs$ query pair, below the minimum of 20 required for inferential claims. Its verdict is therefore \emph{inconclusive\_underpowered} rather than negative. The claim gate is blocked on both grounds: overall direction and significance, and confirmatory-slice inconclusiveness.
+The overall paired test ($n_{\text{pairs}}=\ConfirmPairs$) is sufficiently powered: $\Delta$ nDCG@10 is near zero (\(\DeltaNDCG\)), Holm-adjusted significance is absent (\(p=\HolmP\)), and recall change is zero. The correct interpretation is therefore \emph{no demonstrated reliable benefit} under the tested gate.
 
-\section{Why Did Kalman Not Help Here?}
-The artifacts support five bounded explanations:
-\begin{enumerate}
-  \item \textbf{Uncertainty signal weakness.} Query-level uncertainty features did not produce stable ranking gains over a strong mean baseline.
-  \item \textbf{Limited downstream effect of calibration.} Calibration analyses showed little translation from uncertainty adjustment to retrieval metric movement.
-  \item \textbf{Covariance richness added latency.} Richer covariance handling increased runtime overhead without measurable quality gain.
-  \item \textbf{Mean fusion remained competitive.} Baseline-matrix results show near-tied quality against simpler fusion.
-  \item \textbf{Candidate cap and benchmark scope.} With \texttt{max\_candidates}=\CandidateCap and benchmark \CanonicalBenchVersion, conclusions are protocol-local and may differ at other budgets or domains.
-\end{enumerate}
+The preregistered confirmatory slice (high disagreement, high uncertainty, multi-domain, low router confidence) contained only $n_{\text{pairs}}=\ConfirmSlicePairs$ query pair, below the minimum of 20 required for inferential claims. Its verdict is \emph{inconclusive\_underpowered}; this is a power limitation at slice level, not a reversal of the overall null.
 
-\section{Reviewer-Facing Limitations}
-\begin{itemize}
-  \item \textbf{Narrow claim target.} The evidence supports only a within-protocol statement, not a universal statement about Kalman methods.
-  \item \textbf{Configuration boundedness.} Results are tied to this implementation, this candidate cap, and this mixed-domain benchmark family.
-  \item \textbf{External validity still open.} Different retrievers, uncertainty estimators, or larger candidate pools may change outcomes.
-  \item \textbf{Single confirmatory track.} Additional independent confirmatory reruns would strengthen robustness.
-  \item \textbf{Confirmatory slice underpowered.} The preregistered high-disagreement multi-domain slice yielded $n_{\text{pairs}}=\ConfirmSlicePairs$ (minimum for inference: 20). Its verdict is inconclusive rather than negative; a larger corpus or broader slice definition is needed to make inferential claims at the slice level.
-\end{itemize}
+\section{Ablations and Mechanistic Decomposition}
+\input{tables/negative_result_diagnostics}
+
+\paragraph{Uncertainty-quality analysis.}
+Uncertainty ablations vary calibration diagnostics but do not produce corresponding retrieval gains: recall@1 and MRR@10 remain effectively unchanged across tested uncertainty methods in \texttt{results/uncertainty\_ablation/summary.json}. This directly addresses whether uncertainty signal quality was meaningful for ranking utility here: it was measurable, but not decision-relevant at the endpoint scale.
+
+\paragraph{Routing-versus-fusion decomposition.}
+Evidence from both canonical and routing-eval artifacts indicates the larger variance contribution comes from routing policy, not fusion weighting. Router-only top-1 outruns all fusion variants on nDCG@10 in the canonical matrix, and threshold sweeps materially shift F1/efficiency trade-offs. By contrast, fusion-family deltas (mean, Kalman, fixed-weight) remain tightly clustered.
+
+\paragraph{Specialist diversity interpretation.}
+The mixed-domain specialist pool appears to provide value primarily through \emph{selection diversity} (which expert is chosen) rather than \emph{post-selection weighting}. This interpretation is consistent with stronger routing sensitivity and near-flat fusion sensitivity: diversity helps when routing captures complementary specialists, but uncertainty-weighted recombination adds little once candidate experts are fixed.
+
+\section{Robustness and Regime Coverage}
+Null findings are stable across the expanded evidence base: canonical confirmatory comparisons, covariance ablations, uncertainty ablations, and routing sweeps all fail to show a practical Kalman-over-mean gain while repeatedly exposing efficiency trade-offs. We summarize this in Table~\ref{tab:negative-result-diagnostics} and preserve full artifacts for re-audit.
+
+Robustness appendix references are provided in committed outputs: \texttt{results/negative\_result\_diagnostics/summary.json}, \texttt{results/kalman\_covariance\_ablation\_v2/summary.json}, \texttt{results/uncertainty\_ablation/summary.json}, and \texttt{results/routing\_eval/small\_routing\_eval\_v1\_report.json}. These references cover baseline strength, decomposition, and alternative-regime checks.
+
+\section{Lessons from Failure}
+\input{tables/lessons_from_failure}
+
+The program yields concrete, evidence-backed lessons: (i) strong baselines can dominate sophisticated fusion; (ii) uncertainty estimates can improve calibration without improving ranking endpoints; (iii) routing policy is often the primary control knob; and (iv) negative results become actionable only when thresholds, diagnostics, and artifacts are all preserved.
 
 \section{Reproducibility Statement (TMLR)}
-All numerical claims in this manuscript are sourced from committed artifacts, primarily \texttt{results/evidence\_registry.json} and canonical benchmark summaries. Manuscript constants are included via \texttt{paper/tmlr/includes/generated\_metrics.tex} to avoid manual transcription. The baseline matrix is exported from canonical benchmark artifacts (v3 fast-local family).
+All numerical claims in this manuscript are sourced from committed artifacts, primarily \texttt{results/evidence\_registry.json} and canonical benchmark summaries. Manuscript constants are included via \texttt{paper/tmlr/includes/generated\_metrics.tex} to avoid manual transcription. The baseline matrix and diagnostics are exported from canonical and ablation artifacts.
 
 To reproduce the paper build: \texttt{cd paper/tmlr; pdflatex main.tex; bibtex main; pdflatex main.tex; pdflatex main.tex}. To reproduce repository checks: \texttt{ruff format --check .} and \texttt{pytest -m "not integration and not stress"}.
 
 \section{Conclusion}
-This TMLR submission is about methodology: a claim-gated evaluation protocol for small retrieval deltas. In the tested mixed-domain confirmatory setting, Kalman-style fusion did not show a reliable advantage over mean fusion. The recommended scientific conclusion is constrained and artifact-backed: no reliable benefit was demonstrated under the tested protocol.
+This TMLR submission contributes an evaluation protocol for small retrieval deltas centered on rigorous gating, practical significance, and reproducibility. Across strong baselines, uncertainty/covariance ablations, and routing decompositions, Kalman-style fusion does not show a reliable advantage over mean fusion in this mixed-domain confirmatory setting. The preserved negative result is therefore informative: it narrows valid claims, identifies where performance sensitivity actually resides (routing), and provides reusable evidence standards for future retrieval studies.
 
 \bibliography{references}
 
