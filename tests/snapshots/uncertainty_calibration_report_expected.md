@@ -15,7 +15,7 @@
 
 ## Selected calibrators
 
-- `cook`: calibrator=`isotonic`, fallback=`False`, mse=`0.004345`, support=`11`
+- `cook`: calibrator=`isotonic`, fallback=`False`, mse=`0.006386`, support=`11`
 - `tech`: calibrator=`isotonic`, fallback=`False`, mse=`0.001228`, support=`15`
 
 ## Kalman-vs-Mean (calibrated sigma2)

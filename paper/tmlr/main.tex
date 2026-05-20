@@ -21,7 +21,7 @@ This paper presents an evaluation methodology for small retrieval improvements w
 \section{Introduction}
 Modern IR papers often report tiny metric deltas that are sensitive to sampling and benchmark composition. This submission targets that evaluation problem directly: how should one decide whether a small observed improvement is claim-worthy?
 
-Our confirmatory question is narrow: does Kalman-style uncertainty fusion improve nDCG@10 over mean fusion in a domain-balanced mixed-domain setting? We use a predeclared claim gate: positive direction, practical effect size, multiplicity-adjusted significance, and acceptable efficiency overhead must all pass.
+Our confirmatory question is narrow: does Kalman-style uncertainty fusion \cite{kalman1960} improve nDCG@10 \cite{jarvelin2002} over mean fusion in a domain-balanced mixed-domain setting \cite{thakur2021beir}? We use a predeclared claim gate: positive direction, practical effect size, multiplicity-adjusted significance, and acceptable efficiency overhead must all pass.
 
 \paragraph{Scope of claim.}
 We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only that this study did not demonstrate a reliable Kalman-over-mean benefit under the tested protocol.
@@ -34,7 +34,7 @@ We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only t
 
 \textbf{Design:} domain-balanced paired evaluation so each query is scored by both methods; confirmatory and exploratory slices are separated.
 
-\textbf{Inference:} paired Wilcoxon testing, Holm correction, and bootstrap interval summaries.
+\textbf{Inference:} paired Wilcoxon signed-rank testing \cite{wilcoxon1945}, Holm correction \cite{holm1979}, and bootstrap interval summaries \cite{efron1979bootstrap}.
 
 \textbf{Decision rule:} a positive claim requires (i) $\Delta$ nDCG@10 $>0$, (ii) $|\Delta|\ge \PracticalDelta$, (iii) Holm-adjusted $p<0.05$, and (iv) efficiency constraints passing.
 
@@ -43,7 +43,7 @@ We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only t
 \input{../shared/generated/baseline_matrix}
 \input{tables/statistical_tests}
 
-The baseline set is intentionally strong rather than strawman. In the canonical matrix, hard routing (top-1) achieves the highest nDCG@10 (0.0983), while mean, Kalman, and fixed-weight fusion are effectively tied at 0.0918-level quality, making the null comparison against mean a meaningful stress test instead of an easy win target.
+The baseline set is intentionally strong rather than strawman. In the canonical matrix, hard routing (top-1) achieves the highest nDCG@10 (0.0983), while mean, Kalman, and fixed-weight fusion are effectively tied at 0.0918-level quality, making the null comparison against mean a meaningful stress test instead of an easy win target. Paired significance testing follows IR evaluation guidance \cite{smucker2007comparison,demsar2006statistical}.
 
 The overall paired test ($n_{\text{pairs}}=\ConfirmPairs$) is sufficiently powered: $\Delta$ nDCG@10 is near zero (\(\DeltaNDCG\)), Holm-adjusted significance is absent (\(p=\HolmP\)), and recall change is zero. The correct interpretation is therefore \emph{no demonstrated reliable benefit} under the tested gate.
 
