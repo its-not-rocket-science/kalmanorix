@@ -75,7 +75,7 @@ The program yields concrete, evidence-backed lessons: (i) strong baselines can d
 
 \section{Reproducibility Statement (TMLR)}
 All numerical claims in this manuscript are sourced from committed artifacts, primarily \texttt{results/evidence\_registry.json} and canonical benchmark summaries. Manuscript constants are included via \texttt{paper/tmlr/includes/generated\_metrics.tex} to avoid manual transcription. The baseline matrix and diagnostics are exported from canonical and ablation artifacts.
-Cross-paper headline synchronization uses \texttt{paper/shared/generated/evidence\_registry.json} and \texttt{paper/shared/generated/claim\_gate\_summary.tex}; the current synchronized headline values are $\Delta$ nDCG@10 $=-9.258801070226193\times10^{-6}$ and adjusted $p=1.0$.
+Cross-paper headline synchronization uses \texttt{paper/shared/generated/evidence\_registry.json} and \texttt{paper/shared/generated/claim\_gate\_summary.tex}; the current synchronized headline values are $\Delta$ nDCG@10 $=\DeltaNDCG$ and adjusted $p=\HolmP$.
 
 To reproduce the paper build: \texttt{cd paper/tmlr; pdflatex main.tex; bibtex main; pdflatex main.tex; pdflatex main.tex}. To reproduce repository checks: \texttt{ruff format --check .} and \texttt{pytest -m "not integration and not stress"}.
 

@@ -77,48 +77,42 @@ python examples/minimal_fusion_demo.py
 python -m pytest tests/e2e/test_toy_pipeline.py
 ```
 
-Advanced usage combines manifests, router setup, fusion sweeps, and claim reporting in one run directory. Main entrypoints are `kalmanorix.panoramix.Panoramix`, `kalmanorix.run_routing_eval`, and `kalmanorix.run_claim_gate`. The older `kalmanorix.kalman_engine.fuser.Panoramix` path remains as a deprecated shim.
+Advanced usage combines benchmark manifests, router configuration, fusion baseline sweeps, and report generation into one reproducible run directory with JSON and Markdown outputs. The main orchestration entrypoint is `kalmanorix.panoramix.Panoramix`; the older `kalmanorix.kalman_engine.fuser.Panoramix` path remains as a deprecated shim.
 
 # Software architecture and functionality
 
 The public API maps directly to benchmark steps:
 
-- **SEF** (`kalmanorix.sef.SEF`): defines one specialist embedding backend and metadata.
+- **SEF** (`kalmanorix.village.SEF`): defines one specialist embedding backend and metadata.
 - **Village** (`kalmanorix.village.Village`): stores the specialist set used for routing.
-- **ScoutRouter** (`kalmanorix.router.ScoutRouter`): picks a specialist per query or query batch.
-- **Panoramix** (`kalmanorix.panoramix.Panoramix`): runs retrieval/fusion experiments and writes outputs.
-- **MeanFuser** (`kalmanorix.fusers.MeanFuser`): arithmetic-mean baseline.
-- **KalmanorixFuser** (`kalmanorix.fusers.KalmanorixFuser`): uncertainty-aware baseline for comparison.
-- **routing evaluator CLI** (`kalmanorix.run_routing_eval`): evaluates routing quality by domain/slice.
-- **claim-gate tools** (`kalmanorix.run_claim_gate` and `results/evidence_registry.json`): convert metrics into claim status records with provenance.
+- **ScoutRouter** (`kalmanorix.scout.ScoutRouter`): picks a specialist per query or query batch.
+- **Panoramix** (`kalmanorix.panoramix.Panoramix`): orchestrates routing, fusion, and artifact output.
+- **MeanFuser** (`kalmanorix.MeanFuser`): arithmetic-mean baseline.
+- **KalmanorixFuser** (`kalmanorix.KalmanorixFuser`): uncertainty-aware Kalman-filter baseline.
+- **claim-gate scripts** (`scripts/build_claim_gate.py`, `results/evidence_registry.json`): convert metrics into claim status records with provenance.
 
 Kalmanorix complements existing retrieval libraries instead of replacing them. In common setups, encoding comes from SentenceTransformers, dataset/task structure from BEIR-style benchmarks, and vector search from FAISS. Kalmanorix adds routing/fusion evaluation and claim reporting around that stack [@reimers2019sentencebert; @thakur2021beir; @johnson2017faiss].
 
 ```python
-from kalmanorix.sef import SEF
-from kalmanorix.village import Village
-from kalmanorix.router import ScoutRouter
-from kalmanorix.fusers import MeanFuser, KalmanorixFuser
-from kalmanorix.panoramix import Panoramix
+import numpy as np
+from kalmanorix import SEF, Village, ScoutRouter, Panoramix, MeanFuser, KalmanorixFuser
 
-# 1) define SEF specialists
-biomed = SEF(name="biomed", encoder="sentence-transformers/all-mpnet-base-v2")
-legal = SEF(name="legal", encoder="sentence-transformers/multi-qa-mpnet-base-dot-v1")
+# 1) define SEF specialists (embed callable + constant sigma2 uncertainty)
+tech = SEF(name="tech", embed=lambda q: np.random.randn(128), sigma2=0.5)
+cook = SEF(name="cook", embed=lambda q: np.random.randn(128), sigma2=1.0)
 
-# 2) place them in a Village
-village = Village([biomed, legal])
+# 2) group into a Village
+village = Village([tech, cook])
 
-# 3) select with ScoutRouter
-router = ScoutRouter(village=village)
-selected = router.route("what is first-line treatment for atrial fibrillation?")
+# 3) route and fuse with Panoramix
+scout = ScoutRouter(mode="all")
+panoramix = Panoramix(fuser=KalmanorixFuser())
+potion = panoramix.brew("example query", village, scout)
+print(potion.vector.shape, potion.weights)
 
-# 4) fuse with Panoramix
-panoramix = Panoramix(village=village, fusers=[MeanFuser(), KalmanorixFuser()])
-run_dir = panoramix.run(queries=["sample query"], selected_specialists=[selected])
-
-# 5) run routing/benchmark evaluation from CLI
-# python -m kalmanorix.run_routing_eval --manifest manifests/routing_minimal.yaml
-# python -m kalmanorix.run_claim_gate --run-dir <run_dir>
+# For mean-fusion comparison:
+mean_panoramix = Panoramix(fuser=MeanFuser())
+mean_potion = mean_panoramix.brew("example query", village, scout)
 ```
 
 # Reproducibility, documentation, and release readiness
