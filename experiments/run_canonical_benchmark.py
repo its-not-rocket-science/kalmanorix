@@ -18,6 +18,9 @@ from experiments.registry.runner import DEFAULT_REAL_SPECIALISTS, run_experiment
 from kalmanorix.benchmarks.canonical_benchmark import aggregate_strategy_metrics
 from kalmanorix.benchmarks.report_generator import generate_guarded_findings_markdown
 from kalmanorix.benchmarks.statistical_testing import generate_statistical_report
+from kalmanorix.benchmarks.specialist_diversity_diagnostics import (
+    generate_specialist_diversity_artifacts,
+)
 
 
 CANONICAL_METHOD_ALIASES = {
@@ -2625,6 +2628,7 @@ def run_canonical_benchmark(
     if timing_json is not None:
         timing_json.parent.mkdir(parents=True, exist_ok=True)
         timing_json.write_text(json.dumps(timings, indent=2), encoding="utf-8")
+    generate_specialist_diversity_artifacts(details, output_dir)
     return summary
 
 

@@ -146,6 +146,10 @@ def test_canonical_benchmark_writes_artifacts(
     baseline_matrix_json = output_dir / "baseline_matrix.json"
     baseline_matrix_tex = output_dir / "baseline_matrix.tex"
     runner_details_path = output_dir / "runner_details.json"
+    specialist_diversity_path = output_dir / "specialist_diversity.json"
+    specialist_corr_tex_path = output_dir / "specialist_correlation_heatmap.tex"
+    disagreement_scatter_path = output_dir / "disagreement_vs_gain_scatter.csv"
+    ess_analysis_path = output_dir / "effective_sample_size_analysis.md"
     assert summary_path.exists()
     assert report_path.exists()
     assert claim_gate_path.exists()
@@ -153,6 +157,10 @@ def test_canonical_benchmark_writes_artifacts(
     assert baseline_matrix_json.exists()
     assert baseline_matrix_tex.exists()
     assert runner_details_path.exists()
+    assert specialist_diversity_path.exists()
+    assert specialist_corr_tex_path.exists()
+    assert disagreement_scatter_path.exists()
+    assert ess_analysis_path.exists()
 
     on_disk = json.loads(summary_path.read_text(encoding="utf-8"))
     assert on_disk["benchmark"]["split_counts"] == {
