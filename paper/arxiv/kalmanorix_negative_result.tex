@@ -21,7 +21,7 @@ A Powered Negative Result for Kalman-Style Uncertainty Weighting}
 \maketitle
 
 \begin{abstract}
-This paper asks a focused empirical question: under a domain-balanced mixed-domain retrieval benchmark, does Kalman-style uncertainty weighting reliably outperform mean fusion? In the canonical C100 evaluation ($n_{\text{pairs}}=1193$), the answer is no. Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.258801070226193\times10^{-6}$ with Holm-adjusted $p=1.0$, and $\Delta$ recall@100 is 0.0; latency increases modestly (ratio 1.0722551296204925) while FLOPs are unchanged (ratio 1.0). The claim-gated verdict is \texttt{inconclusive\_sufficiently\_powered}: this run provides no reliable practical gain from uncertainty weighting over mean fusion in the tested setting. The contribution of this report is to preserve and document that null result with reproducible artefacts, statistically disciplined reporting, and exact rerun instructions.
+This paper asks a focused empirical question: under a domain-balanced mixed-domain retrieval benchmark, does Kalman-style uncertainty weighting reliably outperform mean fusion? In the canonical C100 evaluation ($n_{\text{pairs}}=1193$), the answer is no. Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.259\times10^{-6}$ with Holm-adjusted $p=1.0$, and $\Delta$ recall@100 is 0.0; latency increases modestly (ratio 1.072) while FLOPs are unchanged (ratio 1.0). The claim-gated verdict is \texttt{blocked}: this run provides no reliable practical gain from uncertainty weighting over mean fusion in the tested setting. The contribution of this report is to preserve and document that null result with reproducible artefacts, statistically disciplined reporting, and exact rerun instructions.
 \end{abstract}
 
 \begin{tcolorbox}[colback=gray!8,colframe=black,title=Scope of conclusion]
@@ -43,10 +43,10 @@ Primary endpoint is paired $\Delta$ nDCG@10 (Kalman minus Mean), where nDCG is a
 \section{Main negative result}
 The final benchmark artefacts are \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. They report:
 \begin{itemize}
-  \item $\Delta$ nDCG@10 $=-9.258801070226193\times10^{-6}$
+  \item $\Delta$ nDCG@10 $\approx -9.259\times10^{-6}$
   \item Holm-adjusted $p=1.0$
   \item $\Delta$ recall@100 $=0.0$
-  \item Latency ratio (Kalman/Mean) $=1.0722551296204925$
+  \item Latency ratio (Kalman/Mean) $=1.072$
   \item FLOPs ratio (Kalman/Mean) $=1.0$
   \item Verdict: \texttt{blocked}
 \end{itemize}
@@ -99,8 +99,7 @@ bibtex kalmanorix_negative_result
 pdflatex kalmanorix_negative_result.tex
 pdflatex kalmanorix_negative_result.tex
 
-# repository-required checks
-cd /workspace/kalmanorix
+# repository-required checks (from repository root)
 ruff format --check .
 pytest -m "not integration and not stress"
 \end{verbatim}

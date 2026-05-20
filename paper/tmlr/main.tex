@@ -47,7 +47,7 @@ The baseline set is intentionally strong rather than strawman. In the canonical 
 
 The overall paired test ($n_{\text{pairs}}=\ConfirmPairs$) is sufficiently powered: $\Delta$ nDCG@10 is near zero (\(\DeltaNDCG\)), Holm-adjusted significance is absent (\(p=\HolmP\)), and recall change is zero. The correct interpretation is therefore \emph{no demonstrated reliable benefit} under the tested gate.
 
-The preregistered confirmatory slice (high disagreement, high uncertainty, multi-domain, low router confidence) contained only $n_{\text{pairs}}=\ConfirmSlicePairs$ query pair, below the minimum of 20 required for inferential claims. Its verdict is \emph{inconclusive\_underpowered}; this is a power limitation at slice level, not a reversal of the overall null.
+The preregistered confirmatory slice (high disagreement, high uncertainty, multi-domain, low router confidence) contained only $n_{\text{pairs}}=\ConfirmSlicePairs$ query pair, below the minimum of 20 required for inferential claims. The slice criteria were defined prospectively; the number of queries simultaneously satisfying all four criteria on this bounded benchmark was not pre-calculable and yielded a single match---a power gap inherent to tight multi-criteria slice definitions on fixed-size datasets. Its verdict is \emph{inconclusive\_underpowered}. This is not a reversal of the overall null: the powered $n=\ConfirmPairs$ test is unaffected. The design implication is that future studies should size the benchmark to guarantee a minimum slice support (e.g., $\ge$~50 queries per confirmatory stratum) or relax criteria to a single primary discriminator.
 
 \section{Ablations and Mechanistic Decomposition}
 \input{tables/negative_result_diagnostics}
