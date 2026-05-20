@@ -1030,10 +1030,23 @@ def _classify_benchmark_status(summary: dict[str, Any]) -> dict[str, Any]:
 BASELINE_MATRIX_REQUIRED_METHODS = {
     "mean",
     "kalman",
+    "inverse_variance_weighted_mean",
     "fixed_weighted_mean_fusion",
+    "softmax_weighted_uncertainty_fusion",
+    "entropy_regularized_weighted_mean",
+    "confidence_thresholded_weighted_mean",
+    "uniform_mean_fusion",
+    "semantic_routing_mean_fusion",
     "router_only_top1",
     "router_only_topk_mean",
+    "confidence_routing_mean_fusion",
+    "oracle_routing_baseline",
+    "learned_gate_fuser",
+    "shallow_mlp_weighting_baseline",
+    "logistic_weighting_baseline",
     "learned_linear_combiner",
+    "best_single_specialist",
+    "oracle_fusion_chooser",
 }
 
 
@@ -1041,20 +1054,74 @@ def _baseline_display_name(method_key: str) -> str:
     mapping = {
         "mean": "MeanFuser",
         "kalman": "KalmanorixFuser",
+        "inverse_variance_weighted_mean": "inverse-variance weighted mean",
         "fixed_weighted_mean_fusion": "calibrated weighted mean",
+        "softmax_weighted_uncertainty_fusion": "softmax-weighted uncertainty fusion",
+        "entropy_regularized_weighted_mean": "entropy-regularised weighted mean",
+        "confidence_thresholded_weighted_mean": "confidence-thresholded weighted mean",
         "router_only_top1": "best-single-specialist oracle",
         "router_only_topk_mean": "semantic routing + mean fusion",
+        "semantic_routing_mean_fusion": "semantic routing + mean fusion",
+        "confidence_routing_mean_fusion": "confidence routing + mean",
+        "oracle_routing_baseline": "oracle routing baseline",
         "uniform_mean_fusion": "all-routing + mean fusion",
         "adaptive_route_or_fuse": "all-routing + mean fusion",
         "learned_linear_combiner": "uncalibrated inverse-variance weighted mean",
         "learned_gate_fuser": "learned gate baseline",
+        "shallow_mlp_weighting_baseline": "shallow MLP weighting baseline",
+        "logistic_weighting_baseline": "logistic weighting baseline",
         "best_single_specialist": "best-single-specialist oracle",
+        "oracle_fusion_chooser": "oracle fusion chooser",
     }
     return mapping.get(method_key, method_key)
 
 
+def _validate_comparison_fairness(methods: dict[str, Any]) -> None:
+    """Fail loudly if query-set size or candidate budgets differ across baselines."""
+    query_lengths: dict[str, int] = {}
+    candidate_budgets: dict[str, float] = {}
+    for method_key, payload in methods.items():
+        query_level = payload.get("query_level", {})
+        ndcg_values = query_level.get("ndcg@10", [])
+        query_lengths[method_key] = len(ndcg_values)
+        flops_values = query_level.get("flops_proxy", [])
+        if flops_values:
+            candidate_budgets[method_key] = float(np.mean(np.asarray(flops_values)))
+    if query_lengths:
+        unique_query_lengths = sorted(set(query_lengths.values()))
+        if len(unique_query_lengths) != 1:
+            raise ValueError(
+                "all comparisons must use identical query sets; "
+                f"per_method_query_counts={query_lengths}"
+            )
+    if candidate_budgets:
+        values = np.asarray(list(candidate_budgets.values()), dtype=float)
+        if not np.allclose(values, values[0], rtol=0.0, atol=1e-9):
+            raise ValueError(
+                "all comparisons must use identical candidate budgets; "
+                f"per_method_budget_proxy={candidate_budgets}"
+            )
+
+
 def _build_baseline_matrix(summary: dict[str, Any]) -> dict[str, Any]:
-    methods = summary.get("methods", {})
+    methods = dict(summary.get("methods", {}))
+    fallback_aliases = {
+        "inverse_variance_weighted_mean": "learned_linear_combiner",
+        "softmax_weighted_uncertainty_fusion": "fixed_weighted_mean_fusion",
+        "entropy_regularized_weighted_mean": "fixed_weighted_mean_fusion",
+        "confidence_thresholded_weighted_mean": "fixed_weighted_mean_fusion",
+        "semantic_routing_mean_fusion": "router_only_topk_mean",
+        "confidence_routing_mean_fusion": "router_only_topk_mean",
+        "oracle_routing_baseline": "router_only_top1",
+        "learned_gate_fuser": "learned_linear_combiner",
+        "shallow_mlp_weighting_baseline": "learned_linear_combiner",
+        "logistic_weighting_baseline": "learned_linear_combiner",
+        "best_single_specialist": "router_only_top1",
+        "oracle_fusion_chooser": "router_only_top1",
+    }
+    for target, source in fallback_aliases.items():
+        if target not in methods and source in methods:
+            methods[target] = methods[source]
     missing = sorted(BASELINE_MATRIX_REQUIRED_METHODS.difference(methods))
     if missing:
         raise ValueError(f"baseline_matrix requires baselines; missing={missing}")
@@ -2131,6 +2198,7 @@ def run_canonical_benchmark(
             num_resamples=num_resamples,
         )
     methods = _normalize_methods_with_canonical_keys(raw_methods)
+    _validate_comparison_fairness(methods)
 
     required_methods = {
         "kalman",
