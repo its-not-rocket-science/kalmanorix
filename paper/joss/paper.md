@@ -127,7 +127,7 @@ Licence statement: Kalmanorix is distributed under the MIT License (`LICENSE`).
 
 CI gates referenced in this repository: `ruff format --check .` and `pytest -m "not integration and not stress"`.
 
-Release metadata is tracked in `CITATION.cff`, `pyproject.toml`, and this manuscript front matter. Archive publication is planned through a tagged release with Zenodo DOI minting.
+Release metadata is tracked in `CITATION.cff`, `pyproject.toml`, and this manuscript front matter. The software is archived on Zenodo at [10.5281/zenodo.20318011](https://doi.org/10.5281/zenodo.20318011).
 
 The reporting pipeline keeps unsupported and null findings instead of filtering them out. This aligns with recommendations for multi-dataset significance testing and robust cross-system comparison in NLP/IR evaluation [@dror2017replicability; @smucker2007significance; @demsar2006statistical].
 
