@@ -1058,88 +1058,49 @@ def test_resolve_replication_build_specs() -> None:
 
 
 def test_baseline_matrix_generation_is_deterministic() -> None:
+    def _metrics(
+        ndcg: float,
+        *,
+        mrr: float = 0.2,
+        r100: float = 0.3,
+        r1: float = 0.05,
+        latency: float = 1.0,
+        flops: float = 3.0,
+    ) -> dict[str, dict[str, float]]:
+        return {
+            "ndcg@10": {
+                "mean": ndcg,
+                "ci95_low": ndcg - 0.01,
+                "ci95_high": ndcg + 0.01,
+            },
+            "mrr@10": {"mean": mrr},
+            "recall@100": {"mean": r100},
+            "recall@1": {"mean": r1},
+            "latency_ms": {"mean": latency},
+            "flops_proxy": {"mean": flops},
+        }
+
     summary = {
         "methods": {
-            "mean": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.1, "ci95_low": 0.09, "ci95_high": 0.11},
-                    "mrr@10": {"mean": 0.2},
-                    "recall@100": {"mean": 0.3},
-                    "recall@1": {"mean": 0.05},
-                    "latency_ms": {"mean": 1.0},
-                    "flops_proxy": {"mean": 3.0},
-                }
-            },
-            "kalman": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.11, "ci95_low": 0.10, "ci95_high": 0.12},
-                    "mrr@10": {"mean": 0.21},
-                    "recall@100": {"mean": 0.31},
-                    "recall@1": {"mean": 0.06},
-                    "latency_ms": {"mean": 1.1},
-                    "flops_proxy": {"mean": 3.0},
-                }
-            },
-            "fixed_weighted_mean_fusion": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.105, "ci95_low": 0.10, "ci95_high": 0.11},
-                    "mrr@10": {"mean": 0.205},
-                    "recall@100": {"mean": 0.305},
-                    "recall@1": {"mean": 0.055},
-                    "latency_ms": {"mean": 1.0},
-                    "flops_proxy": {"mean": 3.0},
-                }
-            },
-            "router_only_top1": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.12, "ci95_low": 0.11, "ci95_high": 0.13},
-                    "mrr@10": {"mean": 0.22},
-                    "recall@100": {"mean": 0.29},
-                    "recall@1": {"mean": 0.07},
-                    "latency_ms": {"mean": 0.8},
-                    "flops_proxy": {"mean": 1.0},
-                }
-            },
-            "router_only_topk_mean": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.108, "ci95_low": 0.1, "ci95_high": 0.115},
-                    "mrr@10": {"mean": 0.206},
-                    "recall@100": {"mean": 0.304},
-                    "recall@1": {"mean": 0.056},
-                    "latency_ms": {"mean": 0.9},
-                    "flops_proxy": {"mean": 2.0},
-                }
-            },
-            "learned_linear_combiner": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.103, "ci95_low": 0.095, "ci95_high": 0.11},
-                    "mrr@10": {"mean": 0.203},
-                    "recall@100": {"mean": 0.302},
-                    "recall@1": {"mean": 0.054},
-                    "latency_ms": {"mean": 1.0},
-                    "flops_proxy": {"mean": 3.0},
-                }
-            },
-            "best_single_specialist": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.119, "ci95_low": 0.11, "ci95_high": 0.128},
-                    "mrr@10": {"mean": 0.219},
-                    "recall@100": {"mean": 0.29},
-                    "recall@1": {"mean": 0.069},
-                    "latency_ms": {"mean": 0.81},
-                    "flops_proxy": {"mean": 1.0},
-                }
-            },
-            "adaptive_route_or_fuse": {
-                "metrics": {
-                    "ndcg@10": {"mean": 0.109, "ci95_low": 0.10, "ci95_high": 0.116},
-                    "mrr@10": {"mean": 0.207},
-                    "recall@100": {"mean": 0.304},
-                    "recall@1": {"mean": 0.056},
-                    "latency_ms": {"mean": 0.95},
-                    "flops_proxy": {"mean": 2.0},
-                }
-            },
+            "mean": {"metrics": _metrics(0.10)},
+            "kalman": {"metrics": _metrics(0.11)},
+            "inverse_variance_weighted_mean": {"metrics": _metrics(0.106)},
+            "fixed_weighted_mean_fusion": {"metrics": _metrics(0.105)},
+            "softmax_weighted_uncertainty_fusion": {"metrics": _metrics(0.104)},
+            "entropy_regularized_weighted_mean": {"metrics": _metrics(0.102)},
+            "confidence_thresholded_weighted_mean": {"metrics": _metrics(0.101)},
+            "uniform_mean_fusion": {"metrics": _metrics(0.109)},
+            "semantic_routing_mean_fusion": {"metrics": _metrics(0.108)},
+            "router_only_top1": {"metrics": _metrics(0.12, flops=1.0)},
+            "router_only_topk_mean": {"metrics": _metrics(0.108, flops=2.0)},
+            "confidence_routing_mean_fusion": {"metrics": _metrics(0.107, flops=2.0)},
+            "oracle_routing_baseline": {"metrics": _metrics(0.121, flops=1.0)},
+            "learned_gate_fuser": {"metrics": _metrics(0.103)},
+            "shallow_mlp_weighting_baseline": {"metrics": _metrics(0.1035)},
+            "logistic_weighting_baseline": {"metrics": _metrics(0.1045)},
+            "learned_linear_combiner": {"metrics": _metrics(0.103)},
+            "best_single_specialist": {"metrics": _metrics(0.119, flops=1.0)},
+            "oracle_fusion_chooser": {"metrics": _metrics(0.122, flops=3.0)},
         },
         "paired_statistics": {
             "kalman_vs_mean": {"overall": {"ndcg@10": {"adjusted_p_value": 0.04}}}
@@ -1159,3 +1120,26 @@ def test_baseline_matrix_generation_is_deterministic() -> None:
 def test_baseline_matrix_missing_baselines_fails_loudly() -> None:
     with pytest.raises(ValueError, match="baseline_matrix requires baselines"):
         canonical._build_baseline_matrix({"methods": {}, "paired_statistics": {}})
+
+
+def test_validate_comparison_fairness_checks_query_set_and_budget() -> None:
+    with pytest.raises(ValueError, match="identical query sets"):
+        canonical._validate_comparison_fairness(
+            {
+                "a": {
+                    "query_level": {"ndcg@10": [0.1, 0.2], "flops_proxy": [3.0, 3.0]}
+                },
+                "b": {"query_level": {"ndcg@10": [0.1], "flops_proxy": [3.0]}},
+            }
+        )
+    with pytest.raises(ValueError, match="identical candidate budgets"):
+        canonical._validate_comparison_fairness(
+            {
+                "a": {
+                    "query_level": {"ndcg@10": [0.1, 0.2], "flops_proxy": [3.0, 3.0]}
+                },
+                "b": {
+                    "query_level": {"ndcg@10": [0.1, 0.2], "flops_proxy": [2.0, 2.0]}
+                },
+            }
+        )
