@@ -110,6 +110,18 @@ HOSTILE_REQUIRED_BASELINE_ORDER = (
 )
 
 
+def _load_specialists_override(path: Path | None) -> list[dict[str, Any]] | None:
+    if path is None:
+        return None
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    specialists = payload.get("specialists")
+    if not isinstance(specialists, list) or not specialists:
+        raise ValueError(
+            "specialists override must contain a non-empty 'specialists' list"
+        )
+    return specialists
+
+
 def _canonical_method_key(method_key: str) -> str:
     return CANONICAL_METHOD_KEY_ALIASES.get(method_key, method_key)
 
@@ -2077,10 +2089,12 @@ def run_canonical_benchmark(
     checkpoint_dir: Path | None = None,
     allow_partial_report: bool = False,
     domain_balanced: bool = False,
+    specialists_override: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     overall_start = time.perf_counter()
     split_counts = _load_split_counts(benchmark_path)
 
+    effective_specialists = specialists_override or DEFAULT_REAL_SPECIALISTS
     config_payload = {
         "name": "canonical-benchmark",
         "experiment_type": "real_mixed",
@@ -2105,7 +2119,7 @@ def run_canonical_benchmark(
         "models": {
             "kind": "hf_specialists",
             "device": device,
-            "specialists": DEFAULT_REAL_SPECIALISTS,
+            "specialists": effective_specialists,
             "options": {"force_hash_embedder": fast_local},
         },
         "fusion": {
@@ -2205,11 +2219,10 @@ def run_canonical_benchmark(
         *CLAIM_READY_REQUIRED_BASELINES,
     }
     if any(
-        "general" in specialist["name"].lower()
-        for specialist in DEFAULT_REAL_SPECIALISTS
+        "general" in specialist["name"].lower() for specialist in effective_specialists
     ):
         required_methods.add("single_generalist_model")
-    structurally_applicable_gate = len(DEFAULT_REAL_SPECIALISTS) == 2
+    structurally_applicable_gate = len(effective_specialists) == 2
     if structurally_applicable_gate:
         required_methods.add("learned_gate_fuser")
     missing_required = sorted(required_methods.difference(methods))
@@ -2496,7 +2509,7 @@ def run_canonical_benchmark(
         "oracle_recall_by_k": oracle_recall_by_k,
         "seed": seed,
         "num_resamples": num_resamples,
-        "specialists": [spec["name"] for spec in DEFAULT_REAL_SPECIALISTS],
+        "specialists": [spec["name"] for spec in effective_specialists],
         "comparisons": {
             name: {
                 "strategy_key": key,
@@ -2506,7 +2519,7 @@ def run_canonical_benchmark(
                     if key in methods
                     else (
                         "LearnedGateFuser requires a two-specialist setup; current run uses "
-                        f"{len(DEFAULT_REAL_SPECIALISTS)} specialists"
+                        f"{len(effective_specialists)} specialists"
                         if name == "LearnedGateFuser"
                         else "strategy not emitted by benchmark runner"
                     )
@@ -2668,6 +2681,12 @@ def main() -> None:
         help="Maximum evaluated queries (canonical v3 default: 1800).",
     )
     parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument(
+        "--specialists-config",
+        type=Path,
+        default=None,
+        help="JSON file with {'specialists': [...]} to override default specialist model set.",
+    )
     parser.add_argument("--timing-json", type=Path, default=None)
     parser.add_argument(
         "--fast-local", "--hash-embedder", action="store_true", dest="fast_local"
@@ -2757,6 +2776,7 @@ def main() -> None:
     build_specs = _resolve_replication_build_specs(
         replication_builds=args.replication_builds
     )
+    specialists_override = _load_specialists_override(args.specialists_config)
     run_summaries: list[dict[str, Any]] = []
     if build_specs:
         run_specs = build_specs
@@ -2791,6 +2811,7 @@ def main() -> None:
             checkpoint_dir=args.checkpoint_dir,
             allow_partial_report=args.allow_partial_report,
             domain_balanced=args.domain_balanced,
+            specialists_override=specialists_override,
         )
     else:
         runs_dir = args.output_dir / "replication_runs"
@@ -2828,6 +2849,7 @@ def main() -> None:
                 ),
                 allow_partial_report=args.allow_partial_report,
                 domain_balanced=args.domain_balanced,
+                specialists_override=specialists_override,
             )
             run_summaries.append(run_summary)
         summary = run_summaries[0]
