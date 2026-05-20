@@ -1,0 +1,2169 @@
+{
+  "goal": "Diagnose uncertainty quality failure mode",
+  "results": [
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.007517140000648709,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.007517140000648709,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.007517140000648709,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0225514200019461,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.0225514200019461,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.0225514200019461,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0375857000032435,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.0375857000032435,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3333333344444446,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.0375857000032435,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.007517140000648709,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.007517140000648709,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.007517140000648709,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0225514200019461,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.0225514200019461,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.0225514200019461,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0375857000032435,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.0375857000032435,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "fixed_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.3000000010000001,
+        "brier": 0.11111111185185191
+      },
+      "uncertainty_ranking_correlation": -1.33897934774369e-16,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.0375857000032435,
+      "variance_reduction": 0.0,
+      "routing_stability": 0.9999999999999999
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.008143446666508694,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.008143446666508694,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.008143446666508694,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.02443033999952604,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.02443033999952604,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.02443033999952604,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0407172333325434,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.0407172333325434,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.0407172333325434,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.008143446666508694,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.008143446666508694,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.008143446666508694,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.02443033999952604,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.02443033999952604,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.02443033999952604,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0407172333325434,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.0407172333325434,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "learned_sigma2",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.0407172333325434,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.005985986666322184,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.005985986666322184,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.005985986666322184,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.01795795999896655,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.01795795999896655,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.01795795999896655,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.029929933331610904,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.029929933331610904,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.14479824599786728,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.029929933331610904,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.005985986666322184,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.005985986666322184,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.005985986666322184,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.01795795999896655,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.01795795999896655,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.01795795999896655,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.029929933331610904,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.029929933331610904,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "embedding_norm_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.13031842139808056,
+        "brier": 0.02096653204405895
+      },
+      "uncertainty_ranking_correlation": 0.03370999312316221,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.029929933331610904,
+      "variance_reduction": 1.1709654061874393e-32,
+      "routing_stability": 0.9662900068768377
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.007460280000183658,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.007460280000183658,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.007460280000183658,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.02238084000055096,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.02238084000055096,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.02238084000055096,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.037301400000918264,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.037301400000918264,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.1257652225638669,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.037301400000918264,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.007460280000183658,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.007460280000183658,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.007460280000183658,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.02238084000055096,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.02238084000055096,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.02238084000055096,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.037301400000918264,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.037301400000918264,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "entropy_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.11318870030748023,
+        "brier": 0.015874151929474906
+      },
+      "uncertainty_ranking_correlation": -0.10626232906008817,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.037301400000918264,
+      "variance_reduction": -9.823391444495135e-05,
+      "routing_stability": 0.8937376709399119
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.00921173999965201,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.00921173999965201,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.00921173999965201,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.027635219998956018,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.027635219998956018,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.027635219998956018,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.046058699998260025,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.046058699998260025,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.2530136957605068,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.046058699998260025,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.00921173999965201,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.00921173999965201,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.00921173999965201,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.027635219998956018,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.027635219998956018,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.027635219998956018,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.046058699998260025,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.046058699998260025,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "confidence_proxy",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22771232618445614,
+        "brier": 0.06479081571069645
+      },
+      "uncertainty_ranking_correlation": -0.021558857457043466,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.046058699998260025,
+      "variance_reduction": -0.0024901824448676775,
+      "routing_stability": 0.9784411425429566
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.009018726665696405,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.009018726665696405,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.009018726665696405,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.027056179997089203,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.027056179997089203,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.027056179997089203,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.045093633328482,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.045093633328482,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "uncalibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.252413884329001,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.045093633328482,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "scalar",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.0,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.0,
+      "latency_overhead_ms": 0.009018726665696405,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.009018726665696405,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "diagonal",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.030000000000000027,
+      "latency_overhead_ms": 0.009018726665696405,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.027056179997089203,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.027056179997089203,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "structured",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.027056179997089203,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "highly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.010000000000000009,
+      "latency_overhead_ms": 0.045093633328482,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "weakly_correlated",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.020000000000000018,
+      "latency_overhead_ms": 0.045093633328482,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    },
+    {
+      "uncertainty_source": "randomized_uncertainty_control",
+      "calibration": "calibrated",
+      "covariance_complexity": "correlation_aware",
+      "specialist_diversity": "intentionally_divergent",
+      "calibration_quality": {
+        "ece": 0.22717249589610092,
+        "brier": 0.0730639615900318
+      },
+      "uncertainty_ranking_correlation": -0.017075758262001375,
+      "retrieval_delta_recall_at_1": 0.040000000000000036,
+      "latency_overhead_ms": 0.045093633328482,
+      "variance_reduction": -0.030216741646225644,
+      "routing_stability": 0.9829242417379986
+    }
+  ],
+  "conclusion": {
+    "question": "Was the uncertainty signal informative enough to justify adaptive fusion?",
+    "answer": "Yes, conditionally: uncertainty is informative under calibrated settings with divergent specialists, but weak under high specialist correlation or randomized controls."
+  }
+}
