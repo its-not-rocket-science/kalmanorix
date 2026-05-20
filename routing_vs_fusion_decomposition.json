@@ -1,0 +1,113 @@
+{
+  "source_summary": "results/canonical_benchmark_v2/summary.json",
+  "baseline": "uniform_mean_fusion",
+  "rows": [
+    {
+      "condition": "all specialists + mean",
+      "method_key": "uniform_mean_fusion",
+      "available": true,
+      "mrr@10": 0.28055555555555556,
+      "ndcg@10": 0.4536941222247459,
+      "latency_ms": 19.138966833149123,
+      "flops_proxy": 3.0,
+      "delta_mrr@10_vs_all_mean": 0.0,
+      "delta_ndcg@10_vs_all_mean": 0.0,
+      "delta_latency_ms_vs_all_mean": 0.0,
+      "delta_latency_pct_vs_all_mean": 0.0,
+      "specialist_count": 3.0
+    },
+    {
+      "condition": "routed specialists + mean",
+      "method_key": "router_only_topk_mean",
+      "available": true,
+      "mrr@10": 0.31111111111111106,
+      "ndcg@10": 0.4798559461587975,
+      "latency_ms": 22.35145433345072,
+      "flops_proxy": 2.0,
+      "delta_mrr@10_vs_all_mean": 0.030555555555555503,
+      "delta_ndcg@10_vs_all_mean": 0.026161823934051587,
+      "delta_latency_ms_vs_all_mean": 3.2124875003015987,
+      "delta_latency_pct_vs_all_mean": 16.78506226750703,
+      "specialist_count": 2.0
+    },
+    {
+      "condition": "all specialists + Kalman",
+      "method_key": "kalman",
+      "available": true,
+      "mrr@10": 0.4055555555555556,
+      "ndcg@10": 0.5485813625458471,
+      "latency_ms": 40.57526400022956,
+      "flops_proxy": 3.0,
+      "delta_mrr@10_vs_all_mean": 0.12500000000000006,
+      "delta_ndcg@10_vs_all_mean": 0.09488724032110119,
+      "delta_latency_ms_vs_all_mean": 21.436297167080436,
+      "delta_latency_pct_vs_all_mean": 112.0034187527421,
+      "specialist_count": 3.0
+    },
+    {
+      "condition": "routed specialists + Kalman",
+      "method_key": null,
+      "available": false,
+      "mrr@10": null,
+      "ndcg@10": null,
+      "latency_ms": null,
+      "flops_proxy": null,
+      "delta_mrr@10_vs_all_mean": null,
+      "delta_ndcg@10_vs_all_mean": null,
+      "delta_latency_ms_vs_all_mean": null,
+      "delta_latency_pct_vs_all_mean": null,
+      "specialist_count": null
+    },
+    {
+      "condition": "routed specialists + weighted mean",
+      "method_key": "fixed_weighted_mean_fusion",
+      "available": true,
+      "mrr@10": 0.28055555555555556,
+      "ndcg@10": 0.4536941222247459,
+      "latency_ms": 20.255095833211573,
+      "flops_proxy": 3.0,
+      "delta_mrr@10_vs_all_mean": 0.0,
+      "delta_ndcg@10_vs_all_mean": 0.0,
+      "delta_latency_ms_vs_all_mean": 1.1161290000624504,
+      "delta_latency_pct_vs_all_mean": 5.83170977719283,
+      "specialist_count": 3.0
+    },
+    {
+      "condition": "oracle routing + mean",
+      "method_key": "router_only_top1",
+      "available": true,
+      "mrr@10": 0.5277777777777778,
+      "ndcg@10": 0.6414150094710442,
+      "latency_ms": 22.21368183351539,
+      "flops_proxy": 1.0,
+      "delta_mrr@10_vs_all_mean": 0.24722222222222223,
+      "delta_ndcg@10_vs_all_mean": 0.18772088724629832,
+      "delta_latency_ms_vs_all_mean": 3.074715000366268,
+      "delta_latency_pct_vs_all_mean": 16.0652088859927,
+      "specialist_count": 1.0
+    },
+    {
+      "condition": "oracle routing + Kalman",
+      "method_key": "router_only_top1",
+      "available": true,
+      "mrr@10": 0.5277777777777778,
+      "ndcg@10": 0.6414150094710442,
+      "latency_ms": 22.21368183351539,
+      "flops_proxy": 1.0,
+      "delta_mrr@10_vs_all_mean": 0.24722222222222223,
+      "delta_ndcg@10_vs_all_mean": 0.18772088724629832,
+      "delta_latency_ms_vs_all_mean": 3.074715000366268,
+      "delta_latency_pct_vs_all_mean": 16.0652088859927,
+      "specialist_count": 1.0
+    }
+  ],
+  "routing_precision_recall": {
+    "precision_micro": null,
+    "recall_micro": null,
+    "f1_micro": null
+  },
+  "notes": [
+    "routed specialists + Kalman is not reported in canonical_benchmark_v2 summary and is marked unavailable.",
+    "oracle routing + mean and oracle routing + Kalman map to router_only_top1 because routing selects a single specialist (no fusion stage)."
+  ]
+}
