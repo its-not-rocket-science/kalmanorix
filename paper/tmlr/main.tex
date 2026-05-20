@@ -40,7 +40,7 @@ We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only t
 
 \section{Results}
 \input{tables/main_results}
-\input{tables/baseline_matrix}
+\input{../shared/generated/baseline_matrix}
 \input{tables/statistical_tests}
 
 The baseline set is intentionally strong rather than strawman. In the canonical matrix, hard routing (top-1) achieves the highest nDCG@10 (0.0983), while mean, Kalman, and fixed-weight fusion are effectively tied at 0.0918-level quality, making the null comparison against mean a meaningful stress test instead of an easy win target.
@@ -63,16 +63,19 @@ The mixed-domain specialist pool appears to provide value primarily through \emp
 
 \section{Robustness and Regime Coverage}
 Null findings are stable across the expanded evidence base: canonical confirmatory comparisons, covariance ablations, uncertainty ablations, and routing sweeps all fail to show a practical Kalman-over-mean gain while repeatedly exposing efficiency trade-offs. We summarize this in Table~\ref{tab:negative-result-diagnostics} and preserve full artifacts for re-audit.
+\input{../shared/generated/robustness_summary}
 
 Robustness appendix references are provided in committed outputs: \texttt{results/negative\_result\_diagnostics/summary.json}, \texttt{results/kalman\_covariance\_ablation\_v2/summary.json}, \texttt{results/uncertainty\_ablation/summary.json}, and \texttt{results/routing\_eval/small\_routing\_eval\_v1\_report.json}. These references cover baseline strength, decomposition, and alternative-regime checks.
 
 \section{Lessons from Failure}
 \input{tables/lessons_from_failure}
+\input{../shared/generated/failure_analysis_summary}
 
 The program yields concrete, evidence-backed lessons: (i) strong baselines can dominate sophisticated fusion; (ii) uncertainty estimates can improve calibration without improving ranking endpoints; (iii) routing policy is often the primary control knob; and (iv) negative results become actionable only when thresholds, diagnostics, and artifacts are all preserved.
 
 \section{Reproducibility Statement (TMLR)}
 All numerical claims in this manuscript are sourced from committed artifacts, primarily \texttt{results/evidence\_registry.json} and canonical benchmark summaries. Manuscript constants are included via \texttt{paper/tmlr/includes/generated\_metrics.tex} to avoid manual transcription. The baseline matrix and diagnostics are exported from canonical and ablation artifacts.
+Cross-paper headline synchronization uses \texttt{paper/shared/generated/evidence\_registry.json} and \texttt{paper/shared/generated/claim\_gate\_summary.tex}; the current synchronized headline values are $\Delta$ nDCG@10 $=-9.258801070226193\times10^{-6}$ and adjusted $p=1.0$.
 
 To reproduce the paper build: \texttt{cd paper/tmlr; pdflatex main.tex; bibtex main; pdflatex main.tex; pdflatex main.tex}. To reproduce repository checks: \texttt{ruff format --check .} and \texttt{pytest -m "not integration and not stress"}.
 

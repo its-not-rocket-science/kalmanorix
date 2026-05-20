@@ -50,6 +50,7 @@ The final benchmark artefacts are \texttt{results/evidence\_registry.json} and \
   \item FLOPs ratio (Kalman/Mean) $=1.0$
   \item Verdict: \texttt{inconclusive\_sufficiently\_powered}
 \end{itemize}
+\textit{Shared-source note: headline values and baseline table are synchronized from} \texttt{paper/shared/generated/evidence\_registry.json}, \texttt{paper/shared/generated/claim\_gate\_summary.tex}, \texttt{paper/shared/generated/baseline\_matrix.tex}.
 
 On this test set, Kalman fusion did not beat mean fusion by the predeclared margin.
 
@@ -58,17 +59,7 @@ On this test set, Kalman fusion did not beat mean fusion by the predeclared marg
 \centering
 \caption{Concise baseline comparison from \texttt{canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced} ($n=1193$, domain-balanced, \texttt{max\_candidates}=100). The ``oracle specialist'' row is the hard-routing top-1 proxy included in the canonical suite.}
 \label{tab:baseline-context}
-\begin{tabular}{lcc}
-\toprule
-Method & nDCG@10 & latency (ms) \\
-\midrule
-MeanFuser & 0.0918 & 462.046 \\
-KalmanorixFuser & 0.0918 & 495.431 \\
-fixed weighted mean baseline & 0.0918 & 4.211 \\
-best non-Kalman baseline (hard routing baseline) & 0.0983 & 8.051 \\
-oracle specialist baseline (hard routing top-1 proxy) & 0.0983 & 8.051 \\
-\bottomrule
-\end{tabular}
+\input{../shared/generated/baseline_matrix}
 \end{table}
 
 \section{Interpretation and limits}
