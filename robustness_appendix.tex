@@ -1,0 +1,84 @@
+\section*{Appendix: Robustness Analysis (Evidence Ledger)}
+
+\noindent Source artifacts: \texttt{results/canonical\_benchmark\_v2/summary.json},
+\texttt{results/canonical\_benchmark/summary.json},
+\texttt{results/uncertainty\_calibration/summary.json},
+\texttt{results/uncertainty\_ablation/summary.json},
+\texttt{results/kalman\_covariance\_ablation\_v2/summary.json},
+\texttt{results/ood\_robustness/summary.json}.
+
+\subsection*{1) Seed sensitivity}
+\begin{itemize}
+  \item Evidence status: null (single-seed artifact for canonical v2).
+  \item Available seed: 42.
+  \item Multi-seed contrast: not available in cited artifacts.
+\end{itemize}
+
+\subsection*{2) Domain sensitivity}
+\begin{itemize}
+  \item Per-domain counts in canonical v2 test split: biomedical=2, finance=2, general\_qa=2.
+  \item Minimum required per domain for stable per-domain inference in artifact rule: 20.
+  \item Observed slice change (exploratory):
+    \begin{itemize}
+      \item high specialist disagreement: $\Delta$ nDCG@10 (Kalman-Mean) = +0.1898,
+      \item low specialist disagreement: $\Delta$ nDCG@10 (Kalman-Mean) = +0.0000.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{3) Query-length sensitivity}
+\begin{itemize}
+  \item Evidence status: null (no query-length slices in cited artifacts).
+\end{itemize}
+
+\subsection*{4) Specialist-count sensitivity}
+\begin{itemize}
+  \item Evidence status: null (no specialist-count sweep committed in cited artifacts).
+\end{itemize}
+
+\subsection*{5) Latency sensitivity}
+\begin{itemize}
+  \item Practical threshold (canonical rule): latency ratio $\leq 1.5$.
+  \item Observed canonical v2 ratio: 2.0554.
+  \item Threshold crossing: yes.
+\end{itemize}
+
+\subsection*{6) Calibration sensitivity}
+\begin{itemize}
+  \item Powered-for-calibration flag: true.
+  \item Downstream Kalman-vs-Mean delta change after calibration selection:
+    \begin{itemize}
+      \item validation: 0.0,
+      \item test: 0.0.
+    \end{itemize}
+  \item Evidence status: null downstream effect.
+\end{itemize}
+
+\subsection*{7) Uncertainty-estimation sensitivity}
+\begin{itemize}
+  \item Artifact answer: calibration differences are measurable, while retrieval gains are limited and constant uncertainty remains competitive.
+  \item Evidence status: change observed in calibration diagnostics; retrieval effect mostly null.
+\end{itemize}
+
+\subsection*{8) Benchmark-slice sensitivity}
+\begin{itemize}
+  \item Minimum pairs for inferential testing inside slice analysis: 20.
+  \item Slice contrasts (exploratory only):
+    \begin{itemize}
+      \item low uncertainty spread: $\Delta$ nDCG@10 (Kalman-Mean) = +0.1898,
+      \item high uncertainty spread: $\Delta$ nDCG@10 (Kalman-Mean) = +0.0000,
+      \item true multi-domain queries: $n=0$ (null slice support).
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Explicit tracking requirements}
+\begin{itemize}
+  \item \textbf{Where results changed:} disagreement and uncertainty-spread slices show non-identical deltas (0.0000 to +0.1898) in exploratory subsets.
+  \item \textbf{Where results remained null:} seed sensitivity, query-length sensitivity, specialist-count sensitivity (no contrast artifacts); calibration downstream change is 0.0/0.0.
+  \item \textbf{Where confidence intervals widened:} canonical v2 paired nDCG@10 CI width = 0.2847 versus confirmatory reference CI width = 0.002534.
+  \item \textbf{Where practical thresholds were crossed:}
+    \begin{itemize}
+      \item effect-size threshold crossed upward in canonical v2 observed delta ($0.0949 > 0.02$),
+      \item adjusted significance threshold not crossed ($p_{adj}=1.0 > 0.05$),
+      \item latency threshold crossed adversely (2.0554 $>$ 1.5).
+    \end{itemize}
+\end{itemize}
