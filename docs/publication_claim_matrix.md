@@ -1,0 +1,9 @@
+# Publication claim matrix
+
+| claim | supporting artefact | allowed venues | prohibited stronger wording | exact headline-safe phrasing |
+|---|---|---|---|---|
+| Kalman-vs-Mean quality difference is unresolved in the canonical mixed-domain run. | `results/claim_gate.json`, `paper/shared/generated/claim_gate_summary.tex` | TMLR, arXiv | "Kalman outperforms mean fusion" | "Under the tested protocol, Kalman-minus-Mean Δ nDCG@10 is effectively zero and does not clear the claim gate." |
+| Canonical baseline ranking is dominated by routing choice rather than uncertainty-weighted fusion. | `paper/shared/generated/baseline_matrix.tex`, `results/canonical_benchmark_v3/summary.json` | TMLR, arXiv | "Kalman is the best baseline" | "In the canonical baseline matrix, routing-style top-1 baselines exceed the tightly clustered fusion-family quality values." |
+| Negative-result interpretation is benchmark-scoped and reproducible. | `paper/shared/generated/evidence_registry.json`, `results/negative_result_diagnostics/summary.json` | TMLR, arXiv | "Kalman is universally ineffective" | "This is a powered negative result for the tested benchmark configuration, not a universal claim." |
+| Kalmanorix provides claim-gated reporting and reproducible export tooling. | `paper/joss/paper.md`, `scripts/build_all_papers.py`, `scripts/check_crosspaper_consistency.py` | JOSS, TMLR, arXiv | "The software proves Kalman quality superiority" | "Kalmanorix provides software infrastructure for routing/fusion evaluation and claim-gated artifact generation." |
+| JOSS scope is software-first and excludes empirical superiority claims. | `paper/joss/paper.md` | JOSS | "This paper demonstrates retrieval-quality gains" | "The JOSS manuscript documents package capabilities, interfaces, and release/reproducibility governance." |

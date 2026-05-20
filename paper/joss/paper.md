@@ -141,7 +141,7 @@ The uncertainty-aware baseline (`KalmanorixFuser`) is motivated by calibration-a
 
 # Relationship to empirical papers
 
-The JOSS paper presents the software package. The TMLR manuscript presents the claim-gated evaluation methodology. The arXiv preprint presents the empirical negative-result report. All three use the same evidence registry (`results/evidence_registry.json`). The software supports Kalman-style fusion experiments but does not require, assume, or claim that Kalman fusion improves retrieval quality.
+The JOSS paper presents the software package only. Companion manuscripts (TMLR methodology and arXiv empirical reporting) consume shared generated artifacts for reproducibility (`paper/shared/generated/evidence_registry.json` and `paper/shared/generated/baseline_matrix.tex`), while this JOSS paper remains restricted to software capabilities, interfaces, and release governance. The software supports Kalman-style fusion experiments but does not require, assume, or claim retrieval-quality improvement.
 
 # AI usage disclosure
 
