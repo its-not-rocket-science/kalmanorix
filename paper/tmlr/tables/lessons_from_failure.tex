@@ -1,0 +1,25 @@
+\begin{table*}[t]
+\centering
+\caption{Evidence-backed lessons from the null-result program (all claims tied to concrete artefacts and exact comparisons).}
+\label{tab:lessons-from-failure}
+\small
+\begin{tabular}{p{0.23\linewidth}p{0.32\linewidth}p{0.39\linewidth}}
+\toprule
+Lesson & Artefact(s) & Exact metric/comparison evidence \\
+\midrule
+Strong baselines matter more than sophisticated fusion & \texttt{results/canonical\_benchmark\_v3\_fast\_1200/report.md}, \texttt{.../summary.json} & nDCG@10: router\_only\_top1=0.0979, mean=0.0943, kalman=0.0941, fixed\_weighted\_mean=0.0940, learned\_linear\_combiner=0.0934. Kalman-mean $\Delta=-0.000203$ (Holm=1.000000). \\
+\midrule
+Uncertainty signals may not correlate with retrieval usefulness & \texttt{results/uncertainty\_ablation/summary.json} & On \texttt{toy\_mixed}, recall@1 is identical (0.7333) across uncertainty methods and mrr@10 is identical (0.8556), while ECE varies (0.3333 vs 0.1258 vs 0.2588). \\
+\midrule
+Retrieval metrics are highly insensitive at tiny effect scales & \texttt{results/canonical\_benchmark\_v3\_fast\_1200/report.md}, \texttt{results/negative\_result\_diagnostics/summary.json} & Kalman-vs-mean paired deltas are near zero across metrics (e.g., nDCG@10 $\Delta=-0.000203$, recall@10 $\Delta=-0.000456$), with Holm-adjusted p-values=1.000000. $|\Delta\text{nDCG@10}| \ll 0.02$ threshold. \\
+\midrule
+Routing may matter more than fusion weighting & \texttt{results/canonical\_benchmark\_v3\_fast\_1200/report.md}, \texttt{results/routing\_eval/small\_routing\_eval\_v1\_report.json} & Canonical ranking places router\_only\_top1 first on nDCG@10 (0.0979), above Kalman (0.0941), gap +0.0038. Routing threshold sweeps shift efficiency/F1 substantially (F1 0.7778$\rightarrow$0.6111; FLOPs savings 0.3333$\rightarrow$0.6667). \\
+\midrule
+Covariance richness can increase latency without practical gains & \texttt{results/kalman\_covariance\_ablation\_v2/summary.json} & Latency/query: scalar=0.2671ms, diagonal=0.2336ms, structured=0.4927ms. MRR@10 changes are tiny (0.280624, 0.280140, 0.280987). Structured vs scalar latency ratio $\approx1.84$ for MRR@10 gain +0.000364. \\
+\midrule
+Practical significance thresholds prevent overinterpretation & \texttt{results/canonical\_benchmark\_v3\_fast\_1200/report.md}, \texttt{.../summary.json}, \texttt{results/negative\_result\_diagnostics/summary.json} & Rule requires nDCG@10 effect $\ge 0.02$ and Holm $\le 0.05$. Observed Kalman-vs-mean: $\Delta=-0.000203$, Holm=1.000000, therefore effect and significance checks both fail and claim is blocked. \\
+\midrule
+Negative results should preserve reproducible artefacts & \texttt{results/canonical\_benchmark\_v3\_fast\_1200/summary.json}, \texttt{report.md}, \texttt{results/negative\_result\_diagnostics/summary.json}, \texttt{results/uncertainty\_ablation/summary.json}, \texttt{results/routing\_eval/small\_routing\_eval\_v1\_report.json}, \texttt{results/kalman\_covariance\_ablation\_v2/summary.json} & Artefacts retain benchmark counts (test=1193), exact deltas (e.g., -0.000203), thresholds (0.02; 0.05), and final gate outcome (\texttt{blocked}), enabling complete re-audit of the null conclusion. \\
+\bottomrule
+\end{tabular}
+\end{table*}
