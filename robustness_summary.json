@@ -1,0 +1,90 @@
+{
+  "source_artifacts": [
+    "results/canonical_benchmark_v2/summary.json",
+    "results/canonical_benchmark/summary.json",
+    "results/uncertainty_calibration/summary.json",
+    "results/uncertainty_ablation/summary.json",
+    "results/kalman_covariance_ablation_v2/summary.json",
+    "results/ood_robustness/summary.json"
+  ],
+  "practical_significance_thresholds": {
+    "primary_metric": "ndcg@10",
+    "minimum_effect_size": 0.02,
+    "max_latency_ratio_vs_mean": 1.5
+  },
+  "sensitivities": {
+    "seed_sensitivity": {
+      "status": "null_evidence",
+      "evidence": "single canonical seed available",
+      "details": {"seed": 42, "multi_seed_comparison_available": false}
+    },
+    "domain_sensitivity": {
+      "status": "changed_exploratory_only",
+      "details": {
+        "per_domain_counts": {"biomedical": 2, "finance": 2, "general_qa": 2},
+        "minimum_required_per_domain": 20,
+        "kalman_minus_mean_ndcg10": {
+          "high_specialist_disagreement": 0.18977448064220226,
+          "low_specialist_disagreement": 0.0
+        },
+        "inference_status": "underpowered"
+      }
+    },
+    "query_length_sensitivity": {
+      "status": "null_evidence",
+      "details": {"query_length_slices_available": false}
+    },
+    "specialist_count_sensitivity": {
+      "status": "null_evidence",
+      "details": {"specialist_count_sweep_available": false}
+    },
+    "latency_sensitivity": {
+      "status": "threshold_crossed",
+      "details": {
+        "kalman_vs_mean_latency_ratio": 2.0553801675765238,
+        "allowed_max_ratio": 1.5,
+        "threshold_crossed": true
+      }
+    },
+    "calibration_sensitivity": {
+      "status": "null_downstream_effect",
+      "details": {
+        "powered_for_calibration": true,
+        "downstream_kalman_vs_mean_delta_change_validation": 0.0,
+        "downstream_kalman_vs_mean_delta_change_test": 0.0
+      }
+    },
+    "uncertainty_estimation_sensitivity": {
+      "status": "changed_calibration_flat_retrieval",
+      "details": {
+        "summary_answer": "Partially: calibration differences are visible, but retrieval gains from better uncertainty estimation are limited in this setup; constant uncertainty remains competitive."
+      }
+    },
+    "benchmark_slice_sensitivity": {
+      "status": "changed_exploratory_only",
+      "details": {
+        "minimum_pairs_for_significance": 20,
+        "slice_examples": {
+          "low_uncertainty_spread_kalman_minus_mean_ndcg10": 0.18977448064220226,
+          "high_uncertainty_spread_kalman_minus_mean_ndcg10": 0.0,
+          "true_multi_domain_queries_n": 0
+        }
+      }
+    }
+  },
+  "confidence_interval_tracking": {
+    "canonical_v2_kalman_vs_mean_ndcg10": {
+      "ci95_low": 0.0,
+      "ci95_high": 0.28466172096330344,
+      "width": 0.28466172096330344,
+      "n_pairs": 6
+    },
+    "canonical_confirmatory_reference_kalman_vs_mean_ndcg10": {
+      "ci95_low": -0.001284,
+      "ci95_high": 0.001250,
+      "width": 0.002534,
+      "n_pairs": 1193
+    },
+    "ci_widened_vs_confirmatory_reference": true
+  }
+}
