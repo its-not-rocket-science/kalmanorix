@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{url}
+\usepackage{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+
+\title{Claim-Gated Evaluation of Retrieval Fusion:\\
+A Powered Negative Result for Kalman-Style Uncertainty Weighting}
+\author{Paul Schleifer}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper asks a focused empirical question: under a domain-balanced mixed-domain retrieval benchmark, does Kalman-style uncertainty weighting reliably outperform mean fusion? In the canonical C100 evaluation ($n_{\text{pairs}}=1193$), the answer is no. Kalman-minus-Mean $\Delta$ nDCG@10 is $-9.259\times10^{-6}$ with Holm-adjusted $p=1.0$, and $\Delta$ recall@100 is 0.0; latency increases modestly (ratio 1.072) while FLOPs are unchanged (ratio 1.0). The claim-gated verdict is \texttt{blocked}: this run provides no reliable practical gain from uncertainty weighting over mean fusion in the tested setting. The contribution of this report is to preserve and document that null result with reproducible artefacts, statistically disciplined reporting, and exact rerun instructions.
+\end{abstract}
+
+\begin{tcolorbox}[colback=gray!8,colframe=black,title=Scope of conclusion]
+Under the tested protocol (domain-balanced mixed-domain benchmark, \texttt{max\_candidates=100}, deterministic embeddings), Kalman-style uncertainty fusion did \emph{not} show a reliable practical improvement over mean fusion.
+
+This does not imply universal inferiority of Kalman methods or universal optimality of mean fusion.
+\end{tcolorbox}
+
+\section{Positioning statement}
+This arXiv preprint is an empirical negative-result report for one benchmark configuration. It documents observed outcomes (metric deltas, significance, latency, FLOPs, and verdict) and the exact artefacts needed to reproduce them. It does not introduce a new evaluation framework and does not generalize beyond the tested setup.
+
+Manuscript roles are intentionally separated. The TMLR manuscript is the methodology paper: it defines the evaluation protocol and claim-gated decision framework. This arXiv manuscript is the empirical report: it records the benchmark outcome under that protocol. The JOSS paper is the software paper: it documents the Kalmanorix infrastructure used to run and export the experiments. Across all three, numeric claims are taken from the same evidence registry and claim-gate artefacts (\texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}) so scope and conclusions remain consistent.
+
+\section{Setup}
+Dataset bundle: \texttt{mixed\_beir\_v1.2.0}. The heterogeneous benchmark framing follows BEIR-style cross-domain retrieval evaluation \cite{thakur2021beir}, with dense sentence embeddings motivated by Sentence-BERT \cite{reimers2019sentencebert}. Split sizes are train=5078, validation=634, and test=1193. Each domain contributes at least 126 test queries. Benchmark configuration uses \texttt{domain-balanced=true} and \texttt{max\_candidates=100}.
+
+Primary endpoint is paired $\Delta$ nDCG@10 (Kalman minus Mean), where nDCG is a ranked-retrieval effectiveness metric \cite{jarvelin2002}. Analysis is paired at the query level and reports Wilcoxon signed-rank testing \cite{wilcoxon1945} with Holm multiple-comparison correction \cite{holm1979}, consistent with IR evaluation guidance on paired significance testing \cite{smucker2007comparison} and broader recommendations for robust statistical comparisons \cite{dror2018hitchhikers,demsar2006statistical}. Predeclared decision thresholds are $|\Delta|\ge 0.02$, Holm-adjusted $p<0.05$, latency ratio $\le 1.5$, and FLOPs ratio $\le 1.1$. Bootstrap uncertainty summaries use the nonparametric bootstrap framework \cite{efron1979bootstrap}.
+
+\section{Main negative result}
+The final benchmark artefacts are \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. They report:
+\begin{itemize}
+  \item $\Delta$ nDCG@10 $\approx -9.259\times10^{-6}$
+  \item Holm-adjusted $p=1.0$
+  \item $\Delta$ recall@100 $=0.0$
+  \item Latency ratio (Kalman/Mean) $=1.072$
+  \item FLOPs ratio (Kalman/Mean) $=1.0$
+  \item Verdict: \texttt{blocked}
+\end{itemize}
+\textit{Shared-source note: headline values and baseline table are synchronized from} \texttt{paper/shared/generated/evidence\_registry.json}, \texttt{paper/shared/generated/claim\_gate\_summary.tex}, \texttt{paper/shared/generated/baseline\_matrix.tex}.
+
+On this test set, Kalman fusion did not beat mean fusion by the predeclared margin.
+
+\section{Baseline context from canonical\_benchmark\_v3}
+\begin{table}[ht]
+\centering
+\caption{Concise baseline comparison from \texttt{canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced} ($n=1193$, domain-balanced, \texttt{max\_candidates}=100). The ``oracle specialist'' row is the hard-routing top-1 proxy included in the canonical suite.}
+\label{tab:baseline-context}
+\input{baseline_matrix}
+\end{table}
+
+\section{Interpretation and limits}
+\textbf{Short interpretation}
+\begin{itemize}
+  \item Mean fusion remained competitive: Kalman and Mean are tied at nDCG@10 in this run, and the claim-gate delta versus Mean is effectively zero.
+  \item Uncertainty weighting alone did not produce reliable gains: Kalman did not improve over either Mean or fixed weighted mean on nDCG@10 under this protocol.
+  \item Latency increased without measurable quality improvement: Kalman latency is higher than Mean while retrieval quality remains unchanged at the reported precision.
+\end{itemize}
+
+\textbf{Not supported by this run}
+\begin{itemize}
+  \item This run does not show that Kalman-style fusion is always worse.
+  \item This run does not test other embedding models, other domain mixes, larger candidate pools, or alternative uncertainty estimators.
+\end{itemize}
+
+\section{Reproducibility: exact commands and artefact paths}
+\textbf{Evidence source-of-truth artefacts}
+\begin{itemize}
+  \item \texttt{results/evidence\_registry.json}
+  \item \texttt{results/claim\_gate.json}
+  \item \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json}
+  \item \texttt{results/negative\_result\_diagnostics/report.md}
+  \item \texttt{results/negative\_result\_diagnostics/summary.json}
+\end{itemize}
+
+\textbf{Commands}
+\begin{verbatim}
+# from repository root
+PYTHONPATH=src python scripts/build_evidence_registry.py
+python scripts/build_claim_gate.py
+
+# build this arXiv preprint
+cd paper/arxiv
+pdflatex kalmanorix_negative_result.tex
+bibtex kalmanorix_negative_result
+pdflatex kalmanorix_negative_result.tex
+pdflatex kalmanorix_negative_result.tex
+
+# repository-required checks (from repository root)
+ruff format --check .
+pytest -m "not integration and not stress"
+\end{verbatim}
+
+\section{Artefact-focused citation guidance}
+When citing this preprint, cite it as a negative result for one concrete benchmark configuration. For metric values and verdicts, cite \texttt{results/evidence\_registry.json} and \texttt{results/claim\_gate.json}. For run configuration and system diagnostics, cite \texttt{results/canonical\_benchmark\_v3\_fast\_1193\_c100\_balanced/summary.json} and \texttt{results/negative\_result\_diagnostics/summary.json}.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
