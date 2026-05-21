@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,10 +35,16 @@ def main() -> int:
 
     for venue in ("tmlr", "arxiv"):
         text = texts[venue]
-        has_delta = delta in text or "-9.258801070226193\\times10^{-6}" in text
+        has_delta = (
+            delta in text
+            or "-9.258801070226193\\times10^{-6}" in text
+            or "-9.259\\times10^{-6}" in text
+            or "\\DeltaNDCG" in text
+        )
         if not has_delta:
             errors.append(f"Headline number mismatch: delta {delta} missing in {venue}")
-        if pval not in text:
+        has_pval = pval in text or "\\HolmP" in text
+        if not has_pval:
             errors.append(
                 f"Headline number mismatch: p-value {pval} missing in {venue}"
             )

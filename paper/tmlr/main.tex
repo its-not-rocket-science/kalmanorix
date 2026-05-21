@@ -40,7 +40,12 @@ We do \textbf{not} claim Kalman fusion is generally ineffective. We claim only t
 
 \section{Results}
 \input{tables/main_results}
+\begin{table}[t]
+\centering
+\caption{Concise baseline comparison from \texttt{\CanonicalBenchVersion} ($n=\ConfirmPairs$, domain-balanced, \texttt{max\_candidates}=\CandidateCap). Hard routing (top-1) is the best-performing single strategy; fusion-family variants (Mean, Kalman, fixed-weight) are tightly clustered.}
+\label{tab:shared-baseline-matrix}
 \input{../shared/generated/baseline_matrix}
+\end{table}
 \input{tables/statistical_tests}
 
 The baseline set is intentionally strong rather than strawman. In the canonical matrix, hard routing (top-1) achieves the highest nDCG@10 (0.0983), while mean, Kalman, and fixed-weight fusion are effectively tied at 0.0918-level quality, making the null comparison against mean a meaningful stress test instead of an easy win target. Paired significance testing follows IR evaluation guidance \cite{smucker2007comparison,demsar2006statistical}.

@@ -218,6 +218,19 @@ def build_baseline_matrix_rows(
     return rows
 
 
+def render_latex_baseline_tabular(rows: list[tuple[str, str, str]]) -> str:
+    body = "\n".join(f"{latex_escape(m)} & {a} & {b} \\\\" for m, a, b in rows)
+    return (
+        "\\begin{tabular}{lcc}\n"
+        "\\toprule\n"
+        "Method & nDCG@10 & latency (ms) \\\\\n"
+        "\\midrule\n"
+        f"{body}\n"
+        "\\bottomrule\n"
+        "\\end{tabular}\n"
+    )
+
+
 def render_latex_baseline_matrix(
     rows: list[tuple[str, str, str]], artifact_dir_name: str
 ) -> str:
@@ -342,12 +355,15 @@ def main() -> None:
     baseline_tex = render_latex_baseline_matrix(baseline_rows, args.artifact_dir.name)
     metrics_tex = render_generated_metrics_tex(summary, args.artifact_dir)
 
+    baseline_tabular_tex = render_latex_baseline_tabular(baseline_rows)
+
     write(Path("paper/arxiv/tables/main_results.tex"), main_tex)
     write(Path("paper/arxiv/tables/statistical_tests.tex"), stats_tex)
     write(Path("paper/tmlr/tables/main_results.tex"), main_tex)
     write(Path("paper/tmlr/tables/statistical_tests.tex"), stats_tex)
     write(Path("paper/tmlr/tables/baseline_matrix.tex"), baseline_tex)
     write(Path("paper/tmlr/includes/generated_metrics.tex"), metrics_tex)
+    write(Path("paper/shared/generated/baseline_matrix.tex"), baseline_tabular_tex)
     write(Path("paper/joss/results_summary.md"), claim_md)
 
 
