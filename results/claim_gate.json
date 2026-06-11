@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-18T22:34:22.457570+00:00",
+  "generated_at": "2026-05-21T14:40:21.066775+00:00",
   "artifact_source": "results\\canonical_benchmark_v3_fast_1193_c100_balanced\\summary.json",
   "benchmark_status": "claim_ready",
   "confirmatory_slice_verdict": "inconclusive_underpowered",
