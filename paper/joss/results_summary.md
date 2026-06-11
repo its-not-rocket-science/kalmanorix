@@ -1,5 +1,3 @@
-> **Non-submission note:** Internal claim-gate status snapshot for maintainers; not part of the JOSS manuscript reviewed by JOSS editors/reviewers.
-
 | claim gate item | status |
 |---|---|
 | benchmark status | claim ready |
